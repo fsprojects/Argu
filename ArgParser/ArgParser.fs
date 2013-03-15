@@ -32,9 +32,9 @@
         member __.Name = name
 
     /// Sets alternative command line names.
-    type AltCommandLinesAttribute (names : string list) = 
+    type AltCommandLineAttribute (name : string) = 
         inherit Attribute ()
-        member __.Names = names
+        member __.Name = name
 
     /// Sets a custom AppSettings key name.
     type CustomAppSettingsAttribute (name : string) = 
@@ -178,8 +178,8 @@
                         | Some attr -> attr.Name
 
                     let altNames = 
-                        attrReader.GetAttrs<AltCommandLinesAttribute> ()
-                        |> List.collect (fun attr -> attr.Names)
+                        attrReader.GetAttrs<AltCommandLineAttribute> ()
+                        |> List.map (fun attr -> attr.Name)
 
                     let clNames = defName :: altNames 
 
