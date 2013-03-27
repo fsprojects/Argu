@@ -1,4 +1,4 @@
-﻿namespace ArgParser
+﻿namespace UnionArgParser
 
     open System
     open System.Collections.Generic

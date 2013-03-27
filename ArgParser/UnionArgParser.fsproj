@@ -7,10 +7,10 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>49e38cf1-8b37-4a4f-83cf-eafe9577bcc6</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>ArgParser</RootNamespace>
-    <AssemblyName>ArgParser</AssemblyName>
+    <RootNamespace>UnionArgParser</RootNamespace>
+    <AssemblyName>UnionArgParser</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>ArgParser</Name>
+    <Name>UnionArgParser</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +20,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\ArgParser.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\UnionArgParser.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,7 +29,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\ArgParser.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\UnionArgParser.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -37,6 +37,8 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
     <Compile Include="Utils.fs" />
+    <Compile Include="Attributes.fs" />
+    <Compile Include="ArgInfo.fs" />
     <Compile Include="ArgParser.fs" />
     <None Include="tests.fsx" />
   </ItemGroup>

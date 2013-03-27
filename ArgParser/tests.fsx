@@ -1,6 +1,6 @@
-﻿#r "bin/Release/ArgParser.dll"
+﻿#r "bin/Release/UnionArgParser.dll"
 
-open ArgParser
+open UnionArgParser
 
 //[<Mandatory>]
 type CLArgs =
@@ -24,7 +24,7 @@ with
             | Detach -> "make the daemon detach from console."
 
 
-let ap = ArgParser<CLArgs>("USAGE: mbraced.exe [options]")
+let ap = UnionArgParser<CLArgs>("USAGE: mbraced.exe [options]")
 
 ap.Usage()
 
