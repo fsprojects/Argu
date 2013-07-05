@@ -29,7 +29,7 @@
                 let attrs = uci.GetCustomAttributes(typeof<'T>) |> Seq.map (fun o -> o :?> 'T)
 
                 if includeDeclaringTypeAttrs then
-                    let parentAttrs = uci.DeclaringType.GetCustomAttributes<'T> ()
+                    let parentAttrs = uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)  |> Seq.map (fun o -> o :?> 'T)
                     Seq.append parentAttrs attrs |> Seq.toList
                 else
                     Seq.toList attrs
@@ -38,7 +38,7 @@
                 let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
                 if includeDeclaringTypeAttrs then
-                    uci.DeclaringType.GetCustomAttributes<'T> () |> Seq.isEmpty |> not
+                    uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not
                         || uci.GetCustomAttributes(typeof<'T>) |> Seq.isEmpty |> not
                 else
                     uci.GetCustomAttributes(typeof<'T>) |> Seq.isEmpty |> not
