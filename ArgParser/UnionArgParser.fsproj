@@ -9,8 +9,9 @@
     <OutputType>Library</OutputType>
     <RootNamespace>UnionArgParser</RootNamespace>
     <AssemblyName>UnionArgParser</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Name>UnionArgParser</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
