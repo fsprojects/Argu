@@ -22,8 +22,8 @@
             fun (t : Type) -> (gf.MakeGenericMethod [|t|]).Invoke(null, [||])
 
 
-        type UnionCaseAttributeReader(uci : UnionCaseInfo) =
-            member __.GetAttrs<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
+        type UnionCaseInfo with
+            member uci.GetAttrs<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
                 let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
                 let attrs = uci.GetCustomAttributes(typeof<'T>) |> Seq.map (fun o -> o :?> 'T)
@@ -34,7 +34,7 @@
                 else
                     Seq.toList attrs
 
-            member __.ContainsAttr<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
+            member uci.ContainsAttr<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
                 let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
                 if includeDeclaringTypeAttrs then
@@ -91,10 +91,11 @@
             
         type IDictionary<'K,'V> with
             member d.TryFind(k : 'K) =
-                let vr = ref Unchecked.defaultof<'V>
-                if d.TryGetValue(k, vr) then Some vr.Value else None
+                let mutable v = Unchecked.defaultof<'V>
+                if d.TryGetValue(k, &v) then Some v else None
 
 
+        /// inherit this type for easy comparison semantics
         type ProjectionComparison<'Id, 'Cmp when 'Cmp : comparison> (token : 'Cmp) =
             member private __.ComparisonToken = token
             interface IComparable with

@@ -1,15 +1,15 @@
-﻿#r "bin/Release/UnionArgParser.dll"
+﻿#r "bin/Debug/UnionArgParser.dll"
 
 open UnionArgParser
 
 //[<Mandatory>]
 type CLArgs =
-    | [<Mandatory>]Host of string
+    | [<Mandatory>][<NoAppSettings>] Host of string
     | Set of string * int
     | Port of int
-    | Working_Directory of string
+    | [<First>] Working_Directory of string
     | [<NoCommandLine>][<Mandatory>] Enable_MBrace
-    | [<Rest>]Ports of int
+    | [<Rest>] Ports of int
     | Detach
 with
     interface IArgParserTemplate with
@@ -26,22 +26,32 @@ with
 
 let ap = UnionArgParser<CLArgs>("USAGE: mbraced.exe [options]")
 
+// get usage string
 ap.Usage()
 
+// get a command line string
+ap.PrintCommandLine [ Set ("answer", 42) ; Port 2654 ; Detach ; Working_Directory "/tmp" ]
+
+// get xml config template
+ap.PrintAppSettings [ Set ("answer", 42) ; Port 2654 ; Detach ; Working_Directory "/tmp" ]
+
 let dummy =
-    [| "--set" ; "foo" ; "12" ; "--set" ; "bar" ; "3" ; "--port" ; "12" ; "--port" ; "-13" ; 
-        "--working-directory" ; "C:/temp" ; "--host" ; "localhost" ; "--detach" ; "--ports" ; "12" ; "133" |]
+    [| "--working-directory" ; "C:/temp" ; "--set" ; "foo" ; "12" ; "--set" ; "bar" ; "3" ; 
+       "--port" ; "12" ; "--port" ; "-13" ; "--host" ; "localhost" ; "--detach" ; "--ports" ; "12" ; "133" 
+    |]
+
+let dummy' = [| "--host" ; "string" |]
 
 let res = ap.Parse(inputs = dummy)
 
+res.GetAllResults()
+
 res.Contains <@ Detach @>
 
-let rs = res.GetResults ()
-
-ap.Print rs
+let rs = res.GetAllResults ()
 
 res.GetResult <@ Working_Directory @>
 
 res.GetResult <@ Set @>
 
-res.PostProcessResults <@ Port @> (fun x -> if x < 0 then failwithf "invalid port %d" x else x)
+res.PostProcessResults (<@ Port @>, fun x -> if x < 0 then failwithf "invalid port %d" x else x)

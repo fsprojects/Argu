@@ -1,4 +1,4 @@
-﻿module internal UnionArgParser.InternalImpls
+﻿module internal UnionArgParser.ArgInfo
 
     open System
     open System.Configuration
@@ -15,12 +15,8 @@
         | AppSettings = 2
         | CommandLine = 3
         | PostProcess = 4
-        
-    exception HelpText
-    exception Bad of ErrorCode * string
 
-    let bad code fmt = Printf.ksprintf (fun msg -> Bad(code, msg) |> raise) fmt
-
+    /// IComparable UnionCaseInfo wrapper
     type ArgId(uci : UnionCaseInfo) =
         inherit ProjectionComparison<ArgId,int>(uci.Tag)
         member __.UCI = uci
@@ -36,6 +32,7 @@
             Usage : string
 
             Rest : bool
+            First : bool
             AppSettingsCSV : bool
             Mandatory : bool
             Hidden : bool
@@ -43,6 +40,7 @@
         }
     with
         member __.UCI = __.Id.UCI
+        member __.NoCommandLine = __.CommandLineNames.IsEmpty
 
     and ParseResult<'T> =
         {
@@ -50,6 +48,7 @@
             FieldContents : obj // untyped version of tuple of branch contents
             ArgInfo : ArgInfo
             ParseContext : string // metadata given by the parser
+            Source : ParseSource
         }
 
     and PrimitiveParser =
@@ -59,11 +58,17 @@
             Parser : string -> obj
         }
 
+    exception HelpText
+    exception Bad of string * ErrorCode * ArgInfo option
+
+    let bad code aI fmt = Printf.ksprintf (fun msg -> raise <| Bad(msg, code, aI)) fmt
+
+    // gets the default name of the argument
     let getName (aI : ArgInfo) =
         match aI.CommandLineNames, aI.AppSettingsName with
         | name :: _, _ -> name
         | [], Some name -> name
-        | [], None -> failwith "unexpected configuration"
+        | [], None -> failwith "impossible"
 
     let hasCommandLineParam (aI : ArgInfo) (param : string) =
         aI.CommandLineNames |> List.exists ((=) param)
@@ -89,7 +94,7 @@
             Parsers = [||]
             ReflectedFields = None
             Hidden = false ; AppSettingsCSV = false ; Mandatory = false ; 
-            GatherAllSources = false ; Rest = false
+            GatherAllSources = false ; Rest = false ; First = false
         }
 
 
@@ -124,36 +129,34 @@
     let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         let fields = uci.GetFields()
         let types = fields |> Array.map (fun f -> f.PropertyType)
-        let attrReader = UnionCaseAttributeReader uci
         let dummy = FSharpValue.MakeUnion(uci, types |> Array.map defaultOf) :?> IArgParserTemplate
         
         let commandLineArgs =
-            if attrReader.ContainsAttr<NoCommandLineAttribute> (true) then []
+            if uci.ContainsAttr<NoCommandLineAttribute> (true) then []
             else
                 let defName = 
-                    match attrReader.GetAttrs<CustomCommandLineAttribute> () |> List.tryLast with 
+                    match uci.GetAttrs<CustomCommandLineAttribute> () |> List.tryLast with 
                     | None -> uciToOpt uci
                     | Some attr -> attr.Name
 
                 let altNames = 
-                    attrReader.GetAttrs<AltCommandLineAttribute> ()
+                    uci.GetAttrs<AltCommandLineAttribute> ()
                     |> List.map (fun attr -> attr.Name)
 
                 let clNames = defName :: altNames 
 
-                clNames
-                |> List.iter (fun n -> 
-                                if hasCommandLineParam helpInfo n then
-                                    failwithf "UnionArgParser: parameter '%s' is reserved for the 'usage' parameter." n
-                                if n.ToCharArray() |> Array.forall (fun c -> Char.IsLetterOrDigit c || c = '-') |> not then
-                                    failwithf "UnionArgParser: parameter '%s' contains invalid characters." n)
+                for name in clNames do
+                    if hasCommandLineParam helpInfo name then
+                        failwithf "UnionArgParser: parameter '%s' is reserved for the 'usage' parameter." name
+                    if name.ToCharArray() |> Array.forall (fun c -> Char.IsLetterOrDigit c || c = '-') |> not then
+                        failwithf "UnionArgParser: parameter '%s' contains invalid characters." name
 
                 clNames
 
         let AppSettingsName =
-            if attrReader.ContainsAttr<NoAppSettingsAttribute> (true) then None
+            if uci.ContainsAttr<NoAppSettingsAttribute> (true) then None
             else
-                match attrReader.GetAttrs<CustomAppSettingsAttribute> () |> List.tryLast with
+                match uci.GetAttrs<CustomAppSettingsAttribute> () |> List.tryLast with
                 | None -> Some <| uciToAppConf uci
                 // take last registered attribute
                 | Some attr -> Some attr.Name
@@ -173,11 +176,12 @@
             if fields.Length <= 1 then None
             else Some <| FSharpType.MakeTupleType types
 
-        let AppSettingsCSV = attrReader.ContainsAttr<ParseCSVAttribute> ()
-        let mandatory = attrReader.ContainsAttr<MandatoryAttribute> (true)
-        let gatherAll = attrReader.ContainsAttr<GatherAllSourcesAttribute> ()
-        let isRest = attrReader.ContainsAttr<RestAttribute> ()
-        let isHidden = attrReader.ContainsAttr<HiddenAttribute> ()
+        let AppSettingsCSV = uci.ContainsAttr<ParseCSVAttribute> ()
+        let mandatory = uci.ContainsAttr<MandatoryAttribute> (true)
+        let gatherAll = uci.ContainsAttr<GatherAllSourcesAttribute> ()
+        let isRest = uci.ContainsAttr<RestAttribute> ()
+        let isHidden = uci.ContainsAttr<HiddenAttribute> ()
+        let first = uci.ContainsAttr<FirstAttribute> ()
 
         if AppSettingsCSV && fields.Length <> 1 then 
             failwith "UnionArgParser: CSV attribute is only compatible with branches of unary fields." 
@@ -193,50 +197,12 @@
             Mandatory = mandatory
             GatherAllSources = gatherAll
             Rest = isRest
+            First = first
             Hidden = isHidden
         }
 
-    let printArgInfo (aI : ArgInfo) =
-        string {
-            match aI.CommandLineNames with
-            | [] -> ()
-            | param :: altParams ->
-                yield '\t'
-                yield param
 
-                match altParams with
-                | [] -> ()
-                | h :: rest ->
-                    yield " ["
-                    yield h
-                    for n in rest do
-                        yield '|'
-                        yield n
-                    yield ']'
-
-                for p in aI.Parsers -> sprintf " <%s>" p.Name
-
-                if aI.Rest then yield sprintf " ..."
-
-                yield ": "
-                yield aI.Usage
-                yield "\n"
-        }
-
-    let usage (msg : string option) (argInfo : ArgInfo list) =
-        string {
-            match msg with
-            | None -> ()
-            | Some u -> yield u + "\n"
-
-            for aI in argInfo do 
-                if not aI.Hidden then
-                    yield! printArgInfo aI
-
-            yield! printArgInfo helpInfo
-        } |> String.build
-
-    let buildResult<'T> (argInfo : ArgInfo) ctx (fields : obj []) =
+    let buildResult<'T> (argInfo : ArgInfo) src ctx (fields : obj []) =
         {
             Value = FSharpValue.MakeUnion(argInfo.UCI, fields) :?> 'T
             FieldContents =
@@ -247,11 +213,9 @@
                 | _, None -> failwith "impossible"
 
             ArgInfo = argInfo
+            Source = src
             ParseContext = ctx
         }
 
-
-    let exceptionExiter = 
-        { 
-            new Exiter with member __.Exit (msg,_) = raise <| ArgumentException(defaultArg msg "UnionArgParser error")
-        } 
+    let isAppConfig (aI : ArgInfo) = aI.AppSettingsName.IsSome
+    let isCommandLine (aI : ArgInfo) = not aI.CommandLineNames.IsEmpty
