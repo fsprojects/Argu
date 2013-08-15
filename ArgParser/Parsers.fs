@@ -9,13 +9,13 @@
         open UnionArgParser.ArgInfo
 
         // parse the next command line argument and append to state
-        let parseCommandLinePartial (argIdx : Map<string, ArgInfo>) (args : string []) (pos : int ref) 
-                                        (state : Map<ArgId, ParseResult<'Template> list>) =
+        let parseCommandLinePartial (argIdx : Map<string, ArgInfo>) (args : string []) (pos : int ref)
+                                    (isHelpRequested : bool, parseState : Map<ArgId, ParseResult<'Template> list>) =
 
             let curr = args.[!pos]
             do incr pos
             
-            if hasCommandLineParam helpInfo curr then raise HelpText
+            if hasCommandLineParam helpInfo curr then (true, parseState) else
 
             match argIdx.TryFind curr with
             | None -> bad ErrorCode.CommandLine None "unrecognized argument: '%s'." curr
@@ -47,14 +47,14 @@
                         ]
                     else [ parseOne () ]
 
-                let previous = defaultArg (state.TryFind argInfo.Id) []
+                let previous = defaultArg (parseState.TryFind argInfo.Id) []
                 
-                state.Add(argInfo.Id, previous @ parsedResults)
+                isHelpRequested, parseState.Add(argInfo.Id, previous @ parsedResults)
                 
 
         // parse the entire command line
         let parseCommandLine argIdx (inputs : string []) =
-            let state = ref Map.empty
+            let state = ref (false, Map.empty)
             let pos = ref 0
 
             while !pos < inputs.Length do

@@ -40,8 +40,6 @@ let dummy =
        "--port" ; "12" ; "--port" ; "-13" ; "--host" ; "localhost" ; "--detach" ; "--ports" ; "12" ; "133" 
     |]
 
-let dummy' = [| "--host" ; "string" |]
-
 let res = ap.Parse(inputs = dummy)
 
 res.GetAllResults()

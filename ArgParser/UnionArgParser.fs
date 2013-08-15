@@ -48,16 +48,21 @@
         /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
         /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
-        member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing) =
+        /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors.</param>
+        member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?raiseOnUsage) =
             let ignoreMissing = defaultArg ignoreMissing false
+            let raiseOnUsage = defaultArg raiseOnUsage true
             let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
             let inputs = match inputs with None -> getEnvArgs () | Some args -> args
 
             try
-                let commandLineResults = parseCommandLine clArgIdx inputs
+                let isUsageRequested, commandLineResults = parseCommandLine clArgIdx inputs
+
+                if isUsageRequested && raiseOnUsage then raise HelpText
+
                 let results = combine argInfo ignoreMissing None (Some commandLineResults)
 
-                ArgParseResults<_>(s, results, errorHandler)
+                ArgParseResults<_>(s, errorHandler, results, isUsageRequested)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -72,7 +77,7 @@
                 let appSettingsResults = parseAppSettings argInfo
                 let results = combine argInfo ignoreMissing (Some appSettingsResults) None
 
-                ArgParseResults<_>(s, results, errorHandler)
+                ArgParseResults<_>(s, errorHandler, results, false)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -81,28 +86,35 @@
         /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
         /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
-        member s.Parse (?inputs : string [], ?errorHandler : IExiter, ?ignoreMissing) =
+        /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors.</param>
+        member s.Parse (?inputs : string [], ?errorHandler : IExiter, ?ignoreMissing, ?raiseOnUsage) =
             let ignoreMissing = defaultArg ignoreMissing false
+            let raiseOnUsage = defaultArg raiseOnUsage true
             let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
             let inputs = match inputs with None -> getEnvArgs () | Some args -> args
 
             try
                 let appSettingsResults = parseAppSettings argInfo
-                let commandLineResults = parseCommandLine clArgIdx inputs
+                let isUsageRequested, commandLineResults = parseCommandLine clArgIdx inputs
+                if isUsageRequested && raiseOnUsage then raise HelpText
+
                 let results = combine argInfo ignoreMissing (Some appSettingsResults) (Some commandLineResults)
 
-                ArgParseResults<_>(s, results, errorHandler)
+                ArgParseResults<_>(s, errorHandler, results, isUsageRequested)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
         /// <summary>Returns the usage string.</summary>
-        member __.Usage (?msg : string) : string = printUsage msg argInfo
+        /// <param name="message">The message to be displayed on top of the usage string.</param>
+        member __.Usage (?message : string) : string = printUsage message argInfo
 
         /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
         member __.PrintCommandLine (args : 'Template list) : string [] =
             printCommandLineArgs argInfo args
 
         /// <summary>Prints parameters in App.Config format.</summary>
+        /// <param name="args">The parameters that fill out the XML document.</param>
+        /// <param name="printComments">Print XML comments over every configuration entry.</param>
         member __.PrintAppSettings (args : 'Template list, ?printComments) : string =
             let printComments = defaultArg printComments true
             let xelem = printAppSettings argInfo printComments args
@@ -111,9 +123,10 @@
             writer.Flush()
             writer.ToString()
             
-    /// Argument parsing result holder
+    /// Argument parsing result holder.
     and ArgParseResults<'Template when 'Template :> IArgParserTemplate> 
-            internal (ap : UnionArgParser<'Template>, results : Map<ArgId, ArgInfo * ParseResult<'Template> list>, exiter : IExiter) =
+            internal (ap : UnionArgParser<'Template>, exiter : IExiter, 
+                        results : Map<ArgId, ArgInfo * ParseResult<'Template> list>, isUsageRequested : bool) =
 
         // exiter wrapper
         let exit hideUsage msg id =
@@ -143,6 +156,13 @@
             try f (r.FieldContents :?> 'F)
             with e ->
                 exit r.ArgInfo.NoCommandLine (sprintf "Error parsing '%s': %s" r.ParseContext e.Message) (int ErrorCode.PostProcess)
+
+        /// Returns true if '--help' parameter has been specified in the command line.
+        member __.IsUsageRequested = isUsageRequested
+        
+        /// <summary>Returns the usage string.</summary>
+        /// <param name="message">The message to be displayed on top of the usage string.</param>
+        member __.Usage ?message = ap.Usage(?message = message)
 
         /// <summary>Query parse results for parameterless argument.</summary>
         /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>

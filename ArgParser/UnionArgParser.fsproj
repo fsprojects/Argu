@@ -40,8 +40,8 @@
     <Compile Include="Utils.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="ArgInfo.fs" />
-    <Compile Include="Parsers.fs" />
     <Compile Include="Printers.fs" />
+    <Compile Include="Parsers.fs" />
     <Compile Include="UnionArgParser.fs" />
     <None Include="tests.fsx" />
   </ItemGroup>
