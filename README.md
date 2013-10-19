@@ -1,5 +1,7 @@
-UnionArgParser
+#UnionArgParser
 
-A declarative argument parser for F#
+A declarative argument parser for F#.
 
-For more information, please see http://egtsrp.wordpress.com/2013/03/27/a-declarative-argument-parser-for-f/
+Get the Nuget package [here](http://www.nuget.org/packages/UnionArgParser/).
+
+### Basic Usage
