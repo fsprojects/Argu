@@ -28,7 +28,7 @@ and parse it into the list
 [ Working_Directory "/var/run" ; Listener("localhost", 8080) ; Detach ]
 ```
 UnionArgParser is also capable of reading the `AppSettings` section
-of the application's configuration file:
+of an application's configuration file:
 ```xml
 <appSettings>
     <add key="working directory" value="C:\temp" />
