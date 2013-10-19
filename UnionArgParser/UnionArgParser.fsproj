@@ -37,6 +37,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
+    <Compile Include="assemblyInfo.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="ArgInfo.fs" />
