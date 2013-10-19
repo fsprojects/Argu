@@ -23,7 +23,7 @@ take the following command line input
 ```bash
 --working-directory /var/run --listener localhost 8080 --detach
 ```
-and parse it into
+and parse it into the list
 ```fsharp
 [ Working_Directory "/var/run" ; Listener("localhost", 8080) ; Detach ]
 ```
