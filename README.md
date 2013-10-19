@@ -142,7 +142,8 @@ UnionArgParser is convenient when it comes to automated process spawning:
 ```fsharp
 open System.Diagnostics
 
-let arguments : string [] = parser.PrintCommandLine [ Port 42 ; Working_Directory "temp" ]
+let arguments : string [] = 
+    parser.PrintCommandLine [ Port 42 ; Working_Directory "temp" ]
 
 Process.Start("foo.exe", String.concat " " arguments)
 ```
