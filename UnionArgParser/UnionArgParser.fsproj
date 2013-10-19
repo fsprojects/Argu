@@ -28,7 +28,7 @@
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;BUILD_STRONG_NAME</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\UnionArgParser.XML</DocumentationFile>
   </PropertyGroup>
@@ -44,7 +44,6 @@
     <Compile Include="Printers.fs" />
     <Compile Include="Parsers.fs" />
     <Compile Include="UnionArgParser.fs" />
-    <None Include="tests.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
