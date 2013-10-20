@@ -112,6 +112,12 @@
         member __.PrintCommandLine (args : 'Template list) : string [] =
             printCommandLineArgs argInfo args
 
+        /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
+        member __.PrintCommandLineFlat (args : 'Template list) : string =
+            __.PrintCommandLine args
+            |> Seq.map (sprintf "\"%s\"")
+            |> String.concat " "
+
         /// <summary>Prints parameters in App.Config format.</summary>
         /// <param name="args">The parameters that fill out the XML document.</param>
         /// <param name="printComments">Print XML comments over every configuration entry.</param>
