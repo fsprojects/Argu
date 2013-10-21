@@ -64,13 +64,20 @@
 
         // AppSettings parse errors are threaded to the state rather than raised directly;
         // this happens since AppSettings errors are overriden by default in case of a valid command line input.
-        let parseAppSettingsPartial (state : Map<ArgId, Choice<ParseResult<'Template> list, exn>>) (aI : ArgInfo) =
+        let parseAppSettingsPartial (settings : AppSettingsReplacement option) 
+                                    (state : Map<ArgId, Choice<ParseResult<'Template> list, exn>>) (aI : ArgInfo) =
+
+            let getAppSettings name =
+                match settings with
+                | Some s -> s.[name]
+                | None -> ConfigurationManager.AppSettings.[name]
+
             try
                 match aI.AppSettingsName with
                 | None -> state
                 | Some name ->
                     let parseResults =
-                        match ConfigurationManager.AppSettings.[name] with
+                        match getAppSettings name with
                         | null | "" -> []
                         | entry when aI.Parsers.Length = 0 ->
                             match Boolean.tryParse entry with
@@ -114,7 +121,8 @@
 
             with Bad _ as e -> state.Add(aI.Id, Choice2Of2 e)
 
-        let parseAppSettings (argInfo : ArgInfo list) = List.fold parseAppSettingsPartial Map.empty argInfo
+        let parseAppSettings settings (argInfo : ArgInfo list) = 
+            List.fold (parseAppSettingsPartial settings) Map.empty argInfo
 
         // does what the type signature says; combines two parse states into one according to the provided rules.
         let combine (argInfo : ArgInfo list) ignoreMissing 

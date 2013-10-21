@@ -5,6 +5,9 @@
     open System.Text
     open System.Reflection
 
+    open System.Xml
+    open System.Xml.Linq
+
     open Microsoft.FSharp.Reflection
     open Microsoft.FSharp.Quotations.Patterns
 
@@ -140,3 +143,17 @@
                 let b = new StringBuilder ()
                 do f b
                 b.ToString ()
+
+
+        /// AppSettings replacement type
+        type AppSettingsReplacement (xml : string) =
+            let configMap =
+                XElement.Parse(xml)
+                    .Descendants(XName.Get("add"))
+                |> Seq.map (fun node -> node.Attribute(XName.Get("key")).Value, node.Attribute(XName.Get("value")).Value)
+                |> Map.ofSeq
+
+            member __.Item (key : string) = 
+                match configMap.TryFind key with
+                | None -> null
+                | Some value -> value

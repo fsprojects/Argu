@@ -13,7 +13,7 @@
     open UnionArgParser.Utils
     open UnionArgParser.ArgInfo
     open UnionArgParser.Parsers
-    open UnionArgParser.Printers
+    open UnionArgParser.UnParsers
 
     /// The UnionArgParser type generates an argument parser given a type argument
     /// that is an F# discriminated union. It can then be used to parse command line arguments
@@ -67,14 +67,16 @@
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
         /// <summary>Parse AppSettings section of XML configuration only.</summary>
+        /// <param name="xmlSource">If specified, parse AppSettings configuration from given string.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
         /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
-        member s.ParseAppSettings (?errorHandler: IExiter, ?ignoreMissing) =
+        member s.ParseAppSettings (?xmlSource : string, ?errorHandler: IExiter, ?ignoreMissing) =
             let ignoreMissing = defaultArg ignoreMissing false
             let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
+            let settings = xmlSource |> Option.map (fun xml -> new AppSettingsReplacement(xml))
             
             try
-                let appSettingsResults = parseAppSettings argInfo
+                let appSettingsResults = parseAppSettings settings argInfo
                 let results = combine argInfo ignoreMissing (Some appSettingsResults) None
 
                 ArgParseResults<_>(s, errorHandler, results, false)
@@ -84,17 +86,19 @@
         /// <summary>Parse both command line args and AppSettings section of XML configuration.
         ///          Results are merged with command line args overriding XML config.</summary>
         /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
+        /// <param name="xmlSource">If specified, parse AppSettings configuration from given string.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
         /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
         /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors.</param>
-        member s.Parse (?inputs : string [], ?errorHandler : IExiter, ?ignoreMissing, ?raiseOnUsage) =
+        member s.Parse (?inputs : string [], ?xmlSource : string, ?errorHandler : IExiter, ?ignoreMissing, ?raiseOnUsage) =
             let ignoreMissing = defaultArg ignoreMissing false
             let raiseOnUsage = defaultArg raiseOnUsage true
             let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
             let inputs = match inputs with None -> getEnvArgs () | Some args -> args
+            let settings = xmlSource |> Option.map (fun xml -> new AppSettingsReplacement(xml))
 
             try
-                let appSettingsResults = parseAppSettings argInfo
+                let appSettingsResults = parseAppSettings settings argInfo
                 let isUsageRequested, commandLineResults = parseCommandLine clArgIdx inputs
                 if isUsageRequested && raiseOnUsage then raise HelpText
 

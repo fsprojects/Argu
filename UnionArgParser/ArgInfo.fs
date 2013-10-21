@@ -25,7 +25,10 @@
         {
             Id : ArgId
             Parsers : PrimitiveParser []
-            ReflectedFields : Type option
+
+            CaseCtor : obj [] -> obj
+            // field tuple constructor, if not nullary case
+            FieldCtor : (obj [] -> obj) option
 
             CommandLineNames : string list // head element denotes primary command line arg
             AppSettingsName : string option
@@ -92,7 +95,8 @@
             Usage = "display this list of options."
             AppSettingsName = None
             Parsers = [||]
-            ReflectedFields = None
+            CaseCtor = fun _ -> invalidOp "internal error: attempting to '--help' case constructor."
+            FieldCtor = None
             Hidden = false ; AppSettingsCSV = false ; Mandatory = false ; 
             GatherAllSources = false ; Rest = false ; First = false
         }
@@ -172,9 +176,16 @@
 
             Array.map getPrimParser types
 
-        let tuple =
-            if fields.Length <= 1 then None
-            else Some <| FSharpType.MakeTupleType types
+        let caseCtor = FSharpValue.PreComputeUnionConstructor(uci)
+
+        let fieldCtor =
+            match types.Length with
+            | 0 -> None
+            | 1 -> Some(fun (o:obj[]) -> o.[0])
+            | _ ->
+                let tupleType = FSharpType.MakeTupleType types
+                let ctor = FSharpValue.PreComputeTupleConstructor tupleType
+                Some ctor
 
         let AppSettingsCSV = uci.ContainsAttr<ParseCSVAttribute> ()
         let mandatory = uci.ContainsAttr<MandatoryAttribute> (true)
@@ -188,7 +199,8 @@
 
         {
             Id = ArgId uci
-            ReflectedFields = tuple
+            CaseCtor = caseCtor
+            FieldCtor = fieldCtor
             CommandLineNames = commandLineArgs
             AppSettingsName = AppSettingsName
             Usage = dummy.Usage
@@ -204,13 +216,11 @@
 
     let buildResult<'T> (argInfo : ArgInfo) src ctx (fields : obj []) =
         {
-            Value = FSharpValue.MakeUnion(argInfo.UCI, fields) :?> 'T
+            Value = argInfo.CaseCtor fields :?> 'T
             FieldContents =
-                match fields.Length, argInfo.ReflectedFields with
-                | 0, _ -> () :> obj
-                | 1, _ -> fields.[0]
-                | _, Some t -> FSharpValue.MakeTuple(fields, t)
-                | _, None -> failwith "impossible"
+                match argInfo.FieldCtor with
+                | None -> null
+                | Some ctor -> ctor fields
 
             ArgInfo = argInfo
             Source = src
