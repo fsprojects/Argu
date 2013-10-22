@@ -20,10 +20,13 @@
             | _ -> invalidArg "expr" "quotation is not of method."
 
         /// reflected version of Unchecked.defaultof
-        let defaultOf =
-            let gf = (getMethod <@ Unchecked.defaultof<int> @>).GetGenericMethodDefinition()
-            fun (t : Type) -> (gf.MakeGenericMethod [|t|]).Invoke(null, [||])
-
+        type Unchecked =
+            static member DefaultOf<'T> () = Unchecked.defaultof<'T>
+            static member UntypedDefaultOf(t : Type) =
+                typeof<Unchecked>
+                    .GetMethod("DefaultOf")
+                    .MakeGenericMethod([| t |])
+                    .Invoke(null, [||])
 
         type UnionCaseInfo with
             member uci.GetAttrs<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =

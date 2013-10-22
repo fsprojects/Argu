@@ -133,7 +133,7 @@
     let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         let fields = uci.GetFields()
         let types = fields |> Array.map (fun f -> f.PropertyType)
-        let dummy = FSharpValue.MakeUnion(uci, types |> Array.map defaultOf) :?> IArgParserTemplate
+        let dummy = FSharpValue.MakeUnion(uci, types |> Array.map Unchecked.UntypedDefaultOf) :?> IArgParserTemplate
         
         let commandLineArgs =
             if uci.ContainsAttr<NoCommandLineAttribute> (true) then []
