@@ -24,7 +24,7 @@
             static member DefaultOf<'T> () = Unchecked.defaultof<'T>
             static member UntypedDefaultOf(t : Type) =
                 typeof<Unchecked>
-                    .GetMethod("DefaultOf")
+                    .GetMethod("DefaultOf", BindingFlags.NonPublic ||| BindingFlags.Static)
                     .MakeGenericMethod([| t |])
                     .Invoke(null, [||])
 
