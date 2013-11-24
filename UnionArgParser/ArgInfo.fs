@@ -130,10 +130,14 @@
         ArgId(aux None [] e)
 
 
-    let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
+    let preComputeArgInfo (bindingFlags : BindingFlags option) (uci : UnionCaseInfo) : ArgInfo =
         let fields = uci.GetFields()
         let types = fields |> Array.map (fun f -> f.PropertyType)
-        let dummy = FSharpValue.MakeUnion(uci, types |> Array.map Unchecked.UntypedDefaultOf) :?> IArgParserTemplate
+        let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, ?bindingFlags = bindingFlags)
+
+        let dummy = 
+            let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
+            caseCtor dummyFields :?> IArgParserTemplate
         
         let commandLineArgs =
             if uci.ContainsAttr<NoCommandLineAttribute> (true) then []
@@ -175,8 +179,6 @@
                 | None -> failwithf "UnionArgParser: template contains unsupported field of type %A." t
 
             Array.map getPrimParser types
-
-        let caseCtor = FSharpValue.PreComputeUnionConstructor(uci)
 
         let fieldCtor =
             match types.Length with
