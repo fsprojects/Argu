@@ -107,10 +107,21 @@
 
     let primParsers =
         [
-            mkPrimParser "string" id
-            mkPrimParser "int" Int32.Parse
             mkPrimParser "bool" Boolean.Parse
+            mkPrimParser "char" Char.Parse
+            mkPrimParser "uint16" UInt16.Parse
+            mkPrimParser "uint" UInt32.Parse
+            mkPrimParser "uint64" UInt64.Parse
+            mkPrimParser "int16" Int16.Parse
+            mkPrimParser "int" Int32.Parse
+            mkPrimParser "int64" Int64.Parse
+            mkPrimParser "byte" Byte.Parse
+            mkPrimParser "sbyte" SByte.Parse
+            mkPrimParser "string" id
+            mkPrimParser "float" Single.Parse
             mkPrimParser "float" Double.Parse
+            mkPrimParser "decimal" Decimal.Parse
+            mkPrimParser "bigint" System.Numerics.BigInteger.Parse
             mkPrimParser "guid" Guid.Parse
         ]
 
