@@ -1,8 +1,6 @@
-# UnionArgParser
+# UnionArgParser [![Build status](https://ci.appveyor.com/api/projects/status/njsry6rv5s19ft07)](https://ci.appveyor.com/project/nessos/unionargparser)
 
-A declarative argument parser for F# applications.
-
-Get the Nuget package [here](http://www.nuget.org/packages/UnionArgParser/).
+A declarative argument parser for F# applications. [[Nuget]](http://www.nuget.org/packages/UnionArgParser/)
 
 ## Introduction
 
