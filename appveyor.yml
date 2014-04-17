@@ -1,0 +1,3 @@
+test:
+  assemblies:
+    - UnionArgParser.Tests.dll
