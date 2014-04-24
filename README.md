@@ -1,6 +1,6 @@
-# UnionArgParser [![Build status](https://ci.appveyor.com/api/projects/status/njsry6rv5s19ft07)](https://ci.appveyor.com/project/nessos/unionargparser)
+# UnionArgParser [![Build status](https://ci.appveyor.com/api/projects/status/njsry6rv5s19ft07)](https://ci.appveyor.com/project/nessos/unionargparser) [![Build Status](https://travis-ci.org/nessos/UnionArgParser.png?branch=master)](https://travis-ci.org/nessos/UnionArgParser/branches)
 
-A declarative argument parser for F# applications. [[Nuget]](http://www.nuget.org/packages/UnionArgParser/)
+A declarative argument parser for F# applications. [[Nuget](http://www.nuget.org/packages/UnionArgParser/)]
 
 ## Introduction
 
