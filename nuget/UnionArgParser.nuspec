@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+      <id>@project@</id>
+      <version>@build.number@</version>
+      <authors>@authors@</authors>
+      <owners>@authors@</owners>
+      <licenseUrl>https://github.com/nessos/UnionArgParser/blob/master/License.md</licenseUrl>
+      <projectUrl>https://github.com/nessos/UnionArgParser</projectUrl>
+      <iconUrl>https://avatars1.githubusercontent.com/u/5538081</iconUrl>
+      <requireLicenseAcceptance>false</requireLicenseAcceptance>
+      <summary>@summary@</summary>
+      <description>@description@</description>
+      <releaseNotes>@releaseNotes@</releaseNotes>
+      <copyright>Copyright 2014</copyright>
+      <tags>@tags@</tags>
+    </metadata>
+    <files>
+      <file src="..\UnionArgParser\bin\Release\UnionArgParser.dll" target="lib/net40" />
+      <file src="..\UnionArgParser\bin\Release\UnionArgParser.xml" target="lib/net40" />
+      <file src="..\UnionArgParser\bin\Release\UnionArgParser.pdb" target="lib/net40" />
+    </files>
+</package>

@@ -12,11 +12,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B4EF55
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
+		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB909722-1B3F-46A1-9245-277905B1E346}"
 	ProjectSection(SolutionItems) = preProject
+		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
+		build.cmd = build.cmd
+		build.fsx = build.fsx
+		build.sh = build.sh
+		RELEASE_NOTES.md = RELEASE_NOTES.md
+		nuget\UnionArgParser.nuspec = nuget\UnionArgParser.nuspec
 	EndProjectSection
 EndProject
 Global
