@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>49e38cf1-8b37-4a4f-83cf-eafe9577bcc6</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>UnionArgParser</RootNamespace>
+    <RootNamespace>Nessos.UnionArgParser</RootNamespace>
     <AssemblyName>UnionArgParser</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Name>UnionArgParser</Name>

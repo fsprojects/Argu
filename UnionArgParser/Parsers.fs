@@ -1,12 +1,13 @@
-﻿namespace UnionArgParser
+﻿namespace Nessos.UnionArgParser
 
     module internal Parsers =
         
         open System
+        open System.IO
         open System.Configuration
 
-        open UnionArgParser.Utils
-        open UnionArgParser.ArgInfo
+        open Nessos.UnionArgParser.Utils
+        open Nessos.UnionArgParser.ArgInfo
 
         // parse the next command line argument and append to state
         let parseCommandLinePartial (argIdx : Map<string, ArgInfo>) (args : string []) (pos : int ref)
@@ -64,12 +65,16 @@
 
         // AppSettings parse errors are threaded to the state rather than raised directly;
         // this happens since AppSettings errors are overriden by default in case of a valid command line input.
-        let parseAppSettingsPartial (settings : AppSettingsReplacement option) 
+        let parseAppSettingsPartial (configInstance : Configuration option) 
                                     (state : Map<ArgId, Choice<ParseResult<'Template> list, exn>>) (aI : ArgInfo) =
 
             let getAppSettings name =
-                match settings with
-                | Some s -> s.[name]
+                match configInstance with
+                | Some config ->
+                    match config.AppSettings.Settings.[name] with
+                    | null -> null
+                    | entry -> entry.Value
+
                 | None -> ConfigurationManager.AppSettings.[name]
 
             try
@@ -121,8 +126,20 @@
 
             with Bad _ as e -> state.Add(aI.Id, Choice2Of2 e)
 
-        let parseAppSettings settings (argInfo : ArgInfo list) = 
-            List.fold (parseAppSettingsPartial settings) Map.empty argInfo
+        let parseAppSettings appConfigFile (argInfo : ArgInfo list) = 
+            let config =
+                match appConfigFile with
+                | None -> None
+                | Some file ->
+                    if not <| File.Exists file then 
+                        raise <| new FileNotFoundException(file)
+
+                    let fileMap = new ExeConfigurationFileMap()
+                    fileMap.ExeConfigFilename <- file
+                    let config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None)
+                    Some config
+
+            List.fold (parseAppSettingsPartial config) Map.empty argInfo
 
         // does what the type signature says; combines two parse states into one according to the provided rules.
         let combine (argInfo : ArgInfo list) ignoreMissing 

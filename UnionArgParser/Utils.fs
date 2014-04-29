@@ -1,6 +1,7 @@
-﻿namespace UnionArgParser
+﻿namespace Nessos.UnionArgParser
 
     open System
+    open System.IO
     open System.Collections.Generic
     open System.Text
     open System.Reflection
@@ -149,6 +150,7 @@
 
 
         /// AppSettings replacement type
+        [<Obsolete()>]
         type AppSettingsReplacement (xml : string) =
             let configMap =
                 XElement.Parse(xml)
@@ -160,3 +162,9 @@
                 match configMap.TryFind key with
                 | None -> null
                 | Some value -> value
+
+
+        type ExtendedStringWriter (encoding : Encoding) =
+            inherit StringWriter()
+
+            override __.Encoding = encoding

@@ -1,4 +1,4 @@
-﻿namespace UnionArgParser
+﻿namespace Nessos.UnionArgParser
 
     open System
     open System.Text
@@ -7,8 +7,8 @@
 
     open Microsoft.FSharp.Reflection
 
-    open UnionArgParser.Utils
-    open UnionArgParser.ArgInfo
+    open Nessos.UnionArgParser.Utils
+    open Nessos.UnionArgParser.ArgInfo
 
     module internal UnParsers =
 
@@ -114,5 +114,6 @@
                     if printComments then [ XComment(sprintf " %s " aI.Usage) ; xelem ]
                     else [ xelem ]
 
-            XElement(XName.Get "configuration",
-                XElement(XName.Get "appSettings", Seq.collect printEntry args))
+            XDocument(
+                XElement(XName.Get "configuration",
+                    XElement(XName.Get "appSettings", Seq.collect printEntry args)))

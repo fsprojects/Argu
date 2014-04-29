@@ -1,4 +1,4 @@
-﻿module internal UnionArgParser.ArgInfo
+﻿module internal Nessos.UnionArgParser.ArgInfo
 
     open System
     open System.Configuration
@@ -8,7 +8,7 @@
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.Patterns
 
-    open UnionArgParser.Utils
+    open Nessos.UnionArgParser.Utils
 
     type ErrorCode =
         | HelpText = 0

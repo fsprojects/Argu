@@ -1,4 +1,4 @@
-﻿namespace UnionArgParser
+﻿namespace Nessos.UnionArgParser
 
     type ParseSource = AppSettings | CommandLine
 

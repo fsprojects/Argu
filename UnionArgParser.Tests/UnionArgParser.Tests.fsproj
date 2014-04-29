@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>13bb06e0-3036-42a8-a0e1-93401aeb0dee</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>UnionArgParser.Tests</RootNamespace>
+    <RootNamespace>Nessos.UnionArgParser.Tests</RootNamespace>
     <AssemblyName>UnionArgParser.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Name>UnionArgParser.Tests</Name>
@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Tests.fs" />
+    <None Include="tests.fsx" />
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>

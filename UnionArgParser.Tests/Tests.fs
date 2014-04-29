@@ -1,8 +1,9 @@
-﻿namespace UnionArgParser
+﻿namespace Nessos.UnionArgParser
 
     module Tests =
 
         open System
+        open System.IO
 
         open NUnit.Framework
         open FsUnit
@@ -50,7 +51,9 @@
         let ``2. Simple AppSettings parsing`` () =
             let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
             let xmlSource = parser.PrintAppSettings args
-            let results = parser.ParseAppSettings(xmlSource)
+            let xmlFile = Path.GetTempFileName()
+            do File.WriteAllText(xmlFile, xmlSource)
+            let results = parser.ParseAppSettings(xmlFile)
 
             results.GetAllResults () |> set |> should equal (set args)
 
