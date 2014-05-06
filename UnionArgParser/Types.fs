@@ -52,6 +52,7 @@
         member __.Name = name
 
     /// Sets alternative command line names.
+    [<AttributeUsage(AttributeTargets.Property, AllowMultiple = true)>]
     type AltCommandLineAttribute (name : string) = 
         inherit Attribute ()
         member __.Name = name
