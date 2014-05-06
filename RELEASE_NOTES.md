@@ -1,3 +1,6 @@
+### 0.6.1
+* Add support for multiple alternative command line names.
+
 #### 0.6.0
 * Update root namespace to Nessos.UnionArgParser
 * Add support for application configuration in class libraries
