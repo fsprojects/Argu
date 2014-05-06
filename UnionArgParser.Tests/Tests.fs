@@ -14,7 +14,7 @@
             | [<Mandatory>] Mandatory_Arg of bool
             | [<Rest>] Rest_Arg of int
             | Log_Level of int
-            | [<AltCommandLine("-D")>] Detach
+            | [<AltCommandLine("-D"); AltCommandLine("-z")>] Detach
             | [<CustomAppSettings("Foo")>] CustomAppConfig of string * int
             | [<First>] First_Parameter of string
         with
@@ -82,3 +82,9 @@
             let args = [|1..100|] |> Array.map string |> Array.append [| "--mandatory-arg" ; "true" ; "--rest-arg" |]
             let result = parser.ParseCommandLine args
             result.GetResults <@ Rest_Arg @> |> should equal [1..100]
+
+        [<Test>]
+        let ``7. Multiple AltCommandLine`` () =
+            let args = [| "--mandatory-arg" ; "true" ; "-z" |]
+            let results = parser.ParseCommandLine args
+            results.Contains <@ Detach @> |> should equal true
