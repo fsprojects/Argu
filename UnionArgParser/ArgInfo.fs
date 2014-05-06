@@ -76,11 +76,26 @@
     let hasCommandLineParam (aI : ArgInfo) (param : string) =
         aI.CommandLineNames |> List.exists ((=) param)
 
+    let splitName (separator:char) name =
+        string {
+            let length = String.length name
+            yield Char.ToLower name.[0]
+            for index = 1 to length - 1 do
+                let c = name.[index]
+                if c = '_' then
+                    ()
+                elif Char.IsLower c then
+                    yield c
+                else
+                    yield separator
+                    yield Char.ToLower c
+        } |> String.build
+
     let uciToOpt (uci : UnionCaseInfo) =
-        "--" + uci.Name.ToLower().Replace('_','-')
+        "--" + splitName '-' uci.Name
 
     let uciToAppConf (uci : UnionCaseInfo) =
-        uci.Name.ToLower().Replace('_',' ')
+        splitName ' ' uci.Name
 
     let getEnvArgs () =
         match System.Environment.GetCommandLineArgs() with
