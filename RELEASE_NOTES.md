@@ -1,3 +1,6 @@
+### 0.6.3
+* Fix bug where parsing crashes if no app.config file present.
+
 ### 0.6.2
 * Remove BindingFlags parameter from UnionArgParser.
 

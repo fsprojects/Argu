@@ -65,24 +65,15 @@
 
         // AppSettings parse errors are threaded to the state rather than raised directly;
         // this happens since AppSettings errors are overriden by default in case of a valid command line input.
-        let parseAppSettingsPartial (configInstance : Configuration option) 
+        let parseAppSettingsPartial (appSettingsReader : string -> string)
                                     (state : Map<ArgId, Choice<ParseResult<'Template> list, exn>>) (aI : ArgInfo) =
-
-            let getAppSettings name =
-                match configInstance with
-                | Some config ->
-                    match config.AppSettings.Settings.[name] with
-                    | null -> null
-                    | entry -> entry.Value
-
-                | None -> ConfigurationManager.AppSettings.[name]
 
             try
                 match aI.AppSettingsName with
                 | None -> state
                 | Some name ->
                     let parseResults =
-                        match getAppSettings name with
+                        match appSettingsReader name with
                         | null | "" -> []
                         | entry when aI.Parsers.Length = 0 ->
                             match Boolean.tryParse entry with
@@ -126,20 +117,24 @@
 
             with Bad _ as e -> state.Add(aI.Id, Choice2Of2 e)
 
-        let parseAppSettings appConfigFile (argInfo : ArgInfo list) = 
-            let config =
+        let parseAppSettings appConfigFile (argInfo : ArgInfo list) =
+            let appSettingsReader : string -> string =
                 match appConfigFile with
-                | None -> None
-                | Some file ->
-                    if not <| File.Exists file then 
-                        raise <| new FileNotFoundException(file)
-
+                | None -> fun name -> ConfigurationManager.AppSettings.[name]
+                | Some file when File.Exists file ->
                     let fileMap = new ExeConfigurationFileMap()
                     fileMap.ExeConfigFilename <- file
                     let config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None)
-                    Some config
 
-            List.fold (parseAppSettingsPartial config) Map.empty argInfo
+                    fun name ->
+                        match config.AppSettings.Settings.[name] with
+                        | null -> null
+                        | entry -> entry.Value
+
+                // file not found, return null strings for everything
+                | Some _ -> fun _ -> null
+
+            List.fold (parseAppSettingsPartial appSettingsReader) Map.empty argInfo
 
         // does what the type signature says; combines two parse states into one according to the provided rules.
         let combine (argInfo : ArgInfo list) ignoreMissing 
