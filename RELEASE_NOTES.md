@@ -1,3 +1,6 @@
+### 0.6.2
+* Remove BindingFlags parameter from UnionArgParser.
+
 ### 0.6.1
 * Add support for multiple alternative command line names.
 
