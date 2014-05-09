@@ -14,6 +14,8 @@
 
     module internal Utils =
 
+        let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
+
         let rec getMethod =
             function
             | Lambda(_,e) -> getMethod e

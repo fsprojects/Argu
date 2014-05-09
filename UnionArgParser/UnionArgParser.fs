@@ -18,14 +18,14 @@
     /// The UnionArgParser type generates an argument parser given a type argument
     /// that is an F# discriminated union. It can then be used to parse command line arguments
     /// or XML configuration.
-    type UnionArgParser<'Template when 'Template :> IArgParserTemplate> (?usageText : string, ?bindingFlags : BindingFlags) =
+    type UnionArgParser<'Template when 'Template :> IArgParserTemplate> (?usageText : string) =
         do 
-            if not <| FSharpType.IsUnion(typeof<'Template>, ?bindingFlags = bindingFlags) then
+            if not <| FSharpType.IsUnion(typeof<'Template>, bindingFlags = allBindings) then
                 invalidArg typeof<'Template>.Name "UnionArgParser: template type inaccessible or not F# DU."
 
         let argInfo =
-            FSharpType.GetUnionCases(typeof<'Template>, ?bindingFlags = bindingFlags)
-            |> Seq.map (preComputeArgInfo bindingFlags)
+            FSharpType.GetUnionCases(typeof<'Template>, bindingFlags = allBindings)
+            |> Seq.map preComputeArgInfo
             |> Seq.sortBy (fun a -> a.UCI.Tag)
             |> Seq.toList
 

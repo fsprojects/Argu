@@ -141,10 +141,10 @@
         ArgId(aux None [] e)
 
 
-    let preComputeArgInfo (bindingFlags : BindingFlags option) (uci : UnionCaseInfo) : ArgInfo =
+    let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         let fields = uci.GetFields()
         let types = fields |> Array.map (fun f -> f.PropertyType)
-        let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, ?bindingFlags = bindingFlags)
+        let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, bindingFlags = allBindings)
 
         let dummy = 
             let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
