@@ -23,8 +23,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB90
 		build.fsx = build.fsx
 		build.sh = build.sh
 		RELEASE_NOTES.md = RELEASE_NOTES.md
+		syncnet35.fsx = syncnet35.fsx
 		nuget\UnionArgParser.nuspec = nuget\UnionArgParser.nuspec
 	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UnionArgParser.Net35", "UnionArgParser\UnionArgParser.Net35.fsproj", "{434903CF-2FAA-4AC3-9916-FD24C40DCB39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +43,10 @@ Global
 		{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{434903CF-2FAA-4AC3-9916-FD24C40DCB39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{434903CF-2FAA-4AC3-9916-FD24C40DCB39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{434903CF-2FAA-4AC3-9916-FD24C40DCB39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{434903CF-2FAA-4AC3-9916-FD24C40DCB39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

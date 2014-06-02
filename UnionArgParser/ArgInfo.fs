@@ -122,7 +122,7 @@
             mkPrimParser "float" Double.Parse
             mkPrimParser "decimal" Decimal.Parse
             mkPrimParser "bigint" System.Numerics.BigInteger.Parse
-            mkPrimParser "guid" Guid.Parse
+            mkPrimParser "guid" (fun s -> Guid(s))
         ]
 
     let primIdx = primParsers |> Seq.map (fun pp -> pp.Type, pp) |> dict
