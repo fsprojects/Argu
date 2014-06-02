@@ -1,3 +1,6 @@
+### 0.6.4
+* Add support for .NET 3.5
+
 ### 0.6.3
 * Fix bug where parsing crashes if no app.config file present.
 
