@@ -66,6 +66,15 @@ Target "Clean" (fun _ ->
     CleanDirs ["UnionArgParser/bin" ; "UnionArgParser.Tests/bin" ]
 )
 
+
+// --------------------------------------------------------------------------------------
+// Fail if our .NET35 project is not in sync with the "master" 4.0 project. 
+
+Target "CheckProjects" (fun _ ->
+    !! "./UnionArgParser/UnionArgParser.Net35.fsproj"
+    |> Fake.MSBuild.ProjectSystem.CompareProjectsTo "./UnionArgParser/UnionArgParser.fsproj"
+)
+
 //
 //// --------------------------------------------------------------------------------------
 //// Build library & test project
@@ -138,6 +147,7 @@ Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 
 "Clean"
+  ==> "CheckProjects"
   ==> "RestorePackages"
   ==> "AssemblyInfo"
   ==> "Prepare"
