@@ -148,8 +148,9 @@
         let types = fields |> Array.map (fun f -> f.PropertyType)
 
         let fieldNames =
-            if fields |> Array.forall (fun field -> field.Name.StartsWith("Item")) then None
-            else Some(fields |> Array.map (fun field -> field.Name) |> List.ofArray)
+            if uci.ContainsAttr<UseLabels> (true) then
+                Some(fields |> Array.map (fun field -> field.Name) |> List.ofArray)
+            else None
             
         let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, bindingFlags = allBindings)
 

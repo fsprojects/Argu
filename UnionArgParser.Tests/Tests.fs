@@ -8,14 +8,15 @@
         open NUnit.Framework
         open FsUnit
 
+        
         type Argument =
             | Working_Directory of string
-            | Listener of host:string * port:int
+            | [<UseLabels>] Listener of host:string * port:int
             | [<Mandatory>] Mandatory_Arg of bool
             | [<Rest>] Rest_Arg of int
             | Log_Level of int
             | [<AltCommandLine("-D"); AltCommandLine("-z")>] Detach
-            | [<CustomAppSettings("Foo")>] CustomAppConfig of string * int
+            | [<CustomAppSettings("Foo")>] CustomAppConfig of key:string * value:int
             | [<First>] First_Parameter of string
         with
             interface IArgParserTemplate with
@@ -90,7 +91,9 @@
             results.Contains <@ Detach @> |> should equal true
 
         [<Test>]
-        let ``8. Usage documents explicitly named argument union case values`` () =
+        let ``8. UseLabels attributed union case labels used in usage docs`` () =
             let usage = parser.Usage()
             usage |> should contain "<host:string>"
             usage |> should contain "<port:int>"
+            usage |> should not' (contain "<key:string>")
+            usage |> should not' (contain "<value:int>")
