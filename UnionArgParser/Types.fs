@@ -45,6 +45,8 @@
     type NoAppSettingsAttribute () = inherit Attribute ()
     /// Argument can only be placed at the beginning of the command line.
     type FirstAttribute () = inherit Attribute ()
+    /// Argument value case labels can be used in the usage documenation.
+    type UseLabels () = inherit Attribute ()
 
     /// Sets a custom command line name.
     type CustomCommandLineAttribute (name : string) =
