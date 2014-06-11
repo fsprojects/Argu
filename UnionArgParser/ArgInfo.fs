@@ -29,6 +29,7 @@
             CaseCtor : obj [] -> obj
             // field tuple constructor, if not nullary case
             FieldCtor : (obj [] -> obj) option
+            FieldNames : (string list) option
 
             CommandLineNames : string list // head element denotes primary command line arg
             AppSettingsName : string option
@@ -95,6 +96,7 @@
             Usage = "display this list of options."
             AppSettingsName = None
             Parsers = [||]
+            FieldNames = None
             CaseCtor = fun _ -> invalidOp "internal error: attempting to '--help' case constructor."
             FieldCtor = None
             Hidden = false ; AppSettingsCSV = false ; Mandatory = false ; 
@@ -144,6 +146,11 @@
     let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         let fields = uci.GetFields()
         let types = fields |> Array.map (fun f -> f.PropertyType)
+
+        let fieldNames =
+            if fields |> Array.forall (fun field -> field.Name.StartsWith("Item")) then None
+            else Some(fields |> Array.map (fun field -> field.Name) |> List.ofArray)
+            
         let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, bindingFlags = allBindings)
 
         let dummy = 
@@ -218,6 +225,7 @@
             AppSettingsName = AppSettingsName
             Usage = dummy.Usage
             Parsers = parsers
+            FieldNames = fieldNames
             AppSettingsCSV = AppSettingsCSV
             Mandatory = mandatory
             GatherAllSources = gatherAll

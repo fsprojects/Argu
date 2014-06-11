@@ -10,7 +10,7 @@
 
         type Argument =
             | Working_Directory of string
-            | Listener of string * int
+            | Listener of host:string * port:int
             | [<Mandatory>] Mandatory_Arg of bool
             | [<Rest>] Rest_Arg of int
             | Log_Level of int
@@ -22,7 +22,7 @@
                 member a.Usage =
                     match a with
                     | Working_Directory _ -> "specify a working directory."
-                    | Listener _ -> "specify a listener (hostname : port)."
+                    | Listener _ -> "specify a listener."
                     | Mandatory_Arg _ -> "a mandatory argument."
                     | Rest_Arg _ -> "an argument that consumes all remaining command line tokens."
                     | Log_Level _ -> "set the log level."
@@ -88,3 +88,9 @@
             let args = [| "--mandatory-arg" ; "true" ; "-z" |]
             let results = parser.ParseCommandLine args
             results.Contains <@ Detach @> |> should equal true
+
+        [<Test>]
+        let ``8. Usage documents explicitly named argument union case values`` () =
+            let usage = parser.Usage()
+            usage |> should contain "<host:string>"
+            usage |> should contain "<port:int>"

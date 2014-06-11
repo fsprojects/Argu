@@ -37,7 +37,12 @@
                             yield n
                         yield ']'
 
-                    for p in aI.Parsers -> sprintf " <%s>" p.Name
+                    let parserNames = aI.Parsers |> Seq.map (fun p -> p.Name)
+                    match aI.FieldNames with 
+                    | None -> for name in parserNames do yield sprintf " <%s>" name
+                    | Some(fieldNames) ->
+                        let names = Seq.zip fieldNames parserNames 
+                        for fieldName, parserName in names do yield (sprintf " <%s:%s>" fieldName parserName)
 
                     if aI.Rest then yield sprintf " ..."
 
