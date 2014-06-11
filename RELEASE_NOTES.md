@@ -1,3 +1,6 @@
+### 0.6.5
+* Add support for F# 3.1 DU labels.
+
 ### 0.6.4
 * Add support for .NET 3.5
 
