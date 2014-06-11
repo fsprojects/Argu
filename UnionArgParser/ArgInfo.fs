@@ -23,23 +23,38 @@
                     
     and ArgInfo =
         {
+            /// Argument identifier
             Id : ArgId
-            Parsers : PrimitiveParser []
 
+            /// Field parser definitions
+            FieldParsers : FieldInfo []
+
+            /// Builds a union case out of its field parameters
             CaseCtor : obj [] -> obj
-            // field tuple constructor, if not nullary case
+            /// Composes case fields into a tuple, if not nullary
             FieldCtor : (obj [] -> obj) option
-            FieldNames : (string list) option
 
-            CommandLineNames : string list // head element denotes primary command line arg
+            /// head element denotes primary command line arg
+            CommandLineNames : string list
+            /// name used in AppSettings
             AppSettingsName : string option
+
+            /// Description of the parameter
             Usage : string
 
-            Rest : bool
-            First : bool
+            /// If specified, should consume remaining tokens from the CLI
+            IsRest : bool
+            /// If specified, parameter can only be at start of CLI parameters
+            IsFirst : bool
+            /// Print labels in Usage ()
+            PrintLabels : bool
+            /// If specified, multiple parameters can be added in AppSettings in CSV form.
             AppSettingsCSV : bool
+            /// Fails if no argument of this type is specified
             Mandatory : bool
+            /// Hide from Usage
             Hidden : bool
+            /// Combine AppSettings with CLI inputs
             GatherAllSources : bool
         }
     with
@@ -55,12 +70,22 @@
             Source : ParseSource
         }
 
-    and PrimitiveParser =
+    and FieldInfo =
         {
+            /// Type name
             Name : string
+            /// field label
+            Label : string option
+            /// field type
             Type : Type
+            /// parser
             Parser : string -> obj
         }
+    with
+        override p.ToString() =
+            match p.Label with
+            | None -> p.Name
+            | Some l -> sprintf "%s:%s" l p.Name
 
     exception HelpText
     exception Bad of string * ErrorCode * ArgInfo option
@@ -95,39 +120,45 @@
             CommandLineNames = ["--help" ; "-h" ; "/h" ; "/help" ; "/?"]
             Usage = "display this list of options."
             AppSettingsName = None
-            Parsers = [||]
-            FieldNames = None
+            FieldParsers = [||]
             CaseCtor = fun _ -> invalidOp "internal error: attempting to '--help' case constructor."
             FieldCtor = None
+            PrintLabels = false ;
             Hidden = false ; AppSettingsCSV = false ; Mandatory = false ; 
-            GatherAllSources = false ; Rest = false ; First = false
+            GatherAllSources = false ; IsRest = false ; IsFirst = false
         }
 
 
-    let mkPrimParser (name : string) (parser : string -> 'T) =
-        { Name = name ; Type = typeof<'T> ; Parser = fun x -> parser x :> obj }
+    let mkParserBuilder (name : string) (parser : string -> 'T) =
+        let t = typeof<'T>
+        let mkParser label =
+            {
+                Name = name
+                Label = label
+                Type = typeof<'T>
+                Parser = fun x -> parser x :> obj
+            }
+        t, mkParser
 
-    let primParsers =
-        [
-            mkPrimParser "bool" Boolean.Parse
-            mkPrimParser "char" Char.Parse
-            mkPrimParser "uint16" UInt16.Parse
-            mkPrimParser "uint" UInt32.Parse
-            mkPrimParser "uint64" UInt64.Parse
-            mkPrimParser "int16" Int16.Parse
-            mkPrimParser "int" Int32.Parse
-            mkPrimParser "int64" Int64.Parse
-            mkPrimParser "byte" Byte.Parse
-            mkPrimParser "sbyte" SByte.Parse
-            mkPrimParser "string" id
-            mkPrimParser "float" Single.Parse
-            mkPrimParser "float" Double.Parse
-            mkPrimParser "decimal" Decimal.Parse
-            mkPrimParser "bigint" System.Numerics.BigInteger.Parse
-            mkPrimParser "guid" (fun s -> Guid(s))
+    let parserBuilderIdx =
+        dict [
+            mkParserBuilder "bool" Boolean.Parse
+            mkParserBuilder "char" Char.Parse
+            mkParserBuilder "uint16" UInt16.Parse
+            mkParserBuilder "uint" UInt32.Parse
+            mkParserBuilder "uint64" UInt64.Parse
+            mkParserBuilder "int16" Int16.Parse
+            mkParserBuilder "int" Int32.Parse
+            mkParserBuilder "int64" Int64.Parse
+            mkParserBuilder "byte" Byte.Parse
+            mkParserBuilder "sbyte" SByte.Parse
+            mkParserBuilder "string" id
+            mkParserBuilder "float" Single.Parse
+            mkParserBuilder "float" Double.Parse
+            mkParserBuilder "decimal" Decimal.Parse
+            mkParserBuilder "bigint" System.Numerics.BigInteger.Parse
+            mkParserBuilder "guid" (fun s -> Guid(s))
         ]
-
-    let primIdx = primParsers |> Seq.map (fun pp -> pp.Type, pp) |> dict
 
     // recognize exprs that strictly contain DU constructors
     let expr2ArgId (e : Expr) =
@@ -146,10 +177,6 @@
     let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         let fields = uci.GetFields()
         let types = fields |> Array.map (fun f -> f.PropertyType)
-
-        let fieldNames =
-            if fields |> Array.forall (fun field -> field.Name.StartsWith("Item")) then None
-            else Some(fields |> Array.map (fun field -> field.Name) |> List.ofArray)
             
         let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, bindingFlags = allBindings)
 
@@ -190,13 +217,17 @@
         if AppSettingsName.IsNone && commandLineArgs.IsEmpty then 
             failwith "UnionArgParser: parameter '%s' needs to have at least one parse source." uci.Name
 
-        let parsers =
-            let getPrimParser (t : Type) =
-                match primIdx.TryFind t with
-                | Some pp -> pp
-                | None -> failwithf "UnionArgParser: template contains unsupported field of type %A." t
+        let printLabels = uci.ContainsAttr<PrintLabelsAttribute> (true)
 
-            Array.map getPrimParser types
+        let parsers =
+            let getPrimParser (p : PropertyInfo) =
+                let label = if printLabels then Some p.Name else None
+                match parserBuilderIdx.TryFind p.PropertyType with
+                | Some f -> f label
+                | None -> 
+                    failwithf "UnionArgParser: template contains unsupported field of type '%O'." p.PropertyType
+
+            Array.map getPrimParser fields
 
         let fieldCtor =
             match types.Length with
@@ -224,13 +255,13 @@
             CommandLineNames = commandLineArgs
             AppSettingsName = AppSettingsName
             Usage = dummy.Usage
-            Parsers = parsers
-            FieldNames = fieldNames
+            FieldParsers = parsers
             AppSettingsCSV = AppSettingsCSV
             Mandatory = mandatory
+            PrintLabels = printLabels
             GatherAllSources = gatherAll
-            Rest = isRest
-            First = first
+            IsRest = isRest
+            IsFirst = first
             Hidden = isHidden
         }
 

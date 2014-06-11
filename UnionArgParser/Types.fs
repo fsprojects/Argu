@@ -45,6 +45,8 @@
     type NoAppSettingsAttribute () = inherit Attribute ()
     /// Argument can only be placed at the beginning of the command line.
     type FirstAttribute () = inherit Attribute ()
+    /// Print field labels in 'Usage' string
+    type PrintLabelsAttribute () = inherit Attribute ()
 
     /// Sets a custom command line name.
     type CustomCommandLineAttribute (name : string) =

@@ -20,28 +20,32 @@
 
             match argIdx.TryFind curr with
             | None -> bad ErrorCode.CommandLine None "unrecognized argument: '%s'." curr
-            | Some argInfo when argInfo.First && !pos > 1 ->
-                bad ErrorCode.CommandLine (Some argInfo) "invalid use of argument '%s'." curr
+            | Some argInfo when argInfo.IsFirst && !pos > 1 ->
+                bad ErrorCode.CommandLine (Some argInfo) "argument '%s' should be first." curr
             | Some argInfo ->
                 let parseOne () =
                     let fields =
                         [|
-                            for p in argInfo.Parsers do
+                            for p in argInfo.FieldParsers do
                                 if !pos = args.Length then
                                     bad ErrorCode.CommandLine (Some argInfo) 
-                                        "option '%s' requires argument <%s>." curr p.Name
+                                        "option '%s' requires argument <%O>." curr p
                                 yield 
                                     try p.Parser args.[!pos]
-                                    with _ -> 
-                                        bad ErrorCode.CommandLine (Some argInfo) 
-                                            "option '%s' expects argument <%s>." curr p.Name
+                                    with _ ->
+                                        if argInfo.PrintLabels then
+                                            bad ErrorCode.CommandLine (Some argInfo) 
+                                                "option '%s' expects argument <%O>." curr p
+                                        else
+                                            bad ErrorCode.CommandLine (Some argInfo) 
+                                                "option '%s' expects argument <%O>." curr p
                                 incr pos
                         |]
 
                     buildResult<'Template> argInfo CommandLine curr fields
 
                 let parsedResults =
-                    if argInfo.Rest then
+                    if argInfo.IsRest then
                         [
                             while !pos < args.Length do
                                 yield parseOne ()
@@ -75,14 +79,14 @@
                     let parseResults =
                         match appSettingsReader name with
                         | null | "" -> []
-                        | entry when aI.Parsers.Length = 0 ->
+                        | entry when aI.FieldParsers.Length = 0 ->
                             match Boolean.tryParse entry with
                             | None -> bad ErrorCode.AppSettings (Some aI) "AppSettings entry '%s' is not <bool>." name
                             | Some flag when flag -> [buildResult aI CommandLine name [||]]
                             | Some _ -> []
                         | entry ->
                             let tokens = 
-                                if aI.AppSettingsCSV || aI.Parsers.Length > 1 then entry.Split(',') 
+                                if aI.AppSettingsCSV || aI.FieldParsers.Length > 1 then entry.Split(',') 
                                 else [| entry |]
 
                             let pos = ref 0
@@ -90,18 +94,18 @@
                             let readNext() =
                                 let fields =
                                     [|
-                                        for p in aI.Parsers do
+                                        for p in aI.FieldParsers do
                                             if !pos < tokens.Length then
                                                 yield 
                                                     try p.Parser <| tokens.[!pos]
                                                     with _ -> 
                                                         bad ErrorCode.AppSettings (Some aI) 
-                                                            "AppSettings entry '%s' is not <%s>." name p.Name
+                                                            "AppSettings entry '%s' is not <%O>." name p
 
                                                 incr pos
                                             else
                                                 bad ErrorCode.AppSettings (Some aI) 
-                                                    "AppSettings entry '%s' missing <%s> argument." name p.Name
+                                                    "AppSettings entry '%s' missing <%O> argument." name p
                                     |]
 
                                 buildResult aI AppSettings name fields

@@ -37,14 +37,10 @@
                             yield n
                         yield ']'
 
-                    let parserNames = aI.Parsers |> Seq.map (fun p -> p.Name)
-                    match aI.FieldNames with 
-                    | None -> for name in parserNames do yield sprintf " <%s>" name
-                    | Some(fieldNames) ->
-                        let names = Seq.zip fieldNames parserNames 
-                        for fieldName, parserName in names do yield (sprintf " <%s:%s>" fieldName parserName)
+                    for p in aI.FieldParsers do
+                        yield sprintf " <%O>" p
 
-                    if aI.Rest then yield sprintf " ..."
+                    if aI.IsRest then yield " ..."
 
                     yield ": "
                     yield aI.Usage
@@ -60,7 +56,7 @@
                 
                 yield '\n'
 
-                let first, last = argInfo |> List.partition (fun aI -> aI.First)
+                let first, last = argInfo |> List.partition (fun aI -> aI.IsFirst)
 
                 for aI in first do
                     if not aI.Hidden then
@@ -116,7 +112,26 @@
                                     XAttribute(XName.Get "key", key), 
                                     XAttribute(XName.Get "value", values))
                     
-                    if printComments then [ XComment(sprintf " %s " aI.Usage) ; xelem ]
+                    if printComments then 
+                        let comment =
+                            string {
+                                yield ' '
+                                yield aI.Usage
+
+                                match aI.FieldParsers |> Array.toList with
+                                | [] -> ()
+                                | first :: rest ->
+                                    yield " : "
+                                    yield first.ToString()
+                                    for p in rest do
+                                        yield ", "
+                                        yield p.ToString()
+
+                                yield ' '
+
+                            } |> String.build
+
+                        [ XComment(comment) ; xelem ]
                     else [ xelem ]
 
             XDocument(

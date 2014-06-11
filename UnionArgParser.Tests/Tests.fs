@@ -10,7 +10,7 @@
 
         type Argument =
             | Working_Directory of string
-            | Listener of host:string * port:int
+            | [<PrintLabels>] Listener of host:string * port:int
             | [<Mandatory>] Mandatory_Arg of bool
             | [<Rest>] Rest_Arg of int
             | Log_Level of int
