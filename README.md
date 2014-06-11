@@ -100,12 +100,14 @@ can be customized by fixing attributes to the union cases:
 type Arguments =
   | [<Mandatory>] Working_Directory of string
   | [<NoCommandLine>] Connection_String of string
+  | [<PrintLabels>] Listener of host:string * port:int
   | [<AltCommandLine("-p")>] Port of int
 ```
 In this case,
 * `Mandatory`: parser will fail if no configuration for this parameter is given.
 * `NoCommandLine`: restricts this parameter to the AppSettings section.
 * `AltCommandLine`: specifies an alternative command line switch.
+* `PrintLabels` : Augments documentation with label names in F# 3.1 programs.
 
 The following attributes are also available:
 
@@ -154,9 +156,9 @@ which would yield the following:
 <?xml version="1.0" encoding="utf-16"?>
 <configuration>
   <appSettings>
-    <!-- sets the port number. -->
+    <!-- sets the port number. : int -->
     <add key="port" value="42" />
-    <!-- sets the working directory. -->
+    <!-- sets the working directory. : string -->
     <add key="working directory" value="/tmp" />
   </appSettings>
 </configuration>
