@@ -29,7 +29,7 @@ let gitName = "UnionArgParser"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/nessos"
 
 
-let testAssemblies = !! "./bin/*/UnionArgParser.Tests.dll"
+let testAssemblies = !! "bin/*/UnionArgParser.Tests.dll"
 
 //
 //// --------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ Target "BuildVersion" (fun _ ->
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-  let fileName = "src/UnionArgParser/AssemblyInfo.fs"
+  let fileName = "./src/UnionArgParser/AssemblyInfo.fs"
   CreateFSharpAssemblyInfo fileName
       [ Attribute.Version release.AssemblyVersion
         Attribute.FileVersion release.AssemblyVersion] 
@@ -63,7 +63,7 @@ Target "RestorePackages" (fun _ ->
 )
 
 Target "Clean" (fun _ ->
-    CleanDirs <| !! "*/bin/*"
+    CleanDirs ["./bin/"]
 )
 
 
@@ -129,7 +129,7 @@ Target "NuGet" (fun _ ->
             Version = nugetVersion
             ReleaseNotes = String.concat " " release.Notes
             Tags = tags
-            OutputPath = "nuget"
+            OutputPath = "bin/"
             ToolPath = nugetPath
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey" })

@@ -1,3 +1,6 @@
+### 0.6.6
+* Fix packing issue.
+
 ### 0.6.5
 * Add support for F# 3.1 DU labels.
 

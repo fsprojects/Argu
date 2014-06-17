@@ -8,5 +8,7 @@
 open Fake
 open Fake.MSBuild.ProjectSystem
 
-seq { yield "./UnionArgParser/UnionArgParser.Net35.fsproj" }
-|> FixProjectFiles "./UnionArgParser/UnionArgParser.fsproj" 
+//System.IO.Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__)
+
+[ "./src/UnionArgParser/UnionArgParser.Net35.fsproj" ]
+|> FixProjectFiles "./src/UnionArgParser/UnionArgParser.fsproj"
