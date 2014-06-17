@@ -58,7 +58,7 @@ with
             | Detach _ -> "detach daemon from console."
  
 // build the argument parser
-let parser = UnionArgParser<Argument>()
+let parser = UnionArgParser<Arguments>()
  
 // get usage text
 let usage = parser.Usage()
