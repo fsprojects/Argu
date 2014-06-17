@@ -10,7 +10,7 @@ For instance:
 ```fsharp
 type Arguments =
     | Working_Directory of string
-    | Listener of string * int // hostname * port
+    | Listener of host:string * port:int
     | Log_Level of int
     | Detach
 ```
@@ -45,7 +45,7 @@ A minimal parser based on the above example can be created as follows:
 ```fsharp
 type Arguments =
     | Working_Directory of string
-    | Listener of string * int // hostname * port
+    | Listener of host:string * port:int
     | Log_Level of int
     | Detach
 with
@@ -58,13 +58,13 @@ with
             | Detach _ -> "detach daemon from console."
  
 // build the argument parser
-let parser = UnionArgParser<Argument>()
+let parser = UnionArgParser<Arguments>()
  
 // get usage text
 let usage = parser.Usage()
 // output:
 //    --working-directory <string>: specify a working directory.
-//    --listener <string> <int>: specify a listener (hostname : port).
+//    --listener <host:string> <port:int>: specify a listener (hostname : port).
 //    --log-level <int>: set the log level.
 //    --detach: detach daemon from console.
 //    --help [-h|/h|/help|/?]: display this list of options.
