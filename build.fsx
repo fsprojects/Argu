@@ -29,7 +29,7 @@ let gitName = "UnionArgParser"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/nessos"
 
 
-let testAssemblies = ["UnionArgParser.Tests/bin/Release/UnionArgParser.Tests.dll"]
+let testAssemblies = !! "./bin/*/UnionArgParser.Tests.dll"
 
 //
 //// --------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ Target "BuildVersion" (fun _ ->
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-  let fileName = "UnionArgParser/AssemblyInfo.fs"
+  let fileName = "src/UnionArgParser/AssemblyInfo.fs"
   CreateFSharpAssemblyInfo fileName
       [ Attribute.Version release.AssemblyVersion
         Attribute.FileVersion release.AssemblyVersion] 
@@ -63,7 +63,7 @@ Target "RestorePackages" (fun _ ->
 )
 
 Target "Clean" (fun _ ->
-    CleanDirs ["UnionArgParser/bin" ; "UnionArgParser.Tests/bin" ]
+    CleanDirs <| !! "*/bin/*"
 )
 
 
@@ -71,8 +71,8 @@ Target "Clean" (fun _ ->
 // Fail if our .NET35 project is not in sync with the "master" 4.0 project. 
 
 Target "CheckProjects" (fun _ ->
-    !! "./UnionArgParser/UnionArgParser.Net35.fsproj"
-    |> Fake.MSBuild.ProjectSystem.CompareProjectsTo "./UnionArgParser/UnionArgParser.fsproj"
+    !! "./src/UnionArgParser/UnionArgParser.Net35.fsproj"
+    |> Fake.MSBuild.ProjectSystem.CompareProjectsTo "./src/UnionArgParser/UnionArgParser.fsproj"
 )
 
 //

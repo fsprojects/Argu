@@ -16,11 +16,11 @@
       <tags>@tags@</tags>
     </metadata>
     <files>
-      <file src="..\UnionArgParser\bin\Release\UnionArgParser.dll" target="lib/net40" />
-      <file src="..\UnionArgParser\bin\Release\UnionArgParser.xml" target="lib/net40" />
-      <file src="..\UnionArgParser\bin\Release\UnionArgParser.pdb" target="lib/net40" />
-      <file src="..\UnionArgParser\bin\Release.Net35\UnionArgParser.dll" target="lib/net35" />
-      <file src="..\UnionArgParser\bin\Release.Net35\UnionArgParser.xml" target="lib/net35" />
-      <file src="..\UnionArgParser\bin\Release.Net35\UnionArgParser.pdb" target="lib/net35" />
+      <file src="..\bin\net35\UnionArgParser.dll" target="lib/net35" />
+      <file src="..\bin\net35\UnionArgParser.xml" target="lib/net35" />
+      <file src="..\bin\net35\UnionArgParser.pdb" target="lib/net35" />
+      <file src="..\bin\net40\UnionArgParser.dll" target="lib/net40" />
+      <file src="..\bin\net40\UnionArgParser.xml" target="lib/net40" />
+      <file src="..\bin\net40\UnionArgParser.pdb" target="lib/net40" />
     </files>
 </package>
