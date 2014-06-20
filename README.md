@@ -135,31 +135,6 @@ let ports : int list = results.PostProcessResults (<@ Port @>, parsePort)
 ```
 This construct is useful since exception handling is performed by the arg parser itself.
 
-## Parsing binary data
-
-UnionArgParser now provides support for binary argument parsing:
-```fsharp
-type Arguments =
-    | [<EncodeBase64>] Data of byte []
-```
-This permits passing of binary data in the form of base64 encoding. For example,
-```fsharp
-parser.ParseCommandLine([| "--data"; "AQI=" |]).GetResult <@ Data @> // [| 1uy ; 2uy |]
-```
-This feature is useful when needing to pass raw data in programmatically spawned processes.
-Base64 encoding is also possible for arbitrary types:
-```fsharp
-type Record = { Name : string ; Age : int }
-
-type Arguments =
-    | [<EncodeBase64>] Record of Record
-    
-let args = parser.PrintCommandLine [Record { Name = "me" ; Age = -1 }] // [| "--record" ; "base64data" |]
-parser.ParseCommandLine(args).GetResult <@ Record @>
-```
-BinaryFormatter is used for the underlying serialization and deserialization, 
-so its inherent restrictions should be taken into consideration.
-
 ## Unparsing Support
 
 UnionArgParser is convenient when it comes to automated process spawning:
@@ -187,3 +162,28 @@ which would yield the following:
   </appSettings>
 </configuration>
 ```
+
+## Parsing binary data
+
+UnionArgParser now provides support for binary argument parsing:
+```fsharp
+type Arguments =
+    | [<EncodeBase64>] Data of byte []
+```
+This permits passing of binary data in the form of base64 encoding. For example,
+```fsharp
+parser.ParseCommandLine([| "--data"; "AQI=" |]).GetResult <@ Data @> // [| 1uy ; 2uy |]
+```
+This feature is useful when needing to pass raw data in programmatically spawned processes.
+Base64 encoding is also possible for arbitrary types:
+```fsharp
+type Record = { Name : string ; Age : int }
+
+type Arguments =
+    | [<EncodeBase64>] Record of Record
+    
+let args = parser.PrintCommandLine [Record { Name = "me" ; Age = -1 }] // [| "--record" ; "base64data" |]
+parser.ParseCommandLine(args).GetResult <@ Record @>
+```
+BinaryFormatter is used for the underlying serialization and deserialization, 
+so its inherent restrictions should be taken into consideration.
