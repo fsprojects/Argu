@@ -66,20 +66,19 @@ Target "Clean" (fun _ ->
     CleanDirs ["./bin/"]
 )
 
-
-// --------------------------------------------------------------------------------------
-// Fail if our .NET35 project is not in sync with the "master" 4.0 project. 
-
-Target "CheckProjects" (fun _ ->
-    !! "./src/UnionArgParser/UnionArgParser.Net35.fsproj"
-    |> Fake.MSBuild.ProjectSystem.CompareProjectsTo "./src/UnionArgParser/UnionArgParser.fsproj"
-)
-
 //
 //// --------------------------------------------------------------------------------------
 //// Build library & test project
 
 let configuration = environVarOrDefault "Configuration" "Release"
+
+Target "Build-Net35" (fun _ ->
+    { BaseDirectory = __SOURCE_DIRECTORY__
+      Includes = [ project + ".sln" ]
+      Excludes = [] } 
+    |> MSBuild "" "Build" ["Configuration", "Release-NET35" ]
+    |> Log "AppBuild-Output: "
+)
 
 Target "Build" (fun _ ->
     // Build the rest of the project
@@ -147,7 +146,6 @@ Target "PrepareRelease" DoNothing
 Target "All" DoNothing
 
 "Clean"
-  ==> "CheckProjects"
   ==> "RestorePackages"
   ==> "AssemblyInfo"
   ==> "Prepare"
@@ -156,7 +154,8 @@ Target "All" DoNothing
   ==> "All"
 
 "All"
-  ==> "PrepareRelease" 
+  ==> "PrepareRelease"
+  ==> "Build-Net35"
   ==> "NuGet"
   ==> "Release"
 

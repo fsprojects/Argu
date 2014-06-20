@@ -156,7 +156,10 @@
             mkParserBuilder "float" Single.Parse
             mkParserBuilder "float" Double.Parse
             mkParserBuilder "decimal" Decimal.Parse
+#if NET35
+#else
             mkParserBuilder "bigint" System.Numerics.BigInteger.Parse
+#endif
             mkParserBuilder "guid" (fun s -> Guid(s))
         ]
 
