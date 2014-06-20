@@ -1,8 +1,10 @@
 ﻿module internal Nessos.UnionArgParser.ArgInfo
 
     open System
+    open System.IO
     open System.Configuration
     open System.Reflection
+    open System.Runtime.Serialization.Formatters.Binary
 
     open Microsoft.FSharp.Reflection
     open Microsoft.FSharp.Quotations
@@ -80,12 +82,24 @@
             Type : Type
             /// parser
             Parser : string -> obj
+            // unparser
+            UnParser : obj -> string
         }
     with
+        static member Create (name : string) (parser : string -> 'T) (unparser : 'T -> string) (label : string option) =
+            {
+                Name = name
+                Label = label
+                Type = typeof<'T>
+                Parser = fun x -> parser x :> obj
+                UnParser = fun o -> unparser (o :?> 'T)
+            }
+
         override p.ToString() =
             match p.Label with
             | None -> p.Name
             | Some l -> sprintf "%s:%s" l p.Name
+            
 
     exception HelpText
     exception Bad of string * ErrorCode * ArgInfo option
@@ -128,40 +142,58 @@
             GatherAllSources = false ; IsRest = false ; IsFirst = false
         }
 
-
-    let mkParserBuilder (name : string) (parser : string -> 'T) =
-        let t = typeof<'T>
-        let mkParser label =
-            {
-                Name = name
-                Label = label
-                Type = typeof<'T>
-                Parser = fun x -> parser x :> obj
-            }
-        t, mkParser
-
-    let parserBuilderIdx =
+    let primitiveParsers =
+        let mkParser name pars unpars = typeof<'T>, FieldInfo.Create<'T> name pars unpars in
         dict [
-            mkParserBuilder "bool" Boolean.Parse
-            mkParserBuilder "char" Char.Parse
-            mkParserBuilder "uint16" UInt16.Parse
-            mkParserBuilder "uint" UInt32.Parse
-            mkParserBuilder "uint64" UInt64.Parse
-            mkParserBuilder "int16" Int16.Parse
-            mkParserBuilder "int" Int32.Parse
-            mkParserBuilder "int64" Int64.Parse
-            mkParserBuilder "byte" Byte.Parse
-            mkParserBuilder "sbyte" SByte.Parse
-            mkParserBuilder "string" id
-            mkParserBuilder "float" Single.Parse
-            mkParserBuilder "float" Double.Parse
-            mkParserBuilder "decimal" Decimal.Parse
+            mkParser "bool" Boolean.Parse (sprintf "%b")
+            mkParser "byte" Byte.Parse string
+            mkParser "sbyte" SByte.Parse string
+
+            mkParser "int16" Int16.Parse string
+            mkParser "int" Int32.Parse string
+            mkParser "int64" Int64.Parse string
+            mkParser "uint16" UInt16.Parse string
+            mkParser "uint" UInt32.Parse string
+            mkParser "uint64" UInt64.Parse string
+
+            mkParser "char" Char.Parse string
+            mkParser "string" id id
+
+            mkParser "float" Single.Parse string
+            mkParser "float" Double.Parse string
+            mkParser "decimal" Decimal.Parse string
 #if NET35
 #else
-            mkParserBuilder "bigint" System.Numerics.BigInteger.Parse
+            mkParser "bigint" System.Numerics.BigInteger.Parse string
 #endif
-            mkParserBuilder "guid" (fun s -> Guid(s))
+            mkParser "guid" (fun s -> Guid(s)) string
         ]
+
+    let mkBase64Parser (label : string option) (t : Type) =
+        let parser,unparser =
+            if t = typeof<byte []> then
+                Convert.FromBase64String >> box, unbox >> Convert.ToBase64String
+            else
+                let parser (txt : string) =
+                    let bytes = Convert.FromBase64String txt
+                    use m = new MemoryStream(bytes)
+                    BinaryFormatter().Deserialize(m)
+
+                let unparser (obj : obj) =
+                    use m = new MemoryStream()
+                    do BinaryFormatter().Serialize(m, obj)
+                    Convert.ToBase64String(m.ToArray())
+
+                parser, unparser
+
+        {
+            Name = "base64"
+            Label = label
+            Type = t
+            Parser = parser
+            UnParser = unparser
+        }
+            
 
     // recognize exprs that strictly contain DU constructors
     let expr2ArgId (e : Expr) =
@@ -221,16 +253,20 @@
             failwith "UnionArgParser: parameter '%s' needs to have at least one parse source." uci.Name
 
         let printLabels = uci.ContainsAttr<PrintLabelsAttribute> (true)
+        let isBase64 = uci.ContainsAttr<EncodeBase64Attribute> (true)
 
         let parsers =
-            let getPrimParser (p : PropertyInfo) =
+            let getParser (p : PropertyInfo) =
                 let label = if printLabels then Some p.Name else None
-                match parserBuilderIdx.TryFind p.PropertyType with
-                | Some f -> f label
-                | None -> 
-                    failwithf "UnionArgParser: template contains unsupported field of type '%O'." p.PropertyType
+                if isBase64 then
+                    mkBase64Parser label p.PropertyType
+                else
+                    match primitiveParsers.TryFind p.PropertyType with
+                    | Some f -> f label
+                    | None -> 
+                        failwithf "UnionArgParser: template contains unsupported field of type '%O'." p.PropertyType
 
-            Array.map getPrimParser fields
+            Array.map getParser fields
 
         let fieldCtor =
             match types.Length with

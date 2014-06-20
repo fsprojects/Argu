@@ -1,5 +1,6 @@
-﻿#r "bin/Debug/UnionArgParser.dll"
-#r "bin/Debug/UnionArgParser.Tests.dll"
+﻿#I "../../bin/net40"
+#r "UnionArgParser.dll"
+#r "UnionArgParser.Tests.dll"
 
 open Nessos.UnionArgParser
 open Nessos.UnionArgParser.Tests
@@ -11,3 +12,7 @@ let results = parser.ParseAppSettings(assembly)
 let args = results.GetAllResults()
 
 parser.PrintAppSettings(Listener("localhost", 42) :: args, printComments = true)
+
+parser.PrintCommandLine [Data [|1uy;2uy|] ; Record { Name = "eirik" ; Age = 29 }]
+
+parser.Usage()

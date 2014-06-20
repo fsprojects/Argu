@@ -12,15 +12,9 @@
 
     module internal UnParsers =
 
-        let printField (f : obj) =
-            match f with
-            | null -> null
-            | :? bool as b -> sprintf "%b" b
-            | f -> f.ToString()
-
         // print usage string for given arg info
         let printArgUsage (aI : ArgInfo) =
-            string {
+            stringB {
                 match aI.CommandLineNames with
                 | [] -> ()
                 | param :: altParams ->
@@ -49,7 +43,7 @@
 
         // print usage string for a collection of arg infos
         let printUsage (msg : string option) (argInfo : ArgInfo list) =
-            string {
+            stringB {
                 match msg with
                 | None -> ()
                 | Some u -> yield u + "\n"
@@ -84,8 +78,8 @@
                     | clname :: _ ->
                         yield clname
 
-                        for f in fields do
-                            yield printField f
+                        for f,p in Seq.zip fields aI.FieldParsers do
+                            yield p.UnParser f
                 }
 
             args |> Seq.collect printEntry |> Seq.toArray
@@ -103,8 +97,8 @@
                     let values =
                         if fields.Length = 0 then "true"
                         else
-                            fields
-                            |> Seq.map printField
+                            Seq.zip fields aI.FieldParsers
+                            |> Seq.map (fun (f,p) -> p.UnParser f)
                             |> String.concat ", "
 
                     let xelem = 
@@ -114,7 +108,7 @@
                     
                     if printComments then 
                         let comment =
-                            string {
+                            stringB {
                                 yield ' '
                                 yield aI.Usage
 

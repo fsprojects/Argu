@@ -141,7 +141,7 @@
             member __.While (p : unit -> bool, f : StringBuilderM) =
                 fun b -> while p () do f b
 
-        let string = new StringExprBuilder ()
+        let stringB = new StringExprBuilder ()
 
         [<RequireQualifiedAccess>]
         module String =
@@ -149,22 +149,6 @@
                 let b = new StringBuilder ()
                 do f b
                 b.ToString ()
-
-
-        /// AppSettings replacement type
-        [<Obsolete()>]
-        type AppSettingsReplacement (xml : string) =
-            let configMap =
-                XElement.Parse(xml)
-                    .Descendants(XName.Get("add"))
-                |> Seq.map (fun node -> node.Attribute(XName.Get("key")).Value, node.Attribute(XName.Get("value")).Value)
-                |> Map.ofSeq
-
-            member __.Item (key : string) = 
-                match configMap.TryFind key with
-                | None -> null
-                | Some value -> value
-
 
         type ExtendedStringWriter (encoding : Encoding) =
             inherit StringWriter()
