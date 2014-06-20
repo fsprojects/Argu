@@ -1,5 +1,8 @@
+### 0.7.0
+* Add support for Base64 binary parsing.
+
 ### 0.6.6
-* Fix packing issue.
+* Fix packaging issue.
 
 ### 0.6.5
 * Add support for F# 3.1 DU labels.
