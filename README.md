@@ -122,8 +122,7 @@ The following attributes are also available:
 ## Post Processing
 
 It should be noted here that arbitrary unions are not supported by the parser. 
-Union cases can only contain fields of certain primitive types, 
-that is `int`, `bool`, `string` and `float`. This means of course that user-defined 
+Union cases can only contain fields of primitive types. This means that user-defined 
 parsers are not supported. For configuration inputs that are non-trivial, 
 a post-process facility is provided.
 ```fsharp
@@ -163,3 +162,28 @@ which would yield the following:
   </appSettings>
 </configuration>
 ```
+
+## Parsing binary data
+
+UnionArgParser now provides support for binary argument parsing:
+```fsharp
+type Arguments =
+    | [<EncodeBase64>] Data of byte []
+```
+This permits passing of binary data in the form of base64 encoding. For example,
+```fsharp
+parser.ParseCommandLine([| "--data"; "AQI=" |]).GetResult <@ Data @> // [| 1uy ; 2uy |]
+```
+This feature is useful when needing to pass raw data in programmatically spawned processes.
+Base64 encoding is also possible for arbitrary types:
+```fsharp
+type Record = { Name : string ; Age : int }
+
+type Arguments =
+    | [<EncodeBase64>] Record of Record
+    
+let args = parser.PrintCommandLine [Record { Name = "me" ; Age = -1 }] // [| "--record" ; "base64data" |]
+parser.ParseCommandLine(args).GetResult <@ Record @>
+```
+BinaryFormatter is used for the underlying serialization and deserialization, 
+so its inherent restrictions should be taken into consideration.
