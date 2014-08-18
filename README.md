@@ -1,6 +1,6 @@
 # UnionArgParser
 
-A declarative CLI/configuration parser for F# applications. 
+A declarative CLI argument/XML configuration parser for F# applications. 
 
 A package of the library is available on [Nuget](http://www.nuget.org/packages/UnionArgParser/).
 
