@@ -36,7 +36,7 @@
                     | CustomAppConfig _ -> "parameter with custom AppConfig key."
                     | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
 
-        let parser = new UnionArgParser<Argument>("usage string")
+        let parser = UnionArgParser.Create<Argument>("usage string")
 
         [<Test>]
         let ``01. Simple command line parsing`` () =

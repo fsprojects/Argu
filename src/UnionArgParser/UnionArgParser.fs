@@ -15,10 +15,20 @@
     open Nessos.UnionArgParser.Parsers
     open Nessos.UnionArgParser.UnParsers
 
+    type UnionArgParser =
+        
+        /// <summary>
+        ///     Create a new argument parsing scheme using given 'Template type
+        ///     which must be an F# Discriminated Union.
+        /// </summary>
+        /// <param name="usageText">Specify a usage text to prefixed at the '--help' output.</param>
+        static member Create<'Template when 'Template :> IArgParserTemplate>(?usageText : string) =
+            new UnionArgParser<'Template>(?usageText = usageText)
+
     /// The UnionArgParser type generates an argument parser given a type argument
     /// that is an F# discriminated union. It can then be used to parse command line arguments
     /// or XML configuration.
-    type UnionArgParser<'Template when 'Template :> IArgParserTemplate> (?usageText : string) =
+    and UnionArgParser<'Template when 'Template :> IArgParserTemplate> internal (?usageText : string) =
         do 
             if not <| FSharpType.IsUnion(typeof<'Template>, bindingFlags = allBindings) then
                 invalidArg typeof<'Template>.Name "UnionArgParser: template type inaccessible or not F# DU."

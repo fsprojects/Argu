@@ -80,7 +80,7 @@ with
             | Detach _ -> "detach daemon from console."
  
 // build the argument parser
-let parser = new UnionArgParser<CLIArguments>()
+let parser = UnionArgParser.Create<CLIArguments>()
  
 // get usage text
 let usage = parser.Usage()
