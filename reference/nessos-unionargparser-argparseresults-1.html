@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>ArgParseResults<'Template> - UnionArgParser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Eirik Tsarpalis"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/UnionArgParser/content/style.css" />
+    <script type="text/javascript" src="/UnionArgParser/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/nessos/UnionArgParser">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/UnionArgParser/index.html">UnionArgParser</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>ArgParseResults<'Template></h1>
+<div class="xmldoc">
+<p>Argument parsing result holder.</p>
+</div>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '8', 8)" onmouseover="showTip(event, '8', 8)">
+            Catch(f, ?errorCode, ?showUsage)
+          </code>
+          <div class="tip" id="8">
+            <strong>Signature:</strong> (f:(unit -&gt; &#39;T) * errorCode:int option * showUsage:bool option) -&gt; &#39;T<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L268-268" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '10', 10)" onmouseover="showTip(event, '10', 10)">
+            Contains(expr, ?source)
+          </code>
+          <div class="tip" id="10">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;?20407 -&gt; &#39;Template)&gt; * source:ParseSource option) -&gt; bool<br />
+                          <strong>Type parameters:</strong> '?20407          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L247-247" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Checks if parameter of specific kind has been specified.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '11', 11)" onmouseover="showTip(event, '11', 11)">
+            Contains(expr, ?source)
+          </code>
+          <div class="tip" id="11">
+            <strong>Signature:</strong> (expr:Expr&lt;&#39;Template&gt; * source:ParseSource option) -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L243-243" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Checks if parameter of specific kind has been specified.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '12', 12)" onmouseover="showTip(event, '12', 12)">
+            GetAllResults(?source)
+          </code>
+          <div class="tip" id="12">
+            <strong>Signature:</strong> (source:ParseSource option) -&gt; &#39;Template list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L199-199" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Gets all parse results.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '13', 13)" onmouseover="showTip(event, '13', 13)">
+            GetResult(expr, ?defaultValue, ?source)
+          </code>
+          <div class="tip" id="13">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * defaultValue:&#39;Fields option * source:ParseSource option) -&gt; &#39;Fields<br />
+                          <strong>Type parameters:</strong> 'Fields          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L235-235" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type. 
+          Command line parameters have precedence over AppSettings parameters.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '14', 14)" onmouseover="showTip(event, '14', 14)">
+            GetResult(expr, ?defaultValue, ?source)
+          </code>
+          <div class="tip" id="14">
+            <strong>Signature:</strong> (expr:Expr&lt;&#39;Template&gt; * defaultValue:&#39;Template option * source:ParseSource option) -&gt; &#39;Template<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L225-225" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type. 
+          Command line parameters have precedence over AppSettings parameters.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '15', 15)" onmouseover="showTip(event, '15', 15)">
+            GetResults(expr, ?source)
+          </code>
+          <div class="tip" id="15">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * source:ParseSource option) -&gt; &#39;Fields list<br />
+                          <strong>Type parameters:</strong> 'Fields          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L194-194" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Query parse results for argument with parameters.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '16', 16)" onmouseover="showTip(event, '16', 16)">
+            GetResults(expr, ?source)
+          </code>
+          <div class="tip" id="16">
+            <strong>Signature:</strong> (expr:Expr&lt;&#39;Template&gt; * source:ParseSource option) -&gt; &#39;Template list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L188-188" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Query parse results for parameterless argument.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '17', 17)" onmouseover="showTip(event, '17', 17)">
+            IsUsageRequested
+          </code>
+          <div class="tip" id="17">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L179-179" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns true if '--help' parameter has been specified in the command line.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '18', 18)" onmouseover="showTip(event, '18', 18)">
+            PostProcessResult(expr, parser, ?source)
+          </code>
+          <div class="tip" id="18">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * source:ParseSource option) -&gt; &#39;R<br />
+                          <strong>Type parameters:</strong> 'Field, 'R          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L278-278" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type. 
+          Command line parameters have precedence over AppSettings parameters.
+          Results are passed to a post-processing function that is error handled by the parser.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '19', 19)" onmouseover="showTip(event, '19', 19)">
+            PostProcessResults(...)
+          </code>
+          <div class="tip" id="19">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * source:ParseSource option) -&gt; &#39;R list<br />
+                          <strong>Type parameters:</strong> 'Field, 'R          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L288-288" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Query parse results for given argument kind.
+          Command line parameters have precedence over AppSettings parameters.
+          Results are passed to a post-processing function that is error handled by the parser.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '20', 20)" onmouseover="showTip(event, '20', 20)">
+            Raise(e, ?errorCode, ?showUsage)
+          </code>
+          <div class="tip" id="20">
+            <strong>Signature:</strong> (e:exn * errorCode:int option * showUsage:bool option) -&gt; &#39;T<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L261-261" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '21', 21)" onmouseover="showTip(event, '21', 21)">
+            Raise(msg, ?errorCode, ?showUsage)
+          </code>
+          <div class="tip" id="21">
+            <strong>Signature:</strong> (msg:string * errorCode:int option * showUsage:bool option) -&gt; &#39;T<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L253-253" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '22', 22)" onmouseover="showTip(event, '22', 22)">
+            TryGetResult(expr, ?source)
+          </code>
+          <div class="tip" id="22">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * source:ParseSource option) -&gt; &#39;Fields option<br />
+                          <strong>Type parameters:</strong> 'Fields          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L217-217" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type, if it exists. 
+          Command line parameters have precedence over AppSettings parameters.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+            TryGetResult(expr, ?source)
+          </code>
+          <div class="tip" id="23">
+            <strong>Signature:</strong> (expr:Expr&lt;&#39;Template&gt; * source:ParseSource option) -&gt; &#39;Template option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L210-210" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type, if it exists. 
+          Command line parameters have precedence over AppSettings parameters.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+            TryPostProcessResult(...)
+          </code>
+          <div class="tip" id="24">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * source:ParseSource option) -&gt; &#39;R option<br />
+                          <strong>Type parameters:</strong> 'Field, 'R          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L298-298" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type. 
+          Command line parameters have precedence over AppSettings parameters.
+          Results are passed to a post-processing function that is error handled by the parser.</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
+            Usage(?message)
+          </code>
+          <div class="tip" id="25">
+            <strong>Signature:</strong> (message:string option) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/UnionArgParser.fs#L183-183" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the usage string.</p>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <a target="_blank" href="http://www.nessos.gr/">
+			<img src="/UnionArgParser/img/nessos.png" alt="F# Project" style="width:150px;margin:10px" /> 
+		  </a>
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">UnionArgParser</li>
+            <li><a href="/UnionArgParser/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://www.nuget.org/packages/UnionArgParser">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/nessos/UnionArgParser">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/nessos/UnionArgParser/blob/master/License.md">License</a></li>
+            <li><a href="http://github.com/nessos/UnionArgParser/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/UnionArgParser/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/nessos/UnionArgParser"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>
