@@ -15,12 +15,5 @@
       <copyright>Copyright 2014</copyright>
       <tags>@tags@</tags>
     </metadata>
-    <files>
-      <file src="..\bin\net35\UnionArgParser.dll" target="lib/net35" />
-      <file src="..\bin\net35\UnionArgParser.xml" target="lib/net35" />
-      <file src="..\bin\net35\UnionArgParser.pdb" target="lib/net35" />
-      <file src="..\bin\net40\UnionArgParser.dll" target="lib/net40" />
-      <file src="..\bin\net40\UnionArgParser.xml" target="lib/net40" />
-      <file src="..\bin\net40\UnionArgParser.pdb" target="lib/net40" />
-    </files>
+    @files@
 </package>

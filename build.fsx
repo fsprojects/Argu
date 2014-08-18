@@ -6,6 +6,7 @@
 #r "packages/FAKE/tools/FakeLib.dll"
 //#load "packages/SourceLink.Fake/tools/SourceLink.fsx"
 open System
+open System.IO
 open Fake 
 open Fake.Git
 open Fake.ReleaseNotesHelper
@@ -115,6 +116,20 @@ FinalTarget "CloseTestRunner" (fun _ ->
 //// --------------------------------------------------------------------------------------
 //// Build a NuGet package
 
+let addAssembly (target : string) assembly =
+    let includeFile force file =
+        let file = file
+        if File.Exists (Path.Combine("nuget", file)) then [(file, Some target, None)]
+        elif force then raise <| new FileNotFoundException(file)
+        else []
+
+    seq {
+        yield! includeFile true assembly
+        yield! includeFile false <| Path.ChangeExtension(assembly, "pdb")
+        yield! includeFile false <| Path.ChangeExtension(assembly, "xml")
+        yield! includeFile false <| assembly + ".config"
+    }
+
 Target "NuGet" (fun _ ->
     // Format the description to fit on a single line (remove \r\n and double-spaces)
     let description = description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
@@ -131,6 +146,11 @@ Target "NuGet" (fun _ ->
             OutputPath = "bin/"
             ToolPath = nugetPath
             AccessKey = getBuildParamOrDefault "nugetkey" ""
+            Files =
+                [
+                    yield! addAssembly @"lib\net35" @"..\bin\net35\UnionArgParser.dll"
+                    yield! addAssembly @"lib\net40" @"..\bin\net40\UnionArgParser.dll"
+                ]
             Publish = hasBuildParam "nugetkey" })
         ("nuget/" + project + ".nuspec")
 )
@@ -143,7 +163,7 @@ Target "Release" DoNothing
 
 Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
-Target "All" DoNothing
+Target "Default" DoNothing
 
 "Clean"
   ==> "RestorePackages"
@@ -151,13 +171,13 @@ Target "All" DoNothing
   ==> "Prepare"
   ==> "Build"
   ==> "RunTests"
-  ==> "All"
+  ==> "Default"
 
-"All"
+"Default"
   ==> "PrepareRelease"
   ==> "Build-Net35"
   ==> "NuGet"
   ==> "Release"
 
+RunTargetOrDefault "Default"
 //RunTargetOrDefault "Release"
-RunTargetOrDefault "All"
