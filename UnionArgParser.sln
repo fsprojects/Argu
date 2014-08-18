@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UnionArgParser", "src\UnionArgParser\UnionArgParser.fsproj", "{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}"
 EndProject
@@ -26,6 +26,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB90
 		nuget\UnionArgParser.nuspec = nuget\UnionArgParser.nuspec
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{31C8F489-6FEC-4DE5-A247-8447D56B5C04}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{036AEA2A-4F01-4834-A345-B7C6D27754FB}"
+	ProjectSection(SolutionItems) = preProject
+		docs\content\index.fsx = docs\content\index.fsx
+		docs\content\tutorial.fsx = docs\content\tutorial.fsx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{745EFEBD-8B8D-4B9B-9743-6AC51D586724}"
+	ProjectSection(SolutionItems) = preProject
+		docs\files\img\fsharp.png = docs\files\img\fsharp.png
+		docs\files\img\nessos.png = docs\files\img\nessos.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{33A4833E-3B3D-40FD-8FFE-734E9C510A46}"
+	ProjectSection(SolutionItems) = preProject
+		docs\tools\generate.fsx = docs\tools\generate.fsx
+		docs\tools\packages.config = docs\tools\packages.config
+		docs\tools\templates\template.cshtml = docs\tools\templates\template.cshtml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,5 +68,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{036AEA2A-4F01-4834-A345-B7C6D27754FB} = {31C8F489-6FEC-4DE5-A247-8447D56B5C04}
+		{745EFEBD-8B8D-4B9B-9743-6AC51D586724} = {31C8F489-6FEC-4DE5-A247-8447D56B5C04}
+		{33A4833E-3B3D-40FD-8FFE-734E9C510A46} = {31C8F489-6FEC-4DE5-A247-8447D56B5C04}
 	EndGlobalSection
 EndGlobal
