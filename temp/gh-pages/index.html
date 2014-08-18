@@ -64,10 +64,11 @@ For instance:</p>
 <p>UnionArgParser takes such discriminated unions and generates 
 a corresponding argument parsing scheme. 
 For example, a parser generated from the above template would
-take the following command line input
-<code>`
---working-directory /var/run --listener localhost 8080 --detach</code>`
-and parse it into the list</p>
+take the following command line input</p>
+
+<table class="pre"><tr><td><pre lang="bash">--working-directory /var/run --listener localhost 8080 --detach</pre></td></tr></table>
+
+<p>and parse it into the list</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
