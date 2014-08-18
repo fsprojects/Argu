@@ -1,11 +1,12 @@
 # UnionArgParser
 
 A declarative CLI/configuration parser for F# applications. 
+
 A package of the library is available on [Nuget](http://www.nuget.org/packages/UnionArgParser/).
 
 ### Documentation
 
-* [Tutorial](http://nessos.github.io/UnionArgParser/tutorial.html) A short introduction to FsPickler.
+* [Tutorial](http://nessos.github.io/UnionArgParser/tutorial.html) A short walkthrough of UnionArgParser features.
 * [API Reference](http://nessos.github.io/UnionArgParser/reference/index.html) Auto-generated library documentation.
 
 All documentation and related material can be found [here](http://nessos.github.io/UnionArgParser/).
