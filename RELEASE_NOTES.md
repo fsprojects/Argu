@@ -1,3 +1,6 @@
+### 0.7.1
+* Replace ArgParser public constructor with factory method.
+
 ### 0.7.0
 * Add support for Base64 binary parsing.
 

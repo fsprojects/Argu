@@ -2,20 +2,24 @@
 
     type ParseSource = AppSettings | CommandLine
 
+    /// Interface that must be implemented by all UnionArgParser template types
     type IArgParserTemplate =
+        /// returns a usage string for every union case
         abstract Usage : string
 
     /// An interface for error handling in the argument parser
-
     type IExiter =
         abstract Exit : msg : string * ?errorCode : int -> 'T
 
+    /// Handles argument parser errors by raising an exception
     and ExceptionExiter(ctor : string -> exn) =
         static member ArgumentExceptionExiter () = 
             new ExceptionExiter(fun msg -> new System.ArgumentException(msg) :> _) :> IExiter
         interface IExiter with
             member __.Exit(msg, _) = raise (ctor msg)
 
+    /// Handles argument parser errors by exiting the process
+    /// after printing a parse error.
     and ProcessExiter() =
         interface IExiter with
             member __.Exit(msg : string, ?errorCode) =
