@@ -10,7 +10,7 @@ open System
 
 # UnionArgParser
 
-A declarative CLI and configuration parser for F# applications.
+A declarative CLI argument/XML configuration parser for F# applications.
 Allows quick definition of argument parsing schema through F# union declarations.
 
 <div class="row">
