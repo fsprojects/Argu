@@ -22,6 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB90
 		build.cmd = build.cmd
 		build.fsx = build.fsx
 		build.sh = build.sh
+		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 		nuget\UnionArgParser.nuspec = nuget\UnionArgParser.nuspec
 	EndProjectSection
