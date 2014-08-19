@@ -73,4 +73,16 @@ of an application's configuration file:
   * [API Reference](reference/index.html) contains automatically generated documentation for all types, 
     modules and functions in the library.
 
+## Contributing and copyright
+
+The project is hosted on [GitHub][gh] where you can [report issues][issues], fork 
+the project and submit pull requests.
+
+The library is available under the MIT License. 
+For more information see the [License file][license] in the GitHub repository. 
+
+  [gh]: https://github.com/nessos/Vagrant
+  [issues]: https://github.com/nessos/Vagrant/issues
+  [license]: https://github.com/nessos/Vagrant/blob/master/License.md
+
 *)
