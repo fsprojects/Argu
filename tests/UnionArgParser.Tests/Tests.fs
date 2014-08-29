@@ -20,6 +20,7 @@
             | Log_Level of int
             | [<AltCommandLine("-D"); AltCommandLine("-z")>] Detach
             | [<CustomAppSettings("Foo")>] CustomAppConfig of string * int
+            | [<EqualsAssignment>] Assignment of string
             | [<First>] First_Parameter of string
         with
             interface IArgParserTemplate with
@@ -33,6 +34,7 @@
                     | Record _ -> "pass an F# record in base64 format."
                     | Log_Level _ -> "set the log level."
                     | Detach _ -> "detach daemon from console."
+                    | Assignment _ -> "assign with equals operation."
                     | CustomAppConfig _ -> "parameter with custom AppConfig key."
                     | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
 
@@ -115,3 +117,10 @@
             let args = parser.PrintCommandLine [ Mandatory_Arg false ; Record instance ]
             let results = parser.ParseCommandLine args
             results.GetResult <@ Record @> |> should equal instance
+
+        [<Test>]
+        let ``11. Parse equals assignment`` () =
+            let arg = [ Assignment "foo bar" ]
+            let clp = parser.PrintCommandLine arg
+            let result = parser.Parse clp
+            result.GetResult <@ Assignment @> |> should equal "foo bar"

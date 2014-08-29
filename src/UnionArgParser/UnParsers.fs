@@ -75,6 +75,11 @@
                 seq {
                     match aI.CommandLineNames with
                     | [] -> ()
+                    | clname :: _ when aI.IsEqualsAssignment ->
+                        let f = fields.[0]
+                        let p = aI.FieldParsers.[0]
+                        yield sprintf "%s='%s'" clname <| p.UnParser f
+
                     | clname :: _ ->
                         yield clname
 

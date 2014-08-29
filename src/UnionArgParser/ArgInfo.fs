@@ -48,6 +48,8 @@
             IsRest : bool
             /// If specified, parameter can only be at start of CLI parameters
             IsFirst : bool
+            /// If specified, CLI parameter argument is specified using '='
+            IsEqualsAssignment : bool
             /// Print labels in Usage ()
             PrintLabels : bool
             /// If specified, multiple parameters can be added in AppSettings in CSV form.
@@ -140,6 +142,7 @@
             PrintLabels = false ;
             Hidden = false ; AppSettingsCSV = false ; Mandatory = false ; 
             GatherAllSources = false ; IsRest = false ; IsFirst = false
+            IsEqualsAssignment = false
         }
 
     let primitiveParsers =
@@ -282,6 +285,14 @@
         let gatherAll = uci.ContainsAttr<GatherAllSourcesAttribute> ()
         let isRest = uci.ContainsAttr<RestAttribute> ()
         let isHidden = uci.ContainsAttr<HiddenAttribute> ()
+        let isEqualsAssignment = 
+            if uci.ContainsAttr<EqualsAssignmentAttribute> () then
+                if types.Length <> 1 then
+                    failwith "UnionArgParser: Parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
+                true
+            else
+                false
+
         let first = uci.ContainsAttr<FirstAttribute> ()
 
         if AppSettingsCSV && fields.Length <> 1 then 
@@ -301,6 +312,7 @@
             GatherAllSources = gatherAll
             IsRest = isRest
             IsFirst = first
+            IsEqualsAssignment = isEqualsAssignment
             Hidden = isHidden
         }
 

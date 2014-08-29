@@ -4,10 +4,24 @@
         
         open System
         open System.IO
+        open System.Text.RegularExpressions
         open System.Configuration
 
         open Nessos.UnionArgParser.Utils
         open Nessos.UnionArgParser.ArgInfo
+
+        // parses the first part of a command line parameter
+        // recognizes if parameter is of kind --param arg or --param=arg
+
+        let private assignRegex = new Regex("^([^=]*)=(.*)$")
+        let parseEqualityParam (param : string) =
+            let m = assignRegex.Match param
+            if m.Success then
+                let name = m.Groups.[1].Value
+                let param = m.Groups.[2].Value.Trim([|''';'"'|])
+                name, Some param
+            else
+                param, None
 
         // parse the next command line argument and append to state
         let parseCommandLinePartial (argIdx : Map<string, ArgInfo>) (args : string []) (pos : int ref)
@@ -15,34 +29,48 @@
 
             let curr = args.[!pos]
             do incr pos
-            
-            if hasCommandLineParam helpInfo curr then (true, parseState) else
 
-            match argIdx.TryFind curr with
-            | None -> bad ErrorCode.CommandLine None "unrecognized argument: '%s'." curr
+            let name, equalityParam = parseEqualityParam curr
+            if hasCommandLineParam helpInfo name then (true, parseState) else
+
+            match argIdx.TryFind name with
+            | None -> bad ErrorCode.CommandLine None "unrecognized argument: '%s'." name
+            | Some argInfo when equalityParam.IsSome && not argInfo.IsEqualsAssignment ->
+                bad ErrorCode.CommandLine (Some argInfo) "argument '%s' does not support '=' assignments." name
             | Some argInfo when argInfo.IsFirst && !pos > 1 ->
-                bad ErrorCode.CommandLine (Some argInfo) "argument '%s' should be first." curr
+                bad ErrorCode.CommandLine (Some argInfo) "argument '%s' should precede all other arguments." name
             | Some argInfo ->
+                let tryReadNextArg () =
+                    match equalityParam with
+                    | Some _ as p -> p
+                    | None ->
+                        if !pos = args.Length then None
+                        else
+                            let p = args.[!pos]
+                            incr pos
+                            Some p
+                        
                 let parseOne () =
                     let fields =
                         [|
                             for p in argInfo.FieldParsers do
-                                if !pos = args.Length then
+                                match tryReadNextArg () with
+                                | None ->
                                     bad ErrorCode.CommandLine (Some argInfo) 
-                                        "option '%s' requires argument <%O>." curr p
-                                yield 
-                                    try p.Parser args.[!pos]
-                                    with _ ->
-                                        if argInfo.PrintLabels then
-                                            bad ErrorCode.CommandLine (Some argInfo) 
-                                                "option '%s' expects argument <%O>." curr p
-                                        else
-                                            bad ErrorCode.CommandLine (Some argInfo) 
-                                                "option '%s' expects argument <%O>." curr p
-                                incr pos
+                                        "parameter '%s' missing argument <%O>." name p
+                                | Some arg ->
+                                    yield 
+                                        try p.Parser arg
+                                        with _ ->
+                                            if argInfo.PrintLabels then
+                                                bad ErrorCode.CommandLine (Some argInfo) 
+                                                    "option '%s' expects argument <%O>." name p
+                                            else
+                                                bad ErrorCode.CommandLine (Some argInfo) 
+                                                    "option '%s' expects argument <%O>." name p
                         |]
 
-                    buildResult<'Template> argInfo CommandLine curr fields
+                    buildResult<'Template> argInfo CommandLine name fields
 
                 let parsedResults =
                     if argInfo.IsRest then

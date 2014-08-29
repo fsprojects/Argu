@@ -128,6 +128,7 @@ type Argument =
     | [<NoCommandLine>] Connection_String of string
     | [<PrintLabels>] Listener of host:string * port:int
     | [<EncodeBase64>] Data of byte []
+    | [<EqualsAssignment>] Assignment of string
     | [<AltCommandLine("-pP")>] Primary_Port of int
 
 (**
@@ -141,6 +142,8 @@ In this case,
   * `AltCommandLine`: specifies an alternative command line switch.
 
   * `EncodeBase64` : parse a byte array using base64 encoding.
+
+  * `EqualsAssignment` : enforces a '--param=argument' CLI syntax.
 
   * `PrintLabels` : Augments documentation with label names in F# 3.1 programs.
 

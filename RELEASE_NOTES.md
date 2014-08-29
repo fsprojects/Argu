@@ -1,3 +1,6 @@
+### 0.7.2
+* Add support for '--param=argument' CLI syntax.
+
 ### 0.7.1
 * Replace ArgParser public constructor with factory method.
 
