@@ -199,5 +199,5 @@ Target "Default" DoNothing
   ==> "NuGet"
   ==> "Release"
 
-//RunTargetOrDefault "Default"
-RunTargetOrDefault "Release"
+RunTargetOrDefault "Default"
+//RunTargetOrDefault "Release"
