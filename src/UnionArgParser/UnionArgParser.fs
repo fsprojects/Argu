@@ -50,6 +50,7 @@
             // do not display usage for App.Config-only parameter errors
             | Bad (msg, id, Some aI) when aI.NoCommandLine -> Some(id, msg)
             | Bad (msg, id, _) -> Some (id, printUsage (Some msg) argInfo)
+            | HelpText -> Some (ErrorCode.HelpText, printUsage usageText argInfo)
             | _ -> None
 
         /// <summary>Parse command line arguments only.</summary>
