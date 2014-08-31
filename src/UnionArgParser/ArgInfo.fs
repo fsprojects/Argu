@@ -31,7 +31,7 @@
             Id : ArgId
 
             /// Field parser definitions
-            FieldParsers : FieldInfo []
+            FieldParsers : ParserInfo []
 
             /// Builds a union case out of its field parameters
             CaseCtor : obj [] -> obj
@@ -86,7 +86,7 @@
         }
 
     /// Union Case Field info
-    and FieldInfo =
+    and ParserInfo =
         {
             /// Type name
             Name : string
@@ -161,7 +161,7 @@
         }
 
     let primitiveParsers =
-        let mkParser name pars unpars = typeof<'T>, FieldInfo.Create<'T> name pars unpars in
+        let mkParser name pars unpars = typeof<'T>, ParserInfo.Create<'T> name pars unpars in
         dict [
             mkParser "bool" Boolean.Parse (sprintf "%b")
             mkParser "byte" Byte.Parse string

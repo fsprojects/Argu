@@ -62,7 +62,7 @@
             else
                 let name, equalityParam = parseEqualityParam current
 
-                let parseField (info : ArgInfo) (field : FieldInfo) (arg : string) =
+                let parseField (info : ArgInfo) (field : ParserInfo) (arg : string) =
                     try field.Parser arg
                     with _ ->
                         bad ErrorCode.CommandLine (Some info) 
@@ -89,7 +89,7 @@
                     updateStateWith argInfo [ result ]
 
                 | Some argInfo ->
-                    let parseNextField (p : FieldInfo) =
+                    let parseNextField (p : ParserInfo) =
                         if state.HasNext() then
                             let arg = state.Inputs.[!position]
                             incr position
@@ -155,7 +155,7 @@
                                 else [| entry |]
 
                             let pos = ref 0
-                            let parseNext (parser : FieldInfo) =
+                            let parseNext (parser : ParserInfo) =
                                 if !pos < tokens.Length then
                                     try 
                                         let tok = tokens.[!pos]
