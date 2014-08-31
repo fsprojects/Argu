@@ -53,7 +53,7 @@
     type PrintLabelsAttribute () = inherit Attribute ()
     /// Use Base64 encoding to pass binary parameters.
     type EncodeBase64Attribute () = inherit Attribute ()
-    /// Use '=' argument assignment in CLI.
+    /// Use '--param=arg' assignment syntax in CLI.
     type EqualsAssignmentAttribute () = inherit Attribute ()
 
     /// Sets a custom command line name.

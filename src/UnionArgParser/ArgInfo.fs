@@ -22,8 +22,9 @@
     type ArgId(uci : UnionCaseInfo) =
         inherit ProjectionComparison<ArgId,int>(uci.Tag)
         member __.UCI = uci
-                    
-    and ArgInfo =
+        
+    /// Represents a parsing schema for a single parameter
+    type ArgInfo =
         {
             /// Argument identifier
             Id : ArgId
@@ -48,7 +49,7 @@
             IsRest : bool
             /// If specified, parameter can only be at start of CLI parameters
             IsFirst : bool
-            /// If specified, CLI parameter argument is specified using '='
+            /// If specified, use '--param=arg' CLI parsing syntax
             IsEqualsAssignment : bool
             /// Print labels in Usage ()
             PrintLabels : bool
@@ -67,10 +68,19 @@
 
     and ParseResult<'T> =
         {
-            Value : 'T // union case value
-            FieldContents : obj // untyped version of tuple of branch contents
+            /// union case value
+            Value : 'T
+
+            /// untyped version of tuple of branch contents
+            FieldContents : obj
+            
+            /// ArgInfo used to parse parameter
             ArgInfo : ArgInfo
-            ParseContext : string // metadata given by the parser
+
+            /// metadata provided by the parser
+            ParseContext : string
+            
+            /// parse source 
             Source : ParseSource
         }
 
@@ -84,10 +94,15 @@
             Type : Type
             /// parser
             Parser : string -> obj
-            // unparser
+            /// unparser
             UnParser : obj -> string
         }
     with
+        override p.ToString() =
+            match p.Label with
+            | None -> p.Name
+            | Some l -> sprintf "%s:%s" l p.Name
+
         static member Create (name : string) (parser : string -> 'T) (unparser : 'T -> string) (label : string option) =
             {
                 Name = name
@@ -96,40 +111,38 @@
                 Parser = fun x -> parser x :> obj
                 UnParser = fun o -> unparser (o :?> 'T)
             }
-
-        override p.ToString() =
-            match p.Label with
-            | None -> p.Name
-            | Some l -> sprintf "%s:%s" l p.Name
             
-
     exception HelpText
     exception Bad of string * ErrorCode * ArgInfo option
 
     let bad code aI fmt = Printf.ksprintf (fun msg -> raise <| Bad(msg, code, aI)) fmt
 
-    // gets the default name of the argument
+    /// gets the default name of the argument
     let getName (aI : ArgInfo) =
         match aI.CommandLineNames, aI.AppSettingsName with
         | name :: _, _ -> name
         | [], Some name -> name
         | [], None -> failwith "impossible"
 
+    /// checks if given parameter name is contained in argument
     let hasCommandLineParam (aI : ArgInfo) (param : string) =
         aI.CommandLineNames |> List.exists ((=) param)
 
+    /// construct a CLI param from UCI name
     let uciToOpt (uci : UnionCaseInfo) =
         "--" + uci.Name.ToLower().Replace('_','-')
 
+    /// construct an App.Config param from UCI name
     let uciToAppConf (uci : UnionCaseInfo) =
         uci.Name.ToLower().Replace('_',' ')
 
+    /// get CL arguments from environment
     let getEnvArgs () =
         match System.Environment.GetCommandLineArgs() with
         | [||] -> [||]
         | args -> args.[1..]
         
-    // dummy argInfo for --help arg
+    /// dummy argInfo for --help arg
     let helpInfo : ArgInfo = 
         {
             Id = Unchecked.defaultof<_>
@@ -137,7 +150,7 @@
             Usage = "display this list of options."
             AppSettingsName = None
             FieldParsers = [||]
-            CaseCtor = fun _ -> invalidOp "internal error: attempting to '--help' case constructor."
+            CaseCtor = fun _ -> invalidOp "internal error: attempting to use '--help' case constructor."
             FieldCtor = None
             PrintLabels = false ;
             Hidden = false ; AppSettingsCSV = false ; Mandatory = false ; 
@@ -172,6 +185,7 @@
             mkParser "guid" (fun s -> Guid(s)) string
         ]
 
+    /// create a base64 serialization parser
     let mkBase64Parser (label : string option) (t : Type) =
         let parser,unparser =
             if t = typeof<byte []> then
@@ -198,7 +212,8 @@
         }
             
 
-    // recognize exprs that strictly contain DU constructors
+    /// recognize exprs that strictly contain DU constructors
+    /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
     let expr2ArgId (e : Expr) =
         let rec aux (tupledArg : Var option) vars (e : Expr) =
             match tupledArg, e with
@@ -211,7 +226,7 @@
 
         ArgId(aux None [] e)
 
-
+    /// generate argument parsing schema from given UnionCaseInfo
     let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         let fields = uci.GetFields()
         let types = fields |> Array.map (fun f -> f.PropertyType)
@@ -316,7 +331,7 @@
             Hidden = isHidden
         }
 
-
+    /// construct a parse result from untyped collection of parsed arguments
     let buildResult<'T> (argInfo : ArgInfo) src ctx (fields : obj []) =
         {
             Value = argInfo.CaseCtor fields :?> 'T
