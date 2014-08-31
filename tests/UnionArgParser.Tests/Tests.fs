@@ -124,3 +124,19 @@
             let clp = parser.PrintCommandLine arg
             let result = parser.Parse clp
             result.GetResult <@ Assignment @> |> should equal "foo bar"
+
+
+        [<Test>]
+        let ``12. Ignore Unrecognized parameters`` () =
+            let args = 
+                [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ; 
+                   "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
+
+            let expected_outcome = set [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
+            let results = parser.ParseCommandLine (args, ignoreUnrecognized = true)
+            results.GetAllResults() |> set |> should equal expected_outcome
+
+            results.Contains <@ Detach @> |> should equal true
+            results.GetResult <@ Listener @> |> should equal ("localhost", 8080)
+            results.GetResults <@ Log_Level @> |> should equal [2]
+            results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3

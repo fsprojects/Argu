@@ -49,7 +49,7 @@
     type NoAppSettingsAttribute () = inherit Attribute ()
     /// Argument can only be placed at the beginning of the command line.
     type FirstAttribute () = inherit Attribute ()
-    /// Print field labels in 'Usage' string.
+    /// Print F# 3.1 field labels in 'Usage' string.
     type PrintLabelsAttribute () = inherit Attribute ()
     /// Use Base64 encoding to pass binary parameters.
     type EncodeBase64Attribute () = inherit Attribute ()

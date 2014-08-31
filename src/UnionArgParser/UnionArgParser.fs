@@ -56,16 +56,18 @@
         /// <summary>Parse command line arguments only.</summary>
         /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
-        /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors.</param>
-        member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?raiseOnUsage) =
+        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false</param>
+        /// <param name="ignoreUnrecognized">Ignore arguments that do not match the schema. Defaults to false.</param>
+        /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
+        member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) =
             let ignoreMissing = defaultArg ignoreMissing false
+            let ignoreUnrecognized = defaultArg ignoreUnrecognized false
             let raiseOnUsage = defaultArg raiseOnUsage true
             let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
             let inputs = match inputs with None -> getEnvArgs () | Some args -> args
 
             try
-                let isUsageRequested, commandLineResults = parseCommandLine clArgIdx inputs
+                let isUsageRequested, commandLineResults = parseCommandLine clArgIdx ignoreUnrecognized inputs
 
                 if isUsageRequested && raiseOnUsage then raise HelpText
 
@@ -108,16 +110,18 @@
         /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given configuration file.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
         /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
+        /// <param name="ignoreUnrecognized">Ignore arguments that do not match the schema. Defaults to false.</param>
         /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors.</param>
-        member s.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?raiseOnUsage) =
+        member s.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) =
             let ignoreMissing = defaultArg ignoreMissing false
+            let ignoreUnrecognized = defaultArg ignoreUnrecognized false
             let raiseOnUsage = defaultArg raiseOnUsage true
             let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
             let inputs = match inputs with None -> getEnvArgs () | Some args -> args
 
             try
                 let appSettingsResults = parseAppSettings xmlConfigurationFile argInfo
-                let isUsageRequested, commandLineResults = parseCommandLine clArgIdx inputs
+                let isUsageRequested, commandLineResults = parseCommandLine clArgIdx ignoreUnrecognized inputs
                 if isUsageRequested && raiseOnUsage then raise HelpText
 
                 let results = combine argInfo ignoreMissing (Some appSettingsResults) (Some commandLineResults)

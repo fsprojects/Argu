@@ -22,6 +22,7 @@
     type ArgId(uci : UnionCaseInfo) =
         inherit ProjectionComparison<ArgId,int>(uci.Tag)
         member __.UCI = uci
+        override __.ToString() = uci.Name
         
     /// Represents a parsing schema for a single parameter
     type ArgInfo =
@@ -84,6 +85,7 @@
             Source : ParseSource
         }
 
+    /// Union Case Field info
     and FieldInfo =
         {
             /// Type name
@@ -304,6 +306,8 @@
             if uci.ContainsAttr<EqualsAssignmentAttribute> () then
                 if types.Length <> 1 then
                     failwith "UnionArgParser: Parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
+                elif isRest then
+                    failwith "UnionArgParser: Parameter '%s' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci.Name
                 true
             else
                 false

@@ -16,6 +16,9 @@
 
         let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
 
+        /// HashSet constructor
+        let hset (xs : 'T seq) = new HashSet<_>(xs)
+
         let rec getMethod =
             function
             | Lambda(_,e) -> getMethod e
