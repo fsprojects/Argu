@@ -15,6 +15,9 @@
     open Nessos.UnionArgParser.Parsers
     open Nessos.UnionArgParser.UnParsers
 
+    /// <summary>
+    ///     UnionArgParser static methods
+    /// </summary>
     type UnionArgParser =
         
         /// <summary>
@@ -57,7 +60,7 @@
         /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
         /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false</param>
-        /// <param name="ignoreUnrecognized">Ignore arguments that do not match the schema. Defaults to false.</param>
+        /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
         /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
         member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) =
             let ignoreMissing = defaultArg ignoreMissing false
@@ -67,13 +70,13 @@
             let inputs = match inputs with None -> getEnvArgs () | Some args -> args
 
             try
-                let isUsageRequested, commandLineResults = parseCommandLine clArgIdx ignoreUnrecognized inputs
+                let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
 
-                if isUsageRequested && raiseOnUsage then raise HelpText
+                if cliResults.IsHelpRequested && raiseOnUsage then raise HelpText
 
-                let results = combine argInfo ignoreMissing None (Some commandLineResults)
+                let results = combine argInfo ignoreMissing None (Some cliResults.ParseResults)
 
-                ArgParseResults<_>(s, errorHandler, results, isUsageRequested)
+                ArgParseResults<_>(s, errorHandler, results, cliResults.IsHelpRequested)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -110,7 +113,7 @@
         /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given configuration file.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
         /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
-        /// <param name="ignoreUnrecognized">Ignore arguments that do not match the schema. Defaults to false.</param>
+        /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
         /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors.</param>
         member s.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) =
             let ignoreMissing = defaultArg ignoreMissing false
@@ -121,12 +124,12 @@
 
             try
                 let appSettingsResults = parseAppSettings xmlConfigurationFile argInfo
-                let isUsageRequested, commandLineResults = parseCommandLine clArgIdx ignoreUnrecognized inputs
-                if isUsageRequested && raiseOnUsage then raise HelpText
+                let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
+                if cliResults.IsHelpRequested && raiseOnUsage then raise HelpText
 
-                let results = combine argInfo ignoreMissing (Some appSettingsResults) (Some commandLineResults)
+                let results = combine argInfo ignoreMissing (Some appSettingsResults) (Some cliResults.ParseResults)
 
-                ArgParseResults<_>(s, errorHandler, results, isUsageRequested)
+                ArgParseResults<_>(s, errorHandler, results, cliResults.IsHelpRequested)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -150,7 +153,7 @@
         member __.PrintAppSettings (args : 'Template list, ?printComments) : string =
             let printComments = defaultArg printComments true
             let xmlDoc = printAppSettings argInfo printComments args
-            use writer = new ExtendedStringWriter(System.Text.Encoding.UTF8)
+            use writer = { new System.IO.StringWriter() with member __.Encoding = System.Text.Encoding.UTF8 }
             xmlDoc.Save writer
             writer.Flush()
             writer.ToString()
@@ -166,10 +169,9 @@
             else exiter.Exit(ap.Usage msg, id)
 
         // restriction predicate based on optional parse source
-        let restrictF src : ParseResult<'T> -> bool = 
-            match src with
-            | None -> fun _ -> true
-            | Some src -> fun x -> x.Source = src
+        let restrictF flags : ParseResult<'T> -> bool =
+            let flags = defaultArg flags ParseSource.All
+            fun x -> ParseSource.hasFlag flags x.Source
 
         let getResults rs (e : Expr) = results.[expr2ArgId e] |> snd |> List.filter (restrictF rs)
         let containsResult rs (e : Expr) = e |> getResults rs |> List.isEmpty |> not

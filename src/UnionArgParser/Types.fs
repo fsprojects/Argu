@@ -1,6 +1,15 @@
 ﻿namespace Nessos.UnionArgParser
+    
+    /// Source from which to parse arguments
+    type ParseSource = 
+        | AppSettings   = 1
+        | CommandLine   = 2
+        | All           = 3
 
-    type ParseSource = AppSettings | CommandLine
+    [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    module internal ParseSource =
+        /// NET35 support
+        let inline hasFlag (flag : ParseSource) (value : ParseSource) = flag &&& value = value
 
     /// Interface that must be implemented by all UnionArgParser template types
     type IArgParserTemplate =
@@ -27,8 +36,6 @@
                 do System.Console.Error.Flush()
                 Microsoft.FSharp.Core.Operators.exit (defaultArg errorCode 1)
 
-
-
     // Attribute declarations
 
     open System
@@ -51,8 +58,6 @@
     type FirstAttribute () = inherit Attribute ()
     /// Print F# 3.1 field labels in 'Usage' string.
     type PrintLabelsAttribute () = inherit Attribute ()
-    /// Use Base64 encoding to pass binary parameters.
-    type EncodeBase64Attribute () = inherit Attribute ()
     /// Use '--param=arg' assignment syntax in CLI.
     type EqualsAssignmentAttribute () = inherit Attribute ()
 

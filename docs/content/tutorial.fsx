@@ -66,6 +66,7 @@ open Nessos.UnionArgParser
 type CLIArguments =
     | Working_Directory of string
     | Listener of host:string * port:int
+    | Data of byte []
     | Port of int
     | Log_Level of int
     | Detach
@@ -75,6 +76,7 @@ with
             match s with
             | Working_Directory _ -> "specify a working directory."
             | Listener _ -> "specify a listener (hostname : port)."
+            | Data _ -> "binary data in base64 encoding."
             | Port _ -> "specify a primary port."
             | Log_Level _ -> "set the log level."
             | Detach _ -> "detach daemon from console."
@@ -127,7 +129,6 @@ type Argument =
     | [<Mandatory>] Cache_Path of string
     | [<NoCommandLine>] Connection_String of string
     | [<PrintLabels>] Listener of host:string * port:int
-    | [<EncodeBase64>] Data of byte []
     | [<EqualsAssignment>] Assignment of string
     | [<AltCommandLine("-pP")>] Primary_Port of int
 
@@ -141,9 +142,7 @@ In this case,
 
   * `AltCommandLine`: specifies an alternative command line switch.
 
-  * `EncodeBase64` : parse a byte array using base64 encoding.
-
-  * `EqualsAssignment` : enforces a '--param=argument' CLI syntax.
+  * `EqualsAssignment` : enforces '--assignment=value' CLI syntax.
 
   * `PrintLabels` : Augments documentation with label names in F# 3.1 programs.
 

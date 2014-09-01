@@ -1,5 +1,8 @@
-### 0.7.2
+### 0.8.0
+* Add support for ignored parameters.
 * Add support for '--param=argument' CLI syntax.
+* Update ParseSource API.
+* Fix BASE64 encoding issue.
 
 ### 0.7.1
 * Replace ArgParser public constructor with factory method.

@@ -15,8 +15,7 @@
             | [<PrintLabels>] Listener of host:string * port:int
             | [<Mandatory>] Mandatory_Arg of bool
             | [<Rest>] Rest_Arg of int
-            | [<EncodeBase64>] Data of byte []
-            | [<EncodeBase64>] Record of Record
+            | Data of int * byte []
             | Log_Level of int
             | [<AltCommandLine("-D"); AltCommandLine("-z")>] Detach
             | [<CustomAppSettings("Foo")>] CustomAppConfig of string * int
@@ -31,7 +30,6 @@
                     | Mandatory_Arg _ -> "a mandatory argument."
                     | Rest_Arg _ -> "an argument that consumes all remaining command line tokens."
                     | Data _ -> "pass raw data in base64 format."
-                    | Record _ -> "pass an F# record in base64 format."
                     | Log_Level _ -> "set the log level."
                     | Detach _ -> "detach daemon from console."
                     | Assignment _ -> "assign with equals operation."
@@ -106,20 +104,12 @@
         [<Test>]
         let ``09. Parse byte[] parameters`` () =
             let bytes = [|1uy .. 255uy|]
-            let args = parser.PrintCommandLine [ Mandatory_Arg false ; Data bytes ]
+            let args = parser.PrintCommandLine [ Mandatory_Arg false ; Data(42, bytes) ]
             let results = parser.ParseCommandLine args
-            results.GetResult <@ Data @> |> should equal bytes
-
+            results.GetResult <@ Data @> |> snd |> should equal bytes
 
         [<Test>]
-        let ``10. Parse binary serialized value`` () =
-            let instance = { Name = "me" ; Age = -1 }
-            let args = parser.PrintCommandLine [ Mandatory_Arg false ; Record instance ]
-            let results = parser.ParseCommandLine args
-            results.GetResult <@ Record @> |> should equal instance
-
-        [<Test>]
-        let ``11. Parse equals assignment`` () =
+        let ``10. Parse equals assignment`` () =
             let arg = [ Assignment "foo bar" ]
             let clp = parser.PrintCommandLine arg
             let result = parser.Parse clp
@@ -127,7 +117,7 @@
 
 
         [<Test>]
-        let ``12. Ignore Unrecognized parameters`` () =
+        let ``11. Ignore Unrecognized parameters`` () =
             let args = 
                 [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ; 
                    "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]

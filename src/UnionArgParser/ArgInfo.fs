@@ -185,33 +185,9 @@
             mkParser "bigint" System.Numerics.BigInteger.Parse string
 #endif
             mkParser "guid" (fun s -> Guid(s)) string
+
+            mkParser "base64" Convert.FromBase64String Convert.ToBase64String
         ]
-
-    /// create a base64 serialization parser
-    let mkBase64Parser (label : string option) (t : Type) =
-        let parser,unparser =
-            if t = typeof<byte []> then
-                Convert.FromBase64String >> box, unbox >> Convert.ToBase64String
-            else
-                let parser (txt : string) =
-                    let bytes = Convert.FromBase64String txt
-                    use m = new MemoryStream(bytes)
-                    BinaryFormatter().Deserialize(m)
-
-                let unparser (obj : obj) =
-                    use m = new MemoryStream()
-                    do BinaryFormatter().Serialize(m, obj)
-                    Convert.ToBase64String(m.ToArray())
-
-                parser, unparser
-
-        {
-            Name = "base64"
-            Label = label
-            Type = t
-            Parser = parser
-            UnParser = unparser
-        }
             
 
     /// recognize exprs that strictly contain DU constructors
@@ -273,18 +249,14 @@
             failwith "UnionArgParser: parameter '%s' needs to have at least one parse source." uci.Name
 
         let printLabels = uci.ContainsAttr<PrintLabelsAttribute> (true)
-        let isBase64 = uci.ContainsAttr<EncodeBase64Attribute> (true)
 
         let parsers =
             let getParser (p : PropertyInfo) =
                 let label = if printLabels then Some p.Name else None
-                if isBase64 then
-                    mkBase64Parser label p.PropertyType
-                else
-                    match primitiveParsers.TryFind p.PropertyType with
-                    | Some f -> f label
-                    | None -> 
-                        failwithf "UnionArgParser: template contains unsupported field of type '%O'." p.PropertyType
+                match primitiveParsers.TryFind p.PropertyType with
+                | Some f -> f label
+                | None -> 
+                    failwithf "UnionArgParser: template contains unsupported field of type '%O'." p.PropertyType
 
             Array.map getParser fields
 

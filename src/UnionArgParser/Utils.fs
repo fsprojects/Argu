@@ -16,9 +16,7 @@
 
         let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
 
-        /// HashSet constructor
-        let hset (xs : 'T seq) = new HashSet<_>(xs)
-
+        /// gets the top-Level methodInfo call in a quotation
         let rec getMethod =
             function
             | Lambda(_,e) -> getMethod e
@@ -57,18 +55,25 @@
 
         [<RequireQualifiedAccess>]
         module List =
+            /// fetch last element of a non-empty list
             let rec last xs =
                 match xs with
                 | [] -> invalidArg "xs" "input list is empty."
                 | [x] -> x
                 | _ :: rest -> last rest
 
+            /// try fetching last element of a list
             let rec tryLast xs =
                 match xs with
                 | [] -> None
                 | [x] -> Some x
                 | _ :: rest -> tryLast rest
 
+            /// <summary>
+            ///     returns `Some (map f ts)` iff `(forall t) ((f t).IsSome)`
+            /// </summary>
+            /// <param name="f"></param>
+            /// <param name="ts"></param>
             let tryMap (f : 'T -> 'S option) (ts : 'T list) : 'S list option =
                 let rec gather acc rest =
                     match rest with
@@ -80,25 +85,17 @@
 
                 gather [] ts
 
-            let tryFind2 (f : 'T -> 'S -> bool) (xs : 'T list) (ys : 'S list) =
-                let rec aux xs =
-                    match xs with
-                    | [] -> None
-                    | x :: xs' ->
-                        match List.tryFind (f x) ys with
-                        | None -> aux xs'
-                        | Some y -> Some(x,y)
-
-                aux xs
-
+            /// Map active pattern combinator
             let (|Map|) f xs = List.map f xs
+
+            /// Nondeterministic Map active pattern combinator
             let (|TryMap|_|) f xs = tryMap f xs
 
         [<RequireQualifiedAccess>]
         module Boolean =
             let tryParse (inp : string) =
-                let r = ref false
-                if Boolean.TryParse(inp, r) then Some r.Value
+                let ok, b = Boolean.TryParse inp
+                if ok then Some b
                 else None
             
         type IDictionary<'K,'V> with
@@ -152,8 +149,3 @@
                 let b = new StringBuilder ()
                 do f b
                 b.ToString ()
-
-        type ExtendedStringWriter (encoding : Encoding) =
-            inherit StringWriter()
-
-            override __.Encoding = encoding
