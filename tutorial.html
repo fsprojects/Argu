@@ -33,9 +33,9 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>Tutorial</h1>
+<h1><a name="Tutorial" class="anchor" href="#Tutorial">Tutorial</a></h1>
 
-<h2>Introduction</h2>
+<h2><a name="Introduction" class="anchor" href="#Introduction">Introduction</a></h2>
 
 <p>The library is based on the simple observation that 
 configuration parameters can be naturally described using discriminated unions. 
@@ -92,7 +92,7 @@ of an application's configuration file:</p>
 at the same time. By default, command line parameters override
 their corresponding XML configuration.</p>
 
-<h2>Basic Usage</h2>
+<h2><a name="Basic-Usage" class="anchor" href="#Basic-Usage">Basic Usage</a></h2>
 
 <p>A minimal parser based on the above example can be created as follows:</p>
 
@@ -178,7 +178,7 @@ their corresponding XML configuration.</p>
 </tr>
 </table>
 
-<h2>Querying Parameters</h2>
+<h2><a name="Querying-Parameters" class="anchor" href="#Querying-Parameters">Querying Parameters</a></h2>
 
 <p>While getting a single list of all parsed results might be useful for some cases, 
 it is more likely that you need to query the results for specific parameters:</p>
@@ -204,7 +204,7 @@ it is more likely that you need to query the results for specific parameters:</p
 <p>Querying using quotations enables a simple and type safe way 
 to deconstruct parse results into their constituent values.</p>
 
-<h2>Customization</h2>
+<h2><a name="Customization" class="anchor" href="#Customization">Customization</a></h2>
 
 <p>The parsing behaviour of the configuration parameters 
 can be customized by fixing attributes to the union cases:</p>
@@ -251,7 +251,7 @@ can be customized by fixing attributes to the union cases:</p>
 <li><p><code>First</code>: Argument can only be placed at the beginning of the command line.</p></li>
 </ul>
 
-<h2>Post Processing</h2>
+<h2><a name="Post-Processing" class="anchor" href="#Post-Processing">Post Processing</a></h2>
 
 <p>It should be noted here that arbitrary unions are not supported by the parser. 
 Union cases can only contain fields of primitive types. This means that user-defined 
@@ -280,7 +280,7 @@ a post-process facility is provided.</p>
 
 <p>This construct is useful since exception handling is performed by the arg parser itself.</p>
 
-<h2>Unparsing Support</h2>
+<h2><a name="Unparsing-Support" class="anchor" href="#Unparsing-Support">Unparsing Support</a></h2>
 
 <p>UnionArgParser is convenient when it comes to automated process spawning:</p>
 
