@@ -148,7 +148,7 @@ In this case,
 
 The following attributes are also available:
 
-  * `NoAppConfig`: restricts to command line.
+  * `NoAppSettings`: restricts to command line.
 
   * `Rest`: all remaining command line args are consumed by this parameter.
 
