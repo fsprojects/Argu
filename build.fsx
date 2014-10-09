@@ -73,7 +73,7 @@ Target "Clean" (fun _ ->
 
 let configuration = environVarOrDefault "Configuration" "Release"
 
-Target "Build-Net35" (fun _ ->
+Target "Build.Net35" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
@@ -81,7 +81,7 @@ Target "Build-Net35" (fun _ ->
     |> Log "AppBuild-Output: "
 )
 
-Target "Build" (fun _ ->
+Target "Build.Net40" (fun _ ->
     // Build the rest of the project
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
@@ -181,23 +181,25 @@ Target "Release" DoNothing
 
 Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
+Target "Build" DoNothing
 Target "Default" DoNothing
 
 "Clean"
   ==> "RestorePackages"
   ==> "AssemblyInfo"
   ==> "Prepare"
+  ==> "Build.Net35"
+  ==> "Build.Net40"
   ==> "Build"
   ==> "RunTests"
   ==> "Default"
 
-"Default"
+"Clean"
   ==> "PrepareRelease"
-  ==> "Build-Net35"
+  ==> "Build"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "NuGet"
   ==> "Release"
 
 RunTargetOrDefault "Default"
-//RunTargetOrDefault "Release"
