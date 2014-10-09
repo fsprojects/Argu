@@ -194,9 +194,8 @@ Target "Default" DoNothing
   ==> "RunTests"
   ==> "Default"
 
-"Clean"
+"Build"
   ==> "PrepareRelease"
-  ==> "Build"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "NuGet"
