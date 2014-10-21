@@ -77,7 +77,7 @@
     /// <param name="args"></param>
     let printCommandLineArgs (argInfo : ArgInfo list) (args : 'Template list) =
         let printEntry (t : 'Template) =
-            let uci, fields = FSharpValue.GetUnionFields(t, typeof<'Template>)
+            let uci, fields = FSharpValue.GetUnionFields(t, typeof<'Template>, bindingFlags = allBindings)
             let id = ArgId uci
             let aI = argInfo |> List.find (fun aI -> id = aI.Id)
 

@@ -1,3 +1,6 @@
+### 0.8.2
+* Fix package issue.
+
 ### 0.8.1
 * Fix reflection bug.
 
