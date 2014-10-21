@@ -106,7 +106,7 @@
     /// <param name="args"></param>
     let printAppSettings (argInfo : ArgInfo list) printComments (args : 'Template list) =
         let printEntry (t : 'Template) : XNode list =
-            let uci, fields = FSharpValue.GetUnionFields(t, typeof<'Template>)
+            let uci, fields = FSharpValue.GetUnionFields(t, typeof<'Template>, bindingFlags = allBindings)
             let id = ArgId uci
             let aI = argInfo |> List.find (fun aI -> id = aI.Id)
 

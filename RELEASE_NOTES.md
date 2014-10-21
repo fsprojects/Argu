@@ -1,3 +1,6 @@
+### 0.8.1
+* Fix reflection bug.
+
 ### 0.8.0
 * Add support for ignored parameters.
 * Add support for '--param=argument' CLI syntax.
