@@ -66,6 +66,12 @@ of an application's configuration file:
         <add key="detach" value="true" />
     </appSettings>
 
+## Who uses UnionArgParser?
+
+* [MBrace framework](http://mbrace.net/)
+
+* [Paket dependency manager](http://fsprojects.github.io/Paket/)
+
 ## Documentation
 
   * [Tutorial](tutorial.html) A short walkthrough of UnionArgParser features.
