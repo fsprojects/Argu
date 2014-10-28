@@ -70,6 +70,8 @@ of an application's configuration file:
 
 * [MBrace framework](http://mbrace.net/)
 
+* [FAKE build tool](http://fsharp.github.io/FAKE/)
+
 * [Paket dependency manager](http://fsprojects.github.io/Paket/)
 
 ## Documentation
