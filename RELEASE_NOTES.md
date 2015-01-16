@@ -1,3 +1,6 @@
+### 0.8.3
+* Add checks for conflicting parameter identifiers.
+
 ### 0.8.2
 * Fix package issue.
 

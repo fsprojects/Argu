@@ -130,3 +130,26 @@
             results.GetResult <@ Listener @> |> should equal ("localhost", 8080)
             results.GetResults <@ Log_Level @> |> should equal [2]
             results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3
+
+
+        type ConflictingCliNames =
+            | [<CustomCommandLine("foo")>] Foo of int
+            | [<AltCommandLine("foo")>] Bar of string
+        with
+            interface IArgParserTemplate with
+                member a.Usage = "foo"
+
+        type ConflictinAppSettingsNames =
+            | [<CustomAppSettings("foo")>]Foo of int
+            | [<CustomAppSettings("foo")>] Bar of string
+        with
+            interface IArgParserTemplate with
+                member a.Usage = "foo"
+
+        [<Test; ExpectedException(typeof<FormatException>)>]
+        let ``12. Identify conflicting CLI identifiers`` () =
+            ignore <| UnionArgParser.Create<ConflictingCliNames>("usage string")
+
+        [<Test; ExpectedException(typeof<FormatException>)>]
+        let ``13. Identify conflicting AppSettings identifiers`` () =
+            ignore <| UnionArgParser.Create<ConflictinAppSettingsNames>("usage string")

@@ -323,3 +323,33 @@
 
     let isAppConfig (aI : ArgInfo) = aI.AppSettingsName.IsSome
     let isCommandLine (aI : ArgInfo) = not aI.CommandLineNames.IsEmpty
+
+    // checks if a collection of ArgumentInfo's contain conflicting parameter id's
+    let checkForConflictingParameters (args : seq<ArgInfo>) : unit =
+        // check for conflicting CLI identifiers
+        let cliConflicts =
+            args
+            |> Seq.collect(fun arg -> arg.CommandLineNames |> Seq.map (fun name -> arg, name))
+            |> Seq.groupBy snd
+            |> Seq.choose(fun (name, args) -> if Seq.length args > 1 then Some(name, args |> Seq.map fst |> Seq.toList) else None)
+            |> Seq.toList
+
+        match cliConflicts with
+        | (id, arg0 :: arg1 :: _) :: _ -> 
+            let msg = sprintf "UnionArgParser: Parameters '%O' and '%O' using conflicting CLI identifier '%s'." arg0.UCI arg1.UCI id
+            raise <| new FormatException(msg)
+        | _ -> ()
+
+        // check for conflicting CLI identifiers
+        let appSettingsConflicts =
+            args
+            |> Seq.collect(fun arg -> arg.AppSettingsName |> Option.toArray |> Seq.map(fun name -> arg, name))
+            |> Seq.groupBy snd
+            |> Seq.choose(fun (name, args) -> if Seq.length args > 1 then Some(name, args |> Seq.map fst |> Seq.toList) else None)
+            |> Seq.toList
+
+        match appSettingsConflicts with
+        | (id, arg0 :: arg1 :: _) :: _ ->
+            let msg = sprintf "UnionArgParser: Parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." arg0.UCI arg1.UCI id
+            raise <| new FormatException(msg)
+        | _ -> ()

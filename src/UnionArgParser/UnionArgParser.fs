@@ -42,6 +42,8 @@
             |> Seq.sortBy (fun a -> a.UCI.Tag)
             |> Seq.toList
 
+        do checkForConflictingParameters argInfo
+
         let clArgIdx =
             argInfo
             |> Seq.map (fun aI -> aI.CommandLineNames |> Seq.map (fun name -> name, aI))
