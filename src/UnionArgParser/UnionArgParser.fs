@@ -139,6 +139,11 @@
         /// <param name="message">The message to be displayed on top of the usage string.</param>
         member __.Usage (?message : string) : string = printUsage message argInfo
 
+
+        /// <summary>Prints command line syntax. Useful for generating documentation.</summary>
+        member __.PrintCommandLineSyntax () : string =
+            printCommandLineSyntax argInfo
+
         /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
         member __.PrintCommandLine (args : 'Template list) : string [] =
             printCommandLineArgs argInfo args
