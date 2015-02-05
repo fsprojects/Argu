@@ -1,3 +1,6 @@
+### 0.8.4
+* Add support for CLI syntax printing.
+
 ### 0.8.3
 * Add checks for conflicting parameter identifiers.
 
