@@ -6,3 +6,4 @@ nuget FsUnit 1.3.0.1
 nuget NUnit 2.6.3
 nuget FSharp.Formatting
 nuget NUnit.Runners
+nuget FAKE
