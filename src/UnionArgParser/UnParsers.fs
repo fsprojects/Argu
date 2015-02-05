@@ -99,6 +99,42 @@
         args |> Seq.collect printEntry |> Seq.toArray
 
     /// <summary>
+    ///     print the command line syntax
+    /// </summary>
+    /// <param name="argInfo"></param>
+    let printCommandLineSyntax (argInfo : ArgInfo list) =
+        let sorted = 
+            argInfo 
+            |> List.filter (fun ai -> not ai.Hidden)
+            |> List.sortBy (fun ai -> not ai.IsFirst, ai.IsRest)
+
+        stringB {
+            for aI in sorted do
+                if not aI.Mandatory then yield "["
+                match aI.CommandLineNames with
+                | [] -> ()
+                | h :: t -> 
+                    if aI.Mandatory && not <| List.isEmpty t then yield "("
+                    yield h
+                    for n in t do
+                        yield "|"
+                        yield n
+                    if aI.Mandatory && not <| List.isEmpty t then yield ")"
+                
+                match aI.IsEqualsAssignment with
+                | true ->
+                    yield sprintf "=<%O>" aI.FieldParsers.[0]
+                | false ->
+                    for p in aI.FieldParsers do
+                        yield sprintf " <%O>" p
+
+                if aI.IsRest then yield " ..."
+
+                if not aI.Mandatory then yield "]"
+                if aI.Id <> (Seq.last sorted).Id then yield " "
+        } |> String.build
+
+    /// <summary>
     ///     returns an App.Config XElement given a set of config parameters
     /// </summary>
     /// <param name="argInfo"></param>
