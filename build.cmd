@@ -1,8 +1,13 @@
 @echo off
-if not exist packages\FAKE\tools\Fake.exe ( 
-  .nuget\NuGet.exe install FAKE -OutputDirectory packages -ExcludeVersion
+
+.paket\paket.bootstrapper.exe
+if errorlevel 1 (
+  exit /b %errorlevel%
 )
-if not exist packages\SourceLink.Fake\tools\SourceLink.fsx ( 
-  .nuget\NuGet.exe install SourceLink.Fake -OutputDirectory packages -ExcludeVersion
+
+.paket\paket.exe restore -v
+if errorlevel 1 (
+  exit /b %errorlevel%
 )
+
 packages\FAKE\tools\FAKE.exe build.fsx %*
