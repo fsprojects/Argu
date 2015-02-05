@@ -103,8 +103,13 @@
     /// </summary>
     /// <param name="argInfo"></param>
     let printCommandLineSyntax (argInfo : ArgInfo list) =
+        let sorted = 
+            argInfo 
+            |> List.filter (fun ai -> not ai.Hidden)
+            |> List.sortBy (fun ai -> not ai.IsFirst, ai.IsRest)
+
         stringB {
-            for aI in argInfo |> List.filter (fun ai -> not ai.Hidden) do
+            for aI in sorted do
                 if not aI.Mandatory then yield "["
                 match aI.CommandLineNames with
                 | [] -> ()
@@ -126,7 +131,7 @@
                 if aI.IsRest then yield " ..."
 
                 if not aI.Mandatory then yield "]"
-                if aI.Id <> (Seq.last argInfo).Id then yield " "
+                if aI.Id <> (Seq.last sorted).Id then yield " "
         } |> String.build
 
     /// <summary>
