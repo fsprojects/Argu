@@ -121,6 +121,8 @@
                     for p in aI.FieldParsers do
                         yield sprintf " <%O>" p
 
+                if aI.IsRest then yield " ..."
+
                 if not aI.Mandatory then yield "]"
                 yield " "
         } |> String.build
