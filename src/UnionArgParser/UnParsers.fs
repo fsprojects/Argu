@@ -109,10 +109,12 @@
                 match aI.CommandLineNames with
                 | [] -> ()
                 | h :: t -> 
+                    if aI.Mandatory && not <| List.isEmpty t then yield "("
                     yield h
                     for n in t do
                         yield "|"
                         yield n
+                    if aI.Mandatory && not <| List.isEmpty t then yield ")"
                 
                 match aI.IsEqualsAssignment with
                 | true ->
@@ -124,7 +126,7 @@
                 if aI.IsRest then yield " ..."
 
                 if not aI.Mandatory then yield "]"
-                yield " "
+                if aI.Id <> (Seq.last argInfo).Id then yield " "
         } |> String.build
 
     /// <summary>
