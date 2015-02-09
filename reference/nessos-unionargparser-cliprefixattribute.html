@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>NoCommandLineAttribute - UnionArgParser</title>
+    <title>CliPrefixAttribute - UnionArgParser</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,9 +35,9 @@
 
 
 
-<h1>NoCommandLineAttribute</h1>
+<h1>CliPrefixAttribute</h1>
 <div class="xmldoc">
-<p>Disable command line parsing for this branch.</p>
+<p>Specifies a custom prefix for auto generated CLI names.</p>
 </div>
   <h3>Constructors</h3>
   <table class="table table-bordered member-list">
@@ -48,15 +48,41 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
-            new()
+          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+            new(prefix)
           </code>
-          <div class="tip" id="39">
-            <strong>Signature:</strong> unit -&gt; NoCommandLineAttribute<br />
+          <div class="tip" id="23">
+            <strong>Signature:</strong> prefix:CliPrefix -&gt; CliPrefixAttribute<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/Types.fs#L65-65" class="github-link">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/Types.fs#L113-113" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+            Prefix
+          </code>
+          <div class="tip" id="24">
+            <strong>Signature:</strong> CliPrefix<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/Types.fs#L115-115" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

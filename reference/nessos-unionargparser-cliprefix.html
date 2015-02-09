@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>NoCommandLineAttribute - UnionArgParser</title>
+    <title>CliPrefix - UnionArgParser</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,32 +35,74 @@
 
 
 
-<h1>NoCommandLineAttribute</h1>
+<h1>CliPrefix</h1>
 <div class="xmldoc">
-<p>Disable command line parsing for this branch.</p>
+<p>CLI prefix enumeration</p>
 </div>
-  <h3>Constructors</h3>
+  <h3>Record Fields</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
+      <tr><td>Record Field</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
-            new()
+          <code onmouseout="hideTip(event, '20', 20)" onmouseover="showTip(event, '20', 20)">
+            Dash
           </code>
-          <div class="tip" id="39">
-            <strong>Signature:</strong> unit -&gt; NoCommandLineAttribute<br />
+          <div class="tip" id="20">
+            <strong>Signature:</strong> CliPrefix<br />
+              <strong>Modifiers:</strong> static<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/Types.fs#L65-65" class="github-link">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/Types.fs#L107-107" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Single Dash prefix</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '21', 21)" onmouseover="showTip(event, '21', 21)">
+            DoubleDash
+          </code>
+          <div class="tip" id="21">
+            <strong>Signature:</strong> CliPrefix<br />
+              <strong>Modifiers:</strong> static<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/Types.fs#L105-105" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Double Dash prefix</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '22', 22)" onmouseover="showTip(event, '22', 22)">
+            Empty
+          </code>
+          <div class="tip" id="22">
+            <strong>Signature:</strong> CliPrefix<br />
+              <strong>Modifiers:</strong> static<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/nessos/UnionArgParser/tree/master/src/UnionArgParser/Types.fs#L109-109" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>No CLI prefix</p>
+
         </td>
       </tr>
     </tbody>
