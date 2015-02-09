@@ -154,7 +154,7 @@
             ignore <| UnionArgParser.Create<ConflictinAppSettingsNames>("usage string")
 
 
-        [<Prefix(Prefix.Dash)>]
+        [<CliPrefix(CliPrefix.Dash)>]
         type ArgumentSingleDash =
             | Argument of string
             | Levels_Deep of int
@@ -178,7 +178,7 @@
 
 
 
-        [<Prefix(Prefix.Empty)>]
+        [<CliPrefix(CliPrefix.Empty)>]
         type ArgumentNoDash =
             | Argument of string
             | Levels_Deep of int

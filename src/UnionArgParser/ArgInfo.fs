@@ -132,16 +132,20 @@
 
     /// construct a CLI param from UCI name
     let uciToOpt (uci : UnionCaseInfo) =
-        let prefix  = 
-            uci.GetAttrs<PrefixAttribute>(true)
-            |> Seq.tryPick Some
-            |> Option.map (fun pr -> match pr.Prefix with 
-                                        | Prefix.DoubleDash -> "--" 
-                                        | Prefix.Dash -> "-" 
-                                        | Prefix.Empty -> "" 
-                                        | p -> failwithf "Prefix %A not implemented" p)
+        let prefix = 
+            uci.GetAttrs<CliPrefixAttribute>(true) 
+            |> List.tryPick Some
+            |> Option.map (fun a -> a.Prefix)
+            |> id (fun p -> defaultArg p CliPrefix.DoubleDash)
 
-        (defaultArg prefix "--") + uci.Name.ToLower().Replace('_','-')
+        let prefixString =
+            match prefix with
+            | CliPrefix.DoubleDash -> "--" 
+            | CliPrefix.Dash -> "-" 
+            | CliPrefix.Empty -> "" 
+            | p -> invalidArg "CliPrefix" "unsupported CLI prefix '%A'." p
+
+        prefixString + uci.Name.ToLower().Replace('_','-')
 
     /// construct an App.Config param from UCI name
     let uciToAppConf (uci : UnionCaseInfo) =
@@ -284,7 +288,7 @@
         let isRest = uci.ContainsAttr<RestAttribute> ()
         let isHidden = uci.ContainsAttr<HiddenAttribute> ()
         let isEqualsAssignment = 
-            if uci.ContainsAttr<EqualsAssignmentAttribute> () then
+            if uci.ContainsAttr<EqualsAssignmentAttribute> (true) then
                 if types.Length <> 1 then
                     failwith "UnionArgParser: Parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
                 elif isRest then
