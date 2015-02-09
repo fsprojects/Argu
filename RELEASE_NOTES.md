@@ -1,3 +1,6 @@
+### 0.8.5
+* Add support for parameterized CLI prefixes in auto-generated parameter names. Minor fixes.
+
 ### 0.8.4
 * Add support for CLI syntax printing.
 
