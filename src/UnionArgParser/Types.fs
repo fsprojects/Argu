@@ -76,3 +76,14 @@
     type CustomAppSettingsAttribute (name : string) = 
         inherit Attribute ()
         member __.Name = name
+
+
+    type Prefix =
+        | DoubleDash = 0
+        | Dash = 1
+        | Empty = 2
+
+    [<AttributeUsage(AttributeTargets.Property ||| AttributeTargets.Class, AllowMultiple = false)>]
+    type PrefixAttribute(prefix:Prefix) = 
+        inherit Attribute() 
+        member __.Prefix = prefix

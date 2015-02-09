@@ -132,7 +132,16 @@
 
     /// construct a CLI param from UCI name
     let uciToOpt (uci : UnionCaseInfo) =
-        "--" + uci.Name.ToLower().Replace('_','-')
+        let prefix  = 
+            uci.GetAttrs<PrefixAttribute>(true)
+            |> Seq.tryPick Some
+            |> Option.map (fun pr -> match pr.Prefix with 
+                                        | Prefix.DoubleDash -> "--" 
+                                        | Prefix.Dash -> "-" 
+                                        | Prefix.Empty -> "" 
+                                        | p -> failwithf "Prefix %A not implemented" p)
+
+        (defaultArg prefix "--") + uci.Name.ToLower().Replace('_','-')
 
     /// construct an App.Config param from UCI name
     let uciToAppConf (uci : UnionCaseInfo) =

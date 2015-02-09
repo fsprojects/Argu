@@ -131,7 +131,6 @@
             results.GetResults <@ Log_Level @> |> should equal [2]
             results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3
 
-
         type ConflictingCliNames =
             | [<CustomCommandLine("foo")>] Foo of int
             | [<AltCommandLine("foo")>] Bar of string
@@ -153,3 +152,50 @@
         [<Test; ExpectedException(typeof<FormatException>)>]
         let ``13. Identify conflicting AppSettings identifiers`` () =
             ignore <| UnionArgParser.Create<ConflictinAppSettingsNames>("usage string")
+
+
+        [<Prefix(Prefix.Dash)>]
+        type ArgumentSingleDash =
+            | Argument of string
+            | Levels_Deep of int
+        with
+            interface IArgParserTemplate with
+                member a.Usage = "not tested here"
+
+
+        [<Test>]
+        let ``14. Use single dash prefix as default`` () =
+            let parser = UnionArgParser.Create<ArgumentSingleDash>("usage string")
+            let args = 
+                [| "-argument" ; "bar" ; "-levels-deep" ; "3" |]
+
+            let expected_outcome = set [ Argument "bar" ; Levels_Deep 3 ]
+            let results = parser.ParseCommandLine args
+            results.GetAllResults() |> set |> should equal expected_outcome
+
+            results.Contains <@ Argument @> |> should equal true
+            results.GetResult <@ Levels_Deep @> |> should equal 3
+
+
+
+        [<Prefix(Prefix.Empty)>]
+        type ArgumentNoDash =
+            | Argument of string
+            | Levels_Deep of int
+        with
+            interface IArgParserTemplate with
+                member a.Usage = "not tested here"
+
+
+        [<Test>]
+        let ``15. Use no prefix as default`` () =
+            let parser = UnionArgParser.Create<ArgumentNoDash>("usage string")
+            let args = 
+                [| "argument" ; "bar" ; "levels-deep" ; "3" |]
+
+            let expected_outcome = set [ Argument "bar" ; Levels_Deep 3 ]
+            let results = parser.ParseCommandLine args
+            results.GetAllResults() |> set |> should equal expected_outcome
+
+            results.Contains <@ Argument @> |> should equal true
+            results.GetResult <@ Levels_Deep @> |> should equal 3
