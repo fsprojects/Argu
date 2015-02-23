@@ -16,3 +16,13 @@ parser.PrintAppSettings(Listener("localhost", 42) :: args, printComments = true)
 parser.PrintCommandLine [Data(1, [|1uy;2uy|])]
 
 parser.Usage()
+
+type Args =
+    | [<Mandatory>] X of string
+with 
+    interface IArgParserTemplate with 
+        member this.Usage = ""
+
+let parser = UnionArgParser.Create<Args>()
+
+parser.Parse(raiseOnUsage = false, inputs = [|"--help"|])

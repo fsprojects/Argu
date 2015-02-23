@@ -74,11 +74,11 @@
             try
                 let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
 
-                if cliResults.IsHelpRequested && raiseOnUsage then raise HelpText
+                if cliResults.HelpArgs > 0 && raiseOnUsage then raise HelpText
 
                 let results = combine argInfo ignoreMissing None (Some cliResults.ParseResults)
 
-                ArgParseResults<_>(s, errorHandler, results, cliResults.IsHelpRequested)
+                ArgParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -127,11 +127,11 @@
             try
                 let appSettingsResults = parseAppSettings xmlConfigurationFile argInfo
                 let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
-                if cliResults.IsHelpRequested && raiseOnUsage then raise HelpText
+                if cliResults.HelpArgs > 0 && raiseOnUsage then raise HelpText
 
                 let results = combine argInfo ignoreMissing (Some appSettingsResults) (Some cliResults.ParseResults)
 
-                ArgParseResults<_>(s, errorHandler, results, cliResults.IsHelpRequested)
+                ArgParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 

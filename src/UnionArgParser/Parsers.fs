@@ -20,7 +20,7 @@
             Arguments : Map<string, ArgInfo>
 
             Position : int
-            IsHelpRequested : bool
+            HelpArgs : int // Help argument count
             ParseResults : Map<ArgId, ParseResult<'T> list>
         }
     with
@@ -28,7 +28,7 @@
             {
                 Inputs = inputs
                 Position = 0
-                IsHelpRequested = false
+                HelpArgs = 0
                 IgnoreUnrecognized = ignore
 
                 Arguments = arguments
@@ -38,7 +38,7 @@
 
     // parses the first part of a command line parameter
     // recognizes if parameter is of kind --param arg or --param=arg
-    let private assignRegex = new Regex("^([^=]*)=(.*)$")
+    let private assignRegex = new Regex("^([^=]*)=(.*)$", RegexOptions.Compiled)
     let private parseEqualityParam (param : string) =
         let m = assignRegex.Match param
         if m.Success then
@@ -56,7 +56,7 @@
 
         if hasCommandLineParam helpInfo current then 
             { state with 
-                IsHelpRequested = true
+                HelpArgs = state.HelpArgs + 1
                 Position = !position 
             }
         else
@@ -80,7 +80,7 @@
             | None -> bad ErrorCode.CommandLine None "unrecognized argument: '%s'." name
             | Some argInfo when equalityParam.IsSome && not argInfo.IsEqualsAssignment ->
                 bad ErrorCode.CommandLine (Some argInfo) "invalid CLI syntax '%s=<param>'." name
-            | Some argInfo when argInfo.IsFirst && state.Position > 0 ->
+            | Some argInfo when argInfo.IsFirst && state.Position - state.HelpArgs > 0 ->
                 bad ErrorCode.CommandLine (Some argInfo) "argument '%s' should precede all other arguments." name
             | Some argInfo when argInfo.IsEqualsAssignment ->
                 assert (equalityParam.IsSome && argInfo.FieldParsers.Length = 1)

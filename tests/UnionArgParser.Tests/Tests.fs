@@ -131,6 +131,17 @@
             results.GetResults <@ Log_Level @> |> should equal [2]
             results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3
 
+
+        [<Test>]
+        let ``12. Should allow '--help' before first args`` () =
+            let result = parser.Parse([| "--help" ; "--first-parameter" ; "bar"|], raiseOnUsage = false)
+            result.IsUsageRequested |> should equal true
+
+        [<Test>]
+        let ``13. Should allow '--help' before mandatory args`` () =
+            let result = parser.Parse([| "--help" ; "--mandatory-arg" ; "true"|], raiseOnUsage = false)
+            result.IsUsageRequested |> should equal true
+
         type ConflictingCliNames =
             | [<CustomCommandLine("foo")>] Foo of int
             | [<AltCommandLine("foo")>] Bar of string
@@ -146,11 +157,11 @@
                 member a.Usage = "foo"
 
         [<Test; ExpectedException(typeof<FormatException>)>]
-        let ``12. Identify conflicting CLI identifiers`` () =
+        let ``14. Identify conflicting CLI identifiers`` () =
             ignore <| UnionArgParser.Create<ConflictingCliNames>("usage string")
 
         [<Test; ExpectedException(typeof<FormatException>)>]
-        let ``13. Identify conflicting AppSettings identifiers`` () =
+        let ``15. Identify conflicting AppSettings identifiers`` () =
             ignore <| UnionArgParser.Create<ConflictinAppSettingsNames>("usage string")
 
 
@@ -164,7 +175,7 @@
 
 
         [<Test>]
-        let ``14. Use single dash prefix as default`` () =
+        let ``16. Use single dash prefix as default`` () =
             let parser = UnionArgParser.Create<ArgumentSingleDash>("usage string")
             let args = 
                 [| "-argument" ; "bar" ; "-levels-deep" ; "3" |]
@@ -188,7 +199,7 @@
 
 
         [<Test>]
-        let ``15. Use no prefix as default`` () =
+        let ``17. Use no prefix as default`` () =
             let parser = UnionArgParser.Create<ArgumentNoDash>("usage string")
             let args = 
                 [| "argument" ; "bar" ; "levels-deep" ; "3" |]
