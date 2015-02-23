@@ -1,3 +1,6 @@
+### 0.8.6
+* Allow inclusion of '--help' parameters before arguments marked with FirstAttribute.
+
 ### 0.8.5
 * Add support for parameterized CLI prefixes in auto-generated parameter names. Minor fixes.
 
