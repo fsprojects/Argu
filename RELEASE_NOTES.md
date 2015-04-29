@@ -1,3 +1,6 @@
+### 0.8.7
+* Fix CLI parser bug.
+
 ### 0.8.6
 * Allow inclusion of '--help' parameters before arguments marked with FirstAttribute.
 
