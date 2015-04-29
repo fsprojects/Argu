@@ -32,8 +32,12 @@
                         yield n
                     yield ']'
 
-                for p in aI.FieldParsers do
-                    yield sprintf " <%O>" p
+                if aI.IsEqualsAssignment then
+                    assert(aI.FieldParsers.Length = 1)
+                    yield sprintf "=<%O>" aI.FieldParsers.[0]
+                else
+                    for p in aI.FieldParsers do
+                        yield sprintf " <%O>" p
 
                 if aI.IsRest then yield " ..."
 
@@ -123,6 +127,7 @@
                 
                 match aI.IsEqualsAssignment with
                 | true ->
+                    assert(aI.FieldParsers.Length = 1)
                     yield sprintf "=<%O>" aI.FieldParsers.[0]
                 | false ->
                     for p in aI.FieldParsers do

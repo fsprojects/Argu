@@ -83,10 +83,13 @@
             | Some argInfo when argInfo.IsFirst && state.Position - state.HelpArgs > 0 ->
                 bad ErrorCode.CommandLine (Some argInfo) "argument '%s' should precede all other arguments." name
             | Some argInfo when argInfo.IsEqualsAssignment ->
-                assert (equalityParam.IsSome && argInfo.FieldParsers.Length = 1)
-                let argument = parseField argInfo argInfo.FieldParsers.[0] equalityParam.Value
-                let result = buildResult<'Template> argInfo ParseSource.CommandLine name [| argument |]
-                updateStateWith argInfo [ result ]
+                assert (argInfo.FieldParsers.Length = 1)
+                match equalityParam with
+                | None -> bad ErrorCode.CommandLine (Some argInfo) "argument '%s' missing an assignment." name
+                | Some eqp ->
+                    let argument = parseField argInfo argInfo.FieldParsers.[0] eqp
+                    let result = buildResult<'Template> argInfo ParseSource.CommandLine name [| argument |]
+                    updateStateWith argInfo [ result ]
 
             | Some argInfo ->
                 let parseNextField (p : ParserInfo) =

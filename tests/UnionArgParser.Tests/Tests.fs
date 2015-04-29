@@ -210,3 +210,8 @@
 
             results.Contains <@ Argument @> |> should equal true
             results.GetResult <@ Levels_Deep @> |> should equal 3
+
+        [<Test; ExpectedException(typeof<ArgumentException>)>]
+        let ``18. Should fail if EqualsAssignment missing assignment.`` () =
+            let _ = parser.ParseCommandLine [|"--assignment"; "value"|]
+            ()

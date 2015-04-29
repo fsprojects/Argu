@@ -18,7 +18,7 @@ open Fake.AssemblyInfoFile
 // --------------------------------------------------------------------------------------
 
 let project = "UnionArgParser"
-let authors = ["Nessos Information Technologies, Eirik Tsarpalis"]
+let authors = ["Eirik Tsarpalis"]
 let summary = "A declarative argument parser for F# console applications"
 
 let description = summary
