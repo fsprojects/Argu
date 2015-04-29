@@ -65,7 +65,9 @@ a corresponding argument parsing scheme.
 For example, a parser generated from the above template would
 take the following command line input</p>
 
-<table class="pre"><tr><td><pre lang="bash">--working-directory /var/run --listener localhost 8080 --detach
+<table class="pre"><tr><td class="lines"><span class="l">1: </span>
+</td>
+<td class="snippet"><pre lang="bash">--working-directory /var/run --listener localhost 8080 --detach
 </pre></td></tr></table>
 
 <p>and parse it into the list</p>
@@ -84,7 +86,14 @@ take the following command line input</p>
 <p>UnionArgParser is also capable of reading the <code>AppSettings</code> section
 of an application's configuration file:</p>
 
-<table class="pre"><tr><td><pre lang="xml"><span class="k">&lt;</span><span class="i">appSettings</span><span class="k">&gt;</span>
+<table class="pre"><tr><td class="lines"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</td>
+<td class="snippet"><pre lang="xml"><span class="k">&lt;</span><span class="i">appSettings</span><span class="k">&gt;</span>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="working directory"</span> <span class="o">value</span><span class="k">="C:\temp"</span> <span class="k">/&gt;</span>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="listener"</span> <span class="o">value</span><span class="k">="192.168.0.3, 2675"</span> <span class="k">/&gt;</span>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="log level"</span> <span class="o">value</span><span class="k">="3"</span> <span class="k">/&gt;</span>
@@ -328,7 +337,17 @@ a post-process facility is provided.</p>
 
 <p>which would yield the following:</p>
 
-<table class="pre"><tr><td><pre lang="xml"><span class="prep">&lt;?</span>xml version=<span class="s">"1.0"</span> encoding=<span class="s">"utf-16"</span><span class="prep">?&gt;</span>
+<table class="pre"><tr><td class="lines"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</td>
+<td class="snippet"><pre lang="xml"><span class="prep">&lt;?</span>xml version=<span class="s">"1.0"</span> encoding=<span class="s">"utf-16"</span><span class="prep">?&gt;</span>
 <span class="k">&lt;</span><span class="i">configuration</span><span class="k">&gt;</span>
   <span class="k">&lt;</span><span class="i">appSettings</span><span class="k">&gt;</span>
     <span class="c">&lt;!-- sets the port number. : int --&gt;</span>
