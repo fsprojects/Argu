@@ -89,8 +89,8 @@ the project and submit pull requests.
 The library is available under the MIT License. 
 For more information see the [License file][license] in the GitHub repository. 
 
-  [gh]: https://github.com/nessos/Vagrant
-  [issues]: https://github.com/nessos/Vagrant/issues
-  [license]: https://github.com/nessos/Vagrant/blob/master/License.md
+  [gh]: https://github.com/nessos/UnionArgParser
+  [issues]: https://github.com/nessos/UnionArgParser/issues
+  [license]: https://github.com/nessos/UnionArgParser/blob/master/License.md
 
 *)
