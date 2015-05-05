@@ -21,7 +21,7 @@
 
             Position : int
             HelpArgs : int // Help argument count
-            ParseResults : Map<ArgId, ParseResult<'T> list>
+            ParseResults : Map<ArgId, ArgParseResult<'T> list>
         }
     with
         static member Init (arguments : Map<string, ArgInfo>) ignore (inputs : string []) =
@@ -138,7 +138,7 @@
     //
 
     // AppSettings parse errors are threaded to the state rather than raised directly
-    type AppConfigParseState<'Template> = Map<ArgId, Choice<ParseResult<'Template> list, exn>>
+    type AppConfigParseState<'Template> = Map<ArgId, Choice<ArgParseResult<'Template> list, exn>>
 
 
     /// <summary>
@@ -235,8 +235,8 @@
     /// <param name="appSettingsResults">parsed results from AppSettings</param>
     /// <param name="commandLineResults">parsed results from CLI</param>
     let combine (argInfo : ArgInfo list) ignoreMissing 
-                    (appSettingsResults : Map<ArgId, Choice<ParseResult<'Template> list, exn>> option)
-                    (commandLineResults : Map<ArgId, ParseResult<'Template> list> option) =
+                    (appSettingsResults : Map<ArgId, Choice<ArgParseResult<'Template> list, exn>> option)
+                    (commandLineResults : Map<ArgId, ArgParseResult<'Template> list> option) =
 
         let argInfo, appSettingsResults, commandLineResults =
             match appSettingsResults, commandLineResults with

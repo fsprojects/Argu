@@ -78,7 +78,7 @@
 
                 let results = combine argInfo ignoreMissing None (Some cliResults.ParseResults)
 
-                ArgParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)
+                ParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -97,7 +97,7 @@
                 let appSettingsResults = parseAppSettings xmlConfigurationFile argInfo
                 let results = combine argInfo ignoreMissing (Some appSettingsResults) None
 
-                ArgParseResults<_>(s, errorHandler, results, false)
+                ParseResults<_>(s, errorHandler, results, false)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -131,7 +131,7 @@
 
                 let results = combine argInfo ignoreMissing (Some appSettingsResults) (Some cliResults.ParseResults)
 
-                ArgParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)
+                ParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)
             with
             | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -165,9 +165,9 @@
             writer.ToString()
             
     /// Argument parsing result holder.
-    and ArgParseResults<'Template when 'Template :> IArgParserTemplate> 
+    and ParseResults<'Template when 'Template :> IArgParserTemplate> 
             internal (ap : UnionArgParser<'Template>, exiter : IExiter, 
-                        results : Map<ArgId, ArgInfo * ParseResult<'Template> list>, isUsageRequested : bool) =
+                        results : Map<ArgId, ArgInfo * ArgParseResult<'Template> list>, isUsageRequested : bool) =
 
         // exiter wrapper
         let exit hideUsage msg id =
@@ -175,7 +175,7 @@
             else exiter.Exit(ap.Usage msg, id)
 
         // restriction predicate based on optional parse source
-        let restrictF flags : ParseResult<'T> -> bool =
+        let restrictF flags : ArgParseResult<'T> -> bool =
             let flags = defaultArg flags ParseSource.All
             fun x -> ParseSource.hasFlag flags x.Source
 
@@ -192,7 +192,7 @@
                 else
                     exit aI.NoCommandLine (sprintf "missing argument '%s'." <| getName aI) (int ErrorCode.PostProcess)
 
-        let parseResult (f : 'F -> 'S) (r : ParseResult<'T>) =
+        let parseResult (f : 'F -> 'S) (r : ArgParseResult<'T>) =
             try f (r.FieldContents :?> 'F)
             with e ->
                 exit r.ArgInfo.NoCommandLine (sprintf "Error parsing '%s': %s" r.ParseContext e.Message) (int ErrorCode.PostProcess)

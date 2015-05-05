@@ -67,7 +67,7 @@
         member __.UCI = __.Id.UCI
         member __.NoCommandLine = __.CommandLineNames.IsEmpty
 
-    and ParseResult<'T> =
+    and ArgParseResult<'T> =
         {
             /// union case value
             Value : 'T
