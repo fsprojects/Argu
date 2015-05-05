@@ -61,7 +61,7 @@
         /// <summary>Parse command line arguments only.</summary>
         /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false</param>
+        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
         /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
         /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
         member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) =
@@ -85,7 +85,7 @@
         /// <summary>Parse AppSettings section of XML configuration only.</summary>
         /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
+        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
         member s.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing) =
             let ignoreMissing = defaultArg ignoreMissing false
             let errorHandler = 
@@ -104,7 +104,7 @@
         /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
         /// <param name="assembly">assembly to get application configuration from.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
+        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
         member s.ParseAppSettings(assembly : Assembly, ?errorHandler : IExiter, ?ignoreMissing) =
             let configFile = assembly.Location + ".config"
             s.ParseAppSettings(xmlConfigurationFile = configFile, ?errorHandler = errorHandler, ?ignoreMissing = ignoreMissing)
@@ -114,9 +114,9 @@
         /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
         /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given configuration file.</param>
         /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute.</param>
+        /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
         /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
-        /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors.</param>
+        /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
         member s.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) =
             let ignoreMissing = defaultArg ignoreMissing false
             let ignoreUnrecognized = defaultArg ignoreUnrecognized false
