@@ -24,7 +24,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB90
 		License.md = License.md
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
-		nuget\UnionArgParser.nuspec = nuget\UnionArgParser.nuspec
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{31C8F489-6FEC-4DE5-A247-8447D56B5C04}"

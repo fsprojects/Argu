@@ -4,6 +4,8 @@ description
     A declarative argument parser for F# console applications.
 authors
     Eirik Tsarpalis
+copyright
+	Copyright 2015
 summary
     A declarative argument parser for F# console applications.
 licenseurl https://github.com/nessos/UnionArgParser/blob/master/License.md
