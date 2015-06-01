@@ -1,0 +1,22 @@
+﻿type project
+id UnionArgParser
+description
+    A declarative argument parser for F# console applications.
+authors
+    Eirik Tsarpalis
+summary
+    A declarative argument parser for F# console applications.
+licenseurl https://github.com/nessos/UnionArgParser/blob/master/License.md
+projecturl https://github.com/nessos/UnionArgParser
+iconurl https://avatars1.githubusercontent.com/u/5538081
+tags
+    F#, argument, parser
+references
+    UnionArgParser.dll
+files
+    ../../bin/net40/UnionArgParser.dll ==> lib/net40
+    ../../bin/net40/UnionArgParser.pdb ==> lib/net40
+    ../../bin/net40/UnionArgParser.xml ==> lib/net40
+    ../../bin/net35/UnionArgParser.dll ==> lib/net35
+    ../../bin/net35/UnionArgParser.pdb ==> lib/net35
+    ../../bin/net35/UnionArgParser.xml ==> lib/net35

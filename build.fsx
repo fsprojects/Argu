@@ -4,26 +4,19 @@
 
 #I "packages/FAKE/tools"
 #r "packages/FAKE/tools/FakeLib.dll"
-//#load "packages/SourceLink.Fake/tools/SourceLink.fsx"
+
 open System
 open System.IO
 open Fake 
 open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.AssemblyInfoFile
-//open SourceLink
 
 // --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
 // --------------------------------------------------------------------------------------
 
 let project = "UnionArgParser"
-let authors = ["Eirik Tsarpalis"]
-let summary = "A declarative argument parser for F# console applications"
-
-let description = summary
-
-let tags = "F# argument parser"
 
 let gitHome = "https://github.com/nessos"
 let gitName = "UnionArgParser"
@@ -103,46 +96,21 @@ Target "RunTests" (fun _ ->
 FinalTarget "CloseTestRunner" (fun _ ->  
     ProcessHelper.killProcess "nunit-agent.exe"
 )
+
 //
 //// --------------------------------------------------------------------------------------
 //// Build a NuGet package
 
-let addAssembly (target : string) assembly =
-    let includeFile force file =
-        let file = file
-        if File.Exists (Path.Combine("nuget", file)) then [(file, Some target, None)]
-        elif force then raise <| new FileNotFoundException(file)
-        else []
-
-    seq {
-        yield! includeFile true assembly
-        yield! includeFile false <| Path.ChangeExtension(assembly, "pdb")
-        yield! includeFile false <| Path.ChangeExtension(assembly, "xml")
-        yield! includeFile false <| assembly + ".config"
-    }
-
 Target "NuGet" (fun _ ->
-    // Format the description to fit on a single line (remove \r\n and double-spaces)
-    let description = description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
-    NuGet (fun p -> 
-        { p with   
-            Authors = authors
-            Project = project
-            Summary = summary
-            Description = description
-            Version = nugetVersion
-            ReleaseNotes = String.concat " " release.Notes
-            Tags = tags
-            OutputPath = "bin/"
-            AccessKey = getBuildParamOrDefault "nugetkey" ""
-            Files =
-                [
-                    yield! addAssembly @"lib\net35" @"..\bin\net35\UnionArgParser.dll"
-                    yield! addAssembly @"lib\net40" @"..\bin\net40\UnionArgParser.dll"
-                ]
-            Publish = hasBuildParam "nugetkey" })
-        ("nuget/" + project + ".nuspec")
-)
+    Paket.Pack(fun config ->
+        { config with 
+            Version = release.NugetVersion
+            ReleaseNotes = String.concat "\n" release.Notes
+            OutputPath = "bin"
+            WorkingDir = "nuget"
+        }))
+
+Target "NuGetPush" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = "bin/" }))
 
 // Doc generation
 
@@ -190,5 +158,8 @@ Target "Default" DoNothing
   ==> "ReleaseDocs"
   ==> "NuGet"
   ==> "Release"
+
+"NuGet" 
+  ==> "NuGetPush"
 
 RunTargetOrDefault "Default"
