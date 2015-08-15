@@ -1,3 +1,6 @@
+### 0.9.0
+* Move to F# 3.1 runtime.
+
 ### 0.8.7
 * Fix CLI parser bug.
 
