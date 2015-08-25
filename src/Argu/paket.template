@@ -1,14 +1,13 @@
 ﻿type project
 id Argu
 description
-    A declarative argument parser for F# console applications.
+    A declarative command line and XML configuration parser for F# applications.
 authors
     Eirik Tsarpalis
 copyright
 	Copyright 2015
 summary
-    A declarative argument parser for F# console applications.
-	Also provides capability for reading AppSettings config.
+    A declarative command line and XML configuration parser for F# applications.
 licenseurl https://github.com/nessos/Argu/blob/master/License.md
 projecturl https://github.com/nessos/Argu
 iconurl https://avatars1.githubusercontent.com/u/5538081
