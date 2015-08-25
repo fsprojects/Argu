@@ -8,7 +8,7 @@ open System
 
 (**
 
-# Argu [UnionArgParser]
+# Argu (formerly UnionArgParser)
 
 Argu (pronounced "Argue") is a declarative CLI argument/XML configuration parser for F# applications.
 Allows quick definition of argument parsing schema through F# union declarations.
