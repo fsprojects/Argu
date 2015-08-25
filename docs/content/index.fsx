@@ -68,7 +68,7 @@ of an application's configuration file:
 
 ## Who uses Argu?
 
-* [MBrace framework](http://mbrace.net/)
+* [MBrace framework](http://m-brace.net/)
 
 * [FAKE build tool](http://fsharp.github.io/FAKE/)
 
