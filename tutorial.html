@@ -13,8 +13,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
-    <link type="text/css" rel="stylesheet" href="/UnionArgParser/content/style.css" />
-    <script type="text/javascript" src="/UnionArgParser/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
+    <script type="text/javascript" src="/Argu/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -25,9 +25,9 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/nessos/UnionArgParser">github page</a></li>
+          <li><a href="http://github.com/nessos/Argu">github page</a></li>
         </ul>
-        <h3 class="muted"><a href="/UnionArgParser/index.html">UnionArgParser</a></h3>
+        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -60,7 +60,7 @@ For instance:</p>
 </tr>
 </table>
 
-<p>UnionArgParser takes such discriminated unions and generates 
+<p>Argu takes such discriminated unions and generates 
 a corresponding argument parsing scheme. 
 For example, a parser generated from the above template would
 take the following command line input</p>
@@ -83,7 +83,7 @@ take the following command line input</p>
 </tr>
 </table>
 
-<p>UnionArgParser is also capable of reading the <code>AppSettings</code> section
+<p>Argu is also capable of reading the <code>AppSettings</code> section
 of an application's configuration file:</p>
 
 <table class="pre"><tr><td class="lines"><span class="l">1: </span>
@@ -150,7 +150,7 @@ their corresponding XML configuration.</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">Nessos</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="i">UnionArgParser</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">Nessos</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="i">Argu</span>
 
 <span class="k">type</span> <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="t">CLIArguments</span> <span class="o">=</span>
     | <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="p">Working_Directory</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 16)" onmouseover="showTip(event, 'fs4', 16)" class="t">string</span>
@@ -171,7 +171,7 @@ their corresponding XML configuration.</p>
             | <span onmouseout="hideTip(event, 'fs18', 36)" onmouseover="showTip(event, 'fs18', 36)" class="p">Detach</span> _ <span class="k">-&gt;</span> <span class="s">&quot;detach daemon from console.&quot;</span>
  
 <span class="c">// build the argument parser</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 37)" onmouseover="showTip(event, 'fs22', 37)" class="i">parser</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs23', 38)" onmouseover="showTip(event, 'fs23', 38)" class="t">UnionArgParser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 39)" onmouseover="showTip(event, 'fs24', 39)" class="f">Create</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs11', 40)" onmouseover="showTip(event, 'fs11', 40)" class="t">CLIArguments</span><span class="o">&gt;</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 37)" onmouseover="showTip(event, 'fs22', 37)" class="i">parser</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs23', 38)" onmouseover="showTip(event, 'fs23', 38)" class="t">ArgumentParser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 39)" onmouseover="showTip(event, 'fs24', 39)" class="f">Create</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs11', 40)" onmouseover="showTip(event, 'fs11', 40)" class="t">CLIArguments</span><span class="o">&gt;</span>()
  
 <span class="c">// get usage text</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 41)" onmouseover="showTip(event, 'fs25', 41)" class="i">usage</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 42)" onmouseover="showTip(event, 'fs22', 42)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs26', 43)" onmouseover="showTip(event, 'fs26', 43)" class="f">Usage</span>()
@@ -299,7 +299,7 @@ a post-process facility is provided.</p>
 
 <h2><a name="Unparsing-Support" class="anchor" href="#Unparsing-Support">Unparsing Support</a></h2>
 
-<p>UnionArgParser is convenient when it comes to automated process spawning:</p>
+<p>Argu is convenient when it comes to automated process spawning:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
@@ -366,7 +366,7 @@ a post-process facility is provided.</p>
 <div class="tip" id="fs7">union case Arguments.Log_Level: int -&gt; Arguments</div>
 <div class="tip" id="fs8">union case Arguments.Detach: Arguments</div>
 <div class="tip" id="fs9">namespace Nessos</div>
-<div class="tip" id="fs10">namespace Nessos.UnionArgParser</div>
+<div class="tip" id="fs10">namespace Nessos.Argu</div>
 <div class="tip" id="fs11">type CLIArguments =<br />&#160;&#160;| Working_Directory of string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Data of byte []<br />&#160;&#160;| Port of int<br />&#160;&#160;| Log_Level of int<br />&#160;&#160;| Detach<br />&#160;&#160;interface IArgParserTemplate<br /><br />Full name: Tutorial.CLIArguments</div>
 <div class="tip" id="fs12">union case CLIArguments.Working_Directory: string -&gt; CLIArguments</div>
 <div class="tip" id="fs13">union case CLIArguments.Listener: host: string * port: int -&gt; CLIArguments</div>
@@ -375,16 +375,16 @@ a post-process facility is provided.</p>
 <div class="tip" id="fs16">union case CLIArguments.Port: int -&gt; CLIArguments</div>
 <div class="tip" id="fs17">union case CLIArguments.Log_Level: int -&gt; CLIArguments</div>
 <div class="tip" id="fs18">union case CLIArguments.Detach: CLIArguments</div>
-<div class="tip" id="fs19">type IArgParserTemplate =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member Usage : string<br />&#160;&#160;end<br /><br />Full name: Nessos.UnionArgParser.IArgParserTemplate</div>
+<div class="tip" id="fs19">type IArgParserTemplate =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member Usage : string<br />&#160;&#160;end<br /><br />Full name: Nessos.Argu.IArgParserTemplate</div>
 <div class="tip" id="fs20">val s : CLIArguments</div>
 <div class="tip" id="fs21">override CLIArguments.Usage : string<br /><br />Full name: Tutorial.CLIArguments.Usage</div>
-<div class="tip" id="fs22">val parser : UnionArgParser&lt;CLIArguments&gt;<br /><br />Full name: Tutorial.parser</div>
-<div class="tip" id="fs23">Multiple items<br />type UnionArgParser =<br />&#160;&#160;static member Create : ?usageText:string -&gt; UnionArgParser&lt;#IArgParserTemplate&gt;<br /><br />Full name: Nessos.UnionArgParser.UnionArgParser<br /><br />--------------------<br />type UnionArgParser&lt;&#39;Template (requires &#39;Template :&gt; IArgParserTemplate)&gt; =<br />&#160;&#160;private new : ?usageText:string -&gt; UnionArgParser&lt;&#39;Template&gt;<br />&#160;&#160;member Parse : ?inputs:string [] * ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseAppSettings : assembly:Assembly * ?errorHandler:IExiter * ?ignoreMissing:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseAppSettings : ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseCommandLine : ?inputs:string [] * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member PrintAppSettings : args:&#39;Template list * ?printComments:bool -&gt; string<br />&#160;&#160;member PrintCommandLine : args:&#39;Template list -&gt; string []<br />&#160;&#160;member PrintCommandLineFlat : args:&#39;Template list -&gt; string<br />&#160;&#160;member PrintCommandLineSyntax : unit -&gt; string<br />&#160;&#160;member Usage : ?message:string -&gt; string<br /><br />Full name: Nessos.UnionArgParser.UnionArgParser&lt;_&gt;</div>
-<div class="tip" id="fs24">static member UnionArgParser.Create : ?usageText:string -&gt; UnionArgParser&lt;#IArgParserTemplate&gt;</div>
+<div class="tip" id="fs22">val parser : ArgumentParser&lt;CLIArguments&gt;<br /><br />Full name: Tutorial.parser</div>
+<div class="tip" id="fs23">Multiple items<br />type ArgumentParser =<br />&#160;&#160;static member Create : ?usageText:string -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;<br /><br />Full name: Nessos.Argu.ArgumentParser<br /><br />--------------------<br />type ArgumentParser&lt;&#39;Template (requires &#39;Template :&gt; IArgParserTemplate)&gt; =<br />&#160;&#160;private new : ?usageText:string -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;member Parse : ?inputs:string [] * ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseAppSettings : assembly:Assembly * ?errorHandler:IExiter * ?ignoreMissing:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseAppSettings : ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseCommandLine : ?inputs:string [] * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member PrintAppSettings : args:&#39;Template list * ?printComments:bool -&gt; string<br />&#160;&#160;member PrintCommandLine : args:&#39;Template list -&gt; string []<br />&#160;&#160;member PrintCommandLineFlat : args:&#39;Template list -&gt; string<br />&#160;&#160;member PrintCommandLineSyntax : unit -&gt; string<br />&#160;&#160;member Usage : ?message:string -&gt; string<br /><br />Full name: Nessos.Argu.ArgumentParser&lt;_&gt;</div>
+<div class="tip" id="fs24">static member ArgumentParser.Create : ?usageText:string -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;</div>
 <div class="tip" id="fs25">val usage : string<br /><br />Full name: Tutorial.usage</div>
-<div class="tip" id="fs26">member UnionArgParser.Usage : ?message:string -&gt; string</div>
+<div class="tip" id="fs26">member ArgumentParser.Usage : ?message:string -&gt; string</div>
 <div class="tip" id="fs27">val results : ParseResults&lt;CLIArguments&gt;<br /><br />Full name: Tutorial.results</div>
-<div class="tip" id="fs28">member UnionArgParser.Parse : ?inputs:string [] * ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;</div>
+<div class="tip" id="fs28">member ArgumentParser.Parse : ?inputs:string [] * ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;</div>
 <div class="tip" id="fs29">val all : CLIArguments list<br /><br />Full name: Tutorial.all</div>
 <div class="tip" id="fs30">member ParseResults.GetAllResults : ?source:ParseSource -&gt; &#39;Template list</div>
 <div class="tip" id="fs31">val detach : bool<br /><br />Full name: Tutorial.detach</div>
@@ -394,15 +394,15 @@ a post-process facility is provided.</p>
 <div class="tip" id="fs35">val logLevel : int<br /><br />Full name: Tutorial.logLevel</div>
 <div class="tip" id="fs36">member ParseResults.GetResult : expr:Quotations.Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * ?defaultValue:&#39;Fields * ?source:ParseSource -&gt; &#39;Fields<br />member ParseResults.GetResult : expr:Quotations.Expr&lt;&#39;Template&gt; * ?defaultValue:&#39;Template * ?source:ParseSource -&gt; &#39;Template</div>
 <div class="tip" id="fs37">type Argument =<br />&#160;&#160;| Cache_Path of string<br />&#160;&#160;| Connection_String of string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Assignment of string<br />&#160;&#160;| Primary_Port of int<br /><br />Full name: Tutorial.Argument</div>
-<div class="tip" id="fs38">Multiple items<br />type MandatoryAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; MandatoryAttribute<br /><br />Full name: Nessos.UnionArgParser.MandatoryAttribute<br /><br />--------------------<br />new : unit -&gt; MandatoryAttribute</div>
+<div class="tip" id="fs38">Multiple items<br />type MandatoryAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; MandatoryAttribute<br /><br />Full name: Nessos.Argu.MandatoryAttribute<br /><br />--------------------<br />new : unit -&gt; MandatoryAttribute</div>
 <div class="tip" id="fs39">union case Argument.Cache_Path: string -&gt; Argument</div>
-<div class="tip" id="fs40">Multiple items<br />type NoCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; NoCommandLineAttribute<br /><br />Full name: Nessos.UnionArgParser.NoCommandLineAttribute<br /><br />--------------------<br />new : unit -&gt; NoCommandLineAttribute</div>
+<div class="tip" id="fs40">Multiple items<br />type NoCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; NoCommandLineAttribute<br /><br />Full name: Nessos.Argu.NoCommandLineAttribute<br /><br />--------------------<br />new : unit -&gt; NoCommandLineAttribute</div>
 <div class="tip" id="fs41">union case Argument.Connection_String: string -&gt; Argument</div>
-<div class="tip" id="fs42">Multiple items<br />type PrintLabelsAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; PrintLabelsAttribute<br /><br />Full name: Nessos.UnionArgParser.PrintLabelsAttribute<br /><br />--------------------<br />new : unit -&gt; PrintLabelsAttribute</div>
+<div class="tip" id="fs42">Multiple items<br />type PrintLabelsAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; PrintLabelsAttribute<br /><br />Full name: Nessos.Argu.PrintLabelsAttribute<br /><br />--------------------<br />new : unit -&gt; PrintLabelsAttribute</div>
 <div class="tip" id="fs43">union case Argument.Listener: host: string * port: int -&gt; Argument</div>
-<div class="tip" id="fs44">Multiple items<br />type EqualsAssignmentAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; EqualsAssignmentAttribute<br /><br />Full name: Nessos.UnionArgParser.EqualsAssignmentAttribute<br /><br />--------------------<br />new : unit -&gt; EqualsAssignmentAttribute</div>
+<div class="tip" id="fs44">Multiple items<br />type EqualsAssignmentAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; EqualsAssignmentAttribute<br /><br />Full name: Nessos.Argu.EqualsAssignmentAttribute<br /><br />--------------------<br />new : unit -&gt; EqualsAssignmentAttribute</div>
 <div class="tip" id="fs45">union case Argument.Assignment: string -&gt; Argument</div>
-<div class="tip" id="fs46">Multiple items<br />type AltCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : name:string -&gt; AltCommandLineAttribute<br />&#160;&#160;member Name : string<br /><br />Full name: Nessos.UnionArgParser.AltCommandLineAttribute<br /><br />--------------------<br />new : name:string -&gt; AltCommandLineAttribute</div>
+<div class="tip" id="fs46">Multiple items<br />type AltCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : name:string -&gt; AltCommandLineAttribute<br />&#160;&#160;member Name : string<br /><br />Full name: Nessos.Argu.AltCommandLineAttribute<br /><br />--------------------<br />new : name:string -&gt; AltCommandLineAttribute</div>
 <div class="tip" id="fs47">union case Argument.Primary_Port: int -&gt; Argument</div>
 <div class="tip" id="fs48">val parsePort : p:int -&gt; int<br /><br />Full name: Tutorial.parsePort</div>
 <div class="tip" id="fs49">val p : int</div>
@@ -413,35 +413,35 @@ a post-process facility is provided.</p>
 <div class="tip" id="fs54">member ParseResults.PostProcessResults : expr:Quotations.Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * ?source:ParseSource -&gt; &#39;R list</div>
 <div class="tip" id="fs55">namespace System.Diagnostics</div>
 <div class="tip" id="fs56">val arguments : string []<br /><br />Full name: Tutorial.arguments</div>
-<div class="tip" id="fs57">member UnionArgParser.PrintCommandLine : args:&#39;Template list -&gt; string []</div>
+<div class="tip" id="fs57">member ArgumentParser.PrintCommandLine : args:&#39;Template list -&gt; string []</div>
 <div class="tip" id="fs58">Multiple items<br />type Process =<br />&#160;&#160;inherit Component<br />&#160;&#160;new : unit -&gt; Process<br />&#160;&#160;member BasePriority : int<br />&#160;&#160;member BeginErrorReadLine : unit -&gt; unit<br />&#160;&#160;member BeginOutputReadLine : unit -&gt; unit<br />&#160;&#160;member CancelErrorRead : unit -&gt; unit<br />&#160;&#160;member CancelOutputRead : unit -&gt; unit<br />&#160;&#160;member Close : unit -&gt; unit<br />&#160;&#160;member CloseMainWindow : unit -&gt; bool<br />&#160;&#160;member EnableRaisingEvents : bool with get, set<br />&#160;&#160;member ExitCode : int<br />&#160;&#160;...<br /><br />Full name: System.Diagnostics.Process<br /><br />--------------------<br />Process() : unit</div>
 <div class="tip" id="fs59">Process.Start(startInfo: ProcessStartInfo) : Process<br />Process.Start(fileName: string) : Process<br />Process.Start(fileName: string, arguments: string) : Process<br />Process.Start(fileName: string, userName: string, password: Security.SecureString, domain: string) : Process<br />Process.Start(fileName: string, arguments: string, userName: string, password: Security.SecureString, domain: string) : Process</div>
 <div class="tip" id="fs60">Multiple items<br />type String =<br />&#160;&#160;new : value:char -&gt; string + 7 overloads<br />&#160;&#160;member Chars : int -&gt; char<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;member Contains : value:string -&gt; bool<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EndsWith : value:string -&gt; bool + 2 overloads<br />&#160;&#160;member Equals : obj:obj -&gt; bool + 2 overloads<br />&#160;&#160;member GetEnumerator : unit -&gt; CharEnumerator<br />&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;...<br /><br />Full name: System.String<br /><br />--------------------<br />String(value: nativeptr&lt;char&gt;) : unit<br />String(value: nativeptr&lt;sbyte&gt;) : unit<br />String(value: char []) : unit<br />String(c: char, count: int) : unit<br />String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : unit<br />String(value: char [], startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: Text.Encoding) : unit</div>
 <div class="tip" id="fs61">val concat : sep:string -&gt; strings:seq&lt;string&gt; -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.String.concat</div>
 <div class="tip" id="fs62">val xml : string<br /><br />Full name: Tutorial.xml</div>
-<div class="tip" id="fs63">member UnionArgParser.PrintAppSettings : args:&#39;Template list * ?printComments:bool -&gt; string</div>
+<div class="tip" id="fs63">member ArgumentParser.PrintAppSettings : args:&#39;Template list * ?printComments:bool -&gt; string</div>
 
         </div>
         <div class="span3">
           <a target="_blank" href="http://www.nessos.gr/">
-			<img src="/UnionArgParser/img/nessos.png" alt="F# Project" style="width:150px;margin:10px" /> 
+			<img src="/Argu/img/nessos.png" alt="F# Project" style="width:150px;margin:10px" /> 
 		  </a>
           <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">UnionArgParser</li>
-            <li><a href="/UnionArgParser/index.html">Home page</a></li>
+            <li class="nav-header">Argu</li>
+            <li><a href="/Argu/index.html">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="http://www.nuget.org/packages/UnionArgParser">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/nessos/UnionArgParser">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/nessos/UnionArgParser/blob/master/License.md">License</a></li>
-            <li><a href="http://github.com/nessos/UnionArgParser/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/nessos/Argu">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/nessos/Argu/blob/master/License.md">License</a></li>
+            <li><a href="http://github.com/nessos/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="/UnionArgParser/tutorial.html">Tutorial</a></li>
-            <li><a href="/UnionArgParser/reference/index.html">API Reference</a></li>
+            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
+            <li><a href="/Argu/reference/index.html">API Reference</a></li>
           </ul>
         </div>
       </div>
     </div>
-    <a href="http://github.com/nessos/UnionArgParser"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+    <a href="http://github.com/nessos/Argu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
   </body>
   </html>

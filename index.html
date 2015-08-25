@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>UnionArgParser
+    <title>Argu [UnionArgParser]
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="A declarative argument parser for F#"/>
@@ -13,8 +13,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
-    <link type="text/css" rel="stylesheet" href="/UnionArgParser/content/style.css" />
-    <script type="text/javascript" src="/UnionArgParser/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
+    <script type="text/javascript" src="/Argu/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -25,25 +25,25 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/nessos/UnionArgParser">github page</a></li>
+          <li><a href="http://github.com/nessos/Argu">github page</a></li>
         </ul>
-        <h3 class="muted"><a href="/UnionArgParser/index.html">UnionArgParser</a></h3>
+        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
       </div>
       <hr />
       <div class="row">
         <div class="span9" id="main">
           
-<h1><a name="UnionArgParser" class="anchor" href="#UnionArgParser">UnionArgParser</a></h1>
+<h1><a name="Argu" class="anchor" href="#Argu">Argu [UnionArgParser]</a></h1>
 
-<p>A declarative CLI argument/XML configuration parser for F# applications.
+<p>Argu (pronounced "Argue") is a declarative CLI argument/XML configuration parser for F# applications.
 Allows quick definition of argument parsing schema through F# union declarations.</p>
 
 <div class="row">
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      UnionArgParser can be <a href="https://nuget.org/packages/UnionArgParser">installed from NuGet</a>:
-      <pre>PM> Install-Package UnionArgParser</pre>
+      Argu can be <a href="https://nuget.org/packages/Argu">installed from NuGet</a>:
+      <pre>PM> Install-Package Argu</pre>
     </div>
   </div>
   <div class="span1"></div>
@@ -74,7 +74,7 @@ For instance:</p>
 </tr>
 </table>
 
-<p>UnionArgParser takes such discriminated unions and generates 
+<p>Argu takes such discriminated unions and generates 
 a corresponding argument parsing scheme. 
 For example, a parser generated from the above template would
 take the following command line input</p>
@@ -97,7 +97,7 @@ take the following command line input</p>
 </tr>
 </table>
 
-<p>UnionArgParser is also capable of reading the <code>AppSettings</code> section
+<p>Argu is also capable of reading the <code>AppSettings</code> section
 of an application's configuration file:</p>
 
 <table class="pre"><tr><td class="lines"><span class="l">1: </span>
@@ -115,7 +115,7 @@ of an application's configuration file:</p>
 <span class="k">&lt;/</span><span class="i">appSettings</span><span class="k">&gt;</span>
 </pre></td></tr></table>
 
-<h2><a name="Who-uses-UnionArgParser" class="anchor" href="#Who-uses-UnionArgParser">Who uses UnionArgParser?</a></h2>
+<h2><a name="Who-uses-Argu" class="anchor" href="#Who-uses-Argu">Who uses Argu?</a></h2>
 
 <ul>
 <li><p><a href="http://mbrace.net/">MBrace framework</a></p></li>
@@ -126,18 +126,18 @@ of an application's configuration file:</p>
 <h2><a name="Documentation" class="anchor" href="#Documentation">Documentation</a></h2>
 
 <ul>
-<li><p><a href="tutorial.html">Tutorial</a> A short walkthrough of UnionArgParser features.</p></li>
+<li><p><a href="tutorial.html">Tutorial</a> A short walkthrough of Argu features.</p></li>
 <li><p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types, 
 modules and functions in the library.</p></li>
 </ul>
 
 <h2><a name="Contributing-and-copyright" class="anchor" href="#Contributing-and-copyright">Contributing and copyright</a></h2>
 
-<p>The project is hosted on <a href="https://github.com/nessos/UnionArgParser">GitHub</a> where you can <a href="https://github.com/nessos/UnionArgParser/issues">report issues</a>, fork 
+<p>The project is hosted on <a href="https://github.com/nessos/Argu">GitHub</a> where you can <a href="https://github.com/nessos/Argu/issues">report issues</a>, fork 
 the project and submit pull requests.</p>
 
 <p>The library is available under the MIT License. 
-For more information see the <a href="https://github.com/nessos/UnionArgParser/blob/master/License.md">License file</a> in the GitHub repository.</p>
+For more information see the <a href="https://github.com/nessos/Argu/blob/master/License.md">License file</a> in the GitHub repository.</p>
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">type Arguments =<br />&#160;&#160;| Working_Directory of string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Log_Level of int<br />&#160;&#160;| Detach<br /><br />Full name: Index.Arguments</div>
@@ -151,24 +151,24 @@ For more information see the <a href="https://github.com/nessos/UnionArgParser/b
         </div>
         <div class="span3">
           <a target="_blank" href="http://www.nessos.gr/">
-			<img src="/UnionArgParser/img/nessos.png" alt="F# Project" style="width:150px;margin:10px" /> 
+			<img src="/Argu/img/nessos.png" alt="F# Project" style="width:150px;margin:10px" /> 
 		  </a>
           <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">UnionArgParser</li>
-            <li><a href="/UnionArgParser/index.html">Home page</a></li>
+            <li class="nav-header">Argu</li>
+            <li><a href="/Argu/index.html">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="http://www.nuget.org/packages/UnionArgParser">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/nessos/UnionArgParser">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/nessos/UnionArgParser/blob/master/License.md">License</a></li>
-            <li><a href="http://github.com/nessos/UnionArgParser/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/nessos/Argu">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/nessos/Argu/blob/master/License.md">License</a></li>
+            <li><a href="http://github.com/nessos/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="/UnionArgParser/tutorial.html">Tutorial</a></li>
-            <li><a href="/UnionArgParser/reference/index.html">API Reference</a></li>
+            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
+            <li><a href="/Argu/reference/index.html">API Reference</a></li>
           </ul>
         </div>
       </div>
     </div>
-    <a href="http://github.com/nessos/UnionArgParser"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+    <a href="http://github.com/nessos/Argu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
   </body>
   </html>
