@@ -2,23 +2,23 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin/net40"
-#r "UnionArgParser.dll"
+#r "Argu.dll"
 
 open System
 
 (**
 
-# UnionArgParser
+# Argu [UnionArgParser]
 
-A declarative CLI argument/XML configuration parser for F# applications.
+Argu (pronounced "Argue") is a declarative CLI argument/XML configuration parser for F# applications.
 Allows quick definition of argument parsing schema through F# union declarations.
 
 <div class="row">
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      UnionArgParser can be <a href="https://nuget.org/packages/UnionArgParser">installed from NuGet</a>:
-      <pre>PM> Install-Package UnionArgParser</pre>
+      Argu can be <a href="https://nuget.org/packages/Argu">installed from NuGet</a>:
+      <pre>PM> Install-Package Argu</pre>
     </div>
   </div>
   <div class="span1"></div>
@@ -40,7 +40,7 @@ type Arguments =
 
 (**
 
-UnionArgParser takes such discriminated unions and generates 
+Argu takes such discriminated unions and generates 
 a corresponding argument parsing scheme. 
 For example, a parser generated from the above template would
 take the following command line input
@@ -55,7 +55,7 @@ and parse it into the list
 
 (**
 
-UnionArgParser is also capable of reading the `AppSettings` section
+Argu is also capable of reading the `AppSettings` section
 of an application's configuration file:
 
     [lang=xml]
@@ -66,7 +66,7 @@ of an application's configuration file:
         <add key="detach" value="true" />
     </appSettings>
 
-## Who uses UnionArgParser?
+## Who uses Argu?
 
 * [MBrace framework](http://mbrace.net/)
 
@@ -76,7 +76,7 @@ of an application's configuration file:
 
 ## Documentation
 
-  * [Tutorial](tutorial.html) A short walkthrough of UnionArgParser features.
+  * [Tutorial](tutorial.html) A short walkthrough of Argu features.
 
   * [API Reference](reference/index.html) contains automatically generated documentation for all types, 
     modules and functions in the library.
@@ -89,8 +89,8 @@ the project and submit pull requests.
 The library is available under the MIT License. 
 For more information see the [License file][license] in the GitHub repository. 
 
-  [gh]: https://github.com/nessos/UnionArgParser
-  [issues]: https://github.com/nessos/UnionArgParser/issues
-  [license]: https://github.com/nessos/UnionArgParser/blob/master/License.md
+  [gh]: https://github.com/nessos/Argu
+  [issues]: https://github.com/nessos/Argu/issues
+  [license]: https://github.com/nessos/Argu/blob/master/License.md
 
 *)

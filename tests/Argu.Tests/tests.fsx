@@ -1,9 +1,9 @@
 ﻿#I "../../bin/net40"
-#r "UnionArgParser.dll"
-#r "UnionArgParser.Tests.dll"
+#r "Argu.dll"
+#r "Argu.Tests.dll"
 
-open Nessos.UnionArgParser
-open Nessos.UnionArgParser.Tests
+open Nessos.Argu
+open Nessos.Argu.Tests
 
 let assembly = typeof<Argument>.Assembly
 
@@ -23,6 +23,6 @@ with
     interface IArgParserTemplate with 
         member this.Usage = ""
 
-let parser = UnionArgParser.Create<Args>()
+let parser = Argu.Create<Args>()
 
 parser.Parse(raiseOnUsage = false, inputs = [|"--help"|])

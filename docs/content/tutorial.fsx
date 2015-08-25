@@ -2,7 +2,7 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin/net40"
-#r "UnionArgParser.dll"
+#r "Argu.dll"
 
 open System
 
@@ -26,7 +26,7 @@ type Arguments =
 
 (**
 
-UnionArgParser takes such discriminated unions and generates 
+Argu takes such discriminated unions and generates 
 a corresponding argument parsing scheme. 
 For example, a parser generated from the above template would
 take the following command line input
@@ -41,7 +41,7 @@ and parse it into the list
 
 (**
 
-UnionArgParser is also capable of reading the `AppSettings` section
+Argu is also capable of reading the `AppSettings` section
 of an application's configuration file:
 
     [lang=xml]
@@ -61,7 +61,7 @@ their corresponding XML configuration.
 A minimal parser based on the above example can be created as follows:
 *)
 
-open Nessos.UnionArgParser
+open Nessos.Argu
 
 type CLIArguments =
     | Working_Directory of string
@@ -82,7 +82,7 @@ with
             | Detach _ -> "detach daemon from console."
  
 // build the argument parser
-let parser = UnionArgParser.Create<CLIArguments>()
+let parser = ArgumentParser.Create<CLIArguments>()
  
 // get usage text
 let usage = parser.Usage()
@@ -183,7 +183,7 @@ This construct is useful since exception handling is performed by the arg parser
 
 ## Unparsing Support
 
-UnionArgParser is convenient when it comes to automated process spawning:
+Argu is convenient when it comes to automated process spawning:
 *)
 
 open System.Diagnostics

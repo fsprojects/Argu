@@ -16,14 +16,14 @@ open Fake.AssemblyInfoFile
 // Information about the project to be used at NuGet and in AssemblyInfo files
 // --------------------------------------------------------------------------------------
 
-let project = "UnionArgParser"
+let project = "Argu"
 
 let gitHome = "https://github.com/nessos"
-let gitName = "UnionArgParser"
+let gitName = "Argu"
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/nessos"
 
 
-let testAssemblies = !! "bin/*/UnionArgParser.Tests.dll"
+let testAssemblies = !! "bin/*/Argu.Tests.dll"
 
 //
 //// --------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ Target "BuildVersion" (fun _ ->
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-  let fileName = "./src/UnionArgParser/AssemblyInfo.fs"
+  let fileName = "./src/Argu/AssemblyInfo.fs"
   CreateFSharpAssemblyInfo fileName
       [ Attribute.Version release.AssemblyVersion
         Attribute.FileVersion release.AssemblyVersion] 

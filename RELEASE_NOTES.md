@@ -1,3 +1,7 @@
+### 1.0.0
+* Rename project to Argu.
+* Move back to F# 3.0 runtime by default.
+
 ### 0.9.0
 * Move to F# 3.1 runtime.
 
@@ -47,13 +51,13 @@
 * Fix bug where parsing crashes if no app.config file present.
 
 ### 0.6.2
-* Remove BindingFlags parameter from UnionArgParser.
+* Remove BindingFlags parameter from Argu.
 
 ### 0.6.1
 * Add support for multiple alternative command line names.
 
 #### 0.6.0
-* Update root namespace to Nessos.UnionArgParser
+* Update root namespace to Nessos.Argu
 * Add support for application configuration in class libraries
 * Change application configuration parsing API.
 

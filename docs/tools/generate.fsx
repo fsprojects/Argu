@@ -4,19 +4,19 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "net40/UnionArgParser.dll" ]
+let referenceBinaries = [ "net40/Argu.dll" ]
 // Web site location for the generated documentation
-let website = "/UnionArgParser"
+let website = "/Argu"
 
-let githubLink = "http://github.com/nessos/UnionArgParser"
+let githubLink = "http://github.com/nessos/Argu"
 
 // Specify more information about your project
 let info =
-  [ "project-name", "UnionArgParser"
+  [ "project-name", "Argu"
     "project-author", "Eirik Tsarpalis"
     "project-summary", "A declarative argument parser for F#"
     "project-github", githubLink
-    "project-nuget", "http://www.nuget.org/packages/UnionArgParser" ]
+    "project-nuget", "http://www.nuget.org/packages/Argu" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below

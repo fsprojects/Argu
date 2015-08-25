@@ -1,4 +1,4 @@
 configuration: Release
 test:
   assemblies:
-    - UnionArgParser.Tests.dll
+    - Argu.Tests.dll
