@@ -16,4 +16,4 @@ All documentation and related material can be found [here](http://nessos.github.
 Head (branch `master`), Build & Unit tests
 
 * Windows/.NET [![Build status](https://ci.appveyor.com/api/projects/status/a6tvfn5pmobe5f65?svg=true)](https://ci.appveyor.com/project/nessos/argu)
-* Mac OS X/Mono 3.4 [![Build Status](https://travis-ci.org/nessos/UnionArgParser.png?branch=master)](https://travis-ci.org/nessos/UnionArgParser/branches)
+* Mac OS X/Mono 3.4 [![Build Status](https://travis-ci.org/nessos/Argu.png?branch=master)](https://travis-ci.org/nessos/Argu/branches)
