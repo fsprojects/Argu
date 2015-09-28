@@ -1,3 +1,6 @@
+### 1.1.0
+* Implement parseResult.Iter methods.
+
 ### 1.0.0
 * Rename project to Argu.
 * Move back to F# 3.0 runtime by default.

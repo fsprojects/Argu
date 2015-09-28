@@ -319,3 +319,25 @@ and ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     member r.TryPostProcessResult (expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R option =
         expr |> tryGetResult source |> Option.map (parseResult parser)
+
+    /// <summary>
+    ///     Iterates through *all* parse results for a given argument kind.
+    ///     Command line parameters have precedence over AppSettings parameters.
+    ///     Results are passed to an iterator function that is error handled by the parser.
+    /// </summary>
+    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
+    /// <param name="iterator">The iterator body.</param>
+    /// <param name="source">Option source restriction: AppSettings or CommandLine.</param>
+    member r.IterResults (expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
+        expr |> getResults source |> List.iter (parseResult iterator)
+
+    /// <summary>
+    ///     Iterates through the *last* parse result for a given argument kind.
+    ///     Command line parameters have precedence over AppSettings parameters.
+    ///     Results are passed to an iterator function that is error handled by the parser.
+    /// </summary>
+    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
+    /// <param name="iterator">The iterator body.</param>
+    /// <param name="source">Option source restriction: AppSettings or CommandLine.</param>
+    member r.IterResult (expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
+        expr |> tryGetResult source |> Option.iter (parseResult iterator)
