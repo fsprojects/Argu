@@ -76,6 +76,8 @@ and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?us
 
             if cliResults.HelpArgs > 0 && raiseOnUsage then raise HelpText
 
+            let ignoreMissing = (cliResults.HelpArgs > 0 && not raiseOnUsage) || ignoreMissing
+
             let results = combine argInfo ignoreMissing None (Some cliResults.ParseResults)
 
             ParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)

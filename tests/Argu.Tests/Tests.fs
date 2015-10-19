@@ -218,3 +218,15 @@ module ``Simple Tests`` =
     let ``18. Should fail if EqualsAssignment missing assignment.`` () =
         let _ = parser.ParseCommandLine [|"--assignment"; "value"|]
         ()
+
+    [<Test; ExpectedException(typeof<ArgumentException>)>]
+    let ``20. Should fail wenn Usage, Mandatory and raiseOnUsage = true`` () =
+        let args = [| "/h" |]
+        let _ = parser.ParseCommandLine (args, raiseOnUsage = true)
+        ()
+
+    [<Test>]
+    let ``21. Usage, Mandatory and raiseOnusage = false`` () =
+        let args = [| "/h" |]
+        let results = parser.ParseCommandLine (args, raiseOnUsage = false)
+        results.IsUsageRequested |> should equal true
