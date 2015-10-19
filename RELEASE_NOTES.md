@@ -1,3 +1,6 @@
+### 1.1.1
+* Support slashes in command line parameter names.
+
 ### 1.1.0
 * Implement parseResult.Iter methods.
 
