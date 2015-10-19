@@ -224,7 +224,6 @@ module ``Simple Tests`` =
         let args = [| "--mandatory-arg" ; "true" ; "/D" |]
         let results = parser.ParseCommandLine args
         results.Contains <@ Detach @> |> should equal true
-
     
     [<Test; ExpectedException(typeof<ArgumentException>)>]
     let ``20. Should fail wenn Usage, Mandatory and raiseOnUsage = true`` () =
