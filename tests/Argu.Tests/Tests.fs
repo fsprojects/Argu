@@ -225,7 +225,8 @@ module ``Simple Tests`` =
         let results = parser.ParseCommandLine args
         results.Contains <@ Detach @> |> should equal true
 
-        [<Test; ExpectedException(typeof<ArgumentException>)>]
+    
+    [<Test; ExpectedException(typeof<ArgumentException>)>]
     let ``20. Should fail wenn Usage, Mandatory and raiseOnUsage = true`` () =
         let args = [| "/h" |]
         let _ = parser.ParseCommandLine (args, raiseOnUsage = true)
