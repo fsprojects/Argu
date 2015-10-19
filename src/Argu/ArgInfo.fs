@@ -245,7 +245,8 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
             for name in clNames do
                 if hasCommandLineParam helpInfo name then
                     failwithf "Argu: parameter '%s' is reserved for the 'usage' parameter." name
-                if name.ToCharArray() |> Array.forall (fun c -> Char.IsLetterOrDigit c || c = '-') |> not then
+                let isAllowed = fun c -> Char.IsLetterOrDigit c || c = '-' || c = '/' 
+                if name.ToCharArray() |> Array.forall isAllowed |> not then
                     failwithf "Argu: parameter '%s' contains invalid characters." name
 
             clNames

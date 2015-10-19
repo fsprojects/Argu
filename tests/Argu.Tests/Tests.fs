@@ -20,7 +20,7 @@ module ``Simple Tests`` =
         | [<Rest>] Rest_Arg of int
         | Data of int * byte []
         | Log_Level of int
-        | [<AltCommandLine("-D"); AltCommandLine("-z")>] Detach
+        | [<AltCommandLine("/D"); AltCommandLine("-D"); AltCommandLine("-z")>] Detach
         | [<CustomAppSettings("Foo")>] CustomAppConfig of string * int
         | [<EqualsAssignment>] Assignment of string
         | [<First>] First_Parameter of string
@@ -218,3 +218,9 @@ module ``Simple Tests`` =
     let ``18. Should fail if EqualsAssignment missing assignment.`` () =
         let _ = parser.ParseCommandLine [|"--assignment"; "value"|]
         ()
+
+    [<Test>]
+    let ``19. Slash in Commandline`` () =
+        let args = [| "--mandatory-arg" ; "true" ; "/D" |]
+        let results = parser.ParseCommandLine args
+        results.Contains <@ Detach @> |> should equal true
