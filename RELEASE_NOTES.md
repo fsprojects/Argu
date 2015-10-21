@@ -1,3 +1,6 @@
+### 1.1.2
+* Bugfix #40.
+
 ### 1.1.1
 * Support slashes in command line parameter names.
 
