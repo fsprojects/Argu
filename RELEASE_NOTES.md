@@ -1,3 +1,6 @@
+### 1.1.3
+* Fixes to error message formatting.
+
 ### 1.1.2
 * Bugfix #40.
 
