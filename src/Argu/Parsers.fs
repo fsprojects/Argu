@@ -38,7 +38,7 @@ with
 
 // parses the first part of a command line parameter
 // recognizes if parameter is of kind --param arg or --param=arg
-let private assignRegex = new Regex("^([^=]*)=(.*)$", RegexOptions.Compiled)
+let private assignRegex = new Regex("^([^=]*)=(.*)$", RegexOptions.Compiled|||RegexOptions.IgnoreCase)
 let private parseEqualityParam (param : string) =
     let m = assignRegex.Match param
     if m.Success then

@@ -143,7 +143,7 @@ let uciToOpt (uci : UnionCaseInfo) =
         | CliPrefix.DoubleDash -> "--" 
         | CliPrefix.Dash -> "-" 
         | CliPrefix.Empty -> "" 
-        | p -> invalidArg "CliPrefix" "unsupported CLI prefix '%A'." p
+        | p -> invalidArg "CliPrefix" <| sprintf "unsupported CLI prefix '%s'." (string p)
 
     prefixString + uci.Name.ToLower().Replace('_','-')
 
@@ -260,7 +260,7 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
             | Some attr -> Some attr.Name
 
     if AppSettingsName.IsNone && commandLineArgs.IsEmpty then 
-        failwith "Argu: parameter '%s' needs to have at least one parse source." uci.Name
+        failwithf "Argu: parameter '%s' needs to have at least one parse source." uci.Name
 
     let printLabels = uci.ContainsAttr<PrintLabelsAttribute> (true)
 
@@ -291,9 +291,9 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
     let isEqualsAssignment = 
         if uci.ContainsAttr<EqualsAssignmentAttribute> (true) then
             if types.Length <> 1 then
-                failwith "Argu: Parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
+                failwithf "Argu: Parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
             elif isRest then
-                failwith "Argu: Parameter '%s' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci.Name
+                failwithf "Argu: Parameter '%s' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci.Name
             true
         else
             false
