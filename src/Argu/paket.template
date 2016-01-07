@@ -8,9 +8,9 @@ copyright
 	Copyright 2015
 summary
     A declarative command line and XML configuration parser for F# applications.
-licenseurl https://github.com/nessos/Argu/blob/master/License.md
-projecturl https://github.com/nessos/Argu
-iconurl https://avatars1.githubusercontent.com/u/5538081
+licenseurl https://github.com/fsprojects/Argu/blob/master/License.md
+projecturl https://github.com/fsprojects/Argu
+iconurl https://avatars0.githubusercontent.com/u/6001315
 tags
     F#, argument, parser
 references

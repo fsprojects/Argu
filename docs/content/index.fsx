@@ -8,7 +8,7 @@ open System
 
 (**
 
-# Argu (formerly UnionArgParser)
+# Argu
 
 Argu (pronounced "Argue") is a declarative CLI argument/XML configuration parser for F# applications.
 Allows quick definition of argument parsing schema through F# union declarations.
@@ -89,8 +89,8 @@ the project and submit pull requests.
 The library is available under the MIT License. 
 For more information see the [License file][license] in the GitHub repository. 
 
-  [gh]: https://github.com/nessos/Argu
-  [issues]: https://github.com/nessos/Argu/issues
-  [license]: https://github.com/nessos/Argu/blob/master/License.md
+  [gh]: https://github.com/fsprojects/Argu
+  [issues]: https://github.com/fsprojects/Argu/issues
+  [license]: https://github.com/fsprojects/Argu/blob/master/License.md
 
 *)

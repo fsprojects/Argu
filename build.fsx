@@ -18,7 +18,7 @@ open Fake.AssemblyInfoFile
 
 let project = "Argu"
 
-let gitOwner = "nessos"
+let gitOwner = "fsprojects"
 let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 

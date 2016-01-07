@@ -8,7 +8,7 @@ let referenceBinaries = [ "net40/Argu.dll" ]
 // Web site location for the generated documentation
 let website = "/Argu"
 
-let githubLink = "http://github.com/nessos/Argu"
+let githubLink = "http://github.com/fsprojects/Argu"
 
 // Specify more information about your project
 let info =
