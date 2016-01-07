@@ -179,20 +179,18 @@ Target "Release" DoNothing
 
 Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
-Target "Build" DoNothing
 Target "Default" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
   ==> "Prepare"
-  ==> "Build"
+  ==> "Build.Net40"
   ==> "RunTests"
   ==> "Default"
 
-"Build"
+"Default"
   ==> "PrepareRelease"
   ==> "Build.Net35"
-  ==> "Build.Net40"
   ==> "NuGet"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
