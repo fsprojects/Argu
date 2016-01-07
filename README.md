@@ -1,4 +1,4 @@
-# Argu [![NuGet Status](http://img.shields.io/nuget/vpre/MBrace.Core.svg?style=flat)](https://www.nuget.org/packages/Argu/)
+# Argu [![NuGet Status](http://img.shields.io/nuget/vpre/Argu.svg?style=flat)](https://www.nuget.org/packages/Argu/)
 
 A declarative CLI argument/XML configuration parser for F# applications. 
 
