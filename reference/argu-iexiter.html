@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>CustomAppSettingsAttribute - Argu</title>
+    <title>IExiter - Argu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,41 +35,14 @@
 
 
 
-<h1>CustomAppSettingsAttribute</h1>
+<h1>IExiter</h1>
 <p>
-  <span>Namespace: Nessos.Argu</span><br />
+  <span>Namespace: Argu</span><br />
 </p>
 <div class="xmldoc">
-<p>Sets a custom AppSettings key name.</p>
-
+<p>An interface for error handling in the argument parser</p>
 
 </div>
-  <h3>Constructors</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '18', 18)" onmouseover="showTip(event, '18', 18)">
-            new(name)
-          </code>
-          <div class="tip" id="18">
-            <strong>Signature:</strong> name:string -&gt; CustomAppSettingsAttribute<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L97-97" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-    </tbody>
-  </table>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
     <thead>
@@ -79,15 +52,16 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '19', 19)" onmouseover="showTip(event, '19', 19)">
-            Name
+          <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
+            Exit(msg, errorCode)
           </code>
-          <div class="tip" id="19">
-            <strong>Signature:</strong> string<br />
-                      </div>
+          <div class="tip" id="29">
+            <strong>Signature:</strong> (msg:string * errorCode:int option) -&gt; &#39;T<br />
+              <strong>Modifiers:</strong> abstract<br />
+                          <strong>Type parameters:</strong> 'T          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L99-99" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L21-21" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

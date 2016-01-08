@@ -34,13 +34,10 @@
         <div class="span9" id="main">
           
 <h1><a name="Tutorial" class="anchor" href="#Tutorial">Tutorial</a></h1>
-
 <h2><a name="Introduction" class="anchor" href="#Introduction">Introduction</a></h2>
-
-<p>The library is based on the simple observation that 
-configuration parameters can be naturally described using discriminated unions. 
+<p>The library is based on the simple observation that
+configuration parameters can be naturally described using discriminated unions.
 For instance:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -55,29 +52,23 @@ For instance:</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>Argu takes such discriminated unions and generates 
-a corresponding argument parsing scheme. 
+<p>Argu takes such discriminated unions and generates
+a corresponding argument parsing scheme.
 For example, a parser generated from the above template would
 take the following command line input</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="bash">--working-directory /var/run --listener localhost 8080 --detach
 </code></pre></td></tr></table>
-
 <p>and parse it into the list</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[ <span class="p">Working_Directory</span> <span class="s">&quot;/var/run&quot;</span> ; <span class="p">Listener</span>(<span class="s">&quot;localhost&quot;</span>, <span class="n">8080</span>) ; <span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="p">Detach</span> ]
 </code></pre></td>
 </tr>
 </table>
-
 <p>Argu is also capable of reading the <code>AppSettings</code> section
 of an application's configuration file:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -92,15 +83,11 @@ of an application's configuration file:</p>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="detach"</span> <span class="o">value</span><span class="k">="true"</span> <span class="k">/&gt;</span>
 <span class="k">&lt;/</span><span class="i">appSettings</span><span class="k">&gt;</span>
 </code></pre></td></tr></table>
-
 <p>Both XML configuration and command line arguments can be parsed
 at the same time. By default, command line parameters override
 their corresponding XML configuration.</p>
-
 <h2><a name="Basic-Usage" class="anchor" href="#Basic-Usage">Basic Usage</a></h2>
-
 <p>A minimal parser based on the above example can be created as follows:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -139,31 +126,31 @@ their corresponding XML configuration.</p>
 <span class="l">36: </span>
 <span class="l">37: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">Nessos</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="i">Argu</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">Argu</span>
 
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="t">CLIArguments</span> <span class="o">=</span>
-    | <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="p">Working_Directory</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 16)" onmouseover="showTip(event, 'fs4', 16)" class="t">string</span>
-    | <span onmouseout="hideTip(event, 'fs13', 17)" onmouseover="showTip(event, 'fs13', 17)" class="p">Listener</span> <span class="k">of</span> <span class="i">host</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 18)" onmouseover="showTip(event, 'fs4', 18)" class="t">string</span> <span class="o">*</span> <span class="i">port</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 19)" onmouseover="showTip(event, 'fs6', 19)" class="t">int</span>
-    | <span onmouseout="hideTip(event, 'fs14', 20)" onmouseover="showTip(event, 'fs14', 20)" class="p">Data</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs15', 21)" onmouseover="showTip(event, 'fs15', 21)" class="t">byte</span> []
-    | <span onmouseout="hideTip(event, 'fs16', 22)" onmouseover="showTip(event, 'fs16', 22)" class="p">Port</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 23)" onmouseover="showTip(event, 'fs6', 23)" class="t">int</span>
-    | <span onmouseout="hideTip(event, 'fs17', 24)" onmouseover="showTip(event, 'fs17', 24)" class="p">Log_Level</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 25)" onmouseover="showTip(event, 'fs6', 25)" class="t">int</span>
-    | <span onmouseout="hideTip(event, 'fs18', 26)" onmouseover="showTip(event, 'fs18', 26)" class="p">Detach</span>
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="t">CLIArguments</span> <span class="o">=</span>
+    | <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="p">Working_Directory</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 15)" onmouseover="showTip(event, 'fs4', 15)" class="t">string</span>
+    | <span onmouseout="hideTip(event, 'fs12', 16)" onmouseover="showTip(event, 'fs12', 16)" class="p">Listener</span> <span class="k">of</span> <span class="i">host</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 17)" onmouseover="showTip(event, 'fs4', 17)" class="t">string</span> <span class="o">*</span> <span class="i">port</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 18)" onmouseover="showTip(event, 'fs6', 18)" class="t">int</span>
+    | <span onmouseout="hideTip(event, 'fs13', 19)" onmouseover="showTip(event, 'fs13', 19)" class="p">Data</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs14', 20)" onmouseover="showTip(event, 'fs14', 20)" class="t">byte</span> []
+    | <span onmouseout="hideTip(event, 'fs15', 21)" onmouseover="showTip(event, 'fs15', 21)" class="p">Port</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 22)" onmouseover="showTip(event, 'fs6', 22)" class="t">int</span>
+    | <span onmouseout="hideTip(event, 'fs16', 23)" onmouseover="showTip(event, 'fs16', 23)" class="p">Log_Level</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 24)" onmouseover="showTip(event, 'fs6', 24)" class="t">int</span>
+    | <span onmouseout="hideTip(event, 'fs17', 25)" onmouseover="showTip(event, 'fs17', 25)" class="p">Detach</span>
 <span class="k">with</span>
-    <span class="k">interface</span> <span onmouseout="hideTip(event, 'fs19', 27)" onmouseover="showTip(event, 'fs19', 27)" class="t">IArgParserTemplate</span> <span class="k">with</span>
-        <span class="k">member</span> <span onmouseout="hideTip(event, 'fs20', 28)" onmouseover="showTip(event, 'fs20', 28)" class="i">s</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 29)" onmouseover="showTip(event, 'fs21', 29)" class="i">Usage</span> <span class="o">=</span>
-            <span class="k">match</span> <span onmouseout="hideTip(event, 'fs20', 30)" onmouseover="showTip(event, 'fs20', 30)" class="i">s</span> <span class="k">with</span>
-            | <span onmouseout="hideTip(event, 'fs12', 31)" onmouseover="showTip(event, 'fs12', 31)" class="p">Working_Directory</span> _ <span class="k">-&gt;</span> <span class="s">&quot;specify a working directory.&quot;</span>
-            | <span onmouseout="hideTip(event, 'fs13', 32)" onmouseover="showTip(event, 'fs13', 32)" class="p">Listener</span> _ <span class="k">-&gt;</span> <span class="s">&quot;specify a listener (hostname : port).&quot;</span>
-            | <span onmouseout="hideTip(event, 'fs14', 33)" onmouseover="showTip(event, 'fs14', 33)" class="p">Data</span> _ <span class="k">-&gt;</span> <span class="s">&quot;binary data in base64 encoding.&quot;</span>
-            | <span onmouseout="hideTip(event, 'fs16', 34)" onmouseover="showTip(event, 'fs16', 34)" class="p">Port</span> _ <span class="k">-&gt;</span> <span class="s">&quot;specify a primary port.&quot;</span>
-            | <span onmouseout="hideTip(event, 'fs17', 35)" onmouseover="showTip(event, 'fs17', 35)" class="p">Log_Level</span> _ <span class="k">-&gt;</span> <span class="s">&quot;set the log level.&quot;</span>
-            | <span onmouseout="hideTip(event, 'fs18', 36)" onmouseover="showTip(event, 'fs18', 36)" class="p">Detach</span> _ <span class="k">-&gt;</span> <span class="s">&quot;detach daemon from console.&quot;</span>
+    <span class="k">interface</span> <span onmouseout="hideTip(event, 'fs18', 26)" onmouseover="showTip(event, 'fs18', 26)" class="t">IArgParserTemplate</span> <span class="k">with</span>
+        <span class="k">member</span> <span onmouseout="hideTip(event, 'fs19', 27)" onmouseover="showTip(event, 'fs19', 27)" class="i">s</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 28)" onmouseover="showTip(event, 'fs20', 28)" class="i">Usage</span> <span class="o">=</span>
+            <span class="k">match</span> <span onmouseout="hideTip(event, 'fs19', 29)" onmouseover="showTip(event, 'fs19', 29)" class="i">s</span> <span class="k">with</span>
+            | <span onmouseout="hideTip(event, 'fs11', 30)" onmouseover="showTip(event, 'fs11', 30)" class="p">Working_Directory</span> _ <span class="k">-&gt;</span> <span class="s">&quot;specify a working directory.&quot;</span>
+            | <span onmouseout="hideTip(event, 'fs12', 31)" onmouseover="showTip(event, 'fs12', 31)" class="p">Listener</span> _ <span class="k">-&gt;</span> <span class="s">&quot;specify a listener (hostname : port).&quot;</span>
+            | <span onmouseout="hideTip(event, 'fs13', 32)" onmouseover="showTip(event, 'fs13', 32)" class="p">Data</span> _ <span class="k">-&gt;</span> <span class="s">&quot;binary data in base64 encoding.&quot;</span>
+            | <span onmouseout="hideTip(event, 'fs15', 33)" onmouseover="showTip(event, 'fs15', 33)" class="p">Port</span> _ <span class="k">-&gt;</span> <span class="s">&quot;specify a primary port.&quot;</span>
+            | <span onmouseout="hideTip(event, 'fs16', 34)" onmouseover="showTip(event, 'fs16', 34)" class="p">Log_Level</span> _ <span class="k">-&gt;</span> <span class="s">&quot;set the log level.&quot;</span>
+            | <span onmouseout="hideTip(event, 'fs17', 35)" onmouseover="showTip(event, 'fs17', 35)" class="p">Detach</span> _ <span class="k">-&gt;</span> <span class="s">&quot;detach daemon from console.&quot;</span>
  
 <span class="c">// build the argument parser</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 37)" onmouseover="showTip(event, 'fs22', 37)" class="i">parser</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs23', 38)" onmouseover="showTip(event, 'fs23', 38)" class="t">ArgumentParser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 39)" onmouseover="showTip(event, 'fs24', 39)" class="f">Create</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs11', 40)" onmouseover="showTip(event, 'fs11', 40)" class="t">CLIArguments</span><span class="o">&gt;</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 36)" onmouseover="showTip(event, 'fs21', 36)" class="i">parser</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 37)" onmouseover="showTip(event, 'fs22', 37)" class="t">ArgumentParser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 38)" onmouseover="showTip(event, 'fs23', 38)" class="f">Create</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs10', 39)" onmouseover="showTip(event, 'fs10', 39)" class="t">CLIArguments</span><span class="o">&gt;</span>()
  
 <span class="c">// get usage text</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 41)" onmouseover="showTip(event, 'fs25', 41)" class="i">usage</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 42)" onmouseover="showTip(event, 'fs22', 42)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs26', 43)" onmouseover="showTip(event, 'fs26', 43)" class="f">Usage</span>()
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 40)" onmouseover="showTip(event, 'fs24', 40)" class="i">usage</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 41)" onmouseover="showTip(event, 'fs21', 41)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 42)" onmouseover="showTip(event, 'fs25', 42)" class="f">Usage</span>()
 <span class="c">// output:</span>
 <span class="c">//    --working-directory &lt;string&gt;: specify a working directory.</span>
 <span class="c">//    --listener &lt;host:string&gt; &lt;port:int&gt;: specify a listener (hostname : port).</span>
@@ -172,42 +159,35 @@ their corresponding XML configuration.</p>
 <span class="c">//    --help [-h|/h|/help|/?]: display this list of options.</span>
  
 <span class="c">// parse given input</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 44)" onmouseover="showTip(event, 'fs27', 44)" class="i">results</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 45)" onmouseover="showTip(event, 'fs22', 45)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 46)" onmouseover="showTip(event, 'fs28', 46)" class="f">Parse</span>([| <span class="s">&quot;--detach&quot;</span> ; <span class="s">&quot;--listener&quot;</span> ; <span class="s">&quot;localhost&quot;</span> ; <span class="s">&quot;8080&quot;</span> |])
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 43)" onmouseover="showTip(event, 'fs26', 43)" class="i">results</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 44)" onmouseover="showTip(event, 'fs21', 44)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 45)" onmouseover="showTip(event, 'fs27', 45)" class="f">Parse</span>([| <span class="s">&quot;--detach&quot;</span> ; <span class="s">&quot;--listener&quot;</span> ; <span class="s">&quot;localhost&quot;</span> ; <span class="s">&quot;8080&quot;</span> |])
  
 <span class="c">// get all parsed results</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs29', 47)" onmouseover="showTip(event, 'fs29', 47)" class="i">all</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 48)" onmouseover="showTip(event, 'fs27', 48)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 49)" onmouseover="showTip(event, 'fs30', 49)" class="f">GetAllResults</span>() <span class="c">// [ Detach ; Listener (&quot;localhost&quot;, 8080) ]</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 46)" onmouseover="showTip(event, 'fs28', 46)" class="i">all</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 47)" onmouseover="showTip(event, 'fs26', 47)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 48)" onmouseover="showTip(event, 'fs29', 48)" class="f">GetAllResults</span>() <span class="c">// [ Detach ; Listener (&quot;localhost&quot;, 8080) ]</span>
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Querying-Parameters" class="anchor" href="#Querying-Parameters">Querying Parameters</a></h2>
-
-<p>While getting a single list of all parsed results might be useful for some cases, 
+<p>While getting a single list of all parsed results might be useful for some cases,
 it is more likely that you need to query the results for specific parameters:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
 <span class="l">5: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs31', 50)" onmouseover="showTip(event, 'fs31', 50)" class="i">detach</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 51)" onmouseover="showTip(event, 'fs27', 51)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 52)" onmouseover="showTip(event, 'fs32', 52)" class="f">Contains</span> &lt;@ <span onmouseout="hideTip(event, 'fs18', 53)" onmouseover="showTip(event, 'fs18', 53)" class="p">Detach</span> @&gt;
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 54)" onmouseover="showTip(event, 'fs33', 54)" class="i">listener</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 55)" onmouseover="showTip(event, 'fs27', 55)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 56)" onmouseover="showTip(event, 'fs34', 56)" class="f">GetResults</span> &lt;@ <span onmouseout="hideTip(event, 'fs13', 57)" onmouseover="showTip(event, 'fs13', 57)" class="p">Listener</span> @&gt;
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 49)" onmouseover="showTip(event, 'fs30', 49)" class="i">detach</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 50)" onmouseover="showTip(event, 'fs26', 50)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 51)" onmouseover="showTip(event, 'fs31', 51)" class="f">Contains</span> &lt;@ <span onmouseout="hideTip(event, 'fs17', 52)" onmouseover="showTip(event, 'fs17', 52)" class="p">Detach</span> @&gt;
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs32', 53)" onmouseover="showTip(event, 'fs32', 53)" class="i">listener</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 54)" onmouseover="showTip(event, 'fs26', 54)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 55)" onmouseover="showTip(event, 'fs33', 55)" class="f">GetResults</span> &lt;@ <span onmouseout="hideTip(event, 'fs12', 56)" onmouseover="showTip(event, 'fs12', 56)" class="p">Listener</span> @&gt;
 
 <span class="c">// returns the last observed result of this parameter</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 58)" onmouseover="showTip(event, 'fs35', 58)" class="i">logLevel</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 59)" onmouseover="showTip(event, 'fs27', 59)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 60)" onmouseover="showTip(event, 'fs36', 60)" class="f">GetResult</span> (&lt;@ <span onmouseout="hideTip(event, 'fs17', 61)" onmouseover="showTip(event, 'fs17', 61)" class="p">Log_Level</span> @&gt;, <span class="i">defaultValue</span> <span class="o">=</span> <span class="n">0</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 57)" onmouseover="showTip(event, 'fs34', 57)" class="i">logLevel</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 58)" onmouseover="showTip(event, 'fs26', 58)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 59)" onmouseover="showTip(event, 'fs35', 59)" class="f">GetResult</span> (&lt;@ <span onmouseout="hideTip(event, 'fs16', 60)" onmouseover="showTip(event, 'fs16', 60)" class="p">Log_Level</span> @&gt;, <span class="i">defaultValue</span> <span class="o">=</span> <span class="n">0</span>)
 </code></pre></td>
 </tr>
 </table>
-
-<p>Querying using quotations enables a simple and type safe way 
+<p>Querying using quotations enables a simple and type safe way
 to deconstruct parse results into their constituent values.</p>
-
 <h2><a name="Customization" class="anchor" href="#Customization">Customization</a></h2>
-
-<p>The parsing behaviour of the configuration parameters 
+<p>The parsing behaviour of the configuration parameters
 can be customized by fixing attributes to the union cases:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -215,18 +195,16 @@ can be customized by fixing attributes to the union cases:</p>
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs37', 62)" onmouseover="showTip(event, 'fs37', 62)" class="t">Argument</span> <span class="o">=</span>
-    | [&lt;<span onmouseout="hideTip(event, 'fs38', 63)" onmouseover="showTip(event, 'fs38', 63)" class="t">Mandatory</span>&gt;] <span onmouseout="hideTip(event, 'fs39', 64)" onmouseover="showTip(event, 'fs39', 64)" class="p">Cache_Path</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 65)" onmouseover="showTip(event, 'fs4', 65)" class="t">string</span>
-    | [&lt;<span onmouseout="hideTip(event, 'fs40', 66)" onmouseover="showTip(event, 'fs40', 66)" class="t">NoCommandLine</span>&gt;] <span onmouseout="hideTip(event, 'fs41', 67)" onmouseover="showTip(event, 'fs41', 67)" class="p">Connection_String</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 68)" onmouseover="showTip(event, 'fs4', 68)" class="t">string</span>
-    | [&lt;<span onmouseout="hideTip(event, 'fs42', 69)" onmouseover="showTip(event, 'fs42', 69)" class="t">PrintLabels</span>&gt;] <span onmouseout="hideTip(event, 'fs43', 70)" onmouseover="showTip(event, 'fs43', 70)" class="p">Listener</span> <span class="k">of</span> <span class="i">host</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 71)" onmouseover="showTip(event, 'fs4', 71)" class="t">string</span> <span class="o">*</span> <span class="i">port</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 72)" onmouseover="showTip(event, 'fs6', 72)" class="t">int</span>
-    | [&lt;<span onmouseout="hideTip(event, 'fs44', 73)" onmouseover="showTip(event, 'fs44', 73)" class="t">EqualsAssignment</span>&gt;] <span onmouseout="hideTip(event, 'fs45', 74)" onmouseover="showTip(event, 'fs45', 74)" class="p">Assignment</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 75)" onmouseover="showTip(event, 'fs4', 75)" class="t">string</span>
-    | [&lt;<span onmouseout="hideTip(event, 'fs46', 76)" onmouseover="showTip(event, 'fs46', 76)" class="t">AltCommandLine</span>(<span class="s">&quot;-pP&quot;</span>)&gt;] <span onmouseout="hideTip(event, 'fs47', 77)" onmouseover="showTip(event, 'fs47', 77)" class="p">Primary_Port</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 78)" onmouseover="showTip(event, 'fs6', 78)" class="t">int</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs36', 61)" onmouseover="showTip(event, 'fs36', 61)" class="t">Argument</span> <span class="o">=</span>
+    | [&lt;<span onmouseout="hideTip(event, 'fs37', 62)" onmouseover="showTip(event, 'fs37', 62)" class="t">Mandatory</span>&gt;] <span onmouseout="hideTip(event, 'fs38', 63)" onmouseover="showTip(event, 'fs38', 63)" class="p">Cache_Path</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 64)" onmouseover="showTip(event, 'fs4', 64)" class="t">string</span>
+    | [&lt;<span onmouseout="hideTip(event, 'fs39', 65)" onmouseover="showTip(event, 'fs39', 65)" class="t">NoCommandLine</span>&gt;] <span onmouseout="hideTip(event, 'fs40', 66)" onmouseover="showTip(event, 'fs40', 66)" class="p">Connection_String</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 67)" onmouseover="showTip(event, 'fs4', 67)" class="t">string</span>
+    | [&lt;<span onmouseout="hideTip(event, 'fs41', 68)" onmouseover="showTip(event, 'fs41', 68)" class="t">PrintLabels</span>&gt;] <span onmouseout="hideTip(event, 'fs42', 69)" onmouseover="showTip(event, 'fs42', 69)" class="p">Listener</span> <span class="k">of</span> <span class="i">host</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 70)" onmouseover="showTip(event, 'fs4', 70)" class="t">string</span> <span class="o">*</span> <span class="i">port</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 71)" onmouseover="showTip(event, 'fs6', 71)" class="t">int</span>
+    | [&lt;<span onmouseout="hideTip(event, 'fs43', 72)" onmouseover="showTip(event, 'fs43', 72)" class="t">EqualsAssignment</span>&gt;] <span onmouseout="hideTip(event, 'fs44', 73)" onmouseover="showTip(event, 'fs44', 73)" class="p">Assignment</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs4', 74)" onmouseover="showTip(event, 'fs4', 74)" class="t">string</span>
+    | [&lt;<span onmouseout="hideTip(event, 'fs45', 75)" onmouseover="showTip(event, 'fs45', 75)" class="t">AltCommandLine</span>(<span class="s">&quot;-pP&quot;</span>)&gt;] <span onmouseout="hideTip(event, 'fs46', 76)" onmouseover="showTip(event, 'fs46', 76)" class="p">Primary_Port</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs6', 77)" onmouseover="showTip(event, 'fs6', 77)" class="t">int</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>In this case,</p>
-
 <ul>
 <li><p><code>Mandatory</code>: parser will fail if no configuration for this parameter is given.</p></li>
 <li><p><code>NoCommandLine</code>: restricts this parameter to the AppSettings section.</p></li>
@@ -234,9 +212,7 @@ can be customized by fixing attributes to the union cases:</p>
 <li><p><code>EqualsAssignment</code> : enforces '--assignment=value' CLI syntax.</p></li>
 <li><p><code>PrintLabels</code> : Augments documentation with label names in F# 3.1 programs.</p></li>
 </ul>
-
 <p>The following attributes are also available:</p>
-
 <ul>
 <li><p><code>NoAppSettings</code>: restricts to command line.</p></li>
 <li><p><code>Rest</code>: all remaining command line args are consumed by this parameter.</p></li>
@@ -246,14 +222,11 @@ can be customized by fixing attributes to the union cases:</p>
 <li><p><code>CustomAppSettings</code>: sets a custom key name for AppSettings.</p></li>
 <li><p><code>First</code>: Argument can only be placed at the beginning of the command line.</p></li>
 </ul>
-
 <h2><a name="Post-Processing" class="anchor" href="#Post-Processing">Post Processing</a></h2>
-
-<p>It should be noted here that arbitrary unions are not supported by the parser. 
-Union cases can only contain fields of primitive types. This means that user-defined 
-parsers are not supported. For configuration inputs that are non-trivial, 
+<p>It should be noted here that arbitrary unions are not supported by the parser.
+Union cases can only contain fields of primitive types. This means that user-defined
+parsers are not supported. For configuration inputs that are non-trivial,
 a post-process facility is provided.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -261,22 +234,18 @@ a post-process facility is provided.</p>
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs48', 79)" onmouseover="showTip(event, 'fs48', 79)" class="f">parsePort</span> <span onmouseout="hideTip(event, 'fs49', 80)" onmouseover="showTip(event, 'fs49', 80)" class="i">p</span> <span class="o">=</span> 
-    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs49', 81)" onmouseover="showTip(event, 'fs49', 81)" class="i">p</span> <span class="o">&lt;</span> <span class="n">0</span> <span class="o">||</span> <span onmouseout="hideTip(event, 'fs49', 82)" onmouseover="showTip(event, 'fs49', 82)" class="i">p</span> <span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs6', 83)" onmouseover="showTip(event, 'fs6', 83)" class="f">int</span> <span onmouseout="hideTip(event, 'fs50', 84)" onmouseover="showTip(event, 'fs50', 84)" class="t">UInt16</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs51', 85)" onmouseover="showTip(event, 'fs51', 85)" class="i">MaxValue</span> <span class="k">then</span> 
-        <span onmouseout="hideTip(event, 'fs52', 86)" onmouseover="showTip(event, 'fs52', 86)" class="f">failwith</span> <span class="s">&quot;invalid port number.&quot;</span>
-    <span class="k">else</span> <span onmouseout="hideTip(event, 'fs49', 87)" onmouseover="showTip(event, 'fs49', 87)" class="i">p</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs47', 78)" onmouseover="showTip(event, 'fs47', 78)" class="f">parsePort</span> <span onmouseout="hideTip(event, 'fs48', 79)" onmouseover="showTip(event, 'fs48', 79)" class="i">p</span> <span class="o">=</span> 
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs48', 80)" onmouseover="showTip(event, 'fs48', 80)" class="i">p</span> <span class="o">&lt;</span> <span class="n">0</span> <span class="o">||</span> <span onmouseout="hideTip(event, 'fs48', 81)" onmouseover="showTip(event, 'fs48', 81)" class="i">p</span> <span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs6', 82)" onmouseover="showTip(event, 'fs6', 82)" class="f">int</span> <span onmouseout="hideTip(event, 'fs49', 83)" onmouseover="showTip(event, 'fs49', 83)" class="t">UInt16</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 84)" onmouseover="showTip(event, 'fs50', 84)" class="i">MaxValue</span> <span class="k">then</span> 
+        <span onmouseout="hideTip(event, 'fs51', 85)" onmouseover="showTip(event, 'fs51', 85)" class="f">failwith</span> <span class="s">&quot;invalid port number.&quot;</span>
+    <span class="k">else</span> <span onmouseout="hideTip(event, 'fs48', 86)" onmouseover="showTip(event, 'fs48', 86)" class="i">p</span>
  
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs53', 88)" onmouseover="showTip(event, 'fs53', 88)" class="i">ports</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 89)" onmouseover="showTip(event, 'fs27', 89)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs54', 90)" onmouseover="showTip(event, 'fs54', 90)" class="f">PostProcessResults</span> (&lt;@ <span onmouseout="hideTip(event, 'fs16', 91)" onmouseover="showTip(event, 'fs16', 91)" class="p">Port</span> @&gt;, <span onmouseout="hideTip(event, 'fs48', 92)" onmouseover="showTip(event, 'fs48', 92)" class="f">parsePort</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs52', 87)" onmouseover="showTip(event, 'fs52', 87)" class="i">ports</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 88)" onmouseover="showTip(event, 'fs26', 88)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 89)" onmouseover="showTip(event, 'fs53', 89)" class="f">PostProcessResults</span> (&lt;@ <span onmouseout="hideTip(event, 'fs15', 90)" onmouseover="showTip(event, 'fs15', 90)" class="p">Port</span> @&gt;, <span onmouseout="hideTip(event, 'fs47', 91)" onmouseover="showTip(event, 'fs47', 91)" class="f">parsePort</span>)
 </code></pre></td>
 </tr>
 </table>
-
 <p>This construct is useful since exception handling is performed by the arg parser itself.</p>
-
 <h2><a name="Unparsing-Support" class="anchor" href="#Unparsing-Support">Unparsing Support</a></h2>
-
 <p>Argu is convenient when it comes to automated process spawning:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -284,27 +253,23 @@ a post-process facility is provided.</p>
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 93)" onmouseover="showTip(event, 'fs1', 93)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs55', 94)" onmouseover="showTip(event, 'fs55', 94)" class="i">Diagnostics</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 92)" onmouseover="showTip(event, 'fs1', 92)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs54', 93)" onmouseover="showTip(event, 'fs54', 93)" class="i">Diagnostics</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs56', 95)" onmouseover="showTip(event, 'fs56', 95)" class="i">arguments</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs4', 96)" onmouseover="showTip(event, 'fs4', 96)" class="t">string</span> [] <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs22', 97)" onmouseover="showTip(event, 'fs22', 97)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs57', 98)" onmouseover="showTip(event, 'fs57', 98)" class="f">PrintCommandLine</span> [ <span onmouseout="hideTip(event, 'fs16', 99)" onmouseover="showTip(event, 'fs16', 99)" class="p">Port</span> <span class="n">42</span> ; <span onmouseout="hideTip(event, 'fs12', 100)" onmouseover="showTip(event, 'fs12', 100)" class="p">Working_Directory</span> <span class="s">&quot;temp&quot;</span> ]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs55', 94)" onmouseover="showTip(event, 'fs55', 94)" class="i">arguments</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs4', 95)" onmouseover="showTip(event, 'fs4', 95)" class="t">string</span> [] <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs21', 96)" onmouseover="showTip(event, 'fs21', 96)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs56', 97)" onmouseover="showTip(event, 'fs56', 97)" class="f">PrintCommandLine</span> [ <span onmouseout="hideTip(event, 'fs15', 98)" onmouseover="showTip(event, 'fs15', 98)" class="p">Port</span> <span class="n">42</span> ; <span onmouseout="hideTip(event, 'fs11', 99)" onmouseover="showTip(event, 'fs11', 99)" class="p">Working_Directory</span> <span class="s">&quot;temp&quot;</span> ]
 
-<span onmouseout="hideTip(event, 'fs58', 101)" onmouseover="showTip(event, 'fs58', 101)" class="t">Process</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs59', 102)" onmouseover="showTip(event, 'fs59', 102)" class="f">Start</span>(<span class="s">&quot;foo.exe&quot;</span>, <span onmouseout="hideTip(event, 'fs60', 103)" onmouseover="showTip(event, 'fs60', 103)" class="t">String</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs61', 104)" onmouseover="showTip(event, 'fs61', 104)" class="f">concat</span> <span class="s">&quot; &quot;</span> <span onmouseout="hideTip(event, 'fs56', 105)" onmouseover="showTip(event, 'fs56', 105)" class="i">arguments</span>)
+<span onmouseout="hideTip(event, 'fs57', 100)" onmouseover="showTip(event, 'fs57', 100)" class="t">Process</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs58', 101)" onmouseover="showTip(event, 'fs58', 101)" class="f">Start</span>(<span class="s">&quot;foo.exe&quot;</span>, <span onmouseout="hideTip(event, 'fs59', 102)" onmouseover="showTip(event, 'fs59', 102)" class="t">String</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 103)" onmouseover="showTip(event, 'fs60', 103)" class="f">concat</span> <span class="s">&quot; &quot;</span> <span onmouseout="hideTip(event, 'fs55', 104)" onmouseover="showTip(event, 'fs55', 104)" class="i">arguments</span>)
 </code></pre></td>
 </tr>
 </table>
-
 <p>It can also be used to auto-generate a suitable <code>AppSettings</code> configuration file:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs62', 106)" onmouseover="showTip(event, 'fs62', 106)" class="i">xml</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 107)" onmouseover="showTip(event, 'fs22', 107)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs63', 108)" onmouseover="showTip(event, 'fs63', 108)" class="f">PrintAppSettings</span> [ <span onmouseout="hideTip(event, 'fs16', 109)" onmouseover="showTip(event, 'fs16', 109)" class="p">Port</span> <span class="n">42</span> ; <span onmouseout="hideTip(event, 'fs12', 110)" onmouseover="showTip(event, 'fs12', 110)" class="p">Working_Directory</span> <span class="s">&quot;/tmp&quot;</span> ]
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs61', 105)" onmouseover="showTip(event, 'fs61', 105)" class="i">xml</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 106)" onmouseover="showTip(event, 'fs21', 106)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs62', 107)" onmouseover="showTip(event, 'fs62', 107)" class="f">PrintAppSettings</span> [ <span onmouseout="hideTip(event, 'fs15', 108)" onmouseover="showTip(event, 'fs15', 108)" class="p">Port</span> <span class="n">42</span> ; <span onmouseout="hideTip(event, 'fs11', 109)" onmouseover="showTip(event, 'fs11', 109)" class="p">Working_Directory</span> <span class="s">&quot;/tmp&quot;</span> ]
 </code></pre></td>
 </tr>
 </table>
-
 <p>which would yield the following:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -323,7 +288,8 @@ a post-process facility is provided.</p>
     <span class="c">&lt;!-- sets the working directory. : string --&gt;</span>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="working directory"</span> <span class="o">value</span><span class="k">="/tmp"</span> <span class="k">/&gt;</span>
   <span class="k">&lt;/</span><span class="i">appSettings</span><span class="k">&gt;</span>
-<span class="k">&lt;/</span><span class="i">configuration</span><span class="k">&gt;</span></code></pre></td></tr></table>
+<span class="k">&lt;/</span><span class="i">configuration</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">type Arguments =<br />&#160;&#160;| Working_Directory of string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Log_Level of int<br />&#160;&#160;| Detach<br /><br />Full name: Tutorial.Arguments</div>
@@ -333,61 +299,60 @@ a post-process facility is provided.</p>
 <div class="tip" id="fs6">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;</div>
 <div class="tip" id="fs7">union case Arguments.Log_Level: int -&gt; Arguments</div>
 <div class="tip" id="fs8">union case Arguments.Detach: Arguments</div>
-<div class="tip" id="fs9">namespace Nessos</div>
-<div class="tip" id="fs10">namespace Nessos.Argu</div>
-<div class="tip" id="fs11">type CLIArguments =<br />&#160;&#160;| Working_Directory of string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Data of byte []<br />&#160;&#160;| Port of int<br />&#160;&#160;| Log_Level of int<br />&#160;&#160;| Detach<br />&#160;&#160;interface IArgParserTemplate<br /><br />Full name: Tutorial.CLIArguments</div>
-<div class="tip" id="fs12">union case CLIArguments.Working_Directory: string -&gt; CLIArguments</div>
-<div class="tip" id="fs13">union case CLIArguments.Listener: host: string * port: int -&gt; CLIArguments</div>
-<div class="tip" id="fs14">Multiple items<br />union case CLIArguments.Data: byte [] -&gt; CLIArguments<br /><br />--------------------<br />namespace System.Data<br /><br />--------------------<br />namespace Microsoft.FSharp.Data</div>
-<div class="tip" id="fs15">Multiple items<br />val byte : value:&#39;T -&gt; byte (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.byte<br /><br />--------------------<br />type byte = Byte<br /><br />Full name: Microsoft.FSharp.Core.byte</div>
-<div class="tip" id="fs16">union case CLIArguments.Port: int -&gt; CLIArguments</div>
-<div class="tip" id="fs17">union case CLIArguments.Log_Level: int -&gt; CLIArguments</div>
-<div class="tip" id="fs18">union case CLIArguments.Detach: CLIArguments</div>
-<div class="tip" id="fs19">type IArgParserTemplate =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member Usage : string<br />&#160;&#160;end<br /><br />Full name: Nessos.Argu.IArgParserTemplate</div>
-<div class="tip" id="fs20">val s : CLIArguments</div>
-<div class="tip" id="fs21">override CLIArguments.Usage : string<br /><br />Full name: Tutorial.CLIArguments.Usage</div>
-<div class="tip" id="fs22">val parser : ArgumentParser&lt;CLIArguments&gt;<br /><br />Full name: Tutorial.parser</div>
-<div class="tip" id="fs23">Multiple items<br />type ArgumentParser =<br />&#160;&#160;static member Create : ?usageText:string -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;<br /><br />Full name: Nessos.Argu.ArgumentParser<br /><br />--------------------<br />type ArgumentParser&lt;&#39;Template (requires &#39;Template :&gt; IArgParserTemplate)&gt; =<br />&#160;&#160;private new : ?usageText:string -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;member Parse : ?inputs:string [] * ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseAppSettings : assembly:Assembly * ?errorHandler:IExiter * ?ignoreMissing:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseAppSettings : ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseCommandLine : ?inputs:string [] * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member PrintAppSettings : args:&#39;Template list * ?printComments:bool -&gt; string<br />&#160;&#160;member PrintCommandLine : args:&#39;Template list -&gt; string []<br />&#160;&#160;member PrintCommandLineFlat : args:&#39;Template list -&gt; string<br />&#160;&#160;member PrintCommandLineSyntax : unit -&gt; string<br />&#160;&#160;member Usage : ?message:string -&gt; string<br /><br />Full name: Nessos.Argu.ArgumentParser&lt;_&gt;</div>
-<div class="tip" id="fs24">static member ArgumentParser.Create : ?usageText:string -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;</div>
-<div class="tip" id="fs25">val usage : string<br /><br />Full name: Tutorial.usage</div>
-<div class="tip" id="fs26">member ArgumentParser.Usage : ?message:string -&gt; string</div>
-<div class="tip" id="fs27">val results : ParseResults&lt;CLIArguments&gt;<br /><br />Full name: Tutorial.results</div>
-<div class="tip" id="fs28">member ArgumentParser.Parse : ?inputs:string [] * ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;</div>
-<div class="tip" id="fs29">val all : CLIArguments list<br /><br />Full name: Tutorial.all</div>
-<div class="tip" id="fs30">member ParseResults.GetAllResults : ?source:ParseSource -&gt; &#39;Template list</div>
-<div class="tip" id="fs31">val detach : bool<br /><br />Full name: Tutorial.detach</div>
-<div class="tip" id="fs32">member ParseResults.Contains : expr:Quotations.Expr&lt;(&#39;a1 -&gt; &#39;Template)&gt; * ?source:ParseSource -&gt; bool<br />member ParseResults.Contains : expr:Quotations.Expr&lt;&#39;Template&gt; * ?source:ParseSource -&gt; bool</div>
-<div class="tip" id="fs33">val listener : (string * int) list<br /><br />Full name: Tutorial.listener</div>
-<div class="tip" id="fs34">member ParseResults.GetResults : expr:Quotations.Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * ?source:ParseSource -&gt; &#39;Fields list<br />member ParseResults.GetResults : expr:Quotations.Expr&lt;&#39;Template&gt; * ?source:ParseSource -&gt; &#39;Template list</div>
-<div class="tip" id="fs35">val logLevel : int<br /><br />Full name: Tutorial.logLevel</div>
-<div class="tip" id="fs36">member ParseResults.GetResult : expr:Quotations.Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * ?defaultValue:&#39;Fields * ?source:ParseSource -&gt; &#39;Fields<br />member ParseResults.GetResult : expr:Quotations.Expr&lt;&#39;Template&gt; * ?defaultValue:&#39;Template * ?source:ParseSource -&gt; &#39;Template</div>
-<div class="tip" id="fs37">type Argument =<br />&#160;&#160;| Cache_Path of string<br />&#160;&#160;| Connection_String of string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Assignment of string<br />&#160;&#160;| Primary_Port of int<br /><br />Full name: Tutorial.Argument</div>
-<div class="tip" id="fs38">Multiple items<br />type MandatoryAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; MandatoryAttribute<br /><br />Full name: Nessos.Argu.MandatoryAttribute<br /><br />--------------------<br />new : unit -&gt; MandatoryAttribute</div>
-<div class="tip" id="fs39">union case Argument.Cache_Path: string -&gt; Argument</div>
-<div class="tip" id="fs40">Multiple items<br />type NoCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; NoCommandLineAttribute<br /><br />Full name: Nessos.Argu.NoCommandLineAttribute<br /><br />--------------------<br />new : unit -&gt; NoCommandLineAttribute</div>
-<div class="tip" id="fs41">union case Argument.Connection_String: string -&gt; Argument</div>
-<div class="tip" id="fs42">Multiple items<br />type PrintLabelsAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; PrintLabelsAttribute<br /><br />Full name: Nessos.Argu.PrintLabelsAttribute<br /><br />--------------------<br />new : unit -&gt; PrintLabelsAttribute</div>
-<div class="tip" id="fs43">union case Argument.Listener: host: string * port: int -&gt; Argument</div>
-<div class="tip" id="fs44">Multiple items<br />type EqualsAssignmentAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; EqualsAssignmentAttribute<br /><br />Full name: Nessos.Argu.EqualsAssignmentAttribute<br /><br />--------------------<br />new : unit -&gt; EqualsAssignmentAttribute</div>
-<div class="tip" id="fs45">union case Argument.Assignment: string -&gt; Argument</div>
-<div class="tip" id="fs46">Multiple items<br />type AltCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : name:string -&gt; AltCommandLineAttribute<br />&#160;&#160;member Name : string<br /><br />Full name: Nessos.Argu.AltCommandLineAttribute<br /><br />--------------------<br />new : name:string -&gt; AltCommandLineAttribute</div>
-<div class="tip" id="fs47">union case Argument.Primary_Port: int -&gt; Argument</div>
-<div class="tip" id="fs48">val parsePort : p:int -&gt; int<br /><br />Full name: Tutorial.parsePort</div>
-<div class="tip" id="fs49">val p : int</div>
-<div class="tip" id="fs50">type UInt16 =<br />&#160;&#160;struct<br />&#160;&#160;&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;member Equals : obj:obj -&gt; bool + 1 overload<br />&#160;&#160;&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;&#160;&#160;member GetTypeCode : unit -&gt; TypeCode<br />&#160;&#160;&#160;&#160;member ToString : unit -&gt; string + 3 overloads<br />&#160;&#160;&#160;&#160;static val MaxValue : uint16<br />&#160;&#160;&#160;&#160;static val MinValue : uint16<br />&#160;&#160;&#160;&#160;static member Parse : s:string -&gt; uint16 + 3 overloads<br />&#160;&#160;&#160;&#160;static member TryParse : s:string * result:uint16 -&gt; bool + 1 overload<br />&#160;&#160;end<br /><br />Full name: System.UInt16</div>
-<div class="tip" id="fs51">field uint16.MaxValue = 65535us</div>
-<div class="tip" id="fs52">val failwith : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.failwith</div>
-<div class="tip" id="fs53">val ports : int list<br /><br />Full name: Tutorial.ports</div>
-<div class="tip" id="fs54">member ParseResults.PostProcessResults : expr:Quotations.Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * ?source:ParseSource -&gt; &#39;R list</div>
-<div class="tip" id="fs55">namespace System.Diagnostics</div>
-<div class="tip" id="fs56">val arguments : string []<br /><br />Full name: Tutorial.arguments</div>
-<div class="tip" id="fs57">member ArgumentParser.PrintCommandLine : args:&#39;Template list -&gt; string []</div>
-<div class="tip" id="fs58">Multiple items<br />type Process =<br />&#160;&#160;inherit Component<br />&#160;&#160;new : unit -&gt; Process<br />&#160;&#160;member BasePriority : int<br />&#160;&#160;member BeginErrorReadLine : unit -&gt; unit<br />&#160;&#160;member BeginOutputReadLine : unit -&gt; unit<br />&#160;&#160;member CancelErrorRead : unit -&gt; unit<br />&#160;&#160;member CancelOutputRead : unit -&gt; unit<br />&#160;&#160;member Close : unit -&gt; unit<br />&#160;&#160;member CloseMainWindow : unit -&gt; bool<br />&#160;&#160;member EnableRaisingEvents : bool with get, set<br />&#160;&#160;member ExitCode : int<br />&#160;&#160;...<br /><br />Full name: System.Diagnostics.Process<br /><br />--------------------<br />Process() : unit</div>
-<div class="tip" id="fs59">Process.Start(startInfo: ProcessStartInfo) : Process<br />Process.Start(fileName: string) : Process<br />Process.Start(fileName: string, arguments: string) : Process<br />Process.Start(fileName: string, userName: string, password: Security.SecureString, domain: string) : Process<br />Process.Start(fileName: string, arguments: string, userName: string, password: Security.SecureString, domain: string) : Process</div>
-<div class="tip" id="fs60">Multiple items<br />type String =<br />&#160;&#160;new : value:char -&gt; string + 7 overloads<br />&#160;&#160;member Chars : int -&gt; char<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;member Contains : value:string -&gt; bool<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EndsWith : value:string -&gt; bool + 2 overloads<br />&#160;&#160;member Equals : obj:obj -&gt; bool + 2 overloads<br />&#160;&#160;member GetEnumerator : unit -&gt; CharEnumerator<br />&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;...<br /><br />Full name: System.String<br /><br />--------------------<br />String(value: nativeptr&lt;char&gt;) : unit<br />String(value: nativeptr&lt;sbyte&gt;) : unit<br />String(value: char []) : unit<br />String(c: char, count: int) : unit<br />String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : unit<br />String(value: char [], startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: Text.Encoding) : unit</div>
-<div class="tip" id="fs61">val concat : sep:string -&gt; strings:seq&lt;string&gt; -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.String.concat</div>
-<div class="tip" id="fs62">val xml : string<br /><br />Full name: Tutorial.xml</div>
-<div class="tip" id="fs63">member ArgumentParser.PrintAppSettings : args:&#39;Template list * ?printComments:bool -&gt; string</div>
+<div class="tip" id="fs9">namespace Argu</div>
+<div class="tip" id="fs10">type CLIArguments =<br />&#160;&#160;| Working_Directory of string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Data of byte []<br />&#160;&#160;| Port of int<br />&#160;&#160;| Log_Level of int<br />&#160;&#160;| Detach<br />&#160;&#160;interface IArgParserTemplate<br /><br />Full name: Tutorial.CLIArguments</div>
+<div class="tip" id="fs11">union case CLIArguments.Working_Directory: string -&gt; CLIArguments</div>
+<div class="tip" id="fs12">union case CLIArguments.Listener: host: string * port: int -&gt; CLIArguments</div>
+<div class="tip" id="fs13">Multiple items<br />union case CLIArguments.Data: byte [] -&gt; CLIArguments<br /><br />--------------------<br />namespace System.Data<br /><br />--------------------<br />namespace Microsoft.FSharp.Data</div>
+<div class="tip" id="fs14">Multiple items<br />val byte : value:&#39;T -&gt; byte (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.byte<br /><br />--------------------<br />type byte = Byte<br /><br />Full name: Microsoft.FSharp.Core.byte</div>
+<div class="tip" id="fs15">union case CLIArguments.Port: int -&gt; CLIArguments</div>
+<div class="tip" id="fs16">union case CLIArguments.Log_Level: int -&gt; CLIArguments</div>
+<div class="tip" id="fs17">union case CLIArguments.Detach: CLIArguments</div>
+<div class="tip" id="fs18">type IArgParserTemplate =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member Usage : string<br />&#160;&#160;end<br /><br />Full name: Argu.IArgParserTemplate</div>
+<div class="tip" id="fs19">val s : CLIArguments</div>
+<div class="tip" id="fs20">override CLIArguments.Usage : string<br /><br />Full name: Tutorial.CLIArguments.Usage</div>
+<div class="tip" id="fs21">val parser : ArgumentParser&lt;CLIArguments&gt;<br /><br />Full name: Tutorial.parser</div>
+<div class="tip" id="fs22">Multiple items<br />type ArgumentParser =<br />&#160;&#160;static member Create : ?usageText:string -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;<br /><br />Full name: Argu.ArgumentParser<br /><br />--------------------<br />type ArgumentParser&lt;&#39;Template (requires &#39;Template :&gt; IArgParserTemplate)&gt; =<br />&#160;&#160;private new : ?usageText:string -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;member Parse : ?inputs:string [] * ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseAppSettings : assembly:Assembly * ?errorHandler:IExiter * ?ignoreMissing:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseAppSettings : ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseCommandLine : ?inputs:string [] * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member PrintAppSettings : args:&#39;Template list * ?printComments:bool -&gt; string<br />&#160;&#160;member PrintCommandLine : args:&#39;Template list -&gt; string []<br />&#160;&#160;member PrintCommandLineFlat : args:&#39;Template list -&gt; string<br />&#160;&#160;member PrintCommandLineSyntax : unit -&gt; string<br />&#160;&#160;member Usage : ?message:string -&gt; string<br /><br />Full name: Argu.ArgumentParser&lt;_&gt;</div>
+<div class="tip" id="fs23">static member ArgumentParser.Create : ?usageText:string -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;</div>
+<div class="tip" id="fs24">val usage : string<br /><br />Full name: Tutorial.usage</div>
+<div class="tip" id="fs25">member ArgumentParser.Usage : ?message:string -&gt; string</div>
+<div class="tip" id="fs26">val results : ParseResults&lt;CLIArguments&gt;<br /><br />Full name: Tutorial.results</div>
+<div class="tip" id="fs27">member ArgumentParser.Parse : ?inputs:string [] * ?xmlConfigurationFile:string * ?errorHandler:IExiter * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;</div>
+<div class="tip" id="fs28">val all : CLIArguments list<br /><br />Full name: Tutorial.all</div>
+<div class="tip" id="fs29">member ParseResults.GetAllResults : ?source:ParseSource -&gt; &#39;Template list</div>
+<div class="tip" id="fs30">val detach : bool<br /><br />Full name: Tutorial.detach</div>
+<div class="tip" id="fs31">member ParseResults.Contains : expr:Quotations.Expr&lt;(&#39;a1 -&gt; &#39;Template)&gt; * ?source:ParseSource -&gt; bool<br />member ParseResults.Contains : expr:Quotations.Expr&lt;&#39;Template&gt; * ?source:ParseSource -&gt; bool</div>
+<div class="tip" id="fs32">val listener : (string * int) list<br /><br />Full name: Tutorial.listener</div>
+<div class="tip" id="fs33">member ParseResults.GetResults : expr:Quotations.Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * ?source:ParseSource -&gt; &#39;Fields list<br />member ParseResults.GetResults : expr:Quotations.Expr&lt;&#39;Template&gt; * ?source:ParseSource -&gt; &#39;Template list</div>
+<div class="tip" id="fs34">val logLevel : int<br /><br />Full name: Tutorial.logLevel</div>
+<div class="tip" id="fs35">member ParseResults.GetResult : expr:Quotations.Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * ?defaultValue:&#39;Fields * ?source:ParseSource -&gt; &#39;Fields<br />member ParseResults.GetResult : expr:Quotations.Expr&lt;&#39;Template&gt; * ?defaultValue:&#39;Template * ?source:ParseSource -&gt; &#39;Template</div>
+<div class="tip" id="fs36">type Argument =<br />&#160;&#160;| Cache_Path of string<br />&#160;&#160;| Connection_String of string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Assignment of string<br />&#160;&#160;| Primary_Port of int<br /><br />Full name: Tutorial.Argument</div>
+<div class="tip" id="fs37">Multiple items<br />type MandatoryAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; MandatoryAttribute<br /><br />Full name: Argu.MandatoryAttribute<br /><br />--------------------<br />new : unit -&gt; MandatoryAttribute</div>
+<div class="tip" id="fs38">union case Argument.Cache_Path: string -&gt; Argument</div>
+<div class="tip" id="fs39">Multiple items<br />type NoCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; NoCommandLineAttribute<br /><br />Full name: Argu.NoCommandLineAttribute<br /><br />--------------------<br />new : unit -&gt; NoCommandLineAttribute</div>
+<div class="tip" id="fs40">union case Argument.Connection_String: string -&gt; Argument</div>
+<div class="tip" id="fs41">Multiple items<br />type PrintLabelsAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; PrintLabelsAttribute<br /><br />Full name: Argu.PrintLabelsAttribute<br /><br />--------------------<br />new : unit -&gt; PrintLabelsAttribute</div>
+<div class="tip" id="fs42">union case Argument.Listener: host: string * port: int -&gt; Argument</div>
+<div class="tip" id="fs43">Multiple items<br />type EqualsAssignmentAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; EqualsAssignmentAttribute<br /><br />Full name: Argu.EqualsAssignmentAttribute<br /><br />--------------------<br />new : unit -&gt; EqualsAssignmentAttribute</div>
+<div class="tip" id="fs44">union case Argument.Assignment: string -&gt; Argument</div>
+<div class="tip" id="fs45">Multiple items<br />type AltCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : name:string -&gt; AltCommandLineAttribute<br />&#160;&#160;member Name : string<br /><br />Full name: Argu.AltCommandLineAttribute<br /><br />--------------------<br />new : name:string -&gt; AltCommandLineAttribute</div>
+<div class="tip" id="fs46">union case Argument.Primary_Port: int -&gt; Argument</div>
+<div class="tip" id="fs47">val parsePort : p:int -&gt; int<br /><br />Full name: Tutorial.parsePort</div>
+<div class="tip" id="fs48">val p : int</div>
+<div class="tip" id="fs49">type UInt16 =<br />&#160;&#160;struct<br />&#160;&#160;&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;member Equals : obj:obj -&gt; bool + 1 overload<br />&#160;&#160;&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;&#160;&#160;member GetTypeCode : unit -&gt; TypeCode<br />&#160;&#160;&#160;&#160;member ToString : unit -&gt; string + 3 overloads<br />&#160;&#160;&#160;&#160;static val MaxValue : uint16<br />&#160;&#160;&#160;&#160;static val MinValue : uint16<br />&#160;&#160;&#160;&#160;static member Parse : s:string -&gt; uint16 + 3 overloads<br />&#160;&#160;&#160;&#160;static member TryParse : s:string * result:uint16 -&gt; bool + 1 overload<br />&#160;&#160;end<br /><br />Full name: System.UInt16</div>
+<div class="tip" id="fs50">field uint16.MaxValue = 65535us</div>
+<div class="tip" id="fs51">val failwith : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.failwith</div>
+<div class="tip" id="fs52">val ports : int list<br /><br />Full name: Tutorial.ports</div>
+<div class="tip" id="fs53">member ParseResults.PostProcessResults : expr:Quotations.Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * ?source:ParseSource -&gt; &#39;R list</div>
+<div class="tip" id="fs54">namespace System.Diagnostics</div>
+<div class="tip" id="fs55">val arguments : string []<br /><br />Full name: Tutorial.arguments</div>
+<div class="tip" id="fs56">member ArgumentParser.PrintCommandLine : args:&#39;Template list -&gt; string []</div>
+<div class="tip" id="fs57">Multiple items<br />type Process =<br />&#160;&#160;inherit Component<br />&#160;&#160;new : unit -&gt; Process<br />&#160;&#160;member BasePriority : int<br />&#160;&#160;member BeginErrorReadLine : unit -&gt; unit<br />&#160;&#160;member BeginOutputReadLine : unit -&gt; unit<br />&#160;&#160;member CancelErrorRead : unit -&gt; unit<br />&#160;&#160;member CancelOutputRead : unit -&gt; unit<br />&#160;&#160;member Close : unit -&gt; unit<br />&#160;&#160;member CloseMainWindow : unit -&gt; bool<br />&#160;&#160;member EnableRaisingEvents : bool with get, set<br />&#160;&#160;member ExitCode : int<br />&#160;&#160;...<br /><br />Full name: System.Diagnostics.Process<br /><br />--------------------<br />Process() : unit</div>
+<div class="tip" id="fs58">Process.Start(startInfo: ProcessStartInfo) : Process<br />Process.Start(fileName: string) : Process<br />Process.Start(fileName: string, arguments: string) : Process<br />Process.Start(fileName: string, userName: string, password: Security.SecureString, domain: string) : Process<br />Process.Start(fileName: string, arguments: string, userName: string, password: Security.SecureString, domain: string) : Process</div>
+<div class="tip" id="fs59">Multiple items<br />type String =<br />&#160;&#160;new : value:char -&gt; string + 7 overloads<br />&#160;&#160;member Chars : int -&gt; char<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;member Contains : value:string -&gt; bool<br />&#160;&#160;member CopyTo : sourceIndex:int * destination:char[] * destinationIndex:int * count:int -&gt; unit<br />&#160;&#160;member EndsWith : value:string -&gt; bool + 2 overloads<br />&#160;&#160;member Equals : obj:obj -&gt; bool + 2 overloads<br />&#160;&#160;member GetEnumerator : unit -&gt; CharEnumerator<br />&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;...<br /><br />Full name: System.String<br /><br />--------------------<br />String(value: nativeptr&lt;char&gt;) : unit<br />String(value: nativeptr&lt;sbyte&gt;) : unit<br />String(value: char []) : unit<br />String(c: char, count: int) : unit<br />String(value: nativeptr&lt;char&gt;, startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int) : unit<br />String(value: char [], startIndex: int, length: int) : unit<br />String(value: nativeptr&lt;sbyte&gt;, startIndex: int, length: int, enc: Text.Encoding) : unit</div>
+<div class="tip" id="fs60">val concat : sep:string -&gt; strings:seq&lt;string&gt; -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.String.concat</div>
+<div class="tip" id="fs61">val xml : string<br /><br />Full name: Tutorial.xml</div>
+<div class="tip" id="fs62">member ArgumentParser.PrintAppSettings : args:&#39;Template list * ?printComments:bool -&gt; string</div>
 
         </div>
         <div class="span3">

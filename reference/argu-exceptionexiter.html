@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>HiddenAttribute - Argu</title>
+    <title>ExceptionExiter - Argu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,13 +35,12 @@
 
 
 
-<h1>HiddenAttribute</h1>
+<h1>ExceptionExiter</h1>
 <p>
-  <span>Namespace: Nessos.Argu</span><br />
+  <span>Namespace: Argu</span><br />
 </p>
 <div class="xmldoc">
-<p>Hide from command line argument documentation.</p>
-
+<p>Handles argument parser errors by raising an exception</p>
 
 </div>
   <h3>Constructors</h3>
@@ -53,15 +52,42 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
-            new()
+          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+            new(ctor)
           </code>
-          <div class="tip" id="27">
-            <strong>Signature:</strong> unit -&gt; HiddenAttribute<br />
+          <div class="tip" id="23">
+            <strong>Signature:</strong> (ctor:(string -&gt; exn)) -&gt; ExceptionExiter<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L53-53" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L24-24" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Static members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Static member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
+            ArgumentExceptionExiter()
+          </code>
+          <div class="tip" id="24">
+            <strong>Signature:</strong> unit -&gt; IExiter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L25-25" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

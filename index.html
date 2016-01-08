@@ -34,10 +34,8 @@
         <div class="span9" id="main">
           
 <h1><a name="Argu" class="anchor" href="#Argu">Argu</a></h1>
-
 <p>Argu (pronounced "Argue") is a declarative CLI argument/XML configuration parser for F# applications.
 Allows quick definition of argument parsing schema through F# union declarations.</p>
-
 <div class="row">
   <div class="span1"></div>
   <div class="span6">
@@ -48,13 +46,10 @@ Allows quick definition of argument parsing schema through F# union declarations
   </div>
   <div class="span1"></div>
 </div>
-
 <h2><a name="Introduction" class="anchor" href="#Introduction">Introduction</a></h2>
-
-<p>The library is based on the simple observation that 
-configuration parameters can be naturally described using discriminated unions. 
+<p>The library is based on the simple observation that
+configuration parameters can be naturally described using discriminated unions.
 For instance:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -69,29 +64,23 @@ For instance:</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>Argu takes such discriminated unions and generates 
-a corresponding argument parsing scheme. 
+<p>Argu takes such discriminated unions and generates
+a corresponding argument parsing scheme.
 For example, a parser generated from the above template would
 take the following command line input</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip"><code lang="bash">--working-directory /var/run --listener localhost 8080 --detach
 </code></pre></td></tr></table>
-
 <p>and parse it into the list</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[ <span class="p">Working_Directory</span> <span class="s">&quot;/var/run&quot;</span> ; <span class="p">Listener</span>(<span class="s">&quot;localhost&quot;</span>, <span class="n">8080</span>) ; <span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="p">Detach</span> ]
 </code></pre></td>
 </tr>
 </table>
-
 <p>Argu is also capable of reading the <code>AppSettings</code> section
 of an application's configuration file:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -106,29 +95,24 @@ of an application's configuration file:</p>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="detach"</span> <span class="o">value</span><span class="k">="true"</span> <span class="k">/&gt;</span>
 <span class="k">&lt;/</span><span class="i">appSettings</span><span class="k">&gt;</span>
 </code></pre></td></tr></table>
-
 <h2><a name="Who-uses-Argu" class="anchor" href="#Who-uses-Argu">Who uses Argu?</a></h2>
-
 <ul>
 <li><p><a href="http://m-brace.net/">MBrace framework</a></p></li>
 <li><p><a href="http://fsharp.github.io/FAKE/">FAKE build tool</a></p></li>
 <li><p><a href="http://fsprojects.github.io/Paket/">Paket dependency manager</a></p></li>
 </ul>
-
 <h2><a name="Documentation" class="anchor" href="#Documentation">Documentation</a></h2>
-
 <ul>
 <li><p><a href="tutorial.html">Tutorial</a> A short walkthrough of Argu features.</p></li>
-<li><p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types, 
-modules and functions in the library.</p></li>
+<li>
+<p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types,
+modules and functions in the library.</p>
+</li>
 </ul>
-
 <h2><a name="Contributing-and-copyright" class="anchor" href="#Contributing-and-copyright">Contributing and copyright</a></h2>
-
-<p>The project is hosted on <a href="https://github.com/fsprojects/Argu">GitHub</a> where you can <a href="https://github.com/fsprojects/Argu/issues">report issues</a>, fork 
+<p>The project is hosted on <a href="https://github.com/fsprojects/Argu">GitHub</a> where you can <a href="https://github.com/fsprojects/Argu/issues">report issues</a>, fork
 the project and submit pull requests.</p>
-
-<p>The library is available under the MIT License. 
+<p>The library is available under the MIT License.
 For more information see the <a href="https://github.com/fsprojects/Argu/blob/master/License.md">License file</a> in the GitHub repository.</p>
 
 <div class="tip" id="fs1">namespace System</div>
