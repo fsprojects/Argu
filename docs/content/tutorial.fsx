@@ -61,7 +61,7 @@ their corresponding XML configuration.
 A minimal parser based on the above example can be created as follows:
 *)
 
-open Nessos.Argu
+open Argu
 
 type CLIArguments =
     | Working_Directory of string

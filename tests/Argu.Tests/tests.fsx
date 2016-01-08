@@ -2,8 +2,8 @@
 #r "Argu.dll"
 #r "Argu.Tests.dll"
 
-open Nessos.Argu
-open Nessos.Argu.Tests
+open Argu
+open Argu.Tests
 
 let assembly = typeof<Argument>.Assembly
 

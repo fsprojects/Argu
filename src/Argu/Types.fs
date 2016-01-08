@@ -1,4 +1,4 @@
-﻿namespace Nessos.Argu
+﻿namespace Argu
     
 /// Source from which to parse arguments
 type ParseSource = 

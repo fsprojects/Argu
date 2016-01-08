@@ -1,4 +1,4 @@
-﻿namespace Nessos.Argu.Tests
+﻿namespace Argu.Tests
 
 open System
 open System.IO
@@ -6,7 +6,7 @@ open System.IO
 open NUnit.Framework
 open FsUnit
 
-open Nessos.Argu
+open Argu
 
 [<TestFixture>]
 module ``Simple Tests`` =

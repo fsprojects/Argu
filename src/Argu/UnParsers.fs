@@ -1,4 +1,4 @@
-﻿module internal Nessos.Argu.UnParsers
+﻿module internal Argu.UnParsers
 
 open System
 open System.Text
@@ -7,8 +7,8 @@ open System.Xml.Linq
 
 open Microsoft.FSharp.Reflection
 
-open Nessos.Argu.Utils
-open Nessos.Argu.ArgInfo
+open Argu.Utils
+open Argu.ArgInfo
  
 /// <summary>
 ///     print usage string for given arg info

@@ -1,3 +1,6 @@
+### 2.0
+* Move to fsprojects, rename root namespace.
+
 ### 1.1.3
 * Fixes to error message formatting.
 

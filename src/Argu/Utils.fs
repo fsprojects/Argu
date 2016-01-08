@@ -1,4 +1,4 @@
-﻿namespace Nessos.Argu
+﻿namespace Argu
 
 open System
 open System.IO

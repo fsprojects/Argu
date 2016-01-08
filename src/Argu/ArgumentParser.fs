@@ -1,4 +1,4 @@
-﻿namespace Nessos.Argu
+﻿namespace Argu
 
 open System
 open System.Configuration
@@ -10,10 +10,10 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
-open Nessos.Argu.Utils
-open Nessos.Argu.ArgInfo
-open Nessos.Argu.Parsers
-open Nessos.Argu.UnParsers
+open Argu.Utils
+open Argu.ArgInfo
+open Argu.Parsers
+open Argu.UnParsers
 
 /// <summary>
 ///     Argu static methods

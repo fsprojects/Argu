@@ -1,12 +1,12 @@
-﻿module internal Nessos.Argu.Parsers
+﻿module internal Argu.Parsers
         
 open System
 open System.IO
 open System.Text.RegularExpressions
 open System.Configuration
 
-open Nessos.Argu.Utils
-open Nessos.Argu.ArgInfo
+open Argu.Utils
+open Argu.ArgInfo
 
 //
 //  CLI Parser

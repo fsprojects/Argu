@@ -1,4 +1,4 @@
-﻿module internal Nessos.Argu.ArgInfo
+﻿module internal Argu.ArgInfo
 
 open System
 open System.IO
@@ -10,7 +10,7 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
-open Nessos.Argu.Utils
+open Argu.Utils
 
 type ErrorCode =
     | HelpText = 0
