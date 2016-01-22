@@ -1,3 +1,6 @@
+### 2.1
+* AltCommandLineAttribute supporting variadic parameters.
+
 ### 2.0
 * Move to fsprojects, rename root namespace.
 
