@@ -238,7 +238,8 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
 
             let altNames = 
                 uci.GetAttrs<AltCommandLineAttribute> ()
-                |> List.map (fun attr -> attr.Name)
+                |> List.collect (fun attr -> attr.Names|> Array.toList)
+                
 
             let clNames = defName :: altNames 
 
