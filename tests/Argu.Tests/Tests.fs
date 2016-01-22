@@ -2,7 +2,6 @@
 
 open System
 open System.IO
-
 open NUnit.Framework
 open FsUnit
 
@@ -20,8 +19,8 @@ module ``Simple Tests`` =
         | [<Rest>] Rest_Arg of int
         | Data of int * byte []
         | Log_Level of int
-        | [<AltCommandLine("/D"); AltCommandLine("-D"); AltCommandLine("-z")>] Detach
-        | [<CustomAppSettings("Foo")>] CustomAppConfig of string * int
+        | [<AltCommandLine [|"/D";"-D";"-z"|] >] Detach
+        | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
         | [<EqualsAssignment>] Assignment of string
         | [<First>] First_Parameter of string
     with
@@ -39,7 +38,7 @@ module ``Simple Tests`` =
                 | CustomAppConfig _ -> "parameter with custom AppConfig key."
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
 
-    let parser = ArgumentParser.Create<Argument>("usage string")
+    let parser = ArgumentParser.Create<Argument> "usage string"
 
     [<Test>]
     let ``01. Simple command line parsing`` () =
@@ -146,15 +145,15 @@ module ``Simple Tests`` =
         result.IsUsageRequested |> should equal true
 
     type ConflictingCliNames =
-        | [<CustomCommandLine("foo")>] Foo of int
-        | [<AltCommandLine("foo")>] Bar of string
+        | [<CustomCommandLine "foo">] Foo of int
+        | [<AltCommandLine "foo">] Bar of string
     with
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
     type ConflictinAppSettingsNames =
-        | [<CustomAppSettings("foo")>]Foo of int
-        | [<CustomAppSettings("foo")>] Bar of string
+        | [<CustomAppSettings "foo">]Foo of int
+        | [<CustomAppSettings "foo">] Bar of string
     with
         interface IArgParserTemplate with
             member a.Usage = "foo"
