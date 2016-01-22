@@ -335,7 +335,7 @@ a post-process facility is provided.</p>
 <div class="tip" id="fs42">union case Argument.Listener: host: string * port: int -&gt; Argument</div>
 <div class="tip" id="fs43">Multiple items<br />type EqualsAssignmentAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; EqualsAssignmentAttribute<br /><br />Full name: Argu.EqualsAssignmentAttribute<br /><br />--------------------<br />new : unit -&gt; EqualsAssignmentAttribute</div>
 <div class="tip" id="fs44">union case Argument.Assignment: string -&gt; Argument</div>
-<div class="tip" id="fs45">Multiple items<br />type AltCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : name:string -&gt; AltCommandLineAttribute<br />&#160;&#160;member Name : string<br /><br />Full name: Argu.AltCommandLineAttribute<br /><br />--------------------<br />new : name:string -&gt; AltCommandLineAttribute</div>
+<div class="tip" id="fs45">Multiple items<br />type AltCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : name:string -&gt; AltCommandLineAttribute<br />&#160;&#160;new : [&lt;ParamArray&gt;] names:string [] -&gt; AltCommandLineAttribute<br />&#160;&#160;member Names : string []<br /><br />Full name: Argu.AltCommandLineAttribute<br /><br />--------------------<br />new : [&lt;ParamArray&gt;] names:string [] -&gt; AltCommandLineAttribute<br />new : name:string -&gt; AltCommandLineAttribute</div>
 <div class="tip" id="fs46">union case Argument.Primary_Port: int -&gt; Argument</div>
 <div class="tip" id="fs47">val parsePort : p:int -&gt; int<br /><br />Full name: Tutorial.parsePort</div>
 <div class="tip" id="fs48">val p : int</div>
