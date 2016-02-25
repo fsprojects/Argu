@@ -6,7 +6,6 @@
 
     "compilerName": "fsc",
     "compileFiles": [
-        "Program.fs"
     ],
 
     "dependencies": {
