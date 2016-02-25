@@ -15,6 +15,15 @@
     ],
 
     "frameworks": {
-        "net46": { }
+        "net46": { 
+            "frameworkAssemblies": {
+                "System": "",
+                "System.Configuration": "",
+                "System.Core": "",
+                "System.Xml": "",
+                "System.Xml.Linq": "",
+                "System.Numerics": ""
+            }
+        }
     }
 }
