@@ -3,7 +3,9 @@
 open System
 open System.IO
 open System.Text.RegularExpressions
+#if !DNXCORE50
 open System.Configuration
+#endif
 
 open Argu.Utils
 open Argu.ArgInfo
@@ -203,6 +205,9 @@ let parseAppSettingsPartial (appSettingsReader : string -> string)
 /// <param name="appConfigFile">AppConfig file to parsed. Defaults to ConfigutionManager resolution.</param>
 /// <param name="argInfo">List of all possible arguments.</param>
 let parseAppSettings appConfigFile (argInfo : ArgInfo list) =
+#if DNXCORE50
+    failwith "AppSettings not supported"
+#else
     let appSettingsReader : string -> string =
         match appConfigFile with
         | None -> fun name -> ConfigurationManager.AppSettings.[name]
@@ -220,6 +225,7 @@ let parseAppSettings appConfigFile (argInfo : ArgInfo list) =
         | Some _ -> fun _ -> null
 
     List.fold (parseAppSettingsPartial appSettingsReader) Map.empty argInfo
+#endif
 
 
 //

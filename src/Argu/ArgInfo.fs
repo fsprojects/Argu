@@ -2,7 +2,9 @@
 
 open System
 open System.IO
+#if !DNXCORE50
 open System.Configuration
+#endif
 open System.Reflection
 #if !DNXCORE50
 open System.Runtime.Serialization.Formatters.Binary

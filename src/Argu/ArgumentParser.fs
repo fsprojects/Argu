@@ -1,7 +1,9 @@
 ﻿namespace Argu
 
 open System
+#if !DNXCORE50
 open System.Configuration
+#endif
 open System.Reflection
 open System.Xml
 open System.Xml.Linq
