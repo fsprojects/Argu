@@ -39,7 +39,11 @@ module internal Utils =
             let attrs = uci.GetCustomAttributes(typeof<'T>) |> Seq.map (fun o -> o :?> 'T)
 
             if includeDeclaringTypeAttrs then
+#if DNXCORE50
+                let parentAttrs = uci.DeclaringType.GetTypeInfo().GetCustomAttributes(typeof<'T>, false)  |> Seq.map (fun o -> o :?> 'T)
+#else
                 let parentAttrs = uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)  |> Seq.map (fun o -> o :?> 'T)
+#endif
                 Seq.append parentAttrs attrs |> Seq.toList
             else
                 Seq.toList attrs
@@ -48,7 +52,11 @@ module internal Utils =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
             if includeDeclaringTypeAttrs then
+#if DNXCORE50
+                uci.DeclaringType.GetTypeInfo().GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not
+#else
                 uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not
+#endif
                     || uci.GetCustomAttributes(typeof<'T>) |> Seq.isEmpty |> not
             else
                 uci.GetCustomAttributes(typeof<'T>) |> Seq.isEmpty |> not
