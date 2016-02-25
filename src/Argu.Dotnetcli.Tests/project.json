@@ -10,6 +10,14 @@
     ],
 
     "frameworks": {
-        "net46": { }
+        "net46" : { 
+            "dependencies": {
+                "Argu":  { "version": "1.0.0", "type": "build" }
+            },
+            "frameworkAssemblies": {
+                "System": "",
+                "System.Core": "",
+            }
+        }
     }
 }
