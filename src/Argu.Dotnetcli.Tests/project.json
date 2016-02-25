@@ -10,6 +10,11 @@
     ],
 
     "frameworks": {
+        "dnxcore50" : { 
+            "dependencies": {
+                "Argu":  { "version": "1.0.0", "type": "build" }
+            },
+        },
         "net46" : { 
             "dependencies": {
                 "Argu":  { "version": "1.0.0", "type": "build" }
