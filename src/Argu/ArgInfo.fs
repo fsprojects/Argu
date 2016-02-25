@@ -4,7 +4,9 @@ open System
 open System.IO
 open System.Configuration
 open System.Reflection
+#if !DNXCORE50
 open System.Runtime.Serialization.Formatters.Binary
+#endif
 
 open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
