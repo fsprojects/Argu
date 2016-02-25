@@ -5,6 +5,13 @@
 
     "compilerName": "fsc",
     "compileFiles": [
+        "AssemblyInfo.fs",
+        "Utils.fs",
+        "Types.fs",
+        "ArgInfo.fs",
+        "Parsers.fs",
+        "UnParsers.fs",
+        "ArgumentParser.fs"
     ],
 
     "dependencies": {
