@@ -32,18 +32,21 @@ let printArgUsage (aI : ArgInfo) =
                     yield n
                 yield ']'
 
-            if aI.IsEqualsAssignment then
-                assert(aI.FieldParsers.Length = 1)
-                yield sprintf "=<%O>" aI.FieldParsers.[0]
+        match aI with
+        | SimpleArg saI ->
+            if saI.IsEqualsAssignment then
+                assert(saI.FieldParsers.Length = 1)
+                yield sprintf "=<%O>" saI.FieldParsers.[0]
             else
-                for p in aI.FieldParsers do
+                for p in saI.FieldParsers do
                     yield sprintf " <%O>" p
 
-            if aI.IsRest then yield " ..."
+            if saI.IsRest then yield " ..."
+        | SubCommand scI -> ()
 
-            yield ": "
-            yield aI.Usage
-            yield "\n"
+        yield ": "
+        yield aI.Usage
+        yield "\n"
     }
 
 /// <summary>
@@ -83,20 +86,22 @@ let printCommandLineArgs (argInfo : ArgInfo list) (args : 'Template list) =
     let printEntry (t : 'Template) =
         let uci, fields = FSharpValue.GetUnionFields(t, typeof<'Template>, bindingFlags = allBindings)
         let id = ArgId uci
-        let aI = argInfo |> List.find (fun aI -> id = aI.Id)
+        let saI = argInfo |> List.pick (function
+            | SimpleArg saI when id = saI.Id -> Some saI
+            | _ -> None)
 
         seq {
-            match aI.CommandLineNames with
+            match saI.CommandLineNames with
             | [] -> ()
-            | clname :: _ when aI.IsEqualsAssignment ->
+            | clname :: _ when saI.IsEqualsAssignment ->
                 let f = fields.[0]
-                let p = aI.FieldParsers.[0]
+                let p = saI.FieldParsers.[0]
                 yield sprintf "%s='%s'" clname <| p.UnParser f
 
             | clname :: _ ->
                 yield clname
 
-                for f,p in Seq.zip fields aI.FieldParsers do
+                for f,p in Seq.zip fields saI.FieldParsers do
                     yield p.UnParser f
         }
 
@@ -114,28 +119,40 @@ let printCommandLineSyntax (argInfo : ArgInfo list) =
 
     stringB {
         for aI in sorted do
-            if not aI.Mandatory then yield "["
-            match aI.CommandLineNames with
-            | [] -> ()
-            | h :: t -> 
-                if aI.Mandatory && not <| List.isEmpty t then yield "("
-                yield h
-                for n in t do
-                    yield "|"
-                    yield n
-                if aI.Mandatory && not <| List.isEmpty t then yield ")"
+            match aI with
+            | SimpleArg saI ->
+                if not saI.Mandatory then yield "["
+                match saI.CommandLineNames with
+                | [] -> ()
+                | h :: t -> 
+                    if saI.Mandatory && not <| List.isEmpty t then yield "("
+                    yield h
+                    for n in t do
+                        yield "|"
+                        yield n
+                    if saI.Mandatory && not <| List.isEmpty t then yield ")"
                 
-            match aI.IsEqualsAssignment with
-            | true ->
-                assert(aI.FieldParsers.Length = 1)
-                yield sprintf "=<%O>" aI.FieldParsers.[0]
-            | false ->
-                for p in aI.FieldParsers do
-                    yield sprintf " <%O>" p
+                match saI.IsEqualsAssignment with
+                | true ->
+                    assert(saI.FieldParsers.Length = 1)
+                    yield sprintf "=<%O>" saI.FieldParsers.[0]
+                | false ->
+                    for p in saI.FieldParsers do
+                        yield sprintf " <%O>" p
 
-            if aI.IsRest then yield " ..."
+                if saI.IsRest then yield " ..."
 
-            if not aI.Mandatory then yield "]"
+                if not saI.Mandatory then yield "]"
+            | SubCommand scI ->
+                match scI.CommandLineNames with
+                | [] -> ()
+                | h :: t -> 
+                    if not <| List.isEmpty t then yield "("
+                    yield h
+                    for n in t do
+                        yield "|"
+                        yield n
+                    if not <| List.isEmpty t then yield ")"
             if aI.Id <> (Seq.last sorted).Id then yield " "
     } |> String.build
 
@@ -149,15 +166,17 @@ let printAppSettings (argInfo : ArgInfo list) printComments (args : 'Template li
     let printEntry (t : 'Template) : XNode list =
         let uci, fields = FSharpValue.GetUnionFields(t, typeof<'Template>, bindingFlags = allBindings)
         let id = ArgId uci
-        let aI = argInfo |> List.find (fun aI -> id = aI.Id)
+        let saI = argInfo |> List.pick (function
+            | SimpleArg saI when id = saI.Id -> Some saI
+            | _ -> None)
 
-        match aI.AppSettingsName with
+        match saI.AppSettingsName with
         | None -> []
         | Some key ->
             let values =
                 if fields.Length = 0 then "true"
                 else
-                    Seq.zip fields aI.FieldParsers
+                    Seq.zip fields saI.FieldParsers
                     |> Seq.map (fun (f,p) -> p.UnParser f)
                     |> String.concat ", "
 
@@ -170,9 +189,9 @@ let printAppSettings (argInfo : ArgInfo list) printComments (args : 'Template li
                 let comment =
                     stringB {
                         yield ' '
-                        yield aI.Usage
+                        yield saI.Usage
 
-                        match aI.FieldParsers |> Array.toList with
+                        match saI.FieldParsers |> Array.toList with
                         | [] -> ()
                         | first :: rest ->
                             yield " : "

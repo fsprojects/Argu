@@ -235,3 +235,24 @@ module ``Simple Tests`` =
         let args = [| "/h" |]
         let results = parser.ParseCommandLine (args, raiseOnUsage = false)
         results.IsUsageRequested |> should equal true
+
+    type SuperCommand =
+        | Arg of ParseResults<Argument>
+        | Normal of string
+
+        interface IArgParserTemplate with
+            member a.Usage =
+                match a with
+                | Arg _ -> "Run subcommand arg"
+                | Normal _ -> "A normal argument"
+
+    let superparser = ArgumentParser.Create<SuperCommand> "usage string"
+
+    [<Test>]
+    let ``22. Parse a subcommand`` () =
+        let args = [| "--normal"; "value"; "--arg"; "--mandatory-arg"; "true"; "-D" |]
+        let results = superparser.Parse args
+        results.GetResult <@ Normal @> |> should equal "value"
+        let subresults = results.GetResult <@ Arg @>
+        subresults.GetResult <@ Mandatory_Arg @> |> should equal true
+        subresults.Contains <@ Detach @> |> should equal true
