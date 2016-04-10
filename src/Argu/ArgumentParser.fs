@@ -32,23 +32,14 @@ type ArgumentParser =
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
 and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?usageText : string) =
-    do 
-        if not <| FSharpType.IsUnion(typeof<'Template>, bindingFlags = allBindings) then
-            invalidArg typeof<'Template>.Name "Argu: template type inaccessible or not F# DU."
 
-    let argInfo =
-        FSharpType.GetUnionCases(typeof<'Template>, bindingFlags = allBindings)
-        |> Seq.map preComputeArgInfo
-        |> Seq.sortBy (fun a -> a.UCI.Tag)
-        |> Seq.toList
+    let resultCtor ty =
+        let ctor = typedefof<ParseResults<_>>.MakeGenericType([| ty |]).GetConstructors(allBindings).[0]
+        fun exiter results isUsageRequested ->
+            let ap = typedefof<ArgumentParser<_>>.MakeGenericType([| ty |]).GetConstructors(allBindings).[0].Invoke([|usageText|])
+            ctor.Invoke([| ap; exiter; results; isUsageRequested |])
 
-    do checkForConflictingParameters argInfo
-
-    let clArgIdx =
-        argInfo
-        |> Seq.map (fun aI -> aI.CommandLineNames |> Seq.map (fun name -> name, aI))
-        |> Seq.concat
-        |> Map.ofSeq
+    let argInfo, clArgIdx = preComputeArgInfos resultCtor typeof<'Template>
 
     let (|ParserExn|_|) (e : exn) =
         match e with
@@ -72,7 +63,7 @@ and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?us
         let inputs = match inputs with None -> getEnvArgs () | Some args -> args
 
         try
-            let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
+            let cliResults = parseCommandLine clArgIdx ignoreUnrecognized inputs errorHandler
 
             if cliResults.HelpArgs > 0 && raiseOnUsage then raise HelpText
 
@@ -128,7 +119,7 @@ and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?us
 
         try
             let appSettingsResults = parseAppSettings xmlConfigurationFile argInfo
-            let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
+            let cliResults = parseCommandLine clArgIdx ignoreUnrecognized inputs errorHandler
             if cliResults.HelpArgs > 0 && raiseOnUsage then raise HelpText
 
             let results = combine argInfo ignoreMissing (Some appSettingsResults) (Some cliResults.ParseResults)
@@ -168,8 +159,8 @@ and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?us
             
 /// Argument parsing result holder.
 and ParseResults<'Template when 'Template :> IArgParserTemplate> 
-        internal (ap : ArgumentParser<'Template>, exiter : IExiter, 
-                    results : Map<ArgId, ArgInfo * ArgParseResult<'Template> list>, isUsageRequested : bool) =
+        internal  (ap : ArgumentParser<'Template>, exiter : IExiter, 
+                    results : Map<ArgId, ArgInfo * ArgParseResult list>, isUsageRequested : bool) =
 
     // exiter wrapper
     let exit hideUsage msg id =
@@ -177,7 +168,7 @@ and ParseResults<'Template when 'Template :> IArgParserTemplate>
         else exiter.Exit(ap.Usage msg, id)
 
     // restriction predicate based on optional parse source
-    let restrictF flags : ArgParseResult<'T> -> bool =
+    let restrictF flags : ArgParseResult -> bool =
         let flags = defaultArg flags ParseSource.All
         fun x -> ParseSource.hasFlag flags x.Source
 
@@ -194,7 +185,7 @@ and ParseResults<'Template when 'Template :> IArgParserTemplate>
             else
                 exit aI.NoCommandLine (sprintf "missing argument '%s'." <| getName aI) (int ErrorCode.PostProcess)
 
-    let parseResult (f : 'F -> 'S) (r : ArgParseResult<'T>) =
+    let parseResult (f : 'F -> 'S) (r : ArgParseResult) =
         try f (r.FieldContents :?> 'F)
         with e ->
             exit r.ArgInfo.NoCommandLine (sprintf "Error parsing '%s': %s" r.ParseContext e.Message) (int ErrorCode.PostProcess)
@@ -210,7 +201,7 @@ and ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     member __.GetResults (expr : Expr<'Template>, ?source : ParseSource) : 'Template list = 
-        expr |> getResults source |> List.map (fun r -> r.Value)
+        expr |> getResults source |> List.map (fun r -> r.Value :?> 'Template)
 
     /// <summary>Query parse results for argument with parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
@@ -224,7 +215,7 @@ and ParseResults<'Template when 'Template :> IArgParserTemplate>
         results 
         |> Seq.collect (fun (KeyValue(_,(_,rs))) -> rs)
         |> Seq.filter (restrictF source)
-        |> Seq.map (fun r -> r.Value)
+        |> Seq.map (fun r -> r.Value :?> 'Template)
         |> Seq.toList
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists. 
@@ -232,7 +223,7 @@ and ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     member __.TryGetResult (expr : Expr<'Template>, ?source : ParseSource) : 'Template option = 
-        expr |> tryGetResult source |> Option.map (fun r -> r.Value)
+        expr |> tryGetResult source |> Option.map (fun r -> r.Value :?> 'Template)
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists. 
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
@@ -248,7 +239,7 @@ and ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     member s.GetResult (expr : Expr<'Template>, ?defaultValue : 'Template, ?source : ParseSource) : 'Template =
         match defaultValue with
-        | None -> let r = getResult source expr in r.Value
+        | None -> let r = getResult source expr in r.Value :?> 'Template
         | Some def -> defaultArg (s.TryGetResult(expr, ?source = source)) def
                 
     /// <summary>Returns the *last* specified parameter of given type. 

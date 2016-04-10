@@ -23,9 +23,106 @@ type ArgId(uci : UnionCaseInfo) =
     inherit ProjectionComparison<ArgId,int>(uci.Tag)
     member __.UCI = uci
     override __.ToString() = uci.Name
-        
-/// Represents a parsing schema for a single parameter
+
+/// Represents a parsing schema for a single parameter or subcommand
 type ArgInfo =
+    | SimpleArg of SimpleArgInfo
+    | SubCommand of SubCommandInfo
+with
+    member this.UCI =
+        match this with
+        | SimpleArg { Id = x }
+        | SubCommand { Id = x } -> x.UCI
+
+    member this.Id =
+        match this with
+        | SimpleArg { Id = x }
+        | SubCommand { Id = x } -> x
+
+    member this.CommandLineNames =
+        match this with
+        | SimpleArg { CommandLineNames = x }
+        | SubCommand { CommandLineNames = x } -> x
+
+    member this.Usage =
+        match this with
+        | SimpleArg { Usage = x }
+        | SubCommand { Usage = x } -> x
+
+    member this.IsFirst =
+        match this with
+        | SimpleArg { IsFirst = x }
+        | SubCommand { IsFirst = x } -> x
+
+    member this.Hidden =
+        match this with
+        | SimpleArg { Hidden = x }
+        | SubCommand { Hidden = x } -> x
+
+    member this.AppSettingsName =
+        match this with
+        | SimpleArg saI -> saI.AppSettingsName
+        | SubCommand _ -> None
+
+    member this.Mandatory =
+        match this with
+        | SimpleArg saI -> saI.Mandatory
+        | SubCommand _ -> false
+
+    member this.IsEqualsAssignment =
+        match this with
+        | SimpleArg saI -> saI.IsEqualsAssignment
+        | SubCommand _ -> false
+
+    member this.IsRest =
+        match this with
+        | SimpleArg saI -> saI.IsRest
+        | SubCommand _ -> false
+
+    member this.GatherAllSources =
+        match this with
+        | SimpleArg saI -> saI.GatherAllSources
+        | SubCommand _ -> false
+
+    member this.NoCommandLine =
+        match this with
+        | SimpleArg saI -> saI.NoCommandLine
+        | SubCommand _ -> false
+
+/// Represents a parsing schema for a subcommand
+and SubCommandInfo =
+    {
+        /// Argument identifier
+        Id : ArgId
+
+        /// Builds subcommand parse results
+        ResultCtor : IExiter -> Map<ArgId, (ArgInfo * ArgParseResult list)> -> bool -> obj
+
+        /// Builds a union case out of its field parameter
+        /// (a subcommand always has exactly 1 parameter)
+        CaseCtor : obj -> obj
+
+        /// The type of the subcommand template.
+        /// The union case has a single argument of type ParseResults<TemplateType>
+        TemplateType : System.Type
+
+        /// Argument info of the subcommand
+        Arguments : list<ArgInfo> * Map<string, ArgInfo>
+
+        /// head element denotes primary command line arg
+        CommandLineNames : string list
+
+        /// Description of the parameter
+        Usage : string
+
+        /// If specified, parameter can only be at start of CLI parameters
+        IsFirst : bool
+        /// Hide from Usage
+        Hidden : bool
+    }
+
+/// Represents a parsing schema for a single parameter
+and SimpleArgInfo =
     {
         /// Argument identifier
         Id : ArgId
@@ -67,10 +164,10 @@ with
     member __.UCI = __.Id.UCI
     member __.NoCommandLine = __.CommandLineNames.IsEmpty
 
-and ArgParseResult<'T> =
+and ArgParseResult =
     {
         /// union case value
-        Value : 'T
+        Value : obj
 
         /// untyped version of tuple of branch contents
         FieldContents : obj
@@ -159,7 +256,7 @@ let getEnvArgs () =
         
 /// dummy argInfo for --help arg
 let helpInfo : ArgInfo = 
-    {
+    SimpleArg {
         Id = Unchecked.defaultof<_>
         CommandLineNames = ["--help" ; "-h" ; "/h" ; "/help" ; "/?"]
         Usage = "display this list of options."
@@ -217,8 +314,31 @@ let expr2ArgId (e : Expr) =
 
     ArgId(aux None [] e)
 
+let getCommandLineArgs (uci: UnionCaseInfo) =
+    if uci.ContainsAttr<NoCommandLineAttribute> (true) then []
+    else
+        let defName = 
+            match uci.GetAttrs<CustomCommandLineAttribute> () |> List.tryLast with 
+            | None -> uciToOpt uci
+            | Some attr -> attr.Name
+
+        let altNames = 
+            uci.GetAttrs<AltCommandLineAttribute> ()
+            |> List.collect (fun attr -> attr.Names|> Array.toList)
+
+        let clNames = defName :: altNames 
+
+        for name in clNames do
+            if hasCommandLineParam helpInfo name then
+                failwithf "Argu: parameter '%s' is reserved for the 'usage' parameter." name
+            let isAllowed = fun c -> Char.IsLetterOrDigit c || c = '-' || c = '/' 
+            if name.ToCharArray() |> Array.forall isAllowed |> not then
+                failwithf "Argu: parameter '%s' contains invalid characters." name
+
+        clNames
+
 /// generate argument parsing schema from given UnionCaseInfo
-let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
+let preComputeSimpleArgInfo (uci : UnionCaseInfo) : ArgInfo =
     let fields = uci.GetFields()
     let types = fields |> Array.map (fun f -> f.PropertyType)
             
@@ -228,29 +348,7 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
         caseCtor dummyFields :?> IArgParserTemplate
         
-    let commandLineArgs =
-        if uci.ContainsAttr<NoCommandLineAttribute> (true) then []
-        else
-            let defName = 
-                match uci.GetAttrs<CustomCommandLineAttribute> () |> List.tryLast with 
-                | None -> uciToOpt uci
-                | Some attr -> attr.Name
-
-            let altNames = 
-                uci.GetAttrs<AltCommandLineAttribute> ()
-                |> List.collect (fun attr -> attr.Names|> Array.toList)
-                
-
-            let clNames = defName :: altNames 
-
-            for name in clNames do
-                if hasCommandLineParam helpInfo name then
-                    failwithf "Argu: parameter '%s' is reserved for the 'usage' parameter." name
-                let isAllowed = fun c -> Char.IsLetterOrDigit c || c = '-' || c = '/' 
-                if name.ToCharArray() |> Array.forall isAllowed |> not then
-                    failwithf "Argu: parameter '%s' contains invalid characters." name
-
-            clNames
+    let commandLineArgs = getCommandLineArgs uci
 
     let AppSettingsName =
         if uci.ContainsAttr<NoAppSettingsAttribute> (true) then None
@@ -304,7 +402,7 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
     if AppSettingsCSV && fields.Length <> 1 then 
         failwith "Argu: CSV attribute is only compatible with branches of unary fields." 
 
-    {
+    SimpleArg {
         Id = ArgId uci
         CaseCtor = caseCtor
         FieldCtor = fieldCtor
@@ -322,8 +420,14 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         Hidden = isHidden
     }
 
+let (|ParseResult|_|) (pi: System.Reflection.PropertyInfo) =
+    let t = pi.PropertyType
+    if t.IsGenericType && t.GetGenericTypeDefinition().FullName = "Argu.ParseResults`1" then
+        Some <| t.GetGenericArguments().[0]
+    else None
+
 /// construct a parse result from untyped collection of parsed arguments
-let buildResult<'T> (argInfo : ArgInfo) src ctx (fields : obj []) =
+let buildResult<'T> (argInfo : SimpleArgInfo) src ctx (fields : obj []) =
     {
         Value = argInfo.CaseCtor fields :?> 'T
         FieldContents =
@@ -331,7 +435,7 @@ let buildResult<'T> (argInfo : ArgInfo) src ctx (fields : obj []) =
             | None -> null
             | Some ctor -> ctor fields
 
-        ArgInfo = argInfo
+        ArgInfo = SimpleArg argInfo
         Source = src
         ParseContext = ctx
     }
@@ -368,3 +472,44 @@ let checkForConflictingParameters (args : seq<ArgInfo>) : unit =
         let msg = sprintf "Argu: Parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." arg0.UCI arg1.UCI id
         raise <| new FormatException(msg)
     | _ -> ()
+
+let rec preComputeSubCommandInfo resultCtor (uci: UnionCaseInfo) (subcommandType: System.Type) =
+    let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, bindingFlags = allBindings)
+    let first = uci.ContainsAttr<FirstAttribute> ()
+    let isHidden = uci.ContainsAttr<HiddenAttribute> ()
+    let commandLineNames = getCommandLineArgs uci
+    let arguments = preComputeArgInfos resultCtor subcommandType
+    let dummy = caseCtor [| null |] :?> IArgParserTemplate
+    SubCommand {
+        Id = ArgId uci
+        ResultCtor = resultCtor subcommandType
+        CaseCtor = fun x -> caseCtor [| x |]
+        Arguments = arguments
+        CommandLineNames = commandLineNames
+        IsFirst = first
+        Hidden = isHidden
+        TemplateType = subcommandType
+        Usage = dummy.Usage
+    }
+
+and preComputeArgInfo resultCtor (uci: UnionCaseInfo) =
+    match uci.GetFields() with
+    | [| ParseResult t |] ->
+        preComputeSubCommandInfo resultCtor uci t
+    | _ -> preComputeSimpleArgInfo uci
+
+and preComputeArgInfos resultCtor (t: System.Type) =
+    if not <| FSharpType.IsUnion(t, bindingFlags = allBindings) then
+        invalidArg t.Name "Argu: template type inaccessible or not F# DU."
+    let argInfo =
+        FSharpType.GetUnionCases(t, bindingFlags = allBindings)
+        |> Seq.map (preComputeArgInfo resultCtor)
+        |> Seq.sortBy (fun a -> a.UCI.Tag)
+        |> Seq.toList
+    checkForConflictingParameters argInfo
+    let clArgIdx =
+        argInfo
+        |> Seq.map (fun aI -> aI.CommandLineNames |> Seq.map (fun name -> name, aI))
+        |> Seq.concat
+        |> Map.ofSeq
+    argInfo, clArgIdx

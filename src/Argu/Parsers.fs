@@ -12,7 +12,7 @@ open Argu.ArgInfo
 //  CLI Parser
 //
 
-type CliParseState<'T> =
+type CliParseState =
     {
         Inputs : string []
                 
@@ -21,7 +21,7 @@ type CliParseState<'T> =
 
         Position : int
         HelpArgs : int // Help argument count
-        ParseResults : Map<ArgId, ArgParseResult<'T> list>
+        ParseResults : Map<ArgId, ArgParseResult list>
     }
 with
     static member Init (arguments : Map<string, ArgInfo>) ignore (inputs : string []) =
@@ -33,7 +33,7 @@ with
 
             Arguments = arguments
             ParseResults = Map.empty
-        } : CliParseState<'T>
+        } : CliParseState
             
 
 // parses the first part of a command line parameter
@@ -49,7 +49,7 @@ let private parseEqualityParam (param : string) =
         param, None
 
 /// parse the next command line argument and append to state
-let parseCommandLinePartial<'Template> (state : CliParseState<'Template>) =
+let rec parseCommandLinePartial (state : CliParseState) errorHandler =
     let position = ref state.Position
     let current = state.Inputs.[!position]
     do incr position
@@ -82,16 +82,16 @@ let parseCommandLinePartial<'Template> (state : CliParseState<'Template>) =
             bad ErrorCode.CommandLine (Some argInfo) "invalid CLI syntax '%s=<param>'." name
         | Some argInfo when argInfo.IsFirst && state.Position - state.HelpArgs > 0 ->
             bad ErrorCode.CommandLine (Some argInfo) "argument '%s' should precede all other arguments." name
-        | Some argInfo when argInfo.IsEqualsAssignment ->
-            assert (argInfo.FieldParsers.Length = 1)
+        | Some (SimpleArg saI as argInfo) when saI.IsEqualsAssignment ->
+            assert (saI.FieldParsers.Length = 1)
             match equalityParam with
             | None -> bad ErrorCode.CommandLine (Some argInfo) "argument '%s' missing an assignment." name
             | Some eqp ->
-                let argument = parseField argInfo argInfo.FieldParsers.[0] eqp
-                let result = buildResult<'Template> argInfo ParseSource.CommandLine name [| argument |]
+                let argument = parseField argInfo saI.FieldParsers.[0] eqp
+                let result = buildResult saI ParseSource.CommandLine name [| argument |]
                 updateStateWith argInfo [ result ]
 
-        | Some argInfo ->
+        | Some (SimpleArg saI as argInfo) ->
             let parseNextField (p : ParserInfo) =
                 if !position < state.Inputs.Length then
                     let arg = state.Inputs.[!position]
@@ -102,17 +102,37 @@ let parseCommandLinePartial<'Template> (state : CliParseState<'Template>) =
                         "parameter '%s' missing argument <%O>." name p
                         
             let parseSingleParameter () =
-                let fields = argInfo.FieldParsers |> Array.map parseNextField
-                buildResult<'Template> argInfo ParseSource.CommandLine name fields
+                let fields = saI.FieldParsers |> Array.map parseNextField
+                buildResult saI ParseSource.CommandLine name fields
 
             let results =
-                if argInfo.IsRest then
+                if saI.IsRest then
                     [ while !position < state.Inputs.Length do
                         yield parseSingleParameter () ]
 
                 else [ parseSingleParameter () ]
 
             updateStateWith argInfo results
+
+        | Some (SubCommand scI as argInfo) ->
+            let subArgInfos, subArgIdx = scI.Arguments
+            let subInputs = state.Inputs.[!position..]
+            let subParseState = parseCommandLine subArgIdx state.IgnoreUnrecognized subInputs errorHandler
+            let subResults =
+                subParseState.ParseResults
+                |> Map.map (fun id res ->
+                    (subArgInfos |> List.find (fun i -> i.Id = id)), res)
+            let subResult = scI.ResultCtor errorHandler subResults (subParseState.HelpArgs > 0)
+            let result : ArgParseResult =
+                {
+                    Value = scI.CaseCtor subResult
+                    FieldContents = subResult
+                    ArgInfo = argInfo
+                    ParseContext = name
+                    Source = ParseSource.CommandLine
+                }
+            position := !position + subParseState.Position
+            updateStateWith argInfo [ result ]
                 
 
 /// <summary>
@@ -121,15 +141,15 @@ let parseCommandLinePartial<'Template> (state : CliParseState<'Template>) =
 /// <param name="argIdx">Dictionary of all possible CL arguments.</param>
 /// <param name="ignoreUnrecognized">Ignored unrecognized parameters.</param>
 /// <param name="inputs">CL inputs</param>
-let parseCommandLine<'Template> argIdx ignoreUnrecognized (inputs : string []) =
-    let rec parsePartial (state : CliParseState<'Template>) =
+and parseCommandLine argIdx ignoreUnrecognized (inputs : string []) errorHandler =
+    let rec parsePartial (state : CliParseState) =
         if state.Position < state.Inputs.Length then
-            let state' = parseCommandLinePartial state
+            let state' = parseCommandLinePartial state errorHandler
             parsePartial state'
         else
             state
 
-    let init = CliParseState<'Template>.Init argIdx ignoreUnrecognized inputs
+    let init = CliParseState.Init argIdx ignoreUnrecognized inputs
     parsePartial init
 
 
@@ -138,7 +158,7 @@ let parseCommandLine<'Template> argIdx ignoreUnrecognized (inputs : string []) =
 //
 
 // AppSettings parse errors are threaded to the state rather than raised directly
-type AppConfigParseState<'Template> = Map<ArgId, Choice<ArgParseResult<'Template> list, exn>>
+type AppConfigParseState = Map<ArgId, Choice<ArgParseResult list, exn>>
 
 
 /// <summary>
@@ -148,24 +168,24 @@ type AppConfigParseState<'Template> = Map<ArgId, Choice<ArgParseResult<'Template
 /// <param name="state">threaded parse state.</param>
 /// <param name="aI">Argument Info to parse.</param>
 let parseAppSettingsPartial (appSettingsReader : string -> string) 
-                            (state : AppConfigParseState<'Template>) (aI : ArgInfo) =
+                            (state : AppConfigParseState) (aI : ArgInfo) =
 
     try
-        match aI.AppSettingsName with
-        | None -> state
-        | Some name ->
+        match aI.AppSettingsName, aI with
+        | None, _ | _, SubCommand _ -> state
+        | Some name, SimpleArg saI ->
             let parseResults =
                 match appSettingsReader name with
                 | null | "" -> []
-                | entry when aI.FieldParsers.Length = 0 ->
+                | entry when saI.FieldParsers.Length = 0 ->
                     match Boolean.tryParse entry with
                     | None -> bad ErrorCode.AppSettings (Some aI) "AppSettings entry '%s' is not <bool>." name
-                    | Some flag when flag -> [buildResult aI ParseSource.CommandLine name [||]]
+                    | Some flag when flag -> [buildResult saI ParseSource.CommandLine name [||]]
                     | Some _ -> []
 
                 | entry ->
                     let tokens = 
-                        if aI.AppSettingsCSV || aI.FieldParsers.Length > 1 then entry.Split(',')
+                        if saI.AppSettingsCSV || saI.FieldParsers.Length > 1 then entry.Split(',')
                         else [| entry |]
 
                     let pos = ref 0
@@ -184,10 +204,10 @@ let parseAppSettingsPartial (appSettingsReader : string -> string)
                                 
 
                     let parseSingleArgument() =
-                        let fields = aI.FieldParsers |> Array.map parseNext
-                        buildResult aI ParseSource.AppSettings name fields
+                        let fields = saI.FieldParsers |> Array.map parseNext
+                        buildResult saI ParseSource.AppSettings name fields
 
-                    if aI.AppSettingsCSV then
+                    if saI.AppSettingsCSV then
                         [ while !pos < tokens.Length do
                             yield parseSingleArgument () ]
 
@@ -235,8 +255,8 @@ let parseAppSettings appConfigFile (argInfo : ArgInfo list) =
 /// <param name="appSettingsResults">parsed results from AppSettings</param>
 /// <param name="commandLineResults">parsed results from CLI</param>
 let combine (argInfo : ArgInfo list) ignoreMissing 
-                (appSettingsResults : Map<ArgId, Choice<ArgParseResult<'Template> list, exn>> option)
-                (commandLineResults : Map<ArgId, ArgParseResult<'Template> list> option) =
+                (appSettingsResults : Map<ArgId, Choice<ArgParseResult list, exn>> option)
+                (commandLineResults : Map<ArgId, ArgParseResult list> option) =
 
     let argInfo, appSettingsResults, commandLineResults =
         match appSettingsResults, commandLineResults with
