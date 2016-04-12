@@ -15,12 +15,16 @@
     ],
 
     "frameworks": {
-        "dnxcore50": {
+        "netstandard1.5": {
             "dependencies": {
-                "System.Xml.XDocument": "4.0.11-rc2-23811",
-                "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-151221",
-                "NETStandard.Library": "1.0.0-rc2-23811"
+                "System.Xml.XDocument": "4.0.11-rc2-23925",
+                "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-160316",
+                "NETStandard.Library": "1.5.0-rc2-23925"
             },
+            "imports": [
+                "portable-net45+win8",
+                "dnxcore50"
+            ]
         },
         "net46": { 
             "dependencies": {

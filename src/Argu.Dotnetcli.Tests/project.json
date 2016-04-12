@@ -10,10 +10,14 @@
     ],
 
     "frameworks": {
-        "dnxcore50" : { 
+        "netstandard1.5" : { 
             "dependencies": {
                 "Argu":  { "version": "1.0.0", "type": "build" }
             },
+            "imports": [
+                "portable-net45+win8",
+                "dnxcore50"
+            ]
         },
         "net46" : { 
             "dependencies": {
@@ -21,7 +25,7 @@
             },
             "frameworkAssemblies": {
                 "System": "",
-                "System.Core": "",
+                "System.Core": ""
             }
         }
     }

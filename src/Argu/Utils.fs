@@ -28,6 +28,9 @@ module internal Utils =
         static member DefaultOf<'T> () = Unchecked.defaultof<'T>
         static member UntypedDefaultOf(t : Type) =
             typeof<Unchecked>
+#if NETSTANDARD1_5
+                .GetTypeInfo()
+#endif
                 .GetMethod("DefaultOf", BindingFlags.NonPublic ||| BindingFlags.Static)
                 .MakeGenericMethod([| t |])
                 .Invoke(null, [||])
@@ -39,7 +42,7 @@ module internal Utils =
             let attrs = uci.GetCustomAttributes(typeof<'T>) |> Seq.map (fun o -> o :?> 'T)
 
             if includeDeclaringTypeAttrs then
-#if DNXCORE50
+#if NETSTANDARD1_5
                 let parentAttrs = uci.DeclaringType.GetTypeInfo().GetCustomAttributes(typeof<'T>, false)  |> Seq.map (fun o -> o :?> 'T)
 #else
                 let parentAttrs = uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)  |> Seq.map (fun o -> o :?> 'T)
@@ -52,7 +55,7 @@ module internal Utils =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
             if includeDeclaringTypeAttrs then
-#if DNXCORE50
+#if NETSTANDARD1_5
                 uci.DeclaringType.GetTypeInfo().GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not
 #else
                 uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not

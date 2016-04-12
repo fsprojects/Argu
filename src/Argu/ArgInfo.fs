@@ -2,11 +2,11 @@
 
 open System
 open System.IO
-#if !DNXCORE50
+#if !NETSTANDARD1_5
 open System.Configuration
 #endif
 open System.Reflection
-#if !DNXCORE50
+#if !NETSTANDARD1_5
 open System.Runtime.Serialization.Formatters.Binary
 #endif
 

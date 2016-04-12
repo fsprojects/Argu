@@ -3,7 +3,7 @@
 open System
 open System.IO
 open System.Text.RegularExpressions
-#if !DNXCORE50
+#if !NETSTANDARD1_5
 open System.Configuration
 #endif
 
@@ -205,7 +205,7 @@ let parseAppSettingsPartial (appSettingsReader : string -> string)
 /// <param name="appConfigFile">AppConfig file to parsed. Defaults to ConfigutionManager resolution.</param>
 /// <param name="argInfo">List of all possible arguments.</param>
 let parseAppSettings appConfigFile (argInfo : ArgInfo list) =
-#if DNXCORE50
+#if NETSTANDARD1_5
     failwith "AppSettings not supported"
 #else
     let appSettingsReader : string -> string =

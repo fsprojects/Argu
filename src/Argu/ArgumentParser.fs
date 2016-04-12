@@ -1,7 +1,7 @@
 ﻿namespace Argu
 
 open System
-#if !DNXCORE50
+#if !NETSTANDARD1_5
 open System.Configuration
 #endif
 open System.Reflection
