@@ -120,32 +120,32 @@ module internal Utils =
 
         override x.GetHashCode() = hash token
 
-    // string monad
+    // string builder compexpr
 
-    type StringBuilderM = StringBuilder -> unit
+    type StringBuilderExpr = StringBuilder -> unit
 
     type StringExprBuilder () =
-        member __.Zero () : StringBuilderM = ignore
-        member __.Yield (txt : string) : StringBuilderM = fun b -> b.Append txt |> ignore
-        member __.Yield (c : char) : StringBuilderM = fun b -> b.Append c |> ignore
-        member __.YieldFrom f = f : StringBuilderM
+        member __.Zero () : StringBuilderExpr = ignore
+        member __.Yield (txt : string) : StringBuilderExpr = fun b -> b.Append txt |> ignore
+        member __.Yield (c : char) : StringBuilderExpr = fun b -> b.Append c |> ignore
+        member __.YieldFrom f = f : StringBuilderExpr
 
-        member __.Combine(f : StringBuilderM, g : StringBuilderM) = fun b -> f b; g b
-        member __.Delay (f : unit -> StringBuilderM) = fun b -> f () b
+        member __.Combine(f : StringBuilderExpr, g : StringBuilderExpr) : StringBuilderExpr = fun b -> f b; g b
+        member __.Delay (f : unit -> StringBuilderExpr) : StringBuilderExpr = fun b -> f () b
         
-        member __.For (xs : 'a seq, f : 'a -> StringBuilderM) =
+        member __.For (xs : 'a seq, f : 'a -> StringBuilderExpr) : StringBuilderExpr =
             fun b ->
-                let e = xs.GetEnumerator ()
+                use e = xs.GetEnumerator ()
                 while e.MoveNext() do f e.Current b
 
-        member __.While (p : unit -> bool, f : StringBuilderM) =
+        member __.While (p : unit -> bool, f : StringBuilderExpr) : StringBuilderExpr =
             fun b -> while p () do f b
 
     let stringB = new StringExprBuilder ()
 
     [<RequireQualifiedAccess>]
     module String =
-        let build (f : StringBuilderM) =
+        let build (f : StringBuilderExpr) =
             let b = new StringBuilder ()
             do f b
             b.ToString ()
