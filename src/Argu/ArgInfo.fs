@@ -18,8 +18,9 @@ type ErrorCode =
 
 /// IComparable UnionCaseInfo wrapper
 type ArgId(uci : UnionCaseInfo) =
-    inherit ProjectionComparison<ArgId,int>(uci.Tag)
+    inherit ProjectionComparison<ArgId,int>()
     member __.UCI = uci
+    override __.ComparisonToken = uci.Tag
     override __.ToString() = uci.Name
         
 /// Represents a parsing schema for a single parameter
@@ -131,8 +132,7 @@ let hasCommandLineParam (aI : ArgInfo) (param : string) =
 /// construct a CLI param from UCI name
 let uciToOpt (uci : UnionCaseInfo) =
     let prefix = 
-        uci.GetAttrs<CliPrefixAttribute>(true) 
-        |> List.tryPick Some
+        uci.TryGetAttribute<CliPrefixAttribute>(true) 
         |> Option.map (fun a -> a.Prefix)
         |> id (fun p -> defaultArg p CliPrefix.DoubleDash)
 
@@ -191,8 +191,7 @@ let primitiveParsers =
         mkParser "float" Single.Parse string
         mkParser "float" Double.Parse string
         mkParser "decimal" Decimal.Parse string
-#if NET35
-#else
+#if !NET35
         mkParser "bigint" System.Numerics.BigInteger.Parse string
 #endif
         mkParser "guid" (fun s -> Guid(s)) string
@@ -204,13 +203,18 @@ let primitiveParsers =
 /// recognize exprs that strictly contain DU constructors
 /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
 let expr2ArgId (e : Expr) =
+    let (|Vars|_|) (exprs : Expr list) =
+        let vars = exprs |> List.choose (|Var|_|)
+        if vars.Length = exprs.Length then Some vars
+        else None
+
     let rec aux (tupledArg : Var option) vars (e : Expr) =
         match tupledArg, e with
         | None, Lambda(arg, b) -> aux (Some arg) vars b
         | Some arg, Let(x, TupleGet(Var varg, _), b) when arg = varg -> aux tupledArg (x :: vars) b
         | None, NewUnionCase(u, []) -> u
         | Some a, NewUnionCase(u, [Var x]) when a = x -> u
-        | Some _, NewUnionCase(u, List.TryMap (|Var|_|) args) when vars.Length > 0 && List.rev vars = args -> u
+        | Some _, NewUnionCase(u, Vars args) when vars.Length > 0 && List.rev vars = args -> u
         | _ -> invalidArg "expr" "Only union constructors are permitted in expression based queries."
 
     ArgId(aux None [] e)
@@ -227,17 +231,17 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         caseCtor dummyFields :?> IArgParserTemplate
         
     let commandLineArgs =
-        if uci.ContainsAttr<NoCommandLineAttribute> (true) then []
+        if uci.ContainsAttribute<NoCommandLineAttribute> (true) then []
         else
             let defName = 
-                match uci.GetAttrs<CustomCommandLineAttribute> () |> List.tryLast with 
+                match uci.TryGetAttribute<CustomCommandLineAttribute> () with 
                 | None -> uciToOpt uci
                 | Some attr -> attr.Name
 
             let altNames = 
-                uci.GetAttrs<AltCommandLineAttribute> ()
-                |> List.collect (fun attr -> attr.Names|> Array.toList)
-                
+                uci.GetAttributes<AltCommandLineAttribute> ()
+                |> Seq.collect (fun attr -> attr.Names)
+                |> Seq.toList
 
             let clNames = defName :: altNames 
 
@@ -251,9 +255,9 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
             clNames
 
     let AppSettingsName =
-        if uci.ContainsAttr<NoAppSettingsAttribute> (true) then None
+        if uci.ContainsAttribute<NoAppSettingsAttribute> (true) then None
         else
-            match uci.GetAttrs<CustomAppSettingsAttribute> () |> List.tryLast with
+            match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
             | None -> Some <| uciToAppConf uci
             // take last registered attribute
             | Some attr -> Some attr.Name
@@ -261,14 +265,14 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
     if AppSettingsName.IsNone && commandLineArgs.IsEmpty then 
         failwithf "Argu: parameter '%s' needs to have at least one parse source." uci.Name
 
-    let printLabels = uci.ContainsAttr<PrintLabelsAttribute> (true)
+    let printLabels = uci.ContainsAttribute<PrintLabelsAttribute> (true)
 
     let parsers =
         let getParser (p : PropertyInfo) =
             let label = if printLabels then Some p.Name else None
-            match primitiveParsers.TryFind p.PropertyType with
-            | Some f -> f label
-            | None -> 
+            let ok, f = primitiveParsers.TryGetValue p.PropertyType
+            if ok then f label
+            else
                 failwithf "Argu: template contains unsupported field of type '%O'." p.PropertyType
 
         Array.map getParser fields
@@ -282,13 +286,13 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
             let ctor = FSharpValue.PreComputeTupleConstructor tupleType
             Some ctor
 
-    let AppSettingsCSV = uci.ContainsAttr<ParseCSVAttribute> ()
-    let mandatory = uci.ContainsAttr<MandatoryAttribute> (true)
-    let gatherAll = uci.ContainsAttr<GatherAllSourcesAttribute> ()
-    let isRest = uci.ContainsAttr<RestAttribute> ()
-    let isHidden = uci.ContainsAttr<HiddenAttribute> ()
+    let AppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
+    let mandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
+    let gatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
+    let isRest = uci.ContainsAttribute<RestAttribute> ()
+    let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
     let isEqualsAssignment = 
-        if uci.ContainsAttr<EqualsAssignmentAttribute> (true) then
+        if uci.ContainsAttribute<EqualsAssignmentAttribute> (true) then
             if types.Length <> 1 then
                 failwithf "Argu: Parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
             elif isRest then
@@ -297,7 +301,7 @@ let preComputeArgInfo (uci : UnionCaseInfo) : ArgInfo =
         else
             false
 
-    let first = uci.ContainsAttr<FirstAttribute> ()
+    let first = uci.ContainsAttribute<FirstAttribute> ()
 
     if AppSettingsCSV && fields.Length <> 1 then 
         failwith "Argu: CSV attribute is only compatible with branches of unary fields." 

@@ -17,14 +17,6 @@ module internal Utils =
 
     let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
 
-    /// gets the top-Level methodInfo call in a quotation
-    let rec getMethod =
-        function
-        | Lambda(_,e) -> getMethod e
-        | Call(_,f,_) -> f
-        | _ -> invalidArg "expr" "quotation is not of method."
-
-
     [<RequireQualifiedAccess>]
     module internal Enum =
 
@@ -56,34 +48,48 @@ module internal Utils =
                 }
 
     type UnionCaseInfo with
-        member uci.GetAttrs<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
+        member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
-            let attrs = uci.GetCustomAttributes(typeof<'T>) |> Seq.map (fun o -> o :?> 'T)
+            let caseAttrs = uci.GetCustomAttributes typeof<'T>
+            let attrs =
+                if includeDeclaringTypeAttrs then
+                    uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)
+                    |> Seq.append caseAttrs
+                else
+                    caseAttrs :> _
 
-            if includeDeclaringTypeAttrs then
-                let parentAttrs = uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)  |> Seq.map (fun o -> o :?> 'T)
-                Seq.append parentAttrs attrs |> Seq.toList
-            else
-                Seq.toList attrs
+            attrs |> Seq.map (fun o -> o :?> 'T)
 
-        member uci.ContainsAttr<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
+        member uci.TryGetAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
-            if includeDeclaringTypeAttrs then
-                uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not
-                    || uci.GetCustomAttributes(typeof<'T>) |> Seq.isEmpty |> not
+            match uci.GetCustomAttributes typeof<'T> with
+            | [||] when includeDeclaringTypeAttrs ->
+                match uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) with
+                | [||] -> None
+                | attrs -> Some (attrs.[0] :?> 'T)
+            | [||] -> None
+            | attrs -> Some (attrs.[0] :?> 'T)
+
+        member uci.ContainsAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
+            let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
+            if uci.GetCustomAttributes typeof<'T> |> Array.isEmpty |> not then true
+            elif includeDeclaringTypeAttrs then
+                uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Array.isEmpty |> not
             else
-                uci.GetCustomAttributes(typeof<'T>) |> Seq.isEmpty |> not
+                false
+
+    [<RequireQualifiedAccess>]
+    module Array =
+
+        let last (ts : 'T[]) =
+            match ts.Length with
+            | 0 -> invalidArg "xs" "input array is empty."
+            | n -> ts.[n - 1]
 
     [<RequireQualifiedAccess>]
     module List =
-        /// fetch last element of a non-empty list
-        let rec last xs =
-            match xs with
-            | [] -> invalidArg "xs" "input list is empty."
-            | [x] -> x
-            | _ :: rest -> last rest
 
         /// try fetching last element of a list
         let rec tryLast xs =
@@ -92,56 +98,22 @@ module internal Utils =
             | [x] -> Some x
             | _ :: rest -> tryLast rest
 
-        /// <summary>
-        ///     returns `Some (map f ts)` iff `(forall t) ((f t).IsSome)`
-        /// </summary>
-        /// <param name="f"></param>
-        /// <param name="ts"></param>
-        let tryMap (f : 'T -> 'S option) (ts : 'T list) : 'S list option =
-            let rec gather acc rest =
-                match rest with
-                | [] -> Some <| List.rev acc
-                | h :: t ->
-                    match f h with
-                    | Some s -> gather (s :: acc) t
-                    | None -> None
-
-            gather [] ts
-
-        /// Map active pattern combinator
-        let (|Map|) f xs = List.map f xs
-
-        /// Nondeterministic Map active pattern combinator
-        let (|TryMap|_|) f xs = tryMap f xs
-
-    [<RequireQualifiedAccess>]
-    module Boolean =
-        let tryParse (inp : string) =
-            let ok, b = Boolean.TryParse inp
-            if ok then Some b
-            else None
-            
-    type IDictionary<'K,'V> with
-        member d.TryFind(k : 'K) =
-            let mutable v = Unchecked.defaultof<'V>
-            if d.TryGetValue(k, &v) then Some v else None
-
-
     /// inherit this type for easy comparison semantics
-    type ProjectionComparison<'Id, 'Cmp when 'Cmp : comparison> (token : 'Cmp) =
-        member private __.ComparisonToken = token
+    [<AbstractClass>]
+    type ProjectionComparison<'Id, 'Cmp when 'Cmp : comparison> () =
+        abstract ComparisonToken : 'Cmp
         interface IComparable with
             member x.CompareTo y =
                 match y with
-                | :? ProjectionComparison<'Id, 'Cmp> as y -> compare token y.ComparisonToken
+                | :? ProjectionComparison<'Id, 'Cmp> as y -> compare x.ComparisonToken y.ComparisonToken
                 | _ -> invalidArg "y" "invalid comparand."
 
         override x.Equals y =
             match y with
-            | :? ProjectionComparison<'Id, 'Cmp> as y -> token = y.ComparisonToken
+            | :? ProjectionComparison<'Id, 'Cmp> as y -> x.ComparisonToken = y.ComparisonToken
             | _ -> false
 
-        override x.GetHashCode() = hash token
+        override x.GetHashCode() = hash x.ComparisonToken
 
     // string builder compexpr
 

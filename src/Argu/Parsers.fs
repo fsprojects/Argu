@@ -157,10 +157,12 @@ let parseAppSettingsPartial (appSettingsReader : string -> string)
                 match appSettingsReader name with
                 | null | "" -> []
                 | entry when aI.FieldParsers.Length = 0 ->
-                    match Boolean.tryParse entry with
-                    | None -> bad ErrorCode.AppSettings (Some aI) "AppSettings entry '%s' is not <bool>." name
-                    | Some flag when flag -> [buildResult aI ParseSource.CommandLine name [||]]
-                    | Some _ -> []
+                    let ok, flag = Boolean.TryParse entry
+                    if ok then
+                        if flag then [buildResult aI ParseSource.CommandLine name [||]]
+                        else []
+                    else
+                        bad ErrorCode.AppSettings (Some aI) "AppSettings entry '%s' is not <bool>." name
 
                 | entry ->
                     let tokens = 
