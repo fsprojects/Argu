@@ -42,7 +42,7 @@ let printArgUsage (aI : ArgInfo) =
 
             yield ": "
             yield aI.Usage
-            yield "\n"
+            yield Environment.NewLine
     }
 
 /// <summary>
@@ -54,9 +54,9 @@ let printUsage (msg : string option) (argInfo : ArgInfo list) =
     stringExpr {
         match msg with
         | None -> ()
-        | Some u -> yield u + "\n"
+        | Some u -> yield u + Environment.NewLine
                 
-        yield '\n'
+        yield Environment.NewLine
 
         let first, last = argInfo |> List.partition (fun aI -> aI.IsFirst)
 
@@ -64,7 +64,7 @@ let printUsage (msg : string option) (argInfo : ArgInfo list) =
             if not aI.Hidden then
                 yield! printArgUsage aI
 
-        if not <| first.IsEmpty then yield '\n'
+        if not <| first.IsEmpty then yield Environment.NewLine
 
         for aI in last do 
             if not aI.Hidden then
@@ -113,16 +113,16 @@ let printCommandLineSyntax (argInfo : ArgInfo list) =
 
     stringExpr {
         for aI in sorted do
-            if not aI.Mandatory then yield "["
+            if not aI.Mandatory then yield '['
             match aI.CommandLineNames with
             | [] -> ()
             | h :: t -> 
-                if aI.Mandatory && not <| List.isEmpty t then yield "("
+                if aI.Mandatory && not <| List.isEmpty t then yield '('
                 yield h
                 for n in t do
-                    yield "|"
+                    yield '|'
                     yield n
-                if aI.Mandatory && not <| List.isEmpty t then yield ")"
+                if aI.Mandatory && not <| List.isEmpty t then yield ')'
                 
             match aI.IsEqualsAssignment with
             | true ->
@@ -134,8 +134,8 @@ let printCommandLineSyntax (argInfo : ArgInfo list) =
 
             if aI.IsRest then yield " ..."
 
-            if not aI.Mandatory then yield "]"
-            if aI.Id <> (Seq.last sorted).Id then yield " "
+            if not aI.Mandatory then yield ']'
+            if aI.Id <> (Seq.last sorted).Id then yield ' '
     } |> String.build
 
 /// <summary>
