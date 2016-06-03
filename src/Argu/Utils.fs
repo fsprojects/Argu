@@ -122,30 +122,30 @@ module internal Utils =
 
     // string builder compexpr
 
-    type StringBuilderExpr = StringBuilder -> unit
+    type StringExpr = StringBuilder -> unit
 
     type StringExprBuilder () =
-        member __.Zero () : StringBuilderExpr = ignore
-        member __.Yield (txt : string) : StringBuilderExpr = fun b -> b.Append txt |> ignore
-        member __.Yield (c : char) : StringBuilderExpr = fun b -> b.Append c |> ignore
-        member __.YieldFrom f = f : StringBuilderExpr
+        member __.Zero () : StringExpr = ignore
+        member __.Yield (txt : string) : StringExpr = fun b -> b.Append txt |> ignore
+        member __.Yield (c : char) : StringExpr = fun b -> b.Append c |> ignore
+        member __.YieldFrom f = f : StringExpr
 
-        member __.Combine(f : StringBuilderExpr, g : StringBuilderExpr) : StringBuilderExpr = fun b -> f b; g b
-        member __.Delay (f : unit -> StringBuilderExpr) : StringBuilderExpr = fun b -> f () b
+        member __.Combine(f : StringExpr, g : StringExpr) : StringExpr = fun b -> f b; g b
+        member __.Delay (f : unit -> StringExpr) : StringExpr = fun b -> f () b
         
-        member __.For (xs : 'a seq, f : 'a -> StringBuilderExpr) : StringBuilderExpr =
+        member __.For (xs : 'a seq, f : 'a -> StringExpr) : StringExpr =
             fun b ->
                 use e = xs.GetEnumerator ()
                 while e.MoveNext() do f e.Current b
 
-        member __.While (p : unit -> bool, f : StringBuilderExpr) : StringBuilderExpr =
+        member __.While (p : unit -> bool, f : StringExpr) : StringExpr =
             fun b -> while p () do f b
 
-    let stringB = new StringExprBuilder ()
+    let stringExpr = new StringExprBuilder ()
 
     [<RequireQualifiedAccess>]
     module String =
-        let build (f : StringBuilderExpr) =
+        let build (f : StringExpr) =
             let b = new StringBuilder ()
             do f b
             b.ToString ()

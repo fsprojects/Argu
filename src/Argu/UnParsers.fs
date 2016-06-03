@@ -15,7 +15,7 @@ open Argu.ArgInfo
 /// </summary>
 /// <param name="aI"></param>
 let printArgUsage (aI : ArgInfo) =
-    stringB {
+    stringExpr {
         match aI.CommandLineNames with
         | [] -> ()
         | param :: altParams ->
@@ -52,7 +52,7 @@ let printArgUsage (aI : ArgInfo) =
 /// <param name="msg"></param>
 /// <param name="argInfo"></param>
 let printUsage (msg : string option) (argInfo : ArgInfo list) =
-    stringB {
+    stringExpr {
         match msg with
         | None -> ()
         | Some u -> yield u + "\n"
@@ -112,7 +112,7 @@ let printCommandLineSyntax (argInfo : ArgInfo list) =
         |> List.filter (fun ai -> not ai.Hidden)
         |> List.sortBy (fun ai -> not ai.IsFirst, ai.IsRest)
 
-    stringB {
+    stringExpr {
         for aI in sorted do
             if not aI.Mandatory then yield "["
             match aI.CommandLineNames with
@@ -168,7 +168,7 @@ let printAppSettings (argInfo : ArgInfo list) printComments (args : 'Template li
                     
             if printComments then 
                 let comment =
-                    stringB {
+                    stringExpr {
                         yield ' '
                         yield aI.Usage
 
