@@ -10,7 +10,6 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
-open Argu.Utils
 open Argu.ArgInfo
 open Argu.Parsers
 open Argu.UnParsers
@@ -179,7 +178,7 @@ and ParseResults<'Template when 'Template :> IArgParserTemplate>
     // restriction predicate based on optional parse source
     let restrictF flags : ArgParseResult<'T> -> bool =
         let flags = defaultArg flags ParseSource.All
-        fun x -> ParseSource.hasFlag flags x.Source
+        fun x -> Enum.hasFlag flags x.Source
 
     let getResults rs (e : Expr) = results.[expr2ArgId e] |> snd |> List.filter (restrictF rs)
     let containsResult rs (e : Expr) = e |> getResults rs |> List.isEmpty |> not

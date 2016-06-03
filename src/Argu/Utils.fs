@@ -12,6 +12,7 @@ open System.Xml.Linq
 open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations.Patterns
 
+[<AutoOpen>]
 module internal Utils =
 
     let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
@@ -22,6 +23,12 @@ module internal Utils =
         | Lambda(_,e) -> getMethod e
         | Call(_,f,_) -> f
         | _ -> invalidArg "expr" "quotation is not of method."
+
+
+    [<RequireQualifiedAccess>]
+    module internal Enum =
+
+        let inline hasFlag (flag : ^Enum) (value : ^Enum) = flag &&& value = value
 
     /// reflected version of Unchecked.defaultof
     type Unchecked =

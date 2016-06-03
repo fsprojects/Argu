@@ -5,7 +5,6 @@ open System.IO
 open System.Text.RegularExpressions
 open System.Configuration
 
-open Argu.Utils
 open Argu.ArgInfo
 
 //

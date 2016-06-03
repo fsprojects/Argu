@@ -7,7 +7,6 @@ open System.Xml.Linq
 
 open Microsoft.FSharp.Reflection
 
-open Argu.Utils
 open Argu.ArgInfo
  
 /// <summary>

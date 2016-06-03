@@ -10,8 +10,6 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
-open Argu.Utils
-
 type ErrorCode =
     | HelpText = 0
     | AppSettings = 2
