@@ -1,7 +1,9 @@
 ﻿namespace Argu
 
 open System
+#if !NETSTANDARD1_5
 open System.Configuration
+#endif
 open System.Reflection
 open System.Xml
 open System.Xml.Linq

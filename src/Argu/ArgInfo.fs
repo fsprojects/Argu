@@ -2,9 +2,13 @@
 
 open System
 open System.IO
+#if !NETSTANDARD1_5
 open System.Configuration
+#endif
 open System.Reflection
+#if !NETSTANDARD1_5
 open System.Runtime.Serialization.Formatters.Binary
+#endif
 
 open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
