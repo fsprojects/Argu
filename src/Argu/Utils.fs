@@ -30,14 +30,30 @@ module internal Utils =
 
         let inline hasFlag (flag : ^Enum) (value : ^Enum) = flag &&& value = value
 
+    [<AbstractClass>]
+    type Existential internal () =
+        static let genTy = typedefof<Existential<_>>
+        abstract Type : Type
+        abstract Accept : IFunc<'R> -> 'R
+        static member FromType(t : Type) =
+            let et = genTy.MakeGenericType [|t|]
+            Activator.CreateInstance et :?> Existential
+
+    and Existential<'T> () =
+        inherit Existential()
+        override __.Type = typeof<'T>
+        override __.Accept func = func.Invoke<'T>()
+
+    and IFunc<'R> =
+        abstract Invoke<'T> : unit -> 'R
+
     /// reflected version of Unchecked.defaultof
     type Unchecked =
-        static member DefaultOf<'T> () = Unchecked.defaultof<'T>
         static member UntypedDefaultOf(t : Type) =
-            typeof<Unchecked>
-                .GetMethod("DefaultOf", BindingFlags.NonPublic ||| BindingFlags.Static)
-                .MakeGenericMethod([| t |])
-                .Invoke(null, [||])
+            Existential.FromType(t).Accept { 
+                new IFunc<obj> with 
+                    member __.Invoke<'T> () = Unchecked.defaultof<'T> :> obj
+                }
 
     type UnionCaseInfo with
         member uci.GetAttrs<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
