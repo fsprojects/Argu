@@ -52,6 +52,12 @@ module internal Utils =
         member m.ContainsAttribute<'T when 'T :> Attribute> () =
             m.GetCustomAttributes(typeof<'T>,true) |> Array.isEmpty |> not
 
+    type IDictionary<'K,'V> with
+        member d.TryFind k =
+            let ok,found = d.TryGetValue k
+            if ok then Some found
+            else None
+
     type UnionCaseInfo with
         member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false

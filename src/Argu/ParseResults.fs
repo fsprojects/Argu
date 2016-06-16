@@ -7,12 +7,13 @@ type internal IParseResults =
 
 /// Argument parsing result holder.
 type ParseResults<'Template when 'Template :> IArgParserTemplate> 
-    internal (argInfo : UnionArgInfo, results : UnionParseResults, exiter : IExiter) =
+    internal (argInfo : UnionArgInfo, results : UnionParseResults, 
+                mkUsageString : string option -> string, exiter : IExiter) =
 
     // exiter wrapper
     let exit hideUsage msg id =
         if hideUsage then exiter.Exit(msg, id)
-        else exiter.Exit(argInfo.MakeUsageString (Some msg), id)
+        else exiter.Exit(mkUsageString (Some msg), id)
 
     // restriction predicate based on optional parse source
     let restrictF flags : UnionCaseParseResult -> bool =
@@ -49,7 +50,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
         
     /// <summary>Returns the usage string.</summary>
     /// <param name="message">The message to be displayed on top of the usage string.</param>
-    member __.Usage(?message : string) = argInfo.MakeUsageString message
+    member __.Usage(?message : string) = mkUsageString message
 
     /// <summary>Query parse results for parameterless argument.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>

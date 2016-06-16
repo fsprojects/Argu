@@ -2,91 +2,136 @@
 module internal Argu.Parsers
         
 open System
-open System.IO
-open System.Text.RegularExpressions
 open System.Configuration
+open System.Collections.Generic
+open System.Text.RegularExpressions
+open System.IO
 
 //
 //  CLI Parser
 //
 
-type CliParseState<'T> =
-    {
-        Inputs : string []
-                
-        IgnoreUnrecognized : bool
-        Arguments : Map<string, ArgInfo>
+exception HelpText
+exception Bad of string * ErrorCode * UnionCaseArgInfo option
 
-        Position : int
-        HelpArgs : int // Help argument count
-        ParseResults : Map<int, ArgParseResult<'T> list>
-    }
-with
-    static member Init (arguments : Map<string, ArgInfo>) ignore (inputs : string []) =
-        {
-            Inputs = inputs
-            Position = 0
-            HelpArgs = 0
-            IgnoreUnrecognized = ignore
+let inline bad code aI fmt = Printf.ksprintf (fun msg -> raise <| Bad(msg, code, aI)) fmt
 
-            Arguments = arguments
-            ParseResults = Map.empty
-        } : CliParseState<'T>
-            
+type CliParseState(inputs : string [], ignoreUnrecognized : bool) =
+    let mutable position = -1
+    let mutable usageRequests = 0
+
+    let results = new Dictionary<int, ResizeArray<UnionCaseParseResult>> ()
+//    let errors = new ResizeArray<string * UnionCaseArgInfo option> ()
+
+    member __.IsUsageRequested = usageRequests > 0
+    member __.UsageRequests = usageRequests
+    member __.Position = position
+    member __.IgnoreUnrecognized = ignoreUnrecognized
+    member __.Current =
+        if position < 0 then null
+        else inputs.[position]
+
+    member __.MoveNext() =
+        if position < inputs.Length + 1 then
+            position <- position + 1
+            true
+        else
+            false
+
+    member __.AppendResult(result : UnionCaseParseResult) =
+        let key = result.ArgInfo.Tag
+        let mutable uciResults = Unchecked.defaultof<_>
+        if not <| results.TryGetValue(key, &uciResults) then
+            uciResults <- new ResizeArray<_>()
+            results.Add(key, uciResults)
+
+        uciResults.Add result
+
+//    member __.AppendError(message, ?source : UnionCaseArgInfo) =
+//        errors.Add(message, source)
+
+
+
+
+
+//type CliParseState =
+//    {
+//        Inputs : string []
+//                
+//        IgnoreUnrecognized : bool
+//
+//        Position : int
+//        HelpArgs : int // Help argument count
+//        ParseResults : Map<int, ResizeArray<UnionCaseParseResult>>
+//    }
+//with
+//    static member Init (inputs, ignoreUnrecognized) =
+//        {
+//            Inputs = inputs
+//            Position = 0
+//            HelpArgs = 0
+//            IgnoreUnrecognized = ignoreUnrecognized
+//            ParseResults = Map.empty
+//        }
+//            
 
 // parses the first part of a command line parameter
 // recognizes if parameter is of kind --param arg or --param=arg
-let private assignRegex = new Regex("^([^=]*)=(.*)$", RegexOptions.Compiled|||RegexOptions.IgnoreCase)
+let private assignRegex = new Regex("^([^=]*)=(.*)$", RegexOptions.Compiled)
 let private parseEqualityParam (param : string) =
     let m = assignRegex.Match param
     if m.Success then
         let name = m.Groups.[1].Value
-        let param = m.Groups.[2].Value.Trim([|''';'"'|])
+        let param = m.Groups.[2].Value
         name, Some param
     else
         param, None
 
 /// parse the next command line argument and append to state
-let parseCommandLinePartial<'Template> (state : CliParseState<'Template>) =
-    let position = ref state.Position
-    let current = state.Inputs.[!position]
-    do incr position
+let parseCommandLinePartial (argInfo : UnionArgInfo) (state : CliParseState) =
+//    let bad code aI fmt =
+//        let exn = new Exception(sprintf fmt)
+//        state.AppendError(exn, code, aI)
+//    Printf.ksprintf (fun msg -> raise <| Bad(msg, code, aI)) fmt
+    if not <| state.MoveNext() then () else
+//    let position = ref state.Position
+//    let current = state.Inputs.[!position]
+//    do incr position
+    let token = state.Current
 
-    if hasCommandLineParam helpInfo current then 
-        { state with 
-            HelpArgs = state.HelpArgs + 1
-            Position = !position 
-        }
+    if argInfo.UseDefaultHelper && defaultHelpParams.Contains token then
+        state.IsUsageRequested <- true
     else
-        let name, equalityParam = parseEqualityParam current
+        let name, equalityParam = parseEqualityParam token
 
-        let parseField (info : ArgInfo) (field : FieldParserInfo) (arg : string) =
-            try field.Parser arg
-            with _ ->
-                bad ErrorCode.CommandLine (Some info) 
-                    "option '%s' expects argument <%O> but was '%s'." name field arg
+//        let parseField (info : UnionCaseArgInfo) (field : FieldParserInfo) (arg : string) =
+//            try field.Parser arg
+//            with _ -> 
+//                bad ErrorCode.CommandLine (Some info) 
+//                    "option '%s' expects argument <%O> but was '%s'." name field arg
+//
+//        let updateStateWith (argInfo : UnionCaseArgInfo) results =
+//            let previous = defaultArg (state.ParseResults.TryFind argInfo.Tag) []
+//            { state with
+//                Position = !position
+//                ParseResults = state.ParseResults.Add(argInfo.Tag, previous @ results)
+//            }
 
-        let updateStateWith (argInfo : ArgInfo) results =
-            let previous = defaultArg (state.ParseResults.TryFind argInfo.Id) []
-            { state with
-                Position = !position
-                ParseResults = state.ParseResults.Add(argInfo.Id, previous @ results)
-            }
-
-        match state.Arguments.TryFind name with
-        | None when state.IgnoreUnrecognized -> { state with Position = !position }
+        match argInfo.CliParamIndex.Value.TryFind name with
+        | None when state.IgnoreUnrecognized -> ()
         | None -> bad ErrorCode.CommandLine None "unrecognized argument: '%s'." name
         | Some argInfo when equalityParam.IsSome && not argInfo.IsEqualsAssignment ->
             bad ErrorCode.CommandLine (Some argInfo) "invalid CLI syntax '%s=<param>'." name
         | Some argInfo when argInfo.IsFirst && state.Position - state.HelpArgs > 0 ->
             bad ErrorCode.CommandLine (Some argInfo) "argument '%s' should precede all other arguments." name
+
         | Some argInfo when argInfo.IsEqualsAssignment ->
             assert (argInfo.FieldParsers.Length = 1)
             match equalityParam with
             | None -> bad ErrorCode.CommandLine (Some argInfo) "argument '%s' missing an assignment." name
             | Some eqp ->
                 let argument = parseField argInfo argInfo.FieldParsers.[0] eqp
-                let result = buildResult<'Template> argInfo ParseSource.CommandLine name [| argument |]
+                let result = buildResult argInfo ParseSource.CommandLine name [| argument |]
                 updateStateWith argInfo [ result ]
 
         | Some argInfo ->

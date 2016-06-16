@@ -3,21 +3,16 @@ module internal Argu.Generator
 
 open System
 open System.Reflection
+open System.Collections.Generic
 open System.Text.RegularExpressions
 
 open FSharp.Reflection
 
-exception HelpText
-exception Bad of string * ErrorCode * UnionCaseArgInfo option
-
-let inline bad code aI fmt = Printf.ksprintf (fun msg -> raise <| Bad(msg, code, aI)) fmt
-
-///// checks if given parameter name is contained in argument
-//let hasCommandLineParam (aI : UnionCaseArgInfo) (param : string) =
-//    aI.CommandLineNames |> List.exists ((=) param)
+let defaultHelpParams = HashSet [| "--help" |]
+let defaultHelpDescription = "display this list of options."
 
 /// construct a CLI param from UCI name
-let uciToOpt (uci : UnionCaseInfo) =
+let generateOptionName (uci : UnionCaseInfo) =
     let prefix = 
         uci.TryGetAttribute<CliPrefixAttribute>(true) 
         |> Option.map (fun a -> a.Prefix)
@@ -33,17 +28,17 @@ let uciToOpt (uci : UnionCaseInfo) =
     prefixString + uci.Name.ToLower().Replace('_','-')
 
 /// construct an App.Config param from UCI name
-let uciToAppConf (uci : UnionCaseInfo) =
+let generateAppSettingsName (uci : UnionCaseInfo) =
     uci.Name.ToLower().Replace('_',' ')
 
 /// get CL arguments from environment
-let getEnvArgs () =
+let getEnvironmentCommandLineArgs () =
     match System.Environment.GetCommandLineArgs() with
     | [||] -> [||]
     | args -> args.[1..]
 
 /// Creates a primitive field parser from given parser/unparser lambdas
-let mkPrimParser (name : string) (parser : string -> 'T) (unparser : 'T -> string) (label : string option) =
+let mkPrimitiveParser (name : string) (parser : string -> 'T) (unparser : 'T -> string) (label : string option) =
     {
         Name = name
         Label = label
@@ -51,27 +46,9 @@ let mkPrimParser (name : string) (parser : string -> 'T) (unparser : 'T -> strin
         Parser = fun x -> parser x :> obj
         UnParser = fun o -> unparser (o :?> 'T)
     }
-        
-/// dummy argInfo for --help arg
-let helpInfo : UnionCaseArgInfo = 
-    {
-        Name = "--help"
-        UnionCaseInfo = Unchecked.defaultof<_>
-        CommandLineNames = ["--help" ; "-h" ; "/h" ; "/help" ; "/?"]
-        Usage = "display this list of options."
-        AppSettingsName = None
-        FieldParsers = Primitives [||]
-        CaseCtor = fun _ -> invalidOp "internal error: attempting to use '--help' case constructor."
-        FieldCtor = None
-        FieldReader = fun _ -> invalidOp "internal error: attempting to use '--help' case constructor."
-        PrintLabels = false ;
-        Hidden = false ; AppSettingsCSV = false ; Mandatory = false ; 
-        GatherAllSources = false ; IsRest = false ; IsFirst = false
-        IsEqualsAssignment = false ; IsHelpParameter = true
-    }
 
 let primitiveParsers =
-    let mkParser name pars unpars = typeof<'T>, mkPrimParser name pars unpars in
+    let mkParser name (pars : string -> 'a) unpars = typeof<'a>, mkPrimitiveParser name pars unpars in
     dict [|
         mkParser "bool" Boolean.Parse (fun b -> if b then "true" else "false")
         mkParser "byte" Byte.Parse string
@@ -108,7 +85,10 @@ let private validCliParamRegex = new Regex("^[\w]+$", RegexOptions.Compiled ||| 
 let private validAppSettingsParamRegex = new Regex("^[0-9a-z \-\=]+$", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
 
 /// generate argument parsing schema from given UnionCaseInfo
-let rec preComputeUnionCaseArgInfo (stack : Type list) (uci : UnionCaseInfo) : UnionCaseArgInfo =
+let rec private preComputeUnionCaseArgInfo (stack : Type list)
+                                            (tryGetParent : unit -> UnionArgInfo option)
+                                            (uci : UnionCaseInfo) : UnionCaseArgInfo =
+
     let fields = uci.GetFields()
     let types = fields |> Array.map (fun f -> f.PropertyType)
 
@@ -125,7 +105,7 @@ let rec preComputeUnionCaseArgInfo (stack : Type list) (uci : UnionCaseInfo) : U
         else
             let defaultName =
                 match uci.TryGetAttribute<CustomCommandLineAttribute> () with 
-                | None -> uciToOpt uci
+                | None -> generateOptionName uci
                 | Some attr -> attr.Name
 
             let altNames =
@@ -141,22 +121,11 @@ let rec preComputeUnionCaseArgInfo (stack : Type list) (uci : UnionCaseInfo) : U
 
             cliNames
 
-//    let singleCharacterSwitches =
-//        if fields.Length = 0 then
-//            commandLineArgs 
-//            |> Seq.filter (fun arg -> 
-//                arg.Length = 2 && 
-//                arg.[0] = '-' && 
-//                Char.IsLetterOrDigit arg.[1])
-//            |> Seq.map (fun arg -> arg.[1])
-//            |> Seq.toArray
-//        else [||]
-
     let appSettingsName =
         if uci.ContainsAttribute<NoAppSettingsAttribute> (true) then None
         else
             match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
-            | None -> Some <| uciToAppConf uci
+            | None -> Some <| generateAppSettingsName uci
             // take last registered attribute
             | Some attr when validAppSettingsParamRegex.IsMatch attr.Name -> Some attr.Name
             | Some attr -> failwithf "Argu: AppSettings parameter '%s' contains invalid parameters." attr.Name
@@ -179,19 +148,19 @@ let rec preComputeUnionCaseArgInfo (stack : Type list) (uci : UnionCaseInfo) : U
                 failwithf "Argu: template contains unsupported field of type '%O'." p.PropertyType
 
         match types with
-        | [|UnionParseResult prt|] -> preComputeUnionArgInfo stack prt |> NestedUnion
+        | [|UnionParseResult prt|] -> preComputeUnionArgInfoInner stack tryGetParent prt |> NestedUnion
         | _ ->  Array.map getParser fields |> Primitives
 
-    let fieldCtor =
+    let fieldCtor = lazy(
         match types.Length with
         | 0 -> None
         | 1 -> Some(fun (o:obj[]) -> o.[0])
         | _ ->
             let tupleType = FSharpType.MakeTupleType types
             let ctor = FSharpValue.PreComputeTupleConstructor tupleType
-            Some ctor
+            Some ctor)
 
-    let fieldReader = FSharpValue.PreComputeUnionReader(uci, bindingFlags = allBindings)
+    let fieldReader = lazy(FSharpValue.PreComputeUnionReader(uci, bindingFlags = allBindings))
 
     let appSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let mandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
@@ -235,17 +204,23 @@ let rec preComputeUnionCaseArgInfo (stack : Type list) (uci : UnionCaseInfo) : U
         IsHelpParameter = isHelpParameter
     }
 
-and preComputeUnionArgInfo (stack : Type list) (t : Type) : UnionArgInfo =
-    if not <| FSharpType.IsUnion(typeof<'Template>, bindingFlags = allBindings) then
-        invalidArg typeof<'Template>.Name "Argu: template type is not F# DU."
+and private preComputeUnionArgInfoInner (stack : Type list) (getParent : unit -> UnionArgInfo option) (t : Type) : UnionArgInfo =
+    if not <| FSharpType.IsUnion(t, bindingFlags = allBindings) then
+        invalidArg t.Name "Argu: template type is not F# DU."
     elif stack |> List.exists ((=) t) then
-        invalidArg typeof<'Template>.Name "Argu: template type implements unsupported recursive pattern."
+        invalidArg t.Name "Argu: template type implements unsupported recursive pattern."
     elif t.IsGenericType then
-        invalidArg typeof<'Template>.Name "Argu: template type is generic which is not supported."
+        invalidArg t.Name "Argu: template type is generic which is not supported."
+
+    // use ref cell for late binding of parent argInfo
+    let current = ref None
+    let tryGetCurrent = fun () -> !current
+
+    let disableDefaultHelpParameter = t.ContainsAttribute<DisableHelpAttribute>()
 
     let caseInfo =
-        FSharpType.GetUnionCases(typeof<'Template>, bindingFlags = allBindings)
-        |> Seq.map (preComputeUnionCaseArgInfo (t :: stack))
+        FSharpType.GetUnionCases(t, bindingFlags = allBindings)
+        |> Seq.map (preComputeUnionCaseArgInfo (t :: stack) tryGetCurrent)
         |> Seq.sortBy (fun a -> a.Tag)
         |> Seq.toArray
 
@@ -256,53 +231,80 @@ and preComputeUnionArgInfo (stack : Type list) (t : Type) : UnionArgInfo =
     // check for conflicting CLI identifiers
     let cliConflicts =
         caseInfo
-        |> Seq.collect(fun arg -> arg.CommandLineNames |> Seq.map (fun name -> arg, name))
+        |> Seq.collect (fun arg -> arg.CommandLineNames |> Seq.map (fun name -> arg, name))
+        |> Seq.map (fun ((arg, name) as t) ->
+            if useDefaultHelperSwitches && defaultHelpParams.Contains name then
+                failwithf "Argu: Parameter '%O' using CLI identifier '%s' which is reserved for help param." arg.UnionCaseInfo name
+            t)
         |> Seq.groupBy snd
-        |> Seq.choose(fun (name, args) -> if Seq.length args > 1 then Some(name, args |> Seq.map fst |> Seq.toList) else None)
-        |> Seq.toList
+        |> Seq.map (fun (name, args) -> name, args |> Seq.map fst |> Seq.toArray)
+        |> Seq.filter (fun (_,args) -> args.Length > 1)
+        |> Seq.sortBy (fun (_,args) -> -args.Length)
+        |> Seq.toArray
 
-    match cliConflicts with
-    | (id, arg0 :: arg1 :: _) :: _ -> 
-        let msg = sprintf "Argu: Parameters '%O' and '%O' using conflicting CLI identifier '%s'." arg0.UnionCaseInfo arg1.UnionCaseInfo id
-        raise <| new FormatException(msg)
-    | _ -> ()
+    if cliConflicts.Length > 0 then
+        let id, cs = cliConflicts.[0]
+        let msg = sprintf "Argu: Parameters '%O' and '%O' using conflicting CLI identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
+        raise <| new ArgumentException(msg)
 
     // check for conflicting CLI identifiers
     let appSettingsConflicts =
         caseInfo
         |> Seq.choose(fun arg -> arg.AppSettingsName |> Option.map (fun name -> arg, name))
         |> Seq.groupBy snd
-        |> Seq.choose(fun (name, args) -> if Seq.length args > 1 then Some(name, args |> Seq.map fst |> Seq.toList) else None)
-        |> Seq.toList
+        |> Seq.map (fun (name, args) -> name, args |> Seq.map fst |> Seq.toArray)
+        |> Seq.filter (fun (_,args) -> args.Length > 1)
+        |> Seq.sortBy (fun (_,args) -> -args.Length)
+        |> Seq.toArray
 
-    match appSettingsConflicts with
-    | (id, arg0 :: arg1 :: _) :: _ ->
-        let msg = sprintf "Argu: Parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." arg0.UCI arg1.UCI id
-        raise <| new FormatException(msg)
-    | _ -> ()
+    if appSettingsConflicts.Length > 0 then
+        let id, cs = appSettingsConflicts.[0]
+        let msg = sprintf "Argu: Parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
+        raise <| new ArgumentException(msg)
 
-    {
+    // recognizes and extracts grouped switches
+    // e.g. -efx --> -e -f -x
+    let groupedSwitchExtractor = lazy(
+        let regex =
+            caseInfo
+            |> Seq.collect (fun c -> c.CommandLineNames) 
+            |> Seq.filter (fun name -> name.Length = 2 && name.[0] = '-' && Char.IsLetterOrDigit name.[1])
+            |> Seq.map (fun name -> name.[1])
+            |> Seq.toArray
+            |> String
+            |> fun r -> new Regex(sprintf "^-[%s]+$" r, RegexOptions.Compiled)
+
+        fun (arg : string) ->
+            if not <| regex.IsMatch arg then [||] 
+            else Array.init (arg.Length - 1) (fun i -> sprintf "-%c" arg.[i + 1]))
+
+    let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, bindingFlags = allBindings))
+
+    let appSettingsIndex = lazy(
+        caseInfo
+        |> Seq.choose (fun cs -> match cs.AppSettingsName with Some name -> Some(name, cs) | None -> None)
+        |> dict)
+
+    let cliIndex = lazy(
+        caseInfo
+        |> Seq.collect (fun cs -> cs.CommandLineNames |> Seq.map (fun name -> name, cs))
+        |> dict)
+
+    let result = {
         Type = t
-        Parents = 
-    
+        TryGetParent = getParent
+        Cases = caseInfo
+        TagReader = tagReader
+        GroupedSwitchExtractor = groupedSwitchExtractor
+        AppSettingsParamIndex = appSettingsIndex
+        UseDefaultHelper = useDefaultHelperSwitches
+        CliParamIndex = cliIndex
     }
 
+    current := Some result // assign result to children
+    result
 
+and preComputeUnionArgInfo (t : Type) = preComputeUnionArgInfoInner [] (fun () -> None) t
 
-let isAppConfig (aI : UnionCaseArgInfo) = aI.AppSettingsName.IsSome
-let isCommandLine (aI : UnionCaseArgInfo) = not aI.CommandLineNames.IsEmpty
-
-
-/// construct a parse result from untyped collection of parsed arguments
-let buildResult<'T> (argInfo : UnionCaseArgInfo) src ctx (fields : obj []) =
-    {
-        Value = argInfo.CaseCtor fields :?> 'T
-        FieldContents =
-            match argInfo.FieldCtor with
-            | None -> null
-            | Some ctor -> ctor fields
-
-        UnionCaseArgInfo = argInfo
-        Source = src
-        ParseContext = ctx
-    }
+//let inline isAppConfig (aI : UnionCaseArgInfo) = aI.AppSettingsName.IsSome
+//let inline isCommandLine (aI : UnionCaseArgInfo) = not aI.CommandLineNames.IsEmpty

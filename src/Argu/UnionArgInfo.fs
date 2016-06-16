@@ -4,6 +4,7 @@ module internal Argu.UnionArgInfo
 open System
 open System.IO
 open System.Configuration
+open System.Collections.Generic
 open System.Reflection
 open System.Runtime.Serialization.Formatters.Binary
 open System.Text.RegularExpressions
@@ -48,9 +49,9 @@ type UnionCaseArgInfo =
         /// Builds a union case out of its field parameters
         CaseCtor : obj [] -> obj
         /// Composes case fields into a tuple, if not nullary
-        FieldCtor : (obj [] -> obj) option
+        FieldCtor : Lazy<(obj [] -> obj) option>
         /// Decomposes a case instance into an array of fields
-        FieldReader : obj -> obj[]
+        FieldReader : Lazy<obj -> obj[]>
 
         /// head element denotes primary command line arg
         CommandLineNames : string list
@@ -94,17 +95,19 @@ and [<NoEquality; NoComparison>]
         /// Union Case Argument Info
         Type : Type
         /// Parents
-        Parents : string []
+        TryGetParent : unit -> UnionArgInfo option
         /// Union cases
         Cases : UnionCaseArgInfo []
         /// Precomputed union tag reader
-        TagReader : obj -> int
-        /// Default help CLI flags
-        UseDefaultHelper : UnionCaseArgInfo option
-        /// Constructs a usage string for given argument
-        MakeUsageString : string option -> string
+        TagReader : Lazy<obj -> int>
         /// Single character switches
-        CharacterSwitches : Regex
+        GroupedSwitchExtractor : Lazy<string -> string []>
+        /// Union cases indexed by appsettings parameter names
+        AppSettingsParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
+        /// Use default helper flag provided by the library
+        UseDefaultHelper : bool
+        /// Union cases indexed by cli parameter names
+        CliParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
     }
 
 

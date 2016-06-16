@@ -10,27 +10,11 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
-open Argu.ArgInfo
-open Argu.Parsers
-open Argu.UnParsers
-
-/// <summary>
-///     Argu static methods
-/// </summary>
-type ArgumentParser =
-        
-    /// <summary>
-    ///     Create a new argument parsing scheme using given 'Template type
-    ///     which must be an F# Discriminated Union.
-    /// </summary>
-    /// <param name="usageText">Specify a usage text to prefixed at the '--help' output.</param>
-    static member Create<'Template when 'Template :> IArgParserTemplate>(?usageText : string) =
-        new ArgumentParser<'Template>(?usageText = usageText)
 
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
-and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?usageText : string) =
+type ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?usageText : string) =
     do 
         if not <| FSharpType.IsUnion(typeof<'Template>, bindingFlags = allBindings) then
             invalidArg typeof<'Template>.Name "Argu: template type inaccessible or not F# DU."
@@ -68,7 +52,7 @@ and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?us
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
         let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
-        let inputs = match inputs with None -> getEnvArgs () | Some args -> args
+        let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
 
         try
             let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
@@ -123,7 +107,7 @@ and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?us
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
         let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
-        let inputs = match inputs with None -> getEnvArgs () | Some args -> args
+        let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
 
         try
             let appSettingsResults = parseAppSettings xmlConfigurationFile argInfo
@@ -164,3 +148,16 @@ and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?us
         xmlDoc.Save writer
         writer.Flush()
         writer.ToString()
+
+/// <summary>
+///     Argu static methods
+/// </summary>
+type ArgumentParser =
+        
+    /// <summary>
+    ///     Create a new argument parsing scheme using given 'Template type
+    ///     which must be an F# Discriminated Union.
+    /// </summary>
+    /// <param name="usageText">Specify a usage text to prefixed at the '--help' output.</param>
+    static member Create<'Template when 'Template :> IArgParserTemplate>(?usageText : string) =
+        new ArgumentParser<'Template>(?usageText = usageText)

@@ -48,6 +48,8 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         yield Environment.NewLine
 }
 
+let printHelpParams () = sprintf "\t%s: %s%s" defaultHelpParam defaultHelpDescription Environment.NewLine
+
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
@@ -64,9 +66,8 @@ let printUsage (msg : string option) (argInfo : UnionArgInfo) = stringExpr {
         if not aI.Hidden then
             yield! printArgUsage aI
 
-    match argInfo.UseDefaultHelper with
-    | Some h -> yield! printArgUsage h
-    | None -> ()
+    if argInfo.UseDefaultHelper then
+        yield printHelpParams ()
 }
 
 /// <summary>
@@ -76,9 +77,9 @@ let printUsage (msg : string option) (argInfo : UnionArgInfo) = stringExpr {
 /// <param name="args"></param>
 let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : obj list) =
     let printEntry (t : obj) = seq {
-        let tag = argInfo.TagReader t
+        let tag = argInfo.TagReader.Value t
         let aI = argInfo.Cases.[tag]
-        let fields = aI.FieldReader t
+        let fields = aI.FieldReader.Value t
         
         match aI.CommandLineNames with
         | [] -> ()
@@ -153,9 +154,9 @@ let rec printCommandLineSyntax (argInfo : UnionArgInfo) = stringExpr {
 /// <param name="args"></param>
 let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template list) =
     let printEntry (t : 'Template) : XNode list =
-        let tag = argInfo.TagReader (t :> _)
+        let tag = argInfo.TagReader.Value (t :> _)
         let aI = argInfo.Cases.[tag]
-        let fields = aI.FieldReader (t :> _)
+        let fields = aI.FieldReader.Value (t :> _)
 
         match aI.AppSettingsName, aI.FieldParsers with
         | None, _ | _, NestedUnion _ -> []
