@@ -32,6 +32,14 @@ type NoCommandLineAttribute () = inherit Attribute ()
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
 type NoAppSettingsAttribute () = inherit Attribute ()
 
+/// Specifies that property is a replacement for the --help template
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type HelpAttribute () = inherit Attribute ()
+
+/// Specifies that the union should not take --help parameters
+[<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
+type DisableHelpAttribute () = inherit Attribute ()
+
 /// Argument can only be placed at the beginning of the command line.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type FirstAttribute () = inherit Attribute ()

@@ -1,11 +1,10 @@
-﻿module internal Argu.Parsers
+﻿[<AutoOpen>]
+module internal Argu.Parsers
         
 open System
 open System.IO
 open System.Text.RegularExpressions
 open System.Configuration
-
-open Argu.ArgInfo
 
 //
 //  CLI Parser
@@ -20,7 +19,7 @@ type CliParseState<'T> =
 
         Position : int
         HelpArgs : int // Help argument count
-        ParseResults : Map<ArgId, ArgParseResult<'T> list>
+        ParseResults : Map<int, ArgParseResult<'T> list>
     }
 with
     static member Init (arguments : Map<string, ArgInfo>) ignore (inputs : string []) =
@@ -61,7 +60,7 @@ let parseCommandLinePartial<'Template> (state : CliParseState<'Template>) =
     else
         let name, equalityParam = parseEqualityParam current
 
-        let parseField (info : ArgInfo) (field : ParserInfo) (arg : string) =
+        let parseField (info : ArgInfo) (field : FieldParserInfo) (arg : string) =
             try field.Parser arg
             with _ ->
                 bad ErrorCode.CommandLine (Some info) 
@@ -91,7 +90,7 @@ let parseCommandLinePartial<'Template> (state : CliParseState<'Template>) =
                 updateStateWith argInfo [ result ]
 
         | Some argInfo ->
-            let parseNextField (p : ParserInfo) =
+            let parseNextField (p : FieldParserInfo) =
                 if !position < state.Inputs.Length then
                     let arg = state.Inputs.[!position]
                     incr position
@@ -170,7 +169,7 @@ let parseAppSettingsPartial (appSettingsReader : string -> string)
                         else [| entry |]
 
                     let pos = ref 0
-                    let parseNext (parser : ParserInfo) =
+                    let parseNext (parser : FieldParserInfo) =
                         if !pos < tokens.Length then
                             try 
                                 let tok = tokens.[!pos]

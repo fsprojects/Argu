@@ -64,9 +64,11 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Types.fs" />
-    <Compile Include="ArgInfo.fs" />
-    <Compile Include="Parsers.fs" />
+    <Compile Include="UnionArgInfo.fs" />
+    <Compile Include="ParseResults.fs" />
     <Compile Include="UnParsers.fs" />
+    <Compile Include="Generator.fs" />
+    <Compile Include="Parsers.fs" />
     <Compile Include="ArgumentParser.fs" />
     <None Include="paket.template" />
   </ItemGroup>

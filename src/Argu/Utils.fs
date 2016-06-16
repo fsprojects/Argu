@@ -9,8 +9,9 @@ open System.Reflection
 open System.Xml
 open System.Xml.Linq
 
-open Microsoft.FSharp.Reflection
-open Microsoft.FSharp.Quotations.Patterns
+open FSharp.Reflection
+open FSharp.Quotations
+open FSharp.Quotations.Patterns
 
 [<AutoOpen>]
 module internal Utils =
@@ -47,8 +48,12 @@ module internal Utils =
                     member __.Invoke<'T> () = Unchecked.defaultof<'T> :> obj
                 }
 
+    type MemberInfo with
+        member m.ContainsAttribute<'T when 'T :> Attribute> () =
+            m.GetCustomAttributes(typeof<'T>,true) |> Array.isEmpty |> not
+
     type UnionCaseInfo with
-        member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
+        member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
             let caseAttrs = uci.GetCustomAttributes typeof<'T>
@@ -61,7 +66,7 @@ module internal Utils =
 
             attrs |> Seq.map (fun o -> o :?> 'T)
 
-        member uci.TryGetAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
+        member uci.TryGetAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
             match uci.GetCustomAttributes typeof<'T> with
@@ -72,13 +77,32 @@ module internal Utils =
             | [||] -> None
             | attrs -> Some (attrs.[0] :?> 'T)
 
-        member uci.ContainsAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
+        member uci.ContainsAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
             if uci.GetCustomAttributes typeof<'T> |> Array.isEmpty |> not then true
             elif includeDeclaringTypeAttrs then
                 uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Array.isEmpty |> not
             else
                 false
+
+    /// recognize exprs that strictly contain DU constructors
+    /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
+    let expr2ArgId (e : Expr) =
+        let (|Vars|_|) (exprs : Expr list) =
+            let vars = exprs |> List.choose (|Var|_|)
+            if vars.Length = exprs.Length then Some vars
+            else None
+
+        let rec aux (tupledArg : Var option) vars (e : Expr) =
+            match tupledArg, e with
+            | None, Lambda(arg, b) -> aux (Some arg) vars b
+            | Some arg, Let(x, TupleGet(Var varg, _), b) when arg = varg -> aux tupledArg (x :: vars) b
+            | None, NewUnionCase(u, []) -> u
+            | Some a, NewUnionCase(u, [Var x]) when a = x -> u
+            | Some _, NewUnionCase(u, Vars args) when vars.Length > 0 && List.rev vars = args -> u
+            | _ -> invalidArg "expr" "Only union constructors are permitted in expression based queries."
+
+        aux None [] e
 
     [<RequireQualifiedAccess>]
     module Array =
@@ -98,22 +122,15 @@ module internal Utils =
             | [x] -> Some x
             | _ :: rest -> tryLast rest
 
-    /// inherit this type for easy comparison semantics
-    [<AbstractClass>]
-    type ProjectionComparison<'Id, 'Cmp when 'Cmp : comparison> () =
-        abstract ComparisonToken : 'Cmp
-        interface IComparable with
-            member x.CompareTo y =
-                match y with
-                | :? ProjectionComparison<'Id, 'Cmp> as y -> compare x.ComparisonToken y.ComparisonToken
-                | _ -> invalidArg "y" "invalid comparand."
+    [<RequireQualifiedAccess>]
+    module Seq =
 
-        override x.Equals y =
-            match y with
-            | :? ProjectionComparison<'Id, 'Cmp> as y -> x.ComparisonToken = y.ComparisonToken
-            | _ -> false
-
-        override x.GetHashCode() = hash x.ComparisonToken
+        /// try fetching last element of a sequence
+        let tryLast (xs : seq<'T>) =
+            let mutable isAccessed = false
+            let mutable current = Unchecked.defaultof<'T>
+            for x in xs do isAccessed <- true; current <- x
+            if isAccessed then Some current else None
 
     // string builder compexpr
 

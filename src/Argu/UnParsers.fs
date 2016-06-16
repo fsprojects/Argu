@@ -1,142 +1,149 @@
-﻿module internal Argu.UnParsers
+﻿[<AutoOpen>]
+module internal Argu.UnParsers
 
 open System
 open System.Text
 open System.Xml
 open System.Xml.Linq
 
-open Microsoft.FSharp.Reflection
-
-open Argu.ArgInfo
+open FSharp.Reflection
  
 /// <summary>
 ///     print usage string for given arg info
 /// </summary>
 /// <param name="aI"></param>
-let printArgUsage (aI : ArgInfo) =
-    stringExpr {
-        match aI.CommandLineNames with
+let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
+    match aI.CommandLineNames with
+    | [] -> ()
+    | param :: altParams ->
+        yield '\t'
+        yield param
+
+        match altParams with
         | [] -> ()
-        | param :: altParams ->
-            yield '\t'
-            yield param
+        | h :: rest ->
+            yield " ["
+            yield h
+            for n in rest do
+                yield '|'
+                yield n
+            yield ']'
 
-            match altParams with
-            | [] -> ()
-            | h :: rest ->
-                yield " ["
-                yield h
-                for n in rest do
-                    yield '|'
-                    yield n
-                yield ']'
-
+        match aI.FieldParsers with
+        | Primitives fieldParsers ->
             if aI.IsEqualsAssignment then
-                assert(aI.FieldParsers.Length = 1)
-                yield sprintf "=<%O>" aI.FieldParsers.[0]
+                assert (fieldParsers.Length = 1)
+                yield sprintf "=<%O>" fieldParsers.[0]
             else
-                for p in aI.FieldParsers do
+                for p in fieldParsers do
                     yield sprintf " <%O>" p
 
             if aI.IsRest then yield " ..."
 
-            yield ": "
-            yield aI.Usage
-            yield Environment.NewLine
-    }
+        | NestedUnion argInfo ->
+            yield "<subcommands>"
+
+        yield ": "
+        yield aI.Usage
+        yield Environment.NewLine
+}
 
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
 /// <param name="msg"></param>
 /// <param name="argInfo"></param>
-let printUsage (msg : string option) (argInfo : ArgInfo list) =
-    stringExpr {
-        match msg with
-        | None -> ()
-        | Some u -> yield u + Environment.NewLine
+let printUsage (msg : string option) (argInfo : UnionArgInfo) = stringExpr {
+    match msg with
+    | None -> ()
+    | Some u -> yield u + Environment.NewLine
                 
-        yield Environment.NewLine
+    yield Environment.NewLine
 
-        let first, last = argInfo |> List.partition (fun aI -> aI.IsFirst)
+    for aI in argInfo.Cases do
+        if not aI.Hidden then
+            yield! printArgUsage aI
 
-        for aI in first do
-            if not aI.Hidden then
-                yield! printArgUsage aI
-
-        if not <| first.IsEmpty then yield Environment.NewLine
-
-        for aI in last do 
-            if not aI.Hidden then
-                yield! printArgUsage aI
-
-        yield! printArgUsage helpInfo
-    } |> String.build
+    match argInfo.UseDefaultHelper with
+    | Some h -> yield! printArgUsage h
+    | None -> ()
+}
 
 /// <summary>
 ///     print a command line argument for a set of parameters   
 /// </summary>
 /// <param name="argInfo"></param>
 /// <param name="args"></param>
-let printCommandLineArgs (argInfo : ArgInfo list) (args : 'Template list) =
-    let printEntry (t : 'Template) =
-        let uci, fields = FSharpValue.GetUnionFields(t, typeof<'Template>, bindingFlags = allBindings)
-        let id = ArgId uci
-        let aI = argInfo |> List.find (fun aI -> id = aI.Id)
+let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : obj list) =
+    let printEntry (t : obj) = seq {
+        let tag = argInfo.TagReader t
+        let aI = argInfo.Cases.[tag]
+        let fields = aI.FieldReader t
+        
+        match aI.CommandLineNames with
+        | [] -> ()
+        | clname :: _ ->
+            match aI.FieldParsers with
+            | Primitives parsers ->  
+                if aI.IsEqualsAssignment then
+                    let f = fields.[0]
+                    let p = parsers.[0]
+                    yield sprintf "%s='%s'" clname <| p.UnParser f
 
-        seq {
-            match aI.CommandLineNames with
-            | [] -> ()
-            | clname :: _ when aI.IsEqualsAssignment ->
-                let f = fields.[0]
-                let p = aI.FieldParsers.[0]
-                yield sprintf "%s='%s'" clname <| p.UnParser f
+                else
+                    yield clname
 
-            | clname :: _ ->
+                    for i = 0 to fields.Length - 1 do
+                        yield parsers.[i].UnParser fields.[i]
+
+            | NestedUnion nested ->
                 yield clname
-
-                for f,p in Seq.zip fields aI.FieldParsers do
-                    yield p.UnParser f
+                let nestedResult = fields.[0] :?> IParseResults
+                yield! printCommandLineArgs nested (nestedResult.GetAllResults())
         }
 
-    args |> Seq.collect printEntry |> Seq.toArray
+    args |> Seq.collect printEntry
 
 /// <summary>
 ///     print the command line syntax
 /// </summary>
 /// <param name="argInfo"></param>
-let printCommandLineSyntax (argInfo : ArgInfo list) =
+let rec printCommandLineSyntax (argInfo : UnionArgInfo) = stringExpr {
     let sorted = 
-        argInfo 
-        |> List.filter (fun ai -> not ai.Hidden)
-        |> List.sortBy (fun ai -> not ai.IsFirst, ai.IsRest)
+        argInfo.Cases
+        |> Seq.filter (fun ai -> not ai.Hidden)
+        |> Seq.sortBy (fun ai -> ai.IsNested, not ai.IsFirst, ai.IsRest)
+        |> Seq.toArray
 
-    stringExpr {
-        for aI in sorted do
-            if not aI.Mandatory then yield '['
-            match aI.CommandLineNames with
-            | [] -> ()
-            | h :: t -> 
-                if aI.Mandatory && not <| List.isEmpty t then yield '('
-                yield h
-                for n in t do
-                    yield '|'
-                    yield n
-                if aI.Mandatory && not <| List.isEmpty t then yield ')'
+
+    for aI in sorted do
+        if not aI.Mandatory then yield '['
+        match aI.CommandLineNames with
+        | [] -> ()
+        | h :: t -> 
+            if aI.Mandatory && not <| List.isEmpty t then yield '('
+            yield h
+            for n in t do
+                yield '|'
+                yield n
+            if aI.Mandatory && not <| List.isEmpty t then yield ')'
                 
-            match aI.IsEqualsAssignment with
-            | true ->
-                assert(aI.FieldParsers.Length = 1)
-                yield sprintf "=<%O>" aI.FieldParsers.[0]
-            | false ->
-                for p in aI.FieldParsers do
+        match aI.FieldParsers with
+        | Primitives parsers ->
+            if aI.IsEqualsAssignment then
+                assert(parsers.Length = 1)
+                yield sprintf "=<%O>" parsers.[0]
+            else
+                for p in parsers do
                     yield sprintf " <%O>" p
 
             if aI.IsRest then yield " ..."
 
             if not aI.Mandatory then yield ']'
-            if aI.Id <> (Seq.last sorted).Id then yield ' '
-    } |> String.build
+            if aI.Tag <> (Seq.last sorted).Tag then yield ' '
+
+        | NestedUnion nested -> yield! printCommandLineSyntax nested
+}
 
 /// <summary>
 ///     returns an App.Config XElement given a set of config parameters
@@ -144,20 +151,20 @@ let printCommandLineSyntax (argInfo : ArgInfo list) =
 /// <param name="argInfo"></param>
 /// <param name="printComments"></param>
 /// <param name="args"></param>
-let printAppSettings (argInfo : ArgInfo list) printComments (args : 'Template list) =
+let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template list) =
     let printEntry (t : 'Template) : XNode list =
-        let uci, fields = FSharpValue.GetUnionFields(t, typeof<'Template>, bindingFlags = allBindings)
-        let id = ArgId uci
-        let aI = argInfo |> List.find (fun aI -> id = aI.Id)
+        let tag = argInfo.TagReader (t :> _)
+        let aI = argInfo.Cases.[tag]
+        let fields = aI.FieldReader (t :> _)
 
-        match aI.AppSettingsName with
-        | None -> []
-        | Some key ->
+        match aI.AppSettingsName, aI.FieldParsers with
+        | None, _ | _, NestedUnion _ -> []
+        | Some key, Primitives parsers ->
             let values =
                 if fields.Length = 0 then "true"
                 else
-                    Seq.zip fields aI.FieldParsers
-                    |> Seq.map (fun (f,p) -> p.UnParser f)
+                    (fields, parsers)
+                    ||> Seq.map2 (fun f p -> p.UnParser f)
                     |> String.concat ", "
 
             let xelem = 
@@ -171,7 +178,7 @@ let printAppSettings (argInfo : ArgInfo list) printComments (args : 'Template li
                         yield ' '
                         yield aI.Usage
 
-                        match aI.FieldParsers |> Array.toList with
+                        match parsers |> Array.toList with
                         | [] -> ()
                         | first :: rest ->
                             yield " : "
