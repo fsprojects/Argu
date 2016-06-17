@@ -14,8 +14,9 @@ open Microsoft.FSharp.Quotations.Patterns
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
-type ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?usageText : string) =
-    let argInfo = preComputeUnionArgInfo typeof<'Template>
+type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText : string) =
+    static let argInfoL = lazy(preComputeUnionArgInfo typeof<'Template>)
+    let argInfo = argInfoL.Value
 
     let mkUsageString msgOpt = printUsage argInfo msgOpt |> String.build
 
