@@ -17,14 +17,14 @@ open Microsoft.FSharp.Quotations.Patterns
 type ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?usageText : string) =
     let argInfo = preComputeUnionArgInfo typeof<'Template>
 
-    let printUsage msgOpt = printUsage argInfo msgOpt |> String.build
+    let mkUsageString msgOpt = printUsage argInfo msgOpt |> String.build
 
     let (|ParserExn|_|) (e : exn) =
         match e with
         // do not display usage for App.Config-only parameter errors
         | ParseError (msg, id, Some aI) when aI.NoCommandLine -> Some(id, msg)
-        | ParseError (msg, id, _) -> Some (id, printUsage (Some msg))
-        | HelpText -> Some (ErrorCode.HelpText, printUsage usageText)
+        | ParseError (msg, id, _) -> Some (id, mkUsageString (Some msg))
+        | HelpText -> Some (ErrorCode.HelpText, mkUsageString usageText)
         | _ -> None
 
     /// <summary>Parse command line arguments only.</summary>
@@ -49,7 +49,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?u
 
             let results = postProcessResults argInfo ignoreMissing None (Some cliResults)
 
-            new ParseResults<'Template>(argInfo, results, printUsage, errorHandler)
+            new ParseResults<'Template>(argInfo, results, mkUsageString, errorHandler)
         with
         | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -68,7 +68,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?u
             let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
 
-            new ParseResults<'Template>(argInfo, results, printUsage, errorHandler)
+            new ParseResults<'Template>(argInfo, results, mkUsageString, errorHandler)
         with
         | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -102,13 +102,13 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?u
 
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
-            new ParseResults<'Template>(argInfo, results, printUsage, errorHandler)
+            new ParseResults<'Template>(argInfo, results, mkUsageString, errorHandler)
         with
         | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
     /// <summary>Returns the usage string.</summary>
     /// <param name="message">The message to be displayed on top of the usage string.</param>
-    member __.Usage (?message : string) : string = printUsage message
+    member __.Usage (?message : string) : string = mkUsageString message
 
     /// <summary>Prints command line syntax. Useful for generating documentation.</summary>
     member __.PrintCommandLineSyntax () : string =

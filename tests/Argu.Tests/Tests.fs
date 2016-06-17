@@ -10,8 +10,6 @@ open Argu
 [<TestFixture>]
 module ``Simple Tests`` =
 
-    type Record = { Name : string ; Age : int }
-
     type Argument =
         | Working_Directory of string
         | [<PrintLabels>] Listener of host:string * port:int
@@ -19,7 +17,7 @@ module ``Simple Tests`` =
         | [<Rest>] Rest_Arg of int
         | Data of int * byte []
         | Log_Level of int
-        | [<AltCommandLine [|"/D";"-D";"-z"|] >] Detach
+        | [<AltCommandLine("/D", "-D", "-z")>] Detach
         | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
         | [<EqualsAssignment>] Assignment of string
         | [<First>] First_Parameter of string

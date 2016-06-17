@@ -10,7 +10,8 @@ open System.IO
 exception HelpText
 exception ParseError of string * ErrorCode * UnionCaseArgInfo option
 
-let inline error caseInfo code fmt = Printf.ksprintf (fun msg -> raise <| ParseError(msg, code, caseInfo)) fmt
+let inline error caseInfo code fmt = 
+    Printf.ksprintf (fun msg -> raise <| ParseError(msg, code, caseInfo)) fmt
 
 //
 //  CLI Parser
@@ -58,12 +59,12 @@ type CliParseState =
 
 // parses the first part of a command line parameter
 // recognizes if parameter is of kind --param arg or --param=arg
-let private assignRegex = new Regex(@"^([^=]*)=(.*)$", RegexOptions.Compiled)
+let private assignRegex = new Regex("""^([^=]*)=(.*)$""", RegexOptions.Compiled)
 let private parseEqualityParam (param : string) =
     let m = assignRegex.Match param
     if m.Success then
         let name = m.Groups.[1].Value
-        let param = m.Groups.[2].Value
+        let param = m.Groups.[2].Value.Trim().Trim(''', '"')
         name, Some param
     else
         param, None

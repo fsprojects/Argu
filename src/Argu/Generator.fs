@@ -70,7 +70,7 @@ let primitiveParsers =
 #if !NET35
         mkParser "bigint" System.Numerics.BigInteger.Parse string
 #endif
-        mkParser "guid" (fun s -> Guid(s)) string
+        mkParser "guid" Guid string
 
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
@@ -311,6 +311,3 @@ and private preComputeUnionArgInfoInner (stack : Type list) (getParent : unit ->
     result
 
 and preComputeUnionArgInfo (t : Type) = preComputeUnionArgInfoInner [] (fun () -> None) t
-
-//let inline isAppConfig (aI : UnionCaseArgInfo) = aI.AppSettingsName.IsSome
-//let inline isCommandLine (aI : UnionCaseArgInfo) = not aI.CommandLineNames.IsEmpty
