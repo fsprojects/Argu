@@ -13,12 +13,6 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
-type ErrorCode =
-    | HelpText = 0
-    | AppSettings = 2
-    | CommandLine = 3
-    | PostProcess = 4
-
 /// Union Case Field info
 [<NoEquality; NoComparison>]
 type FieldParserInfo =
@@ -87,7 +81,7 @@ with
 
 and ParameterType =
     | Primitives of FieldParserInfo []
-    | NestedUnion of UnionArgInfo
+    | NestedUnion of ShapeArgumentTemplate * UnionArgInfo
 
 and [<NoEquality; NoComparison>] 
   UnionArgInfo =
@@ -125,6 +119,8 @@ type UnionCaseParseResult =
         /// parse source 
         Source : ParseSource
     }
+with
+    member inline __.Tag = __.ArgInfo.Tag
 
 [<NoEquality; NoComparison>]
 type UnionParseResults =
@@ -134,10 +130,3 @@ type UnionParseResults =
         /// Usage string requested by the caller
         IsUsageRequested : bool
     }
-    
-
-//with
-//    override p.ToString() =
-//        match p.Label with
-//        | None -> p.Name
-//        | Some l -> sprintf "%s:%s" l p.Name

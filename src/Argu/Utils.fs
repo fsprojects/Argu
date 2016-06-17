@@ -19,7 +19,7 @@ module internal Utils =
     let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
 
     [<RequireQualifiedAccess>]
-    module internal Enum =
+    module Enum =
 
         let inline hasFlag (flag : ^Enum) (value : ^Enum) = flag &&& value = value
 
@@ -39,6 +39,23 @@ module internal Utils =
 
     and IFunc<'R> =
         abstract Invoke<'T> : unit -> 'R
+
+    [<AbstractClass>]
+    type ShapeArgumentTemplate() =
+        static let genTy = typedefof<ShapeArgumentTemplate<_>>
+        abstract Type : Type
+        abstract Accept : ITemplateFunc<'R> -> 'R
+        static member FromType(t : Type) =
+            let et = genTy.MakeGenericType [|t|]
+            Activator.CreateInstance et :?> ShapeArgumentTemplate
+
+    and ShapeArgumentTemplate<'Template when 'Template :> IArgParserTemplate>() =
+        inherit ShapeArgumentTemplate()
+        override __.Type = typeof<'Template>
+        override __.Accept func = func.Invoke<'Template>()
+
+    and ITemplateFunc<'R> =
+        abstract Invoke<'Template when 'Template :> IArgParserTemplate> : unit -> 'R
 
     /// reflected version of Unchecked.defaultof
     type Unchecked =

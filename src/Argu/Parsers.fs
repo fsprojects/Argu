@@ -7,77 +7,58 @@ open System.Collections.Generic
 open System.Text.RegularExpressions
 open System.IO
 
+exception HelpText
+exception ParseError of string * ErrorCode * UnionCaseArgInfo option
+
+let inline error caseInfo code fmt = Printf.ksprintf (fun msg -> raise <| ParseError(msg, code, caseInfo)) fmt
+
 //
 //  CLI Parser
 //
 
-exception HelpText
-exception Bad of string * ErrorCode * UnionCaseArgInfo option
-
-let inline bad code aI fmt = Printf.ksprintf (fun msg -> raise <| Bad(msg, code, aI)) fmt
-
-type CliParseState(inputs : string [], ignoreUnrecognized : bool) =
+type CliTokenReader(inputs : string[]) =
     let mutable position = -1
-    let mutable usageRequests = 0
 
-    let results = new Dictionary<int, ResizeArray<UnionCaseParseResult>> ()
-//    let errors = new ResizeArray<string * UnionCaseArgInfo option> ()
-
-    member __.IsUsageRequested = usageRequests > 0
-    member __.UsageRequests = usageRequests
+    member __.IsCompleted = position = inputs.Length - 1
     member __.Position = position
-    member __.IgnoreUnrecognized = ignoreUnrecognized
     member __.Current =
         if position < 0 then null
         else inputs.[position]
 
-    member __.MoveNext() =
-        if position < inputs.Length + 1 then
+    member __.MoveNext() = 
+        if position < inputs.Length - 1 then
             position <- position + 1
             true
         else
             false
 
+type CliParseResults(argInfo : UnionArgInfo) =
+    let mutable resultCount = 0
+    let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
+
+    member val IsUsageRequested = false with get,set
+    member __.ResultCount = resultCount
+
     member __.AppendResult(result : UnionCaseParseResult) =
-        let key = result.ArgInfo.Tag
-        let mutable uciResults = Unchecked.defaultof<_>
-        if not <| results.TryGetValue(key, &uciResults) then
-            uciResults <- new ResizeArray<_>()
-            results.Add(key, uciResults)
+        if not result.ArgInfo.IsHelpParameter then resultCount <- resultCount + 1
+        results.[result.Tag].Add result
 
-        uciResults.Add result
+    member __.ToUnionParseResults() = 
+        { Cases = results |> Array.map (fun c -> c.ToArray()) ; 
+          IsUsageRequested = __.IsUsageRequested }
 
-//    member __.AppendError(message, ?source : UnionCaseArgInfo) =
-//        errors.Add(message, source)
-
-
-
-
-
-//type CliParseState =
-//    {
-//        Inputs : string []
-//                
-//        IgnoreUnrecognized : bool
-//
-//        Position : int
-//        HelpArgs : int // Help argument count
-//        ParseResults : Map<int, ResizeArray<UnionCaseParseResult>>
-//    }
-//with
-//    static member Init (inputs, ignoreUnrecognized) =
-//        {
-//            Inputs = inputs
-//            Position = 0
-//            HelpArgs = 0
-//            IgnoreUnrecognized = ignoreUnrecognized
-//            ParseResults = Map.empty
-//        }
-//            
+type CliParseState =
+    {
+        ArgInfo : UnionArgInfo
+        IgnoreUnrecognizedArgs : bool
+        Reader : CliTokenReader
+        Results : CliParseResults
+        Exiter : IExiter
+    }    
 
 // parses the first part of a command line parameter
 // recognizes if parameter is of kind --param arg or --param=arg
-let private assignRegex = new Regex("^([^=]*)=(.*)$", RegexOptions.Compiled)
+let private assignRegex = new Regex(@"^([^=]*)=(.*)$", RegexOptions.Compiled)
 let private parseEqualityParam (param : string) =
     let m = assignRegex.Match param
     if m.Success then
@@ -87,75 +68,81 @@ let private parseEqualityParam (param : string) =
     else
         param, None
 
-/// parse the next command line argument and append to state
-let parseCommandLinePartial (argInfo : UnionArgInfo) (state : CliParseState) =
-//    let bad code aI fmt =
-//        let exn = new Exception(sprintf fmt)
-//        state.AppendError(exn, code, aI)
-//    Printf.ksprintf (fun msg -> raise <| Bad(msg, code, aI)) fmt
-    if not <| state.MoveNext() then () else
-//    let position = ref state.Position
-//    let current = state.Inputs.[!position]
-//    do incr position
-    let token = state.Current
+/// construct a parse result from untyped collection of parsed arguments
+let mkUnionCase (info : UnionCaseArgInfo) src ctx (fields : obj []) =
+    {
+        Value = info.CaseCtor fields
+        FieldContents =
+            match info.FieldCtor.Value with
+            | None -> null
+            | Some ctor -> ctor fields
 
-    if argInfo.UseDefaultHelper && defaultHelpParams.Contains token then
-        state.IsUsageRequested <- true
+        ArgInfo = info
+        Source = src
+        ParseContext = ctx
+    }
+
+/// parse the next command line argument and append to state
+let rec private parseCommandLinePartial (state : CliParseState) =
+    let inline parseField (info : UnionCaseArgInfo) (name : string) (field : FieldParserInfo) (arg : string) =
+        try field.Parser arg
+        with _ -> 
+            error (Some info) ErrorCode.CommandLine "option '%s' expects argument <%O> but was '%s'." name field arg
+
+    if not <| state.Reader.MoveNext() then () else
+    let token = state.Reader.Current
+
+    if state.ArgInfo.UseDefaultHelper && defaultHelpParams.Contains token then
+        state.Results.IsUsageRequested <- true
     else
         let name, equalityParam = parseEqualityParam token
 
-//        let parseField (info : UnionCaseArgInfo) (field : FieldParserInfo) (arg : string) =
-//            try field.Parser arg
-//            with _ -> 
-//                bad ErrorCode.CommandLine (Some info) 
-//                    "option '%s' expects argument <%O> but was '%s'." name field arg
-//
-//        let updateStateWith (argInfo : UnionCaseArgInfo) results =
-//            let previous = defaultArg (state.ParseResults.TryFind argInfo.Tag) []
-//            { state with
-//                Position = !position
-//                ParseResults = state.ParseResults.Add(argInfo.Tag, previous @ results)
-//            }
+        match state.ArgInfo.CliParamIndex.Value.TryFind name with
+        | None when state.IgnoreUnrecognizedArgs -> ()
+        | None -> error None ErrorCode.CommandLine "unrecognized argument: '%s'." name
+        | Some caseInfo when equalityParam.IsSome && not caseInfo.IsEqualsAssignment ->
+            error (Some caseInfo) ErrorCode.CommandLine "invalid CLI syntax '%s=<param>'." name
+        | Some caseInfo when caseInfo.IsFirst && state.Results.ResultCount > 0 ->
+            error (Some caseInfo) ErrorCode.CommandLine "argument '%s' should precede all other arguments." name
 
-        match argInfo.CliParamIndex.Value.TryFind name with
-        | None when state.IgnoreUnrecognized -> ()
-        | None -> bad ErrorCode.CommandLine None "unrecognized argument: '%s'." name
-        | Some argInfo when equalityParam.IsSome && not argInfo.IsEqualsAssignment ->
-            bad ErrorCode.CommandLine (Some argInfo) "invalid CLI syntax '%s=<param>'." name
-        | Some argInfo when argInfo.IsFirst && state.Position - state.HelpArgs > 0 ->
-            bad ErrorCode.CommandLine (Some argInfo) "argument '%s' should precede all other arguments." name
+        | Some caseInfo ->
+            match caseInfo.FieldParsers with
+            | Primitives [|field|] when caseInfo.IsEqualsAssignment ->
+                match equalityParam with
+                | None -> error (Some caseInfo) ErrorCode.CommandLine "argument '%s' missing an assignment." name
+                | Some eqp ->
+                    let argument = parseField caseInfo name field eqp
+                    let result = mkUnionCase caseInfo ParseSource.CommandLine name [| argument |]
+                    state.Results.AppendResult result
 
-        | Some argInfo when argInfo.IsEqualsAssignment ->
-            assert (argInfo.FieldParsers.Length = 1)
-            match equalityParam with
-            | None -> bad ErrorCode.CommandLine (Some argInfo) "argument '%s' missing an assignment." name
-            | Some eqp ->
-                let argument = parseField argInfo argInfo.FieldParsers.[0] eqp
-                let result = buildResult argInfo ParseSource.CommandLine name [| argument |]
-                updateStateWith argInfo [ result ]
-
-        | Some argInfo ->
-            let parseNextField (p : FieldParserInfo) =
-                if !position < state.Inputs.Length then
-                    let arg = state.Inputs.[!position]
-                    incr position
-                    parseField argInfo p arg
-                else
-                    bad ErrorCode.CommandLine (Some argInfo) 
-                        "parameter '%s' missing argument <%O>." name p
+            | Primitives fields ->
+                let parseNextField (p : FieldParserInfo) =
+                    if state.Reader.MoveNext() then
+                        parseField caseInfo name p state.Reader.Current
+                    else
+                        error (Some caseInfo) ErrorCode.CommandLine "parameter '%s' missing argument <%O>." name p
                         
-            let parseSingleParameter () =
-                let fields = argInfo.FieldParsers |> Array.map parseNextField
-                buildResult<'Template> argInfo ParseSource.CommandLine name fields
+                let parseSingleParameter () =
+                    let fields = fields |> Array.map parseNextField
+                    let result = mkUnionCase caseInfo ParseSource.CommandLine name fields
+                    state.Results.AppendResult result
 
-            let results =
-                if argInfo.IsRest then
-                    [ while !position < state.Inputs.Length do
-                        yield parseSingleParameter () ]
+                if caseInfo.IsRest then
+                    while not state.Reader.IsCompleted do
+                        parseSingleParameter()
+                else
+                    parseSingleParameter()
 
-                else [ parseSingleParameter () ]
+            | NestedUnion (existential, nestedUnion) ->
+                let nestedResults = parseCommandLineInner nestedUnion state.Exiter state.IgnoreUnrecognizedArgs state.Reader
+                let result = 
+                    existential.Accept { new ITemplateFunc<obj> with
+                        member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
+                            new ParseResults<'Template>(state.ArgInfo, nestedResults, 
+                                        printUsage state.ArgInfo >> String.build, state.Exiter) :> obj }
 
-            updateStateWith argInfo results
+                let result = mkUnionCase caseInfo ParseSource.CommandLine name [|result|]
+                state.Results.AppendResult result
                 
 
 /// <summary>
@@ -164,24 +151,45 @@ let parseCommandLinePartial (argInfo : UnionArgInfo) (state : CliParseState) =
 /// <param name="argIdx">Dictionary of all possible CL arguments.</param>
 /// <param name="ignoreUnrecognized">Ignored unrecognized parameters.</param>
 /// <param name="inputs">CL inputs</param>
-let parseCommandLine<'Template> argIdx ignoreUnrecognized (inputs : string []) =
-    let rec parsePartial (state : CliParseState<'Template>) =
-        if state.Position < state.Inputs.Length then
-            let state' = parseCommandLinePartial state
-            parsePartial state'
-        else
-            state
+and private parseCommandLineInner (argInfo : UnionArgInfo) (exiter : IExiter) (ignoreUnrecognized : bool) (reader : CliTokenReader) =
+    let state = 
+        { ArgInfo = argInfo ; IgnoreUnrecognizedArgs = ignoreUnrecognized ; 
+            Reader = reader ; Results = new CliParseResults(argInfo) ; Exiter = exiter }
 
-    let init = CliParseState<'Template>.Init argIdx ignoreUnrecognized inputs
-    parsePartial init
+    while not reader.IsCompleted do parseCommandLinePartial state
+    state.Results.ToUnionParseResults()
+
+and parseCommandLine (argInfo : UnionArgInfo) (exiter : IExiter) (ignoreUnrecognized : bool) (inputs : string []) =
+    let reader = new CliTokenReader(inputs)
+    parseCommandLineInner argInfo exiter ignoreUnrecognized reader
 
 
 //
 //  App.Config parser
 //
 
+type AppSettingsParseResult = Choice<UnionCaseParseResult [], exn>
+
+let private emptyResult : AppSettingsParseResult = Choice1Of2 [||]
+
 // AppSettings parse errors are threaded to the state rather than raised directly
-type AppConfigParseState<'Template> = Map<ArgId, Choice<ArgParseResult<'Template> list, exn>>
+type AppSettingsParseResults (argInfo : UnionArgInfo) =
+    let results = Array.init argInfo.Cases.Length (fun _ -> emptyResult)
+    member __.AddResults (case : UnionCaseArgInfo) (ts : UnionCaseParseResult []) =
+        results.[case.Tag] <- Choice1Of2 ts
+
+    member __.AddException (case : UnionCaseArgInfo) exn =
+        results.[case.Tag] <- Choice2Of2 exn
+
+    member __.Results : AppSettingsParseResult [] = results
+
+type AppSettingsParseState =
+    {
+        GetKey : string -> string
+        Results : AppSettingsParseResults
+    }
+
+
 
 
 /// <summary>
@@ -190,81 +198,80 @@ type AppConfigParseState<'Template> = Map<ArgId, Choice<ArgParseResult<'Template
 /// <param name="appSettingsReader">AppSettings key-value reader function.</param>
 /// <param name="state">threaded parse state.</param>
 /// <param name="aI">Argument Info to parse.</param>
-let parseAppSettingsPartial (appSettingsReader : string -> string) 
-                            (state : AppConfigParseState<'Template>) (aI : ArgInfo) =
+let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInfo : UnionCaseArgInfo) =
+    let inline success ts = state.Results.AddResults caseInfo ts
 
     try
-        match aI.AppSettingsName with
-        | None -> state
-        | Some name ->
-            let parseResults =
-                match appSettingsReader name with
-                | null | "" -> []
-                | entry when aI.FieldParsers.Length = 0 ->
-                    let ok, flag = Boolean.TryParse entry
-                    if ok then
-                        if flag then [buildResult aI ParseSource.CommandLine name [||]]
-                        else []
+        match caseInfo.AppSettingsName, caseInfo.FieldParsers with
+        | Some name, Primitives fields ->
+            match (try state.GetKey name with _ -> null) with
+            | null | "" -> ()
+            | entry when fields.Length = 0 ->
+                let ok, flag = Boolean.TryParse entry
+                if ok then
+                    if flag then 
+                        let results = [| mkUnionCase caseInfo ParseSource.CommandLine name [||] |]
+                        success results
+                else
+                    error (Some caseInfo) ErrorCode.AppSettings "AppSettings entry '%s' is not <bool>." name
+
+            | entry ->
+                let tokens = 
+                    if caseInfo.AppSettingsCSV || fields.Length > 1 then entry.Split(',')
+                    else [| entry |]
+
+                let pos = ref 0
+                let parseNext (parser : FieldParserInfo) =
+                    if !pos < tokens.Length then
+                        try 
+                            let tok = tokens.[!pos]
+                            incr pos
+                            parser.Parser tok
+
+                        with _ -> error (Some caseInfo) ErrorCode.AppSettings "AppSettings entry '%s' is not <%O>." name parser
                     else
-                        bad ErrorCode.AppSettings (Some aI) "AppSettings entry '%s' is not <bool>." name
+                        error (Some caseInfo) ErrorCode.AppSettings "AppSettings entry '%s' missing <%O> argument." name parser
 
-                | entry ->
-                    let tokens = 
-                        if aI.AppSettingsCSV || aI.FieldParsers.Length > 1 then entry.Split(',')
-                        else [| entry |]
+                let parseSingleArgument() =
+                    let fields = fields |> Array.map parseNext
+                    mkUnionCase caseInfo ParseSource.AppSettings name fields
 
-                    let pos = ref 0
-                    let parseNext (parser : FieldParserInfo) =
-                        if !pos < tokens.Length then
-                            try 
-                                let tok = tokens.[!pos]
-                                incr pos
-                                parser.Parser tok
-                            with _ -> 
-                                bad ErrorCode.AppSettings (Some aI) 
-                                    "AppSettings entry '%s' is not <%O>." name parser
-                        else
-                            bad ErrorCode.AppSettings (Some aI) 
-                                "AppSettings entry '%s' missing <%O> argument." name parser
-                                
+                let results =
+                    if caseInfo.AppSettingsCSV then [| while !pos < tokens.Length do yield parseSingleArgument () |]
+                    else [| parseSingleArgument () |]
 
-                    let parseSingleArgument() =
-                        let fields = aI.FieldParsers |> Array.map parseNext
-                        buildResult aI ParseSource.AppSettings name fields
+                success results
 
-                    if aI.AppSettingsCSV then
-                        [ while !pos < tokens.Length do
-                            yield parseSingleArgument () ]
+        | _ -> ()
 
-                    else [ parseSingleArgument () ]
-
-            state.Add(aI.Id, Choice1Of2 parseResults)
-
-    with Bad _ as e -> state.Add(aI.Id, Choice2Of2 e)
+    with ParseError _ as e -> state.Results.AddException caseInfo e
 
 /// <summary>
 ///     Parse a given AppSettings file.  
 /// </summary>
 /// <param name="appConfigFile">AppConfig file to parsed. Defaults to ConfigutionManager resolution.</param>
 /// <param name="argInfo">List of all possible arguments.</param>
-let parseAppSettings appConfigFile (argInfo : ArgInfo list) =
-    let appSettingsReader : string -> string =
-        match appConfigFile with
-        | None -> fun name -> ConfigurationManager.AppSettings.[name]
-        | Some file when File.Exists file ->
-            let fileMap = new ExeConfigurationFileMap()
-            fileMap.ExeConfigFilename <- file
-            let config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None)
+and parseAppSettings configReader (argInfo : UnionArgInfo) =
+    let state = { GetKey = configReader ; Results = new AppSettingsParseResults(argInfo) }
+    for caseInfo in argInfo.Cases do parseAppSettingsPartial state caseInfo
+    state.Results.Results
 
-            fun name ->
-                match config.AppSettings.Settings.[name] with
-                | null -> null
-                | entry -> entry.Value
 
-        // file not found, return null strings for everything
-        | Some _ -> fun _ -> null
+let getConfigurationManagerReader (appConfigFile : string option) : string -> string =
+    match appConfigFile with
+    | None -> fun name -> ConfigurationManager.AppSettings.[name]
+    | Some file when File.Exists file ->
+        let fileMap = new ExeConfigurationFileMap()
+        fileMap.ExeConfigFilename <- file
+        let config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None)
 
-    List.fold (parseAppSettingsPartial appSettingsReader) Map.empty argInfo
+        fun name ->
+            match config.AppSettings.Settings.[name] with
+            | null -> null
+            | entry -> entry.Value
+
+    // file not found, return null strings for everything
+    | Some _ -> fun _ -> null
 
 
 //
@@ -279,32 +286,28 @@ let parseAppSettings appConfigFile (argInfo : ArgInfo list) =
 /// <param name="ignoreMissing">do not raise exception if missing mandatory parameters.</param>
 /// <param name="appSettingsResults">parsed results from AppSettings</param>
 /// <param name="commandLineResults">parsed results from CLI</param>
-let combine (argInfo : ArgInfo list) ignoreMissing 
-                (appSettingsResults : Map<ArgId, Choice<ArgParseResult<'Template> list, exn>> option)
-                (commandLineResults : Map<ArgId, ArgParseResult<'Template> list> option) =
+let postProcessResults (argInfo : UnionArgInfo) ignoreMissingMandatory 
+                (appSettingsResults : AppSettingsParseResult [] option)
+                (commandLineResults : UnionParseResults option) =
 
-    let argInfo, appSettingsResults, commandLineResults =
-        match appSettingsResults, commandLineResults with
-        | None, None -> failwith "need at least one input source."
-        | Some m, None -> List.filter isAppConfig argInfo, m, Map.empty
-        | None, Some m -> List.filter isCommandLine argInfo, Map.empty, m
-        | Some m, Some m' -> argInfo, m, m'
-
-    let combineSingle (argInfo : ArgInfo) =
-        let acr = defaultArg (appSettingsResults.TryFind argInfo.Id) <| Choice1Of2 []
-        let clr = defaultArg (commandLineResults.TryFind argInfo.Id) []
+    let combineSingle (caseInfo : UnionCaseArgInfo) =
+        let acr = match appSettingsResults with None -> emptyResult | Some ar -> ar.[caseInfo.Tag]
+        let clr = match commandLineResults with None -> [||] | Some cl -> cl.Cases.[caseInfo.Tag]
 
         let combined =
             match acr, clr with
-            | Choice1Of2 ts, [] -> ts
-            | Choice2Of2 e, [] -> raise e
-            | Choice2Of2 e, _ when argInfo.GatherAllSources -> raise e
-            | Choice1Of2 ts, ts' when argInfo.GatherAllSources -> ts @ ts'
+            | Choice1Of2 ts, [||] -> ts
+            | Choice2Of2 e, [||] -> raise e
+            | Choice2Of2 e, _ when caseInfo.GatherAllSources -> raise e
+            | Choice1Of2 ts, ts' when caseInfo.GatherAllSources -> Array.append ts ts'
             | _, ts' -> ts'
 
         match combined with
-        | [] when argInfo.Mandatory && not ignoreMissing -> 
-            bad ErrorCode.PostProcess (Some argInfo) "missing parameter '%s'." <| getName argInfo
+        | [||] when caseInfo.Mandatory && not ignoreMissingMandatory -> 
+            error (Some caseInfo) ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name
         | _ -> combined
 
-    argInfo |> Seq.map (fun aI -> aI.Id, (aI, combineSingle aI)) |> Map.ofSeq
+    {
+        Cases = argInfo.Cases |> Array.map combineSingle
+        IsUsageRequested = commandLineResults |> Option.exists (fun r -> r.IsUsageRequested)
+    }

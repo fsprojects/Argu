@@ -93,6 +93,12 @@ type ParseSource =
     | CommandLine   = 2
     | All           = 3
 
+type ErrorCode =
+    | HelpText = 1
+    | AppSettings = 2
+    | CommandLine = 3
+    | PostProcess = 4
+
 /// Interface that must be implemented by all Argu template types
 type IArgParserTemplate =
     /// returns a usage string for every union case

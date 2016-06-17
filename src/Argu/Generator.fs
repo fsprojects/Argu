@@ -81,8 +81,7 @@ let (|UnionParseResult|_|) (t : Type) =
         Some(t.GetGenericArguments().[0])
     else None
 
-let private validCliParamRegex = new Regex("^[\w]+$", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
-let private validAppSettingsParamRegex = new Regex("^[0-9a-z \-\=]+$", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
+let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
 
 /// generate argument parsing schema from given UnionCaseInfo
 let rec private preComputeUnionCaseArgInfo (stack : Type list)
@@ -116,7 +115,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
             let cliNames = defaultName :: altNames
 
             for name in cliNames do
-                if not <| validCliParamRegex.IsMatch name then
+                if name = null || not <| validCliParamRegex.IsMatch name then
                     failwithf "Argu: CLI parameter '%s' contains invalid characters." name
 
             cliNames
@@ -127,8 +126,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
             match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
             | None -> Some <| generateAppSettingsName uci
             // take last registered attribute
-            | Some attr when validAppSettingsParamRegex.IsMatch attr.Name -> Some attr.Name
-            | Some attr -> failwithf "Argu: AppSettings parameter '%s' contains invalid parameters." attr.Name
+            | Some attr when not <| String.IsNullOrWhiteSpace attr.Name -> Some attr.Name
+            | Some attr -> failwithf "Argu: AppSettings parameter '%s' contains invalid characters." attr.Name
 
     /// gets the default name of the argument
     let defaultName =
@@ -138,29 +137,6 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
         | _ -> failwithf "Argu: parameter '%s' needs to have at least one parse source." uci.Name
 
     let printLabels = uci.ContainsAttribute<PrintLabelsAttribute> (true)
-
-    let parsers =
-        let getParser (p : PropertyInfo) =
-            let label = if printLabels then Some p.Name else None
-            let ok, f = primitiveParsers.TryGetValue p.PropertyType
-            if ok then f label
-            else
-                failwithf "Argu: template contains unsupported field of type '%O'." p.PropertyType
-
-        match types with
-        | [|UnionParseResult prt|] -> preComputeUnionArgInfoInner stack tryGetParent prt |> NestedUnion
-        | _ ->  Array.map getParser fields |> Primitives
-
-    let fieldCtor = lazy(
-        match types.Length with
-        | 0 -> None
-        | 1 -> Some(fun (o:obj[]) -> o.[0])
-        | _ ->
-            let tupleType = FSharpType.MakeTupleType types
-            let ctor = FSharpValue.PreComputeTupleConstructor tupleType
-            Some ctor)
-
-    let fieldReader = lazy(FSharpValue.PreComputeUnionReader(uci, bindingFlags = allBindings))
 
     let appSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let mandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
@@ -177,6 +153,36 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
             true
         else
             false
+
+    let parsers =
+        let getParser (p : PropertyInfo) =
+            let label = if printLabels then Some p.Name else None
+            let ok, f = primitiveParsers.TryGetValue p.PropertyType
+            if ok then f label
+            else
+                failwithf "Argu: template contains unsupported field of type '%O'." p.PropertyType
+
+        match types with
+        | [|UnionParseResult prt|] -> 
+            if isEqualsAssignment then
+                failwithf "Argu: EqualsAssignment in '%s' not supported for nested union cases." uci.Name
+
+            let argInfo = preComputeUnionArgInfoInner stack tryGetParent prt 
+            let shape = ShapeArgumentTemplate.FromType prt
+            NestedUnion(shape, argInfo)
+
+        | _ ->  Array.map getParser fields |> Primitives
+
+    let fieldCtor = lazy(
+        match types.Length with
+        | 0 -> None
+        | 1 -> Some(fun (o:obj[]) -> o.[0])
+        | _ ->
+            let tupleType = FSharpType.MakeTupleType types
+            let ctor = FSharpValue.PreComputeTupleConstructor tupleType
+            Some ctor)
+
+    let fieldReader = lazy(FSharpValue.PreComputeUnionReader(uci, bindingFlags = allBindings))
 
     let first = uci.ContainsAttribute<FirstAttribute> ()
 

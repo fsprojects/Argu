@@ -158,11 +158,11 @@ module ``Simple Tests`` =
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
-    [<Test; ExpectedException(typeof<FormatException>)>]
+    [<Test; ExpectedException(typeof<ArgumentException>)>]
     let ``14. Identify conflicting CLI identifiers`` () =
         ignore <| ArgumentParser.Create<ConflictingCliNames>("usage string")
 
-    [<Test; ExpectedException(typeof<FormatException>)>]
+    [<Test; ExpectedException(typeof<ArgumentException>)>]
     let ``15. Identify conflicting AppSettings identifiers`` () =
         ignore <| ArgumentParser.Create<ConflictinAppSettingsNames>("usage string")
 
@@ -226,12 +226,12 @@ module ``Simple Tests`` =
     
     [<Test; ExpectedException(typeof<ArgumentException>)>]
     let ``20. Should fail wenn Usage, Mandatory and raiseOnUsage = true`` () =
-        let args = [| "/h" |]
+        let args = [| "--help" |]
         let _ = parser.ParseCommandLine (args, raiseOnUsage = true)
         ()
 
     [<Test>]
     let ``21. Usage, Mandatory and raiseOnusage = false`` () =
-        let args = [| "/h" |]
+        let args = [| "--help" |]
         let results = parser.ParseCommandLine (args, raiseOnUsage = false)
         results.IsUsageRequested |> should equal true

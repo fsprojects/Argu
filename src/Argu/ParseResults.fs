@@ -4,6 +4,7 @@ open FSharp.Quotations
 
 type internal IParseResults =
     abstract GetAllResults : unit -> obj list
+    
 
 /// Argument parsing result holder.
 type ParseResults<'Template when 'Template :> IArgParserTemplate> 

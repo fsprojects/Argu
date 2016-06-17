@@ -7,6 +7,12 @@ open System.Xml
 open System.Xml.Linq
 
 open FSharp.Reflection
+
+type FieldParserInfo with
+    member inline p.Description =
+        match p.Label with
+        | None -> p.Name
+        | Some l -> sprintf "%s:%s" l p.Name
  
 /// <summary>
 ///     print usage string for given arg info
@@ -33,14 +39,14 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         | Primitives fieldParsers ->
             if aI.IsEqualsAssignment then
                 assert (fieldParsers.Length = 1)
-                yield sprintf "=<%O>" fieldParsers.[0]
+                yield sprintf "=<%s>" fieldParsers.[0].Description
             else
                 for p in fieldParsers do
-                    yield sprintf " <%O>" p
+                    yield sprintf " <%s>" p.Description
 
             if aI.IsRest then yield " ..."
 
-        | NestedUnion argInfo ->
+        | NestedUnion (_, argInfo) ->
             yield "<subcommands>"
 
         yield ": "
@@ -48,14 +54,14 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         yield Environment.NewLine
 }
 
-let printHelpParams () = sprintf "\t%s: %s%s" defaultHelpParam defaultHelpDescription Environment.NewLine
+let printHelpParams () = sprintf "\t%s: %s%s" (Seq.head defaultHelpParams) defaultHelpDescription Environment.NewLine
 
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
 /// <param name="msg"></param>
 /// <param name="argInfo"></param>
-let printUsage (msg : string option) (argInfo : UnionArgInfo) = stringExpr {
+let printUsage (argInfo : UnionArgInfo) (msg : string option) = stringExpr {
     match msg with
     | None -> ()
     | Some u -> yield u + Environment.NewLine
@@ -75,7 +81,7 @@ let printUsage (msg : string option) (argInfo : UnionArgInfo) = stringExpr {
 /// </summary>
 /// <param name="argInfo"></param>
 /// <param name="args"></param>
-let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : obj list) =
+let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
     let printEntry (t : obj) = seq {
         let tag = argInfo.TagReader.Value t
         let aI = argInfo.Cases.[tag]
@@ -97,7 +103,7 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : obj list) =
                     for i = 0 to fields.Length - 1 do
                         yield parsers.[i].UnParser fields.[i]
 
-            | NestedUnion nested ->
+            | NestedUnion (_, nested) ->
                 yield clname
                 let nestedResult = fields.[0] :?> IParseResults
                 yield! printCommandLineArgs nested (nestedResult.GetAllResults())
@@ -133,17 +139,17 @@ let rec printCommandLineSyntax (argInfo : UnionArgInfo) = stringExpr {
         | Primitives parsers ->
             if aI.IsEqualsAssignment then
                 assert(parsers.Length = 1)
-                yield sprintf "=<%O>" parsers.[0]
+                yield sprintf "=<%s>" parsers.[0].Description
             else
                 for p in parsers do
-                    yield sprintf " <%O>" p
+                    yield sprintf " <%s>" p.Description
 
             if aI.IsRest then yield " ..."
 
             if not aI.Mandatory then yield ']'
             if aI.Tag <> (Seq.last sorted).Tag then yield ' '
 
-        | NestedUnion nested -> yield! printCommandLineSyntax nested
+        | NestedUnion (_, nested) -> yield! printCommandLineSyntax nested
 }
 
 /// <summary>
