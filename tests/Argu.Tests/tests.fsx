@@ -5,24 +5,32 @@
 open Argu
 open Argu.Tests
 
-let assembly = typeof<Argument>.Assembly
+type PushArgs =
+    | Remote of name:string
+    | Branch of name:string
+with
+    interface IArgParserTemplate with
+        member this.Usage = "push"
 
-let results = parser.ParseAppSettings(assembly)
+[<CliPrefix(CliPrefix.Dash)>]
+type CleanArgs =
+    | F
+    | D
+    | X
+with
+    interface IArgParserTemplate with
+        member this.Usage = "clean"
 
-let args = results.GetAllResults()
-
-parser.PrintAppSettings(Listener("localhost", 42) :: args, printComments = true)
-
-parser.PrintCommandLine [Data(1, [|1uy;2uy|])]
-
-parser.Usage()
-
-type Args =
-    | [<Mandatory>] X of string
+[<CliPrefix(CliPrefix.Empty)>]
+type GitArgs =
+    | Push of ParseResults<PushArgs>
+    | Clean of ParseResults<CleanArgs>
 with 
     interface IArgParserTemplate with 
-        member this.Usage = ""
+        member this.Usage = "git"
 
-let parser = Argu.Create<Args>()
+let parser = ArgumentParser.Create<GitArgs>()
 
-parser.Parse(raiseOnUsage = false, inputs = [|"--help"|])
+let result = parser.Parse [|"clean" ; "-fdx"|]
+
+result.GetResult(<@ Clean @>).GetAllResults() // [F; D; X]

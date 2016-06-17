@@ -99,8 +99,16 @@ let rec private parseCommandLinePartial (state : CliParseState) =
         let name, equalityParam = parseEqualityParam token
 
         match state.ArgInfo.CliParamIndex.Value.TryFind name with
-        | None when state.IgnoreUnrecognizedArgs -> ()
-        | None -> error None ErrorCode.CommandLine "unrecognized argument: '%s'." name
+        | None -> 
+            match state.ArgInfo.GroupedSwitchExtractor.Value name with
+            | [||] when state.IgnoreUnrecognizedArgs -> ()
+            | [||] -> error None ErrorCode.CommandLine "unrecognized argument: '%s'." name
+            | switches ->
+                for sw in switches do
+                    let caseInfo = state.ArgInfo.CliParamIndex.Value.[sw]
+                    let result = mkUnionCase caseInfo ParseSource.CommandLine sw [||]
+                    state.Results.AppendResult result
+
         | Some caseInfo when equalityParam.IsSome && not caseInfo.IsEqualsAssignment ->
             error (Some caseInfo) ErrorCode.CommandLine "invalid CLI syntax '%s=<param>'." name
         | Some caseInfo when caseInfo.IsFirst && state.Results.ResultCount > 0 ->

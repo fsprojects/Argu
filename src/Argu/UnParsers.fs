@@ -47,7 +47,7 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
             if aI.IsRest then yield " ..."
 
         | NestedUnion (_, argInfo) ->
-            yield "<subcommands>"
+            yield " <subcommands>"
 
         yield ": "
         yield aI.Usage

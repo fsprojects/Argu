@@ -1,5 +1,5 @@
 ﻿[<AutoOpen>]
-module internal Argu.Generator
+module internal Argu.PreCompute
 
 open System
 open System.Reflection
