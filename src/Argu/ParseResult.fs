@@ -7,7 +7,7 @@ type internal IParseResults =
     
 
 /// Argument parsing result holder.
-type ParseResults<'Template when 'Template :> IArgParserTemplate> 
+type ParseResult<'Template when 'Template :> IArgParserTemplate> 
     internal (argInfo : UnionArgInfo, results : UnionParseResults, 
                 mkUsageString : string option -> string, exiter : IExiter) =
 

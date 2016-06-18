@@ -34,7 +34,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
-    member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
+    member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
@@ -50,7 +50,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
 
             let results = postProcessResults argInfo ignoreMissing None (Some cliResults)
 
-            new ParseResults<'Template>(argInfo, results, mkUsageString, errorHandler)
+            new ParseResult<'Template>(argInfo, results, mkUsageString, errorHandler)
         with
         | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -58,7 +58,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
     /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member s.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing) : ParseResults<'Template> =
+    member s.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let errorHandler = 
             match errorHandler with
@@ -69,7 +69,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
             let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
 
-            new ParseResults<'Template>(argInfo, results, mkUsageString, errorHandler)
+            new ParseResult<'Template>(argInfo, results, mkUsageString, errorHandler)
         with
         | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
@@ -89,7 +89,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
-    member s.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
+    member s.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
@@ -103,7 +103,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
 
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
-            new ParseResults<'Template>(argInfo, results, mkUsageString, errorHandler)
+            new ParseResult<'Template>(argInfo, results, mkUsageString, errorHandler)
         with
         | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 

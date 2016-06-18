@@ -23,8 +23,8 @@ with
 
 [<CliPrefix(CliPrefix.Empty)>]
 type GitArgs =
-    | Push of ParseResults<PushArgs>
-    | Clean of ParseResults<CleanArgs>
+    | Push of ParseResult<PushArgs>
+    | Clean of ParseResult<CleanArgs>
 with 
     interface IArgParserTemplate with 
         member this.Usage = "git"

@@ -77,7 +77,7 @@ let primitiveParsers =
 
 
 let (|UnionParseResult|_|) (t : Type) =
-    if t.IsGenericType && t.GetGenericTypeDefinition() = typedefof<ParseResults<_>> then
+    if t.IsGenericType && t.GetGenericTypeDefinition() = typedefof<ParseResult<_>> then
         Some(t.GetGenericArguments().[0])
     else None
 

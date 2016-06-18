@@ -147,7 +147,7 @@ let rec private parseCommandLinePartial (state : CliParseState) =
                 let result = 
                     existential.Accept { new ITemplateFunc<obj> with
                         member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
-                            new ParseResults<'Template>(state.ArgInfo, nestedResults, 
+                            new ParseResult<'Template>(state.ArgInfo, nestedResults, 
                                         printUsage state.ArgInfo >> String.build, state.Exiter) :> obj }
 
                 let result = mkUnionCase caseInfo ParseSource.CommandLine name [|result|]
