@@ -1,11 +1,9 @@
 ﻿namespace Argu
 
-open System.Collections
 open FSharp.Quotations
 
-type internal IParseResults =
-    abstract GetAllResults : unit -> seq<obj>
-    
+type private IParseResults =
+    abstract GetAllResults : unit -> seq<obj>    
 
 /// Argument parsing result holder.
 [<Sealed; AutoSerializable(false)>]

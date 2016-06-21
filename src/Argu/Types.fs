@@ -95,10 +95,10 @@ type ParseSource =
     | All           = 3
 
 type ErrorCode =
-    | HelpText = 1
-    | AppSettings = 2
-    | CommandLine = 3
-    | PostProcess = 4
+    | HelpText = 0
+    | AppSettings = 1
+    | CommandLine = 2
+    | PostProcess = 3
 
 /// Interface that must be implemented by all Argu template types
 type IArgParserTemplate =

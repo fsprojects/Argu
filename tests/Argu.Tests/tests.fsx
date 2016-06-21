@@ -23,6 +23,7 @@ with
 
 [<CliPrefix(CliPrefix.None)>]
 type GitArgs =
+    | Bar of int
     | Push of ParseResult<PushArgs>
     | Clean of ParseResult<CleanArgs>
 with 
@@ -31,11 +32,11 @@ with
 
 let parser = ArgumentParser.Create<GitArgs>()
 
-let result = parser.Parse [|"clean" ; "-fdfx"|]
+let result = parser.Parse([|"bar" ; "haha" ; "clean" ; "-fdfx"|])
 let nested = result.GetResult(<@ Clean @>)
 
 result.Usage() |> System.Console.WriteLine
-nested.Usage()
+nested.Usage() |> System.Console.WriteLine
 
 parser.PrintCommandLineSyntax()
 

@@ -62,7 +62,7 @@ module ``Simple Tests`` =
                 | Clean _ -> "clean state"
                 | A | B | C -> "misc arguments"
 
-    let parser = ArgumentParser.Create<Argument> "usage string"
+    let parser = ArgumentParser.Create<Argument> ()
 
     [<Fact>]
     let ``Simple command line parsing`` () =

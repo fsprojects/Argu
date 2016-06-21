@@ -8,13 +8,6 @@ open System.Xml.Linq
 
 open FSharp.Reflection
 
-type FieldParserInfo with
-    member inline p.Description =
-        match p.Label with
-        | None -> p.Name
-        | Some l -> sprintf "%s:%s" l p.Name
-
-
 /// <summary>
 ///     print the command line syntax
 /// </summary>

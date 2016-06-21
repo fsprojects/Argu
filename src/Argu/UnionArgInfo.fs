@@ -28,6 +28,11 @@ type FieldParserInfo =
         /// unparser
         UnParser : obj -> string
     }
+with
+    member inline p.Description =
+        match p.Label with
+        | None -> p.Name
+        | Some l -> sprintf "%s:%s" l p.Name
         
 /// Represents a parsing schema for a single parameter
 [<NoEquality; NoComparison>]

@@ -1,16 +1,9 @@
 ﻿namespace Argu
 
 open System
-open System.Configuration
 open System.Reflection
-open System.Xml
-open System.Xml.Linq
 
-open Microsoft.FSharp.Reflection
-open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Quotations.Patterns
-
-exception private HelpText
+open FSharp.Quotations
 
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
@@ -25,14 +18,14 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         | None -> currentProgramName.Value
         | Some pn -> pn
 
-    let mkUsageString msgOpt = printUsage argInfo _programName msgOpt |> String.build
+    let mkUsageString argInfo msgOpt = printUsage argInfo _programName msgOpt |> String.build
 
     let (|ParserExn|_|) (e : exn) =
         match e with
-        // do not display usage for App.Config-only parameter errors
-        | ParseError (msg, id, Some aI) when aI.NoCommandLine -> Some(id, msg)
-        | ParseError (msg, id, _) -> Some (id, mkUsageString (Some msg))
-        | HelpText -> Some (ErrorCode.HelpText, mkUsageString None)
+        // do not display usage for App.Config parameter errors
+        | ParseError (msg, id, _) when id <> ErrorCode.CommandLine -> Some(id, msg)
+        | ParseError (msg, id, aI) -> Some (id, mkUsageString aI (Some msg))
+        | HelpText aI -> Some (ErrorCode.HelpText, mkUsageString aI None)
         | _ -> None
 
     /// <summary>
@@ -61,23 +54,19 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
 
         try
-            let cliResults = parseCommandLine argInfo _programName errorHandler ignoreUnrecognized inputs
-
-            if cliResults.IsUsageRequested && raiseOnUsage then raise HelpText
-
+            let cliResults = parseCommandLine argInfo _programName errorHandler raiseOnUsage ignoreUnrecognized inputs
             let ignoreMissing = (cliResults.IsUsageRequested && not raiseOnUsage) || ignoreMissing
-
             let results = postProcessResults argInfo ignoreMissing None (Some cliResults)
 
-            new ParseResult<'Template>(argInfo, results, mkUsageString, errorHandler)
-        with
-        | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
+            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
+
+        with ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
     /// <summary>Parse AppSettings section of XML configuration only.</summary>
     /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member __.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing) : ParseResult<'Template> =
+    member __.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing : bool) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let errorHandler = 
             match errorHandler with
@@ -88,9 +77,9 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
             let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
 
-            new ParseResult<'Template>(argInfo, results, mkUsageString, errorHandler)
-        with
-        | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
+            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
+
+        with ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
     /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
     /// <param name="assembly">assembly to get application configuration from.</param>
@@ -117,14 +106,12 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
         try
             let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
-            let cliResults = parseCommandLine argInfo _programName errorHandler ignoreUnrecognized inputs
-            if cliResults.IsUsageRequested && raiseOnUsage then raise HelpText
-
+            let cliResults = parseCommandLine argInfo _programName errorHandler raiseOnUsage ignoreUnrecognized inputs
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
-            new ParseResult<'Template>(argInfo, results, mkUsageString, errorHandler)
-        with
-        | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
+            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
+
+        with ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
 
     /// <summary>
     ///     Converts a sequence of template argument inputs into a ParseResult instance
@@ -133,11 +120,11 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
     member __.ToParseResult (inputs : seq<'Template>, ?errorHandler : IExiter) : ParseResult<'Template> =
         let errorHandler = match errorHandler with Some e -> e | None -> ExceptionExiter.ArgumentExceptionExiter()
-        mkParseResultFromValues argInfo errorHandler mkUsageString inputs
+        mkParseResultFromValues argInfo errorHandler (mkUsageString argInfo) inputs
 
     /// <summary>Returns the usage string.</summary>
     /// <param name="message">The message to be displayed on top of the usage string.</param>
-    member __.Usage (?message : string) : string = mkUsageString message
+    member __.Usage (?message : string) : string = mkUsageString argInfo message
 
     /// <summary>
     ///     Gets a subparser associated with specific subcommand instance
