@@ -278,3 +278,35 @@ module ``Simple Tests`` =
         let args = [| "--help" |]
         let results = parser.ParseCommandLine (args, raiseOnUsage = false)
         results.IsUsageRequested |> should equal true
+
+
+    type ArgumentWithAltHelp =
+        | [<Help>] My_Help
+    with
+        interface IArgParserTemplate with
+            member a.Usage = "not tested here"
+
+    [<DisableHelp>]
+    type NoHelp =
+        | No_Help
+    with
+        interface IArgParserTemplate with
+            member a.Usage = "not tested here"
+
+    [<Fact>]
+    let ``Simple Custom Help attribute`` () =
+        let parser = ArgumentParser.Create<ArgumentWithAltHelp>()
+        let results = parser.Parse([|"--my-help"|], raiseOnUsage = false)
+        results.IsUsageRequested |> should equal true
+
+    [<Fact>]
+    let ``Simple Custom Help attribute should not use default helper`` () =
+        let parser = ArgumentParser.Create<ArgumentWithAltHelp>()
+        let results = parser.Parse([|"--help"|], raiseOnUsage = false, ignoreUnrecognized = true)
+        results.IsUsageRequested |> should equal false
+
+    [<Fact>]
+    let ``Disable Help attribute`` () =
+        let parser = ArgumentParser.Create<NoHelp>()
+        let result = parser.Parse([|"--help"|], raiseOnUsage = false, ignoreUnrecognized = true)
+        result.IsUsageRequested |> should equal false

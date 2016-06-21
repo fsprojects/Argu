@@ -139,6 +139,7 @@ let rec private parseCommandLinePartial (state : CliParseState) =
             error (Some caseInfo) ErrorCode.CommandLine "argument '%s' should precede all other arguments." name
 
         | Some caseInfo ->
+            if caseInfo.IsHelpParameter then state.Results.IsUsageRequested <- true
             match caseInfo.FieldParsers with
             | Primitives [|field|] when caseInfo.IsEqualsAssignment ->
                 match equalityParam with

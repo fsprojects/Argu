@@ -271,14 +271,17 @@ and private preComputeUnionArgInfoInner (stack : Type list) (getParent : unit ->
     // recognizes and extracts grouped switches
     // e.g. -efx --> -e -f -x
     let groupedSwitchExtractor = lazy(
-        let regex =
+        let chars =
             caseInfo
             |> Seq.collect (fun c -> c.CommandLineNames) 
             |> Seq.filter (fun name -> name.Length = 2 && name.[0] = '-' && Char.IsLetterOrDigit name.[1])
             |> Seq.map (fun name -> name.[1])
             |> Seq.toArray
             |> String
-            |> fun r -> new Regex(sprintf "^-[%s]+$" r, RegexOptions.Compiled)
+
+        if chars.Length = 0 then (fun _ -> [||]) else
+
+        let regex = new Regex(sprintf "^-[%s]+$" chars, RegexOptions.Compiled)
 
         fun (arg : string) ->
             if not <| regex.IsMatch arg then [||] 
