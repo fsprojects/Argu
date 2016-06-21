@@ -14,8 +14,8 @@ with
 
 [<CliPrefix(CliPrefix.Dash)>]
 type CleanArgs =
-    | F
     | D
+    | F
     | X
 with
     interface IArgParserTemplate with
@@ -31,6 +31,6 @@ with
 
 let parser = ArgumentParser.Create<GitArgs>()
 
-let result = parser.Parse [|"clean" ; "-fdx"|]
+let result = parser.Parse [|"clean" ; "-fdfx"|]
 
-result.GetResult(<@ Clean @>).GetAllResults() // [F; D; X]
+result.GetResult(<@ Clean @>).GetAllResults() // [F; D; F; X]

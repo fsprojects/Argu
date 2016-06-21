@@ -112,6 +112,8 @@ type UnionCaseParseResult =
         Value : obj
         /// untyped version of tuple of branch contents
         FieldContents : obj
+        /// Index denoting order of parse result
+        Index : int
         /// ArgInfo used to parse parameter
         ArgInfo : UnionCaseArgInfo
         /// metadata provided by the parser

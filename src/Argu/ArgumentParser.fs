@@ -10,6 +10,7 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
+exception private HelpText
 
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
@@ -34,7 +35,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
-    member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+    member __.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
@@ -58,7 +59,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
     /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member s.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing) : ParseResult<'Template> =
+    member __.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let errorHandler = 
             match errorHandler with
@@ -89,7 +90,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
-    member s.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+    member __.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
@@ -106,6 +107,15 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
             new ParseResult<'Template>(argInfo, results, mkUsageString, errorHandler)
         with
         | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
+
+    /// <summary>
+    ///     Converts a sequence of template argument inputs into a ParseResult instance
+    /// </summary>
+    /// <param name="inputs">Argument input sequence.</param>
+    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
+    member __.ToParseResult (inputs : seq<'Template>, ?errorHandler : IExiter) : ParseResult<'Template> =
+        let errorHandler = match errorHandler with Some e -> e | None -> ExceptionExiter.ArgumentExceptionExiter()
+        mkParseResultFromValues argInfo errorHandler mkUsageString inputs
 
     /// <summary>Returns the usage string.</summary>
     /// <param name="message">The message to be displayed on top of the usage string.</param>
@@ -148,3 +158,11 @@ type ArgumentParser =
     /// <param name="usageText">Specify a usage text to prefixed at the '--help' output.</param>
     static member Create<'Template when 'Template :> IArgParserTemplate>(?usageText : string) =
         new ArgumentParser<'Template>(?usageText = usageText)
+
+
+[<AutoOpen>]
+module ArgumentParserUtils =
+    
+    /// converts a sequence of inputs to a ParseResult instance
+    let toParseResults (inputs : seq<'Template>) : ParseResult<'Template> =
+        ArgumentParser.Create<'Template>().ToParseResult(inputs)

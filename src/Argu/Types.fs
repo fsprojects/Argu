@@ -89,6 +89,7 @@ type CliPrefixAttribute(prefix:CliPrefix) =
 
 /// Source from which to parse arguments
 type ParseSource = 
+    | None          = 0
     | AppSettings   = 1
     | CommandLine   = 2
     | All           = 3

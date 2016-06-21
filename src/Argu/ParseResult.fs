@@ -71,6 +71,7 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
         results.Cases
         |> Seq.concat
         |> Seq.filter (restrictF source)
+        |> Seq.sortBy (fun r -> ((int r.Source) <<< 16) + r.Index)
         |> Seq.map (fun r -> r.Value :?> 'Template)
         |> Seq.toList
 

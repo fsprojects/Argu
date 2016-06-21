@@ -4,6 +4,7 @@ module internal Argu.PreCompute
 open System
 open System.Reflection
 open System.Collections.Generic
+open System.Collections.Concurrent
 open System.Text.RegularExpressions
 
 open FSharp.Reflection

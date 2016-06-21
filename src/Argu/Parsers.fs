@@ -7,9 +7,7 @@ open System.Collections.Generic
 open System.Text.RegularExpressions
 open System.IO
 
-exception HelpText
 exception ParseError of string * ErrorCode * UnionCaseArgInfo option
-
 let inline error caseInfo code fmt = 
     Printf.ksprintf (fun msg -> raise <| ParseError(msg, code, caseInfo)) fmt
 
@@ -35,13 +33,16 @@ type CliTokenReader(inputs : string[]) =
 
 type CliParseResults(argInfo : UnionArgInfo) =
     let mutable resultCount = 0
+    let mutable helpCount = 0
     let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
 
     member val IsUsageRequested = false with get,set
     member __.ResultCount = resultCount
+    member __.HelpCount = helpCount
 
     member __.AppendResult(result : UnionCaseParseResult) =
-        if not result.ArgInfo.IsHelpParameter then resultCount <- resultCount + 1
+        resultCount <- resultCount + 1
+        if result.ArgInfo.IsHelpParameter then helpCount <- helpCount + 1
         results.[result.Tag].Add result
 
     member __.ToUnionParseResults() = 
@@ -70,9 +71,10 @@ let private parseEqualityParam (param : string) =
         param, None
 
 /// construct a parse result from untyped collection of parsed arguments
-let mkUnionCase (info : UnionCaseArgInfo) src ctx (fields : obj []) =
+let mkUnionCase (info : UnionCaseArgInfo) idx src ctx (fields : obj []) =
     {
         Value = info.CaseCtor fields
+        Index = idx
         FieldContents =
             match info.FieldCtor.Value with
             | None -> null
@@ -82,6 +84,28 @@ let mkUnionCase (info : UnionCaseArgInfo) src ctx (fields : obj []) =
         Source = src
         ParseContext = ctx
     }
+
+let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) 
+                            (mkUsageString : string option -> string) (values : seq<'Template>) =
+
+    let agg = info.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult>())
+    let mutable i = 0
+    for value in values do
+        let value = value :> obj
+        let tag = info.TagReader.Value value
+        let case = info.Cases.[tag]
+        let fields = case.FieldReader.Value value
+        let result = mkUnionCase case i ParseSource.None case.Name fields
+        agg.[tag].Add result
+        i <- i + 1
+
+    let results = 
+        { 
+            IsUsageRequested = false
+            Cases = agg |> Array.map (fun rs -> rs.ToArray())
+        }
+
+    new ParseResult<'Template>(info, results, mkUsageString, exiter)
 
 /// parse the next command line argument and append to state
 let rec private parseCommandLinePartial (state : CliParseState) =
@@ -106,12 +130,12 @@ let rec private parseCommandLinePartial (state : CliParseState) =
             | switches ->
                 for sw in switches do
                     let caseInfo = state.ArgInfo.CliParamIndex.Value.[sw]
-                    let result = mkUnionCase caseInfo ParseSource.CommandLine sw [||]
+                    let result = mkUnionCase caseInfo state.Results.ResultCount ParseSource.CommandLine sw [||]
                     state.Results.AppendResult result
 
         | Some caseInfo when equalityParam.IsSome && not caseInfo.IsEqualsAssignment ->
             error (Some caseInfo) ErrorCode.CommandLine "invalid CLI syntax '%s=<param>'." name
-        | Some caseInfo when caseInfo.IsFirst && state.Results.ResultCount > 0 ->
+        | Some caseInfo when caseInfo.IsFirst && state.Results.ResultCount - state.Results.HelpCount > 0 ->
             error (Some caseInfo) ErrorCode.CommandLine "argument '%s' should precede all other arguments." name
 
         | Some caseInfo ->
@@ -121,7 +145,7 @@ let rec private parseCommandLinePartial (state : CliParseState) =
                 | None -> error (Some caseInfo) ErrorCode.CommandLine "argument '%s' missing an assignment." name
                 | Some eqp ->
                     let argument = parseField caseInfo name field eqp
-                    let result = mkUnionCase caseInfo ParseSource.CommandLine name [| argument |]
+                    let result = mkUnionCase caseInfo state.Results.ResultCount ParseSource.CommandLine name [| argument |]
                     state.Results.AppendResult result
 
             | Primitives fields ->
@@ -133,7 +157,7 @@ let rec private parseCommandLinePartial (state : CliParseState) =
                         
                 let parseSingleParameter () =
                     let fields = fields |> Array.map parseNextField
-                    let result = mkUnionCase caseInfo ParseSource.CommandLine name fields
+                    let result = mkUnionCase caseInfo state.Results.ResultCount ParseSource.CommandLine name fields
                     state.Results.AppendResult result
 
                 if caseInfo.IsRest then
@@ -150,7 +174,7 @@ let rec private parseCommandLinePartial (state : CliParseState) =
                             new ParseResult<'Template>(state.ArgInfo, nestedResults, 
                                         printUsage state.ArgInfo >> String.build, state.Exiter) :> obj }
 
-                let result = mkUnionCase caseInfo ParseSource.CommandLine name [|result|]
+                let result = mkUnionCase caseInfo state.Results.ResultCount ParseSource.CommandLine name [|result|]
                 state.Results.AppendResult result
                 
 
@@ -219,7 +243,7 @@ let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInf
                 let ok, flag = Boolean.TryParse entry
                 if ok then
                     if flag then 
-                        let results = [| mkUnionCase caseInfo ParseSource.CommandLine name [||] |]
+                        let results = [| mkUnionCase caseInfo caseInfo.Tag ParseSource.CommandLine name [||] |]
                         success results
                 else
                     error (Some caseInfo) ErrorCode.AppSettings "AppSettings entry '%s' is not <bool>." name
@@ -243,7 +267,7 @@ let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInf
 
                 let parseSingleArgument() =
                     let fields = fields |> Array.map parseNext
-                    mkUnionCase caseInfo ParseSource.AppSettings name fields
+                    mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name fields
 
                 let results =
                     if caseInfo.AppSettingsCSV then [| while !pos < tokens.Length do yield parseSingleArgument () |]
