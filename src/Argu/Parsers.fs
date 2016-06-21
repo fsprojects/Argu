@@ -34,6 +34,7 @@ type CliTokenReader(inputs : string[]) =
 type CliParseResults(argInfo : UnionArgInfo) =
     let mutable resultCount = 0
     let mutable helpCount = 0
+    let unrecognized = new ResizeArray<string>()
     let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
 
     member val IsUsageRequested = false with get,set
@@ -45,8 +46,11 @@ type CliParseResults(argInfo : UnionArgInfo) =
         if result.ArgInfo.IsHelpParameter then helpCount <- helpCount + 1
         results.[result.Tag].Add result
 
+    member __.AppendUnrecognized(token:string) = unrecognized.Add token
+
     member __.ToUnionParseResults() = 
         { Cases = results |> Array.map (fun c -> c.ToArray()) ; 
+          UnrecognizedCliParams = Seq.toList unrecognized ;
           IsUsageRequested = __.IsUsageRequested }
 
 type CliParseState =
@@ -102,6 +106,7 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter)
     let results = 
         { 
             IsUsageRequested = false
+            UnrecognizedCliParams = []
             Cases = agg |> Array.map (fun rs -> rs.ToArray())
         }
 
@@ -125,7 +130,7 @@ let rec private parseCommandLinePartial (state : CliParseState) =
         match state.ArgInfo.CliParamIndex.Value.TryFind name with
         | None -> 
             match state.ArgInfo.GroupedSwitchExtractor.Value name with
-            | [||] when state.IgnoreUnrecognizedArgs -> ()
+            | [||] when state.IgnoreUnrecognizedArgs -> state.Results.AppendUnrecognized token
             | [||] -> error None ErrorCode.CommandLine "unrecognized argument: '%s'." name
             | switches ->
                 for sw in switches do
@@ -343,5 +348,6 @@ let postProcessResults (argInfo : UnionArgInfo) ignoreMissingMandatory
 
     {
         Cases = argInfo.Cases |> Array.map combineSingle
+        UnrecognizedCliParams = match commandLineResults with Some clr -> clr.UnrecognizedCliParams | None -> []
         IsUsageRequested = commandLineResults |> Option.exists (fun r -> r.IsUsageRequested)
     }

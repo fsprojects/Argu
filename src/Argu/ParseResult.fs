@@ -10,8 +10,7 @@ type internal IParseResults =
 /// Argument parsing result holder.
 [<Sealed; AutoSerializable(false)>]
 type ParseResult<'Template when 'Template :> IArgParserTemplate> 
-    internal (argInfo : UnionArgInfo, results : UnionParseResults, 
-                mkUsageString : string option -> string, exiter : IExiter) =
+    internal (argInfo : UnionArgInfo, results : UnionParseResults, mkUsageString : string option -> string, exiter : IExiter) =
 
     // exiter wrapper
     let exit hideUsage msg id =
@@ -23,11 +22,11 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
         let flags = defaultArg flags ParseSource.All
         fun x -> Enum.hasFlag flags x.Source
 
-    let getResults rs (e : Expr) = results.Cases.[expr2ArgId(e).Tag] |> Seq.filter (restrictF rs)
+    let getResults rs (e : Expr) = results.Cases.[expr2Uci(e).Tag] |> Seq.filter (restrictF rs)
     let containsResult rs (e : Expr) = e |> getResults rs |> Seq.isEmpty |> not
     let tryGetResult rs (e : Expr) = e |> getResults rs |> Seq.tryLast
     let getResult rs (e : Expr) =
-        let id = expr2ArgId e
+        let id = expr2Uci e
         let results = results.Cases.[id.Tag]
         match Seq.tryLast results with
         | None -> 
@@ -50,6 +49,10 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
 
     /// Returns true if '--help' parameter has been specified in the command line.
     member __.IsUsageRequested = results.IsUsageRequested
+
+    /// Gets all unrecognized CLI parameters which
+    /// accumulates if parsed with 'ignoreUnrecognized = true'
+    member __.UnrecognizedCliParams = results.UnrecognizedCliParams
 
     /// <summary>Query parse results for parameterless argument.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
@@ -114,7 +117,7 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.Contains (expr : Expr<_ -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
+    member __.Contains (expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
 
     /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="msg">The error message to be displayed.</param>

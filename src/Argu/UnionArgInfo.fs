@@ -129,6 +129,8 @@ type UnionParseResults =
     {
         /// Results by union case
         Cases : UnionCaseParseResult[][]
+        /// CLI tokens not recognized by the parser
+        UnrecognizedCliParams : string list
         /// Usage string requested by the caller
         IsUsageRequested : bool
     }

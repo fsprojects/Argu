@@ -110,7 +110,7 @@ module internal Utils =
 
     /// recognize exprs that strictly contain DU constructors
     /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
-    let expr2ArgId (e : Expr) =
+    let expr2Uci (e : Expr) =
         let (|Vars|_|) (exprs : Expr list) =
             let vars = exprs |> List.choose (|Var|_|)
             if vars.Length = exprs.Length then Some vars

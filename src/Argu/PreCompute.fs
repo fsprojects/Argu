@@ -137,7 +137,6 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
         | _ -> failwithf "Argu: parameter '%s' needs to have at least one parse source." uci.Name
 
     let printLabels = uci.ContainsAttribute<PrintLabelsAttribute> (true)
-
     let appSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let mandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
     let gatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()

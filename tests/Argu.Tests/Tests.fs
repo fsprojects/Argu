@@ -164,7 +164,6 @@ module ``Simple Tests`` =
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         results.GetAllResults() |> should equal [C; B; A; C; C]
 
-
     [<Fact>]
     let ``Simple subcommand parsing 1`` () =
         let args = [|"push"; "--remote" ; "origin" ; "--branch" ; "master"|]
@@ -179,6 +178,21 @@ module ``Simple Tests`` =
         let nested = results.GetResult <@ Clean @>
         nested.GetAllResults() |> should equal [F; D; X]
 
+    [<Fact>]
+    let ``Simple unrecognized CLI params`` () =
+        let args = [| "--mandatory-arg" ; "true" ; "foobar" ; "-z" |]
+        let results = parser.ParseCommandLine(args, ignoreUnrecognized = true)
+        results.UnrecognizedCliParams |> should equal ["foobar"]
+        results.Contains <@ Detach @> |> should equal true
+
+    [<Fact>]
+    let ``Nested unrecognized CLI params`` () =
+        let args = [| "push" ; "foobar" ; "--branch" ; "master" |]
+        let results = parser.ParseCommandLine(args, ignoreUnrecognized = true, ignoreMissing = true)
+        let nested = results.GetResult <@ Push @>
+        nested.UnrecognizedCliParams |> should equal ["foobar"]
+        nested.Contains <@ Branch @> |> should equal true
+        results.UnrecognizedCliParams = [] |> should equal true // 'should equal []' fails here for whatever reason
 
     [<Fact>]
     let ``Should allow '--help' before first args`` () =
