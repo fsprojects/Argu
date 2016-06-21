@@ -2,13 +2,15 @@
 
 open System
 open System.IO
-open NUnit.Framework
-open FsUnit
+open Xunit
+open FsUnit.Xunit
 
 open Argu
 
-[<TestFixture>]
 module ``Simple Tests`` =
+
+    let shouldFailwith<'T, 'Exn when 'Exn :> exn>(f : unit -> 'T) =
+        ignore <| Assert.Throws<'Exn>(f >> ignore)
 
     type Argument =
         | Working_Directory of string
@@ -38,8 +40,8 @@ module ``Simple Tests`` =
 
     let parser = ArgumentParser.Create<Argument> "usage string"
 
-    [<Test>]
-    let ``01. Simple command line parsing`` () =
+    [<Fact>]
+    let ``Simple command line parsing`` () =
         let args = 
             [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ; 
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
@@ -53,8 +55,8 @@ module ``Simple Tests`` =
         results.GetResults <@ Log_Level @> |> should equal [2]
         results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3
 
-    [<Test>]
-    let ``02. Simple AppSettings parsing`` () =
+    [<Fact>]
+    let ``Simple AppSettings parsing`` () =
         let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
         let xmlSource = parser.PrintAppSettings args
         let xmlFile = Path.GetTempFileName()
@@ -68,56 +70,56 @@ module ``Simple Tests`` =
         results.GetResults <@ Log_Level @> |> should equal [2]
         results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3
 
-    [<Test>]
-    let ``03. Help String`` () =
+    [<Fact>]
+    let ``Help String`` () =
         fun () -> parser.ParseCommandLine [| "--help" |] |> ignore
         |> should throw typeof<ArgumentException>
 
-    [<Test>]
-    let ``04. Missing Mandatory parameter`` () =
+    [<Fact>]
+    let ``Missing Mandatory parameter`` () =
         fun () -> parser.ParseCommandLine [| "-D" |] |> ignore
         |> should throw typeof<ArgumentException>
 
-    [<Test>]
-    let ``05. First Parameter not placed at beggining`` () =
+    [<Fact>]
+    let ``First Parameter not placed at beggining`` () =
         fun () -> parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] |> ignore
         |> should throw typeof<ArgumentException>
 
-    [<Test>]
-    let ``06. Rest Parameter`` () =
+    [<Fact>]
+    let ``Rest Parameter`` () =
         let args = [|1..100|] |> Array.map string |> Array.append [| "--mandatory-arg" ; "true" ; "--rest-arg" |]
         let result = parser.ParseCommandLine args
         result.GetResults <@ Rest_Arg @> |> should equal [1..100]
 
-    [<Test>]
-    let ``07. Multiple AltCommandLine`` () =
+    [<Fact>]
+    let ``Multiple AltCommandLine`` () =
         let args = [| "--mandatory-arg" ; "true" ; "-z" |]
         let results = parser.ParseCommandLine args
         results.Contains <@ Detach @> |> should equal true
 
-    [<Test>]
-    let ``08. Usage documents explicitly named argument union case values`` () =
+    [<Fact>]
+    let ``Usage documents explicitly named argument union case values`` () =
         let usage = parser.Usage()
-        usage |> should contain "<host:string>"
-        usage |> should contain "<port:int>"
+        usage.Contains "<host:string>" |> should equal true
+        usage.Contains "<port:int>" |> should equal true
 
-    [<Test>]
-    let ``09. Parse byte[] parameters`` () =
+    [<Fact>]
+    let ``Parse byte[] parameters`` () =
         let bytes = [|1uy .. 255uy|]
         let args = parser.PrintCommandLine [ Mandatory_Arg false ; Data(42, bytes) ]
         let results = parser.ParseCommandLine args
         results.GetResult <@ Data @> |> snd |> should equal bytes
 
-    [<Test>]
-    let ``10. Parse equals assignment`` () =
+    [<Fact>]
+    let ``Parse equals assignment`` () =
         let arg = [ Assignment "foo bar" ]
         let clp = parser.PrintCommandLine arg
-        let result = parser.Parse clp
+        let result = parser.Parse(clp, ignoreMissing = true)
         result.GetResult <@ Assignment @> |> should equal "foo bar"
 
 
-    [<Test>]
-    let ``11. Ignore Unrecognized parameters`` () =
+    [<Fact>]
+    let ``Ignore Unrecognized parameters`` () =
         let args = 
             [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ; 
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
@@ -132,13 +134,13 @@ module ``Simple Tests`` =
         results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3
 
 
-    [<Test>]
-    let ``12. Should allow '--help' before first args`` () =
-        let result = parser.Parse([| "--help" ; "--first-parameter" ; "bar"|], raiseOnUsage = false)
+    [<Fact>]
+    let ``Should allow '--help' before first args`` () =
+        let result = parser.Parse([| "--help" ; "--first-parameter" ; "bar"|], raiseOnUsage = false, ignoreMissing = true)
         result.IsUsageRequested |> should equal true
 
-    [<Test>]
-    let ``13. Should allow '--help' before mandatory args`` () =
+    [<Fact>]
+    let ``Should allow '--help' before mandatory args`` () =
         let result = parser.Parse([| "--help" ; "--mandatory-arg" ; "true"|], raiseOnUsage = false)
         result.IsUsageRequested |> should equal true
 
@@ -156,13 +158,13 @@ module ``Simple Tests`` =
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
-    [<Test; ExpectedException(typeof<ArgumentException>)>]
-    let ``14. Identify conflicting CLI identifiers`` () =
-        ignore <| ArgumentParser.Create<ConflictingCliNames>("usage string")
+    [<Fact>]
+    let ``Identify conflicting CLI identifiers`` () =
+        shouldFailwith<_, ArgumentException> (fun () -> ArgumentParser.Create<ConflictingCliNames>())
 
-    [<Test; ExpectedException(typeof<ArgumentException>)>]
-    let ``15. Identify conflicting AppSettings identifiers`` () =
-        ignore <| ArgumentParser.Create<ConflictinAppSettingsNames>("usage string")
+    [<Fact>]
+    let ``Identify conflicting AppSettings identifiers`` () =
+        shouldFailwith<_, ArgumentException> (fun () -> ArgumentParser.Create<ConflictinAppSettingsNames>())
 
 
     [<CliPrefix(CliPrefix.Dash)>]
@@ -174,8 +176,8 @@ module ``Simple Tests`` =
             member a.Usage = "not tested here"
 
 
-    [<Test>]
-    let ``16. Use single dash prefix as default`` () =
+    [<Fact>]
+    let ``Use single dash prefix as default`` () =
         let parser = ArgumentParser.Create<ArgumentSingleDash>("usage string")
         let args = 
             [| "-argument" ; "bar" ; "-levels-deep" ; "3" |]
@@ -198,8 +200,8 @@ module ``Simple Tests`` =
             member a.Usage = "not tested here"
 
 
-    [<Test>]
-    let ``17. Use no prefix as default`` () =
+    [<Fact>]
+    let ``Use no prefix as default`` () =
         let parser = ArgumentParser.Create<ArgumentNoDash>("usage string")
         let args = 
             [| "argument" ; "bar" ; "levels-deep" ; "3" |]
@@ -211,25 +213,22 @@ module ``Simple Tests`` =
         results.Contains <@ Argument @> |> should equal true
         results.GetResult <@ Levels_Deep @> |> should equal 3
 
-    [<Test; ExpectedException(typeof<ArgumentException>)>]
-    let ``18. Should fail if EqualsAssignment missing assignment.`` () =
-        let _ = parser.ParseCommandLine [|"--assignment"; "value"|]
-        ()
+    [<Fact>]
+    let ``Should fail if EqualsAssignment missing assignment.`` () =
+        shouldFailwith<_, ArgumentException>(fun () -> parser.ParseCommandLine [|"--assignment"; "value"|])
 
-    [<Test>]
-    let ``19. Slash in Commandline`` () =
+    [<Fact>]
+    let ``Slash in Commandline`` () =
         let args = [| "--mandatory-arg" ; "true" ; "/D" |]
         let results = parser.ParseCommandLine args
         results.Contains <@ Detach @> |> should equal true
     
-    [<Test; ExpectedException(typeof<ArgumentException>)>]
-    let ``20. Should fail wenn Usage, Mandatory and raiseOnUsage = true`` () =
-        let args = [| "--help" |]
-        let _ = parser.ParseCommandLine (args, raiseOnUsage = true)
-        ()
+    [<Fact>]
+    let ``Should fail wenn Usage, Mandatory and raiseOnUsage = true`` () =
+        shouldFailwith<_, ArgumentException>(fun () -> parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true))
 
-    [<Test>]
-    let ``21. Usage, Mandatory and raiseOnusage = false`` () =
+    [<Fact>]
+    let ``Usage, Mandatory and raiseOnusage = false`` () =
         let args = [| "--help" |]
         let results = parser.ParseCommandLine (args, raiseOnUsage = false)
         results.IsUsageRequested |> should equal true

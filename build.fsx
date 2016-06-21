@@ -2,8 +2,8 @@
 // FAKE build script 
 // --------------------------------------------------------------------------------------
 
-#I "packages/FAKE/tools"
-#r "packages/FAKE/tools/FakeLib.dll"
+#I "packages/build/FAKE/tools"
+#r "packages/build/FAKE/tools/FakeLib.dll"
 
 open System
 open System.IO
@@ -11,6 +11,7 @@ open Fake
 open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.AssemblyInfoFile
+open Fake.Testing
 
 // --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
@@ -22,7 +23,7 @@ let gitOwner = "fsprojects"
 let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 
-let testAssemblies = !! "bin/*/Argu.Tests.dll"
+let testAssemblies = !! "bin/net40/Argu.Tests.dll"
 
 //
 //// --------------------------------------------------------------------------------------
@@ -85,11 +86,10 @@ Target "RunTests" (fun _ ->
     ActivateFinalTarget "CloseTestRunner"
 
     testAssemblies
-    |> NUnit (fun p ->
+    |> xUnit2 (fun p ->
         { p with
-            DisableShadowCopy = true
-            TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
+            Parallel = ParallelMode.Collections
+            TimeOut = TimeSpan.FromMinutes 20. })
 )
 
 FinalTarget "CloseTestRunner" (fun _ ->  
@@ -132,7 +132,7 @@ Target "ReleaseDocs" (fun _ ->
 
 // Github Releases
 
-#load "paket-files/fsharp/FAKE/modules/Octokit/Octokit.fsx"
+#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
 Target "ReleaseGitHub" (fun _ ->

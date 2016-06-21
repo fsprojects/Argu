@@ -72,7 +72,6 @@ let primitiveParsers =
         mkParser "bigint" System.Numerics.BigInteger.Parse string
 #endif
         mkParser "guid" Guid string
-
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
 

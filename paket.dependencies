@@ -1,9 +1,17 @@
+redirects: force
 source https://www.nuget.org/api/v2
 
-nuget Nuget.CommandLine ~> 2.0
-nuget FsUnit
-nuget NUnit ~> 2.6
-nuget FSharp.Formatting
-nuget NUnit.Runners ~> 2.6
-nuget FAKE
-github fsharp/FAKE modules/Octokit/Octokit.fsx
+nuget FsUnit.xUnit
+nuget FsCheck
+nuget xunit ~> 2.0
+nuget xunit.extensions
+nuget xunit.runner.console
+nuget xunit.runner.visualstudio version_in_path: true
+
+group Build
+  source https://www.nuget.org/api/v2
+
+  nuget FAKE
+  nuget FSharp.Formatting
+  nuget Nuget.CommandLine
+  github fsharp/FAKE modules/Octokit/Octokit.fsx

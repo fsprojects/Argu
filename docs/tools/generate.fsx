@@ -22,10 +22,10 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-#I "../../packages/FSharp.Compiler.Service/lib/net40"
-#I "../../packages/FSharpVSPowerTools.Core/lib/net45"
-#I "../../packages/FSharp.Formatting/lib/net40"
-#r "../../packages/FAKE/tools/FakeLib.dll"
+#I "../../packages/build/FSharp.Compiler.Service/lib/net40"
+#I "../../packages/build/FSharpVSPowerTools.Core/lib/net45"
+#I "../../packages/build/FSharp.Formatting/lib/net40"
+#r "../../packages/build/FAKE/tools/FakeLib.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"

@@ -1,2 +1,5 @@
-FsUnit
-NUnit
+﻿FsUnit.XUnit
+xunit
+xunit.extensions
+xunit.runner.visualstudio
+FsCheck
