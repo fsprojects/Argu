@@ -15,6 +15,7 @@ exception private HelpText
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
+[<NoEquality; NoComparison; Sealed; AutoSerializable(false)>]
 type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText : string) =
     static let argInfoL = lazy(preComputeUnionArgInfo typeof<'Template>)
     let argInfo = argInfoL.Value
@@ -121,6 +122,12 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
     /// <param name="message">The message to be displayed on top of the usage string.</param>
     member __.Usage (?message : string) : string = mkUsageString message
 
+    /// <summary>
+    ///     Gets the DU tag representation for given argument
+    /// </summary>
+    /// <param name="value">Argument instance.</param>
+    member __.GetTag(value : 'Template) : int = argInfo.TagReader.Value (value :> obj)
+
     /// <summary>Prints command line syntax. Useful for generating documentation.</summary>
     member __.PrintCommandLineSyntax () : string =
         printCommandLineSyntax argInfo |> String.build
@@ -166,3 +173,7 @@ module ArgumentParserUtils =
     /// converts a sequence of inputs to a ParseResult instance
     let toParseResults (inputs : seq<'Template>) : ParseResult<'Template> =
         ArgumentParser.Create<'Template>().ToParseResult(inputs)
+
+    /// gets the DU tag representation of given argument instance
+    let tagOf (input : 'Template) : int =
+        ArgumentParser.Create<'Template>().GetTag input

@@ -74,12 +74,12 @@ type CustomAppSettingsAttribute (name : string) =
 
 /// CLI prefix enumeration
 type CliPrefix =
-    /// Double Dash prefix
-    | DoubleDash = 0
+    /// No CLI prefix
+    | None = 0
     /// Single Dash prefix
     | Dash = 1
-    /// No CLI prefix
-    | Empty = 2
+    /// Double Dash prefix
+    | DoubleDash = 2
 
 /// Specifies a custom prefix for auto generated CLI names.
 [<AttributeUsage(AttributeTargets.Property ||| AttributeTargets.Class, AllowMultiple = false)>]

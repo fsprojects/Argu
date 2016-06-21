@@ -1,12 +1,14 @@
 ﻿namespace Argu
 
+open System.Collections
 open FSharp.Quotations
 
 type internal IParseResults =
-    abstract GetAllResults : unit -> obj list
+    abstract GetAllResults : unit -> seq<obj>
     
 
 /// Argument parsing result holder.
+[<Sealed; AutoSerializable(false)>]
 type ParseResult<'Template when 'Template :> IArgParserTemplate> 
     internal (argInfo : UnionArgInfo, results : UnionParseResults, 
                 mkUsageString : string option -> string, exiter : IExiter) =
@@ -42,16 +44,12 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
         with e ->
             exit r.ArgInfo.NoCommandLine (sprintf "Error parsing '%s': %s" r.ParseContext e.Message) (int ErrorCode.PostProcess)
 
-    interface IParseResults with    
+    interface IParseResults with
         member __.GetAllResults () =
-            __.GetAllResults() |> List.map box
+            __.GetAllResults() |> Seq.map box
 
     /// Returns true if '--help' parameter has been specified in the command line.
     member __.IsUsageRequested = results.IsUsageRequested
-        
-    /// <summary>Returns the usage string.</summary>
-    /// <param name="message">The message to be displayed on top of the usage string.</param>
-    member __.Usage(?message : string) = mkUsageString message
 
     /// <summary>Query parse results for parameterless argument.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
@@ -122,16 +120,16 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
     /// <param name="msg">The error message to be displayed.</param>
     /// <param name="errorCode">The error code to returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member __.Raise (msg, ?errorCode : int, ?showUsage : bool) : 'T =
+    member __.Raise (msg : string, ?errorCode : int, ?showUsage : bool) : 'T =
         let showUsage = defaultArg showUsage true
         exit (not showUsage) msg (defaultArg errorCode (int ErrorCode.PostProcess))
 
     /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
-    /// <param name="e">The error to be displayed.</param>
+    /// <param name="error">The error to be displayed.</param>
     /// <param name="errorCode">The error code to returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member r.Raise (e : exn, ?errorCode : int, ?showUsage : bool) : 'T = 
-        r.Raise (e.Message, ?errorCode = errorCode, ?showUsage = showUsage)
+    member r.Raise (error : exn, ?errorCode : int, ?showUsage : bool) : 'T = 
+        r.Raise (error.Message, ?errorCode = errorCode, ?showUsage = showUsage)
 
     /// <summary>Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="f">The operation to be executed.</param>

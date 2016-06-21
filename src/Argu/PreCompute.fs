@@ -21,9 +21,9 @@ let generateOptionName (uci : UnionCaseInfo) =
 
     let prefixString =
         match prefix with
-        | CliPrefix.DoubleDash -> "--" 
+        | CliPrefix.None -> "" 
         | CliPrefix.Dash -> "-" 
-        | CliPrefix.Empty -> "" 
+        | CliPrefix.DoubleDash -> "--"
         | p -> invalidArg "CliPrefix" <| sprintf "unsupported CLI prefix '%s'." (string p)
 
     prefixString + uci.Name.ToLower().Replace('_','-')

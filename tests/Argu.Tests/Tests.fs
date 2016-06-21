@@ -12,6 +12,22 @@ module ``Simple Tests`` =
     let shouldFailwith<'T, 'Exn when 'Exn :> exn>(f : unit -> 'T) =
         ignore <| Assert.Throws<'Exn>(f >> ignore)
 
+    type PushArgs =
+        | Remote of name:string
+        | Branch of name:string
+    with
+        interface IArgParserTemplate with
+            member this.Usage = "push"
+
+    [<CliPrefix(CliPrefix.Dash)>]
+    type CleanArgs =
+        | D
+        | F
+        | X
+    with
+        interface IArgParserTemplate with
+            member this.Usage = "clean"
+
     type Argument =
         | Working_Directory of string
         | [<PrintLabels>] Listener of host:string * port:int
@@ -26,6 +42,8 @@ module ``Simple Tests`` =
         | [<CliPrefix(CliPrefix.Dash)>] A
         | [<CliPrefix(CliPrefix.Dash)>] B
         | [<CliPrefix(CliPrefix.Dash)>] C
+        | [<CliPrefix(CliPrefix.None)>] Push of ParseResult<PushArgs>
+        | [<CliPrefix(CliPrefix.None)>] Clean of ParseResult<CleanArgs>
     with
         interface IArgParserTemplate with
             member a.Usage =
@@ -40,6 +58,8 @@ module ``Simple Tests`` =
                 | Assignment _ -> "assign with equals operation."
                 | CustomAppConfig _ -> "parameter with custom AppConfig key."
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
+                | Push _ -> "push changes"
+                | Clean _ -> "clean state"
                 | A | B | C -> "misc arguments"
 
     let parser = ArgumentParser.Create<Argument> "usage string"
@@ -50,9 +70,9 @@ module ``Simple Tests`` =
             [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ; 
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
-        let expected_outcome = set [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
+        let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
         let results = parser.ParseCommandLine args
-        results.GetAllResults() |> set |> should equal expected_outcome
+        results.GetAllResults() |> should equal expected_outcome
 
         results.Contains <@ Detach @> |> should equal true
         results.GetResult <@ Listener @> |> should equal ("localhost", 8080)
@@ -61,13 +81,13 @@ module ``Simple Tests`` =
 
     [<Fact>]
     let ``Simple AppSettings parsing`` () =
-        let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
+        let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ] |> List.sortBy tagOf
         let xmlSource = parser.PrintAppSettings args
         let xmlFile = Path.GetTempFileName()
         do File.WriteAllText(xmlFile, xmlSource)
         let results = parser.ParseAppSettings(xmlFile)
 
-        results.GetAllResults () |> set |> should equal (set args)
+        results.GetAllResults () |> should equal args
 
         results.Contains <@ Detach @> |> should equal true
         results.GetResult <@ Listener @> |> should equal ("localhost", 8080)
@@ -128,9 +148,9 @@ module ``Simple Tests`` =
             [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ; 
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
-        let expected_outcome = set [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
+        let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
         let results = parser.ParseCommandLine (args, ignoreUnrecognized = true)
-        results.GetAllResults() |> set |> should equal expected_outcome
+        results.GetAllResults() |> should equal expected_outcome
 
         results.Contains <@ Detach @> |> should equal true
         results.GetResult <@ Listener @> |> should equal ("localhost", 8080)
@@ -143,6 +163,21 @@ module ``Simple Tests`` =
         let args = [| "-cba"; "-cc" |]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         results.GetAllResults() |> should equal [C; B; A; C; C]
+
+
+    [<Fact>]
+    let ``Simple subcommand parsing 1`` () =
+        let args = [|"push"; "--remote" ; "origin" ; "--branch" ; "master"|]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        let nested = results.GetResult <@ Push @>
+        nested.GetAllResults() |> should equal [Remote "origin" ; Branch "master"]
+
+    [<Fact>]
+    let ``Simple subcommand parsing 2`` () =
+        let args = [|"clean"; "-fdx"|]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        let nested = results.GetResult <@ Clean @>
+        nested.GetAllResults() |> should equal [F; D; X]
 
 
     [<Fact>]
@@ -202,7 +237,7 @@ module ``Simple Tests`` =
 
 
 
-    [<CliPrefix(CliPrefix.Empty)>]
+    [<CliPrefix(CliPrefix.None)>]
     type ArgumentNoDash =
         | Argument of string
         | Levels_Deep of int

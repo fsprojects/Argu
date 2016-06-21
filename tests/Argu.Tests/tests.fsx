@@ -21,7 +21,7 @@ with
     interface IArgParserTemplate with
         member this.Usage = "clean"
 
-[<CliPrefix(CliPrefix.Empty)>]
+[<CliPrefix(CliPrefix.None)>]
 type GitArgs =
     | Push of ParseResult<PushArgs>
     | Clean of ParseResult<CleanArgs>
