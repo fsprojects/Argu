@@ -50,6 +50,10 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
     /// Returns true if '--help' parameter has been specified in the command line.
     member __.IsUsageRequested = results.IsUsageRequested
 
+    /// <summary>Returns the usage string.</summary>
+    /// <param name="message">The message to be displayed on top of the usage string.</param>
+    member __.Usage (?message : string) : string = mkUsageString message
+
     /// Gets all unrecognized CLI parameters which
     /// accumulates if parsed with 'ignoreUnrecognized = true'
     member __.UnrecognizedCliParams = results.UnrecognizedCliParams
