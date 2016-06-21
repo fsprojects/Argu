@@ -56,6 +56,7 @@ type CliParseResults(argInfo : UnionArgInfo) =
 type CliParseState =
     {
         ArgInfo : UnionArgInfo
+        ProgramName : string
         IgnoreUnrecognizedArgs : bool
         Reader : CliTokenReader
         Results : CliParseResults
@@ -173,12 +174,12 @@ let rec private parseCommandLinePartial (state : CliParseState) =
                     parseSingleParameter()
 
             | NestedUnion (existential, nestedUnion) ->
-                let nestedResults = parseCommandLineInner nestedUnion state.Exiter state.IgnoreUnrecognizedArgs state.Reader
+                let nestedResults = parseCommandLineInner nestedUnion state.ProgramName state.Exiter state.IgnoreUnrecognizedArgs state.Reader
                 let result = 
                     existential.Accept { new ITemplateFunc<obj> with
                         member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
-                            new ParseResult<'Template>(state.ArgInfo, nestedResults, 
-                                        printUsage state.ArgInfo >> String.build, state.Exiter) :> obj }
+                            new ParseResult<'Template>(nestedUnion, nestedResults, 
+                                        printUsage nestedUnion state.ProgramName >> String.build, state.Exiter) :> obj }
 
                 let result = mkUnionCase caseInfo state.Results.ResultCount ParseSource.CommandLine name [|result|]
                 state.Results.AppendResult result
@@ -187,20 +188,17 @@ let rec private parseCommandLinePartial (state : CliParseState) =
 /// <summary>
 ///     Parse the entire command line
 /// </summary>
-/// <param name="argIdx">Dictionary of all possible CL arguments.</param>
-/// <param name="ignoreUnrecognized">Ignored unrecognized parameters.</param>
-/// <param name="inputs">CL inputs</param>
-and private parseCommandLineInner (argInfo : UnionArgInfo) (exiter : IExiter) (ignoreUnrecognized : bool) (reader : CliTokenReader) =
+and private parseCommandLineInner (argInfo : UnionArgInfo) (programName : string) (exiter : IExiter) (ignoreUnrecognized : bool) (reader : CliTokenReader) =
     let state = 
-        { ArgInfo = argInfo ; IgnoreUnrecognizedArgs = ignoreUnrecognized ; 
+        { ArgInfo = argInfo ; IgnoreUnrecognizedArgs = ignoreUnrecognized ; ProgramName = programName ;
             Reader = reader ; Results = new CliParseResults(argInfo) ; Exiter = exiter }
 
     while not reader.IsCompleted do parseCommandLinePartial state
     state.Results.ToUnionParseResults()
 
-and parseCommandLine (argInfo : UnionArgInfo) (exiter : IExiter) (ignoreUnrecognized : bool) (inputs : string []) =
+and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (exiter : IExiter) (ignoreUnrecognized : bool) (inputs : string []) =
     let reader = new CliTokenReader(inputs)
-    parseCommandLineInner argInfo exiter ignoreUnrecognized reader
+    parseCommandLineInner argInfo programName exiter ignoreUnrecognized reader
 
 
 //

@@ -40,6 +40,9 @@ type UnionCaseArgInfo =
         /// Field parser definitions or nested union argument
         FieldParsers : ParameterType
 
+        /// Gets the parent record for union case
+        GetParent : unit -> UnionArgInfo
+
         /// Builds a union case out of its field parameters
         CaseCtor : obj [] -> obj
         /// Composes case fields into a tuple, if not nullary
@@ -88,8 +91,8 @@ and [<NoEquality; NoComparison>]
     {
         /// Union Case Argument Info
         Type : Type
-        /// Parents
-        TryGetParent : unit -> UnionArgInfo option
+        /// If subcommand, attempt to retrieve the parent record
+        TryGetParent : unit -> UnionCaseArgInfo option
         /// Union cases
         Cases : UnionCaseArgInfo []
         /// Precomputed union tag reader

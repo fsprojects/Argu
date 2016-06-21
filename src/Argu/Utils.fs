@@ -75,6 +75,9 @@ module internal Utils =
             if ok then Some found
             else None
 
+
+    let currentProgramName = lazy(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName)
+
     type UnionCaseInfo with
         member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
             let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false

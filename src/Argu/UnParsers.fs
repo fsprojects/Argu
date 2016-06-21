@@ -13,6 +13,54 @@ type FieldParserInfo with
         match p.Label with
         | None -> p.Name
         | Some l -> sprintf "%s:%s" l p.Name
+
+
+/// <summary>
+///     print the command line syntax
+/// </summary>
+/// <param name="argInfo"></param>
+let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = stringExpr {
+    yield programName
+    yield ' '
+
+    for command in getHierarchy argInfo do
+        yield command.Name
+        yield ' '
+    
+    let sorted = 
+        argInfo.Cases
+        |> Seq.filter (fun ai -> not ai.Hidden)
+        |> Seq.sortBy (fun ai -> ai.IsNested, not ai.IsFirst, ai.IsRest)
+
+    for aI in sorted do
+        if not aI.Mandatory then yield '['
+        match aI.CommandLineNames with
+        | [] -> ()
+        | h :: t -> 
+            if aI.Mandatory && not <| List.isEmpty t then yield '('
+            yield h
+            for n in t do
+                yield '|'
+                yield n
+            if aI.Mandatory && not <| List.isEmpty t then yield ')'
+                
+        match aI.FieldParsers with
+        | Primitives parsers ->
+            if aI.IsEqualsAssignment then
+                assert(parsers.Length = 1)
+                yield sprintf "=<%s>" parsers.[0].Description
+            else
+                for p in parsers do
+                    yield sprintf " <%s>" p.Description
+
+        | NestedUnion (_, nested) -> 
+            yield " <subcommands>"
+
+        if aI.IsRest then yield " ..."
+        if not aI.Mandatory then yield ']'
+        if aI.Tag <> (Seq.last sorted).Tag then yield ' '
+            
+}
  
 /// <summary>
 ///     print usage string for given arg info
@@ -61,11 +109,12 @@ let printHelpParams () = sprintf "\t%s: %s%s" (Seq.head defaultHelpParams) defau
 /// </summary>
 /// <param name="msg"></param>
 /// <param name="argInfo"></param>
-let printUsage (argInfo : UnionArgInfo) (msg : string option) = stringExpr {
+let printUsage (argInfo : UnionArgInfo) programName (msg : string option) = stringExpr {
     match msg with
-    | None -> ()
-    | Some u -> yield u + Environment.NewLine
-                
+    | None -> yield! printCommandLineSyntax argInfo programName
+    | Some u -> yield u
+        
+    yield Environment.NewLine            
     yield Environment.NewLine
 
     for aI in argInfo.Cases do
@@ -110,47 +159,6 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
         }
 
     args |> Seq.collect printEntry
-
-/// <summary>
-///     print the command line syntax
-/// </summary>
-/// <param name="argInfo"></param>
-let rec printCommandLineSyntax (argInfo : UnionArgInfo) = stringExpr {
-    let sorted = 
-        argInfo.Cases
-        |> Seq.filter (fun ai -> not ai.Hidden)
-        |> Seq.sortBy (fun ai -> ai.IsNested, not ai.IsFirst, ai.IsRest)
-        |> Seq.toArray
-
-
-    for aI in sorted do
-        if not aI.Mandatory then yield '['
-        match aI.CommandLineNames with
-        | [] -> ()
-        | h :: t -> 
-            if aI.Mandatory && not <| List.isEmpty t then yield '('
-            yield h
-            for n in t do
-                yield '|'
-                yield n
-            if aI.Mandatory && not <| List.isEmpty t then yield ')'
-                
-        match aI.FieldParsers with
-        | Primitives parsers ->
-            if aI.IsEqualsAssignment then
-                assert(parsers.Length = 1)
-                yield sprintf "=<%s>" parsers.[0].Description
-            else
-                for p in parsers do
-                    yield sprintf " <%s>" p.Description
-
-            if aI.IsRest then yield " ..."
-
-            if not aI.Mandatory then yield ']'
-            if aI.Tag <> (Seq.last sorted).Tag then yield ' '
-
-        | NestedUnion (_, nested) -> yield! printCommandLineSyntax nested
-}
 
 /// <summary>
 ///     returns an App.Config XElement given a set of config parameters

@@ -83,15 +83,28 @@ let (|UnionParseResult|_|) (t : Type) =
 
 let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
 
+/// extracts the subcommand argument hierarchy for given UnionArgInfo
+let getHierarchy (uai : UnionArgInfo) =
+    let rec aux acc (uai : UnionArgInfo) =
+        match uai.TryGetParent () with
+        | None -> acc
+        | Some ucai -> aux (ucai :: acc) (ucai.GetParent())
+
+    aux [] uai
+
 /// generate argument parsing schema from given UnionCaseInfo
 let rec private preComputeUnionCaseArgInfo (stack : Type list)
-                                            (tryGetParent : unit -> UnionArgInfo option)
+                                            (getParent : unit -> UnionArgInfo)
                                             (uci : UnionCaseInfo) : UnionCaseArgInfo =
 
     let fields = uci.GetFields()
     let types = fields |> Array.map (fun f -> f.PropertyType)
 
     let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, bindingFlags = allBindings)
+
+    // use ref cell for late binding of parent argInfo
+    let current = ref None
+    let tryGetCurrent = fun () -> !current
 
     /// create a dummy instance for the current union case
     let usageString = 
@@ -166,7 +179,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
             if isEqualsAssignment then
                 failwithf "Argu: EqualsAssignment in '%s' not supported for nested union cases." uci.Name
 
-            let argInfo = preComputeUnionArgInfoInner stack tryGetParent prt 
+            let argInfo = preComputeUnionArgInfoInner stack tryGetCurrent prt 
             let shape = ShapeArgumentTemplate.FromType prt
             NestedUnion(shape, argInfo)
 
@@ -188,12 +201,13 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
     if appSettingsCSV && fields.Length <> 1 then 
         failwith "Argu: CSV attribute is only compatible with branches of unary fields." 
 
-    {
+    let uai = {
         UnionCaseInfo = uci
         CaseCtor = caseCtor
         FieldReader = fieldReader
         FieldCtor = fieldCtor
         Name = defaultName
+        GetParent = getParent
         CommandLineNames = commandLineArgs
         AppSettingsName = appSettingsName
         Usage = usageString
@@ -209,7 +223,10 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
         IsHelpParameter = isHelpParameter
     }
 
-and private preComputeUnionArgInfoInner (stack : Type list) (getParent : unit -> UnionArgInfo option) (t : Type) : UnionArgInfo =
+    current := Some uai // assign result to children
+    uai
+
+and private preComputeUnionArgInfoInner (stack : Type list) (tryGetParent : unit -> UnionCaseArgInfo option) (t : Type) : UnionArgInfo =
     if not <| FSharpType.IsUnion(t, bindingFlags = allBindings) then
         invalidArg t.Name "Argu: template type is not F# DU."
     elif stack |> List.exists ((=) t) then
@@ -218,14 +235,14 @@ and private preComputeUnionArgInfoInner (stack : Type list) (getParent : unit ->
         invalidArg t.Name "Argu: template type is generic which is not supported."
 
     // use ref cell for late binding of parent argInfo
-    let current = ref None
-    let tryGetCurrent = fun () -> !current
+    let current = ref Unchecked.defaultof<_>
+    let getCurrent = fun () -> !current
 
     let disableDefaultHelpParameter = t.ContainsAttribute<DisableHelpAttribute>()
 
     let caseInfo =
         FSharpType.GetUnionCases(t, bindingFlags = allBindings)
-        |> Seq.map (preComputeUnionCaseArgInfo (t :: stack) tryGetCurrent)
+        |> Seq.map (preComputeUnionCaseArgInfo (t :: stack) getCurrent)
         |> Seq.sortBy (fun a -> a.Tag)
         |> Seq.toArray
 
@@ -300,7 +317,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (getParent : unit ->
 
     let result = {
         Type = t
-        TryGetParent = getParent
+        TryGetParent = tryGetParent
         Cases = caseInfo
         TagReader = tagReader
         GroupedSwitchExtractor = groupedSwitchExtractor
@@ -309,7 +326,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (getParent : unit ->
         CliParamIndex = cliIndex
     }
 
-    current := Some result // assign result to children
+    current := result // assign result to children
     result
 
 and preComputeUnionArgInfo (t : Type) = preComputeUnionArgInfoInner [] (fun () -> None) t

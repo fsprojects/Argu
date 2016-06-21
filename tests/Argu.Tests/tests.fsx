@@ -32,5 +32,11 @@ with
 let parser = ArgumentParser.Create<GitArgs>()
 
 let result = parser.Parse [|"clean" ; "-fdfx"|]
+let nested = result.GetResult(<@ Clean @>)
 
-result.GetResult(<@ Clean @>).GetAllResults() // [F; D; F; X]
+result.Usage() |> System.Console.WriteLine
+nested.Usage()
+
+parser.PrintCommandLineSyntax()
+
+parser.GetSubParser(<@ Clean @>).PrintCommandLineSyntax()

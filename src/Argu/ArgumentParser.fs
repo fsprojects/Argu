@@ -16,19 +16,36 @@ exception private HelpText
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
 [<NoEquality; NoComparison; Sealed; AutoSerializable(false)>]
-type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText : string) =
-    static let argInfoL = lazy(preComputeUnionArgInfo typeof<'Template>)
-    let argInfo = argInfoL.Value
+type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (argInfo : UnionArgInfo, ?programName : string) =
+    // memoize parser generation for given template type
+    static let argInfoLazy = lazy(preComputeUnionArgInfo typeof<'Template>)
 
-    let mkUsageString msgOpt = printUsage argInfo msgOpt |> String.build
+    let _programName =
+        match programName with
+        | None -> currentProgramName.Value
+        | Some pn -> pn
+
+    let mkUsageString msgOpt = printUsage argInfo _programName msgOpt |> String.build
 
     let (|ParserExn|_|) (e : exn) =
         match e with
         // do not display usage for App.Config-only parameter errors
         | ParseError (msg, id, Some aI) when aI.NoCommandLine -> Some(id, msg)
         | ParseError (msg, id, _) -> Some (id, mkUsageString (Some msg))
-        | HelpText -> Some (ErrorCode.HelpText, mkUsageString usageText)
+        | HelpText -> Some (ErrorCode.HelpText, mkUsageString None)
         | _ -> None
+
+    /// <summary>
+    ///     Creates a new parser instance based on supplied F# DU template.
+    /// </summary>
+    /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
+    new (?programName : string) =
+        new ArgumentParser<'Template>(argInfoLazy.Value, ?programName = programName)
+
+
+    /// Returns true if top-level parser
+    /// and false if parser defined for a subcommand
+    member __.IsTopLevelParser = argInfo.TryGetParent() |> Option.isNone
 
     /// <summary>Parse command line arguments only.</summary>
     /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
@@ -44,7 +61,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
 
         try
-            let cliResults = parseCommandLine argInfo errorHandler ignoreUnrecognized inputs
+            let cliResults = parseCommandLine argInfo _programName errorHandler ignoreUnrecognized inputs
 
             if cliResults.IsUsageRequested && raiseOnUsage then raise HelpText
 
@@ -100,7 +117,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
 
         try
             let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
-            let cliResults = parseCommandLine argInfo errorHandler ignoreUnrecognized inputs
+            let cliResults = parseCommandLine argInfo _programName errorHandler ignoreUnrecognized inputs
             if cliResults.IsUsageRequested && raiseOnUsage then raise HelpText
 
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
@@ -123,14 +140,29 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> (?usageText 
     member __.Usage (?message : string) : string = mkUsageString message
 
     /// <summary>
+    ///     Gets a subparser associated with specific subcommand instance
+    /// </summary>
+    /// <param name="expr">Expression providing the subcommand DU constructor.</param>
+    member __.GetSubParser (expr : Expr<ParseResult<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
+        let uci = expr2Uci expr
+        let case = argInfo.Cases.[uci.Tag]
+        match case.FieldParsers with
+        | NestedUnion (_,nestedUnion) -> new ArgumentParser<'SubTemplate>(nestedUnion, programName = _programName)
+        | _ -> failwith "Argu: internal error"
+
+    /// <summary>
     ///     Gets the DU tag representation for given argument
     /// </summary>
     /// <param name="value">Argument instance.</param>
     member __.GetTag(value : 'Template) : int = argInfo.TagReader.Value (value :> obj)
 
-    /// <summary>Prints command line syntax. Useful for generating documentation.</summary>
-    member __.PrintCommandLineSyntax () : string =
-        printCommandLineSyntax argInfo |> String.build
+    /// <summary>
+    ///     Prints command line syntax. Useful for generating documentation.
+    /// </summary>
+    /// <param name="programName">Program name identifier placed at start of syntax string</param>
+    member __.PrintCommandLineSyntax (?programName : string) : string =
+        let programName = defaultArg programName _programName
+        printCommandLineSyntax argInfo programName |> String.build
 
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
     member __.PrintCommandLine (args : 'Template list) : string [] =
@@ -162,9 +194,9 @@ type ArgumentParser =
     ///     Create a new argument parsing scheme using given 'Template type
     ///     which must be an F# Discriminated Union.
     /// </summary>
-    /// <param name="usageText">Specify a usage text to prefixed at the '--help' output.</param>
-    static member Create<'Template when 'Template :> IArgParserTemplate>(?usageText : string) =
-        new ArgumentParser<'Template>(?usageText = usageText)
+    /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
+    static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string) =
+        new ArgumentParser<'Template>(?programName = programName)
 
 
 [<AutoOpen>]
