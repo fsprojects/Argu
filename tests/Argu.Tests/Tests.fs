@@ -23,6 +23,9 @@ module ``Simple Tests`` =
         | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
         | [<EqualsAssignment>] Assignment of string
         | [<First>] First_Parameter of string
+        | [<CliPrefix(CliPrefix.Dash)>] A
+        | [<CliPrefix(CliPrefix.Dash)>] B
+        | [<CliPrefix(CliPrefix.Dash)>] C
     with
         interface IArgParserTemplate with
             member a.Usage =
@@ -37,6 +40,7 @@ module ``Simple Tests`` =
                 | Assignment _ -> "assign with equals operation."
                 | CustomAppConfig _ -> "parameter with custom AppConfig key."
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
+                | A | B | C -> "misc arguments"
 
     let parser = ArgumentParser.Create<Argument> "usage string"
 
@@ -132,6 +136,13 @@ module ``Simple Tests`` =
         results.GetResult <@ Listener @> |> should equal ("localhost", 8080)
         results.GetResults <@ Log_Level @> |> should equal [2]
         results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3
+
+
+    [<Fact>]
+    let ``Should recognize grouped switches`` () =
+        let args = [| "-cba"; "-cc" |]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        results.GetAllResults() |> should equal [C; B; A; C; C]
 
 
     [<Fact>]
