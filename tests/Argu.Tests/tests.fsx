@@ -32,6 +32,8 @@ with
 
 let parser = ArgumentParser.Create<GitArgs>()
 
+parser.PrintCommandLineFlat [Bar 42 ; Push(toParseResults [Remote "a b"])]
+
 let result = parser.Parse([|"bar" ; "haha" ; "clean" ; "-fdfx"|])
 let nested = result.GetResult(<@ Clean @>)
 

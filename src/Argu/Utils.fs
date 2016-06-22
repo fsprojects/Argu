@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Collections.Generic
 open System.Text
+open System.Text.RegularExpressions
 open System.Reflection
 
 open System.Xml
@@ -157,6 +158,12 @@ module internal Utils =
             let mutable current = Unchecked.defaultof<'T>
             for x in xs do isAccessed <- true; current <- x
             if isAccessed then Some current else None
+
+
+    let private whitespaceRegex = new Regex("\s", RegexOptions.Compiled)
+    let escapeCliString (value : string) =
+        if whitespaceRegex.IsMatch value then sprintf "'%s'" value
+        else value
 
     // string builder compexpr
 

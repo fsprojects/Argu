@@ -158,7 +158,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
     member __.PrintCommandLineFlat (args : 'Template list) : string =
         __.PrintCommandLine args
-        |> Seq.map (sprintf "\"%s\"")
+        |> Seq.map escapeCliString
         |> String.concat " "
 
     /// <summary>Prints parameters in App.Config format.</summary>
