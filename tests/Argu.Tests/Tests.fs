@@ -38,6 +38,7 @@ module ``Simple Tests`` =
         | [<AltCommandLine("/D", "-D", "-z")>] Detach
         | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
         | [<EqualsAssignment>] Assignment of string
+        | [<EqualsAssignment>] Env of key:string * value:string
         | [<First>] First_Parameter of string
         | [<CliPrefix(CliPrefix.Dash)>] A
         | [<CliPrefix(CliPrefix.Dash)>] B
@@ -56,6 +57,7 @@ module ``Simple Tests`` =
                 | Log_Level _ -> "set the log level."
                 | Detach _ -> "detach daemon from console."
                 | Assignment _ -> "assign with equals operation."
+                | Env _ -> "assign environment variables."
                 | CustomAppConfig _ -> "parameter with custom AppConfig key."
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
                 | Push _ -> "push changes"
@@ -140,6 +142,13 @@ module ``Simple Tests`` =
         let clp = parser.PrintCommandLine arg
         let result = parser.Parse(clp, ignoreMissing = true)
         result.GetResult <@ Assignment @> |> should equal "foo bar"
+
+    [<Fact>]
+    let ``Parse key-value equals assignment`` () =
+        let arg = [ Env("foo", "bar") ]
+        let clp = parser.PrintCommandLine arg
+        let result = parser.Parse(clp, ignoreMissing = true)
+        result.GetResult <@ Env @> |> should equal ("foo", "bar")
 
 
     [<Fact>]

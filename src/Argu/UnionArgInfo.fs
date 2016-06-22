@@ -75,15 +75,17 @@ type UnionCaseArgInfo =
         /// If specified, parameter can only be at start of CLI parameters
         IsFirst : bool
         /// If specified, use '--param=arg' CLI parsing syntax
-        IsEqualsAssignment : bool
+        IsEquals1Assignment : bool
+        /// If specified, use '--param key=value' CLI parsing syntax
+        IsEquals2Assignment : bool
         /// Print labels in Usage ()
         PrintLabels : bool
         /// If specified, multiple parameters can be added in AppSettings in CSV form.
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
-        Mandatory : bool
+        IsMandatory : bool
         /// Hide from Usage
-        Hidden : bool
+        IsHidden : bool
         /// Combine AppSettings with CLI inputs
         GatherAllSources : bool
     }

@@ -114,23 +114,27 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let usageString = 
         let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
         let dummy = caseCtor dummyFields :?> IArgParserTemplate
-        dummy.Usage
+        try dummy.Usage
+        with _ -> 
+            arguExn "Error generating usage string from IArgParserTemplate for case %O." uci
 
+    let isFirst = uci.ContainsAttribute<FirstAttribute> ()
     let isPrintLabels = uci.ContainsAttribute<PrintLabelsAttribute> (true)
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let isMandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
     let isGatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
     let isRest = uci.ContainsAttribute<RestAttribute> ()
     let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
-    let isEqualsAssignment = 
+    let isEquals1Assignment, isEquals2Assignment = 
         if uci.ContainsAttribute<EqualsAssignmentAttribute> (true) then
-            if types.Length <> 1 then
-                arguExn "parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
+            if types.Length <> 1 && types.Length <> 2 then
+                arguExn "parameter '%s' has EqualsAssignment attribute but specifies %d parameters." uci.Name types.Length
             elif isRest then
                 arguExn "parameter '%s' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci.Name
-            true
+
+            types.Length = 1, types.Length = 2
         else
-            false
+            false, false
 
     let parsers =
         let getParser (p : PropertyInfo) =
@@ -142,7 +146,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         match types with
         | [|UnionParseResult prt|] -> 
-            if isEqualsAssignment then
+            if isEquals1Assignment then
                 arguExn "EqualsAssignment in '%s' not supported for nested union cases." uci.Name
             if isRest then
                 arguExn "Rest attribute in '%s' not supported for nested union cases." uci.Name
@@ -205,8 +209,6 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let fieldReader = lazy(FSharpValue.PreComputeUnionReader(uci, bindingFlags = allBindings))
 
-    let first = uci.ContainsAttribute<FirstAttribute> ()
-
     if isAppSettingsCSV && fields.Length <> 1 then 
         arguExn "CSV attribute is only compatible with branches of unary fields." 
 
@@ -222,13 +224,14 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         Usage = usageString
         FieldParsers = parsers
         AppSettingsCSV = isAppSettingsCSV
-        Mandatory = isMandatory
+        IsMandatory = isMandatory
         PrintLabels = isPrintLabels
         GatherAllSources = isGatherAll
         IsRest = isRest
-        IsFirst = first
-        IsEqualsAssignment = isEqualsAssignment
-        Hidden = isHidden
+        IsFirst = isFirst
+        IsEquals1Assignment = isEquals1Assignment
+        IsEquals2Assignment = isEquals2Assignment
+        IsHidden = isHidden
     }
 
     current := Some uai // assign result to children

@@ -57,7 +57,7 @@ type FirstAttribute () = inherit Attribute ()
 type PrintLabelsAttribute () = inherit Attribute ()
 
 /// Use '--param=arg' assignment syntax in CLI.
-[<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<AttributeUsage(AttributeTargets.Property ||| AttributeTargets.Property, AllowMultiple = false)>]
 type EqualsAssignmentAttribute () = inherit Attribute ()
 
 /// Sets a custom command line name.

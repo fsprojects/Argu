@@ -20,7 +20,7 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = str
     
     let sorted = 
         argInfo.Cases
-        |> Seq.filter (fun aI -> not aI.Hidden)
+        |> Seq.filter (fun aI -> not aI.IsHidden)
         |> Seq.sortBy (fun aI -> not aI.IsFirst, aI.IsRest, aI.IsNested)
         |> Seq.toArray
 
@@ -29,22 +29,25 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = str
         | [] -> ()
         | name :: _ ->
             yield ' '
-            if not aI.Mandatory then yield '['
+            if not aI.IsMandatory then yield '['
             yield name
 
             match aI.FieldParsers with
             | NestedUnion _ -> yield " <subcommands>"
             | Primitives parsers ->
-                if aI.IsEqualsAssignment then
+                if aI.IsEquals1Assignment then
                     assert(parsers.Length = 1)
                     yield sprintf "=<%s>" parsers.[0].Description
+                elif aI.IsEquals2Assignment then
+                    assert(parsers.Length = 2)
+                    yield sprintf " <%s>=<%s>" parsers.[0].Description parsers.[1].Description
                 else
                     for p in parsers do
                         yield sprintf " <%s>" p.Description
 
                 if aI.IsRest then yield " ..."
 
-            if not aI.Mandatory then yield ']'
+            if not aI.IsMandatory then yield ']'
 
     match argInfo.HelpParam.Flags with
     | h :: _ -> yield sprintf " [%s]" h
@@ -73,9 +76,12 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
 
         match aI.FieldParsers with
         | Primitives fieldParsers ->
-            if aI.IsEqualsAssignment then
+            if aI.IsEquals1Assignment then
                 assert (fieldParsers.Length = 1)
                 yield sprintf "=<%s>" fieldParsers.[0].Description
+            elif aI.IsEquals2Assignment then
+                assert (fieldParsers.Length = 2)
+                yield sprintf " <%s>=<%s>" fieldParsers.[0].Description fieldParsers.[1].Description
             else
                 for p in fieldParsers do
                     yield sprintf " <%s>" p.Description
@@ -130,7 +136,7 @@ let printUsage (argInfo : UnionArgInfo) programName (description : string option
 
     let options, subcommands =
         argInfo.Cases
-        |> Seq.filter (fun aI -> not aI.Hidden)
+        |> Seq.filter (fun aI -> not aI.IsHidden)
         |> Seq.partition (fun aI -> not aI.IsNested)
 
     if options.Length > 0 || argInfo.UsesHelpParam then
@@ -173,16 +179,18 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
         | clname :: _ ->
             match aI.FieldParsers with
             | Primitives parsers ->  
-                if aI.IsEqualsAssignment then
-                    let f = fields.[0]
-                    let p = parsers.[0]
-                    yield sprintf "%s='%s'" clname <| p.UnParser f
+                let inline unpars i = parsers.[i].UnParser fields.[i]
+                if aI.IsEquals1Assignment then
+                    yield sprintf "%s=%s" clname (unpars 0)
 
+                elif aI.IsEquals2Assignment then
+                    yield clname
+                    yield sprintf "%s=%s" (unpars 0) (unpars 1)
                 else
                     yield clname
 
                     for i = 0 to fields.Length - 1 do
-                        yield parsers.[i].UnParser fields.[i]
+                        yield unpars i
 
             | NestedUnion (_, nested) ->
                 yield clname

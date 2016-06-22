@@ -69,7 +69,7 @@ let private parseEqualityParam (param : string) =
     let m = assignRegex.Match param
     if m.Success then
         let name = m.Groups.[1].Value
-        let param = m.Groups.[2].Value.Trim().Trim(''', '"')
+        let param = m.Groups.[2].Value
         name, Some param
     else
         param, None
@@ -116,20 +116,33 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine sw [||]
                     results.AppendResult result
 
-        | Some caseInfo when equalityParam.IsSome && not caseInfo.IsEqualsAssignment ->
+        | Some caseInfo when equalityParam.IsSome && not caseInfo.IsEquals1Assignment ->
             error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s=<param>'." name
         | Some caseInfo when caseInfo.IsFirst && results.ResultCount > 0 ->
             error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." name
 
         | Some caseInfo ->
             match caseInfo.FieldParsers with
-            | Primitives [|field|] when caseInfo.IsEqualsAssignment ->
+            | Primitives [|field|] when caseInfo.IsEquals1Assignment ->
                 match equalityParam with
                 | None -> error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
                 | Some eqp ->
                     let argument = parseField caseInfo name field eqp
                     let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine name [| argument |]
                     results.AppendResult result
+
+            | Primitives [|kf;vf|] when caseInfo.IsEquals2Assignment ->
+                if state.Reader.MoveNext() then
+                    let kt,vto = parseEqualityParam state.Reader.Current
+                    match vto with
+                    | None -> error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s=%s'" caseInfo.Name kf.Description vf.Description
+                    | Some vt ->
+                        let k = parseField caseInfo name kf kt
+                        let v = parseField caseInfo name vf vt
+                        let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine name [|k;v|]
+                        results.AppendResult result
+                else
+                    error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s=%s'" caseInfo.Name kf.Description vf.Description
 
             | Primitives fields ->
                 let parseNextField (p : FieldParserInfo) =
@@ -315,7 +328,7 @@ let postProcessResults (argInfo : UnionArgInfo) ignoreMissingMandatory
             | _, ts' -> ts'
 
         match combined with
-        | [||] when caseInfo.Mandatory && not ignoreMissingMandatory -> 
+        | [||] when caseInfo.IsMandatory && not ignoreMissingMandatory -> 
             error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name
         | _ -> combined
 
