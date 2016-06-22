@@ -101,8 +101,6 @@ and [<NoEquality; NoComparison>]
     {
         /// Union Case Argument Info
         Type : Type
-        /// True iff union contains subcommand cases
-        ContainsSubCommands : bool
         /// If subcommand, attempt to retrieve the parent record
         TryGetParent : unit -> UnionCaseArgInfo option
         /// Union cases
@@ -118,6 +116,8 @@ and [<NoEquality; NoComparison>]
         /// Union cases indexed by cli parameter names
         CliParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
     }
+with
+    member inline uai.UsesHelpParam = List.isEmpty uai.HelpParam.Flags |> not
 
 
 [<NoEquality; NoComparison>]

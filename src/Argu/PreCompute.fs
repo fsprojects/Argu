@@ -8,22 +8,23 @@ open System.Text.RegularExpressions
 
 open FSharp.Reflection
 
-let defaultHelpParams = [ "--help" ; "-h" ]
+let defaultHelpParam = "help"
 let defaultHelpDescription = "display this list of options."
+
+let getDefaultHelpParam (t : Type) =
+    let prefixString =
+        match t.TryGetAttribute<CliPrefixAttribute>() with
+        | None -> CliPrefix.DoubleDash
+        | Some pf -> pf.Prefix
+
+    prefixString + defaultHelpParam
 
 /// construct a CLI param from UCI name
 let generateOptionName (uci : UnionCaseInfo) =
-    let prefix = 
-        uci.TryGetAttribute<CliPrefixAttribute>(true) 
-        |> Option.map (fun a -> a.Prefix)
-        |> id (fun p -> defaultArg p CliPrefix.DoubleDash)
-
-    let prefixString =
-        match prefix with
-        | CliPrefix.None -> "" 
-        | CliPrefix.Dash -> "-" 
-        | CliPrefix.DoubleDash -> "--"
-        | p -> invalidArg "CliPrefix" <| sprintf "unsupported CLI prefix '%s'." (string p)
+    let prefixString = 
+        match uci.TryGetAttribute<CliPrefixAttribute>(true) with
+        | None -> CliPrefix.DoubleDash
+        | Some pf -> pf.Prefix
 
     prefixString + uci.Name.ToLower().Replace('_','-')
 
@@ -239,7 +240,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         | None ->
             let helpSwitches =
                 match t.TryGetAttribute<HelpFlagsAttribute>() with
-                | None -> defaultHelpParams
+                | None -> [getDefaultHelpParam t]
                 | Some hf -> 
                     for f in hf.Names do validateCliParam f
                     Array.toList hf.Names
@@ -331,7 +332,6 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         Type = t
         TryGetParent = tryGetParent
         Cases = caseInfo
-        ContainsSubCommands = caseInfo |> Array.exists (fun c -> c.IsNested)
         TagReader = tagReader
         GroupedSwitchExtractor = groupedSwitchExtractor
         AppSettingsParamIndex = appSettingsIndex

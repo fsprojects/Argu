@@ -10,7 +10,7 @@ type PushArgs =
     | Branch of name:string
 with
     interface IArgParserTemplate with
-        member this.Usage = "push"
+        member this.Usage = "foo bar foo bar foo bar"
 
 [<CliPrefix(CliPrefix.Dash)>]
 type CleanArgs =
@@ -19,18 +19,18 @@ type CleanArgs =
     | X
 with
     interface IArgParserTemplate with
-        member this.Usage = "clean"
+        member this.Usage = "foo bar foo bar foo bar"
 
 [<CliPrefix(CliPrefix.None)>]
 type GitArgs =
     | [<AltCommandLine("foo")>]Bar of int
-    | Push of ParseResult<PushArgs>
+    | [<AltCommandLine("-p")>]Push of ParseResult<PushArgs>
     | Clean of ParseResult<CleanArgs>
 with 
     interface IArgParserTemplate with 
-        member this.Usage = "git"
+        member this.Usage = "foo bar foo bar foo bar"
 
-let parser = ArgumentParser.Create<GitArgs>()
+let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", description = "Gadget -- my awesome CLI tool")
 
 parser.PrintCommandLineFlat [Bar 42 ; Push(toParseResults [Remote "a b"])]
 

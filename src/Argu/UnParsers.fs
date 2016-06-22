@@ -13,48 +13,42 @@ open FSharp.Reflection
 /// </summary>
 let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = stringExpr {
     yield programName
-    yield ' '
 
     for command in getHierarchy argInfo do
-        yield command.Name
         yield ' '
+        yield command.Name
     
     let sorted = 
         argInfo.Cases
-        |> Seq.filter (fun ai -> not ai.Hidden && not ai.IsNested)
-        |> Seq.sortBy (fun ai -> not ai.IsFirst, ai.IsRest)
+        |> Seq.filter (fun aI -> not aI.Hidden)
+        |> Seq.sortBy (fun aI -> not aI.IsFirst, aI.IsRest, aI.IsNested)
         |> Seq.toArray
 
     for aI in sorted do
-        match aI.FieldParsers with
-        | NestedUnion _ -> ()
-        | Primitives parsers ->
-
-        if not aI.Mandatory then yield '['
         match aI.CommandLineNames with
         | [] -> ()
-        | h :: [] -> yield h
-        | h :: t ->
-            if aI.Mandatory then yield '('
-            yield h
-            for n in t do
-                yield '|'
-                yield n
+        | name :: _ ->
+            yield ' '
+            if not aI.Mandatory then yield '['
+            yield name
 
-            if aI.Mandatory then yield ')'
+            match aI.FieldParsers with
+            | NestedUnion _ -> yield " <subcommands>"
+            | Primitives parsers ->
+                if aI.IsEqualsAssignment then
+                    assert(parsers.Length = 1)
+                    yield sprintf "=<%s>" parsers.[0].Description
+                else
+                    for p in parsers do
+                        yield sprintf " <%s>" p.Description
 
-        if aI.IsEqualsAssignment then
-            assert(parsers.Length = 1)
-            yield sprintf "=<%s>" parsers.[0].Description
-        else
-            for p in parsers do
-                yield sprintf " <%s>" p.Description
+                if aI.IsRest then yield " ..."
 
-        if aI.IsRest then yield " ..."
-        if not aI.Mandatory then yield ']'
-        if aI.Tag <> Array.last(sorted).Tag then yield ' '
+            if not aI.Mandatory then yield ']'
 
-    if argInfo.ContainsSubCommands then yield " <command> [<args>]"     
+    match argInfo.HelpParam.Flags with
+    | h :: _ -> yield sprintf " [%s]" h
+    | _ -> ()
 }
  
 /// <summary>
@@ -89,7 +83,7 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
             if aI.IsRest then yield " ..."
 
         | NestedUnion (_, argInfo) ->
-            yield " <subcommands>"
+            yield " <options>"
 
         yield ": "
         yield aI.Usage
@@ -124,29 +118,43 @@ let printHelpParam (hp : HelpParam) = stringExpr {
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
-let printUsage (argInfo : UnionArgInfo) programName (msg : string option) = stringExpr {
+let printUsage (argInfo : UnionArgInfo) programName (description : string option) (msg : string option) = stringExpr {
     match msg with
-    | None -> yield! printCommandLineSyntax argInfo programName
     | Some u -> yield u
-        
-    yield Environment.NewLine            
-    yield Environment.NewLine
+    | None -> 
+        match description with
+        | Some d -> yield d; yield Environment.NewLine; yield Environment.NewLine
+        | None -> ()
 
-    for aI in argInfo.Cases do
-        if not aI.Hidden && not aI.IsNested then
-            yield! printArgUsage aI
+        yield "USAGE: "; yield! printCommandLineSyntax argInfo programName
 
-    yield! printHelpParam argInfo.HelpParam
+    let options, subcommands =
+        argInfo.Cases
+        |> Seq.filter (fun aI -> not aI.Hidden)
+        |> Seq.partition (fun aI -> not aI.IsNested)
 
-    if argInfo.ContainsSubCommands then
+    if options.Length > 0 || argInfo.UsesHelpParam then
+        yield Environment.NewLine; yield Environment.NewLine
+        yield "OPTIONS:"
+        yield Environment.NewLine; yield Environment.NewLine
+
+        for aI in options do yield! printArgUsage aI
+
+        yield! printHelpParam argInfo.HelpParam
+
+    if subcommands.Length > 0 then
         yield Environment.NewLine
-        yield "Subcommands:"
-        yield Environment.NewLine
-        yield Environment.NewLine
+        yield "SUBCOMMANDS:"
+        yield Environment.NewLine; yield Environment.NewLine
 
-        for aI in argInfo.Cases do
-            if not aI.Hidden && aI.IsNested then
-                yield! printArgUsage aI
+        for aI in subcommands do yield! printArgUsage aI
+
+        match argInfo.HelpParam.Flags with
+        | [] -> ()
+        | helpflag :: _ -> 
+            yield Environment.NewLine
+            yield sprintf "\tUse '%s <subcommand> %s' for additional information." programName helpflag
+            yield Environment.NewLine
 }
 
 /// <summary>

@@ -78,19 +78,20 @@ type CustomAppSettingsAttribute (name : string) =
     inherit Attribute ()
     member __.Name = name
 
-
-/// CLI prefix enumeration
-type CliPrefix =
-    /// No CLI prefix
-    | None = 0
-    /// Single Dash prefix
-    | Dash = 1
-    /// Double Dash prefix
-    | DoubleDash = 2
+/// Predefined CLI prefixes to be added
+/// 
+[<RequireQualifiedAccess>]
+module CliPrefix =
+    /// No Cli Prefix
+    let [<Literal>] None = ""
+    /// Single Dash prefix '-'
+    let [<Literal>] Dash = "-"
+    /// Double Dash prefix '--'
+    let [<Literal>] DoubleDash = "--"
 
 /// Specifies a custom prefix for auto generated CLI names.
 [<AttributeUsage(AttributeTargets.Property ||| AttributeTargets.Class, AllowMultiple = false)>]
-type CliPrefixAttribute(prefix:CliPrefix) = 
+type CliPrefixAttribute(prefix : string) = 
     inherit Attribute() 
     member __.Prefix = prefix
 

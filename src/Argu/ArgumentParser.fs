@@ -9,7 +9,7 @@ open FSharp.Quotations
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
 [<NoEquality; NoComparison; Sealed; AutoSerializable(false)>]
-type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (argInfo : UnionArgInfo, ?programName : string) =
+type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (argInfo : UnionArgInfo, ?programName : string, ?description : string) =
     // memoize parser generation for given template type
     static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
 
@@ -18,7 +18,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         | None -> currentProgramName.Value
         | Some pn -> pn
 
-    let mkUsageString argInfo msgOpt = printUsage argInfo _programName msgOpt |> String.build
+    let mkUsageString argInfo msgOpt = printUsage argInfo _programName description msgOpt |> String.build
 
     let (|ParserExn|_|) (e : exn) =
         match e with
@@ -32,8 +32,9 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     ///     Creates a new parser instance based on supplied F# DU template.
     /// </summary>
     /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
-    new (?programName : string) =
-        new ArgumentParser<'Template>(argInfoLazy.Value, ?programName = programName)
+    /// <param name="description">Program description placed at the top of the usage string.</param>
+    new (?programName : string, ?description : string) =
+        new ArgumentParser<'Template>(argInfoLazy.Value, ?programName = programName, ?description = description)
 
 
     /// Returns true if top-level parser
@@ -54,7 +55,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
 
         try
-            let cliResults = parseCommandLine argInfo _programName errorHandler raiseOnUsage ignoreUnrecognized inputs
+            let cliResults = parseCommandLine argInfo _programName description errorHandler raiseOnUsage ignoreUnrecognized inputs
             let ignoreMissing = (cliResults.IsUsageRequested && not raiseOnUsage) || ignoreMissing
             let results = postProcessResults argInfo ignoreMissing None (Some cliResults)
 
@@ -106,7 +107,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
         try
             let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
-            let cliResults = parseCommandLine argInfo _programName errorHandler raiseOnUsage ignoreUnrecognized inputs
+            let cliResults = parseCommandLine argInfo _programName description errorHandler raiseOnUsage ignoreUnrecognized inputs
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
             new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
@@ -164,7 +165,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     /// <summary>Prints parameters in App.Config format.</summary>
     /// <param name="args">The parameters that fill out the XML document.</param>
     /// <param name="printComments">Print XML comments over every configuration entry.</param>
-    member __.PrintAppSettings (args : 'Template list, ?printComments) : string =
+    member __.PrintAppSettings (args : 'Template list, ?printComments : bool) : string =
         let printComments = defaultArg printComments true
         let xmlDoc = printAppSettings argInfo printComments args
         use writer = { new System.IO.StringWriter() with member __.Encoding = System.Text.Encoding.UTF8 }
@@ -182,8 +183,9 @@ type ArgumentParser =
     ///     which must be an F# Discriminated Union.
     /// </summary>
     /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
-    static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string) =
-        new ArgumentParser<'Template>(?programName = programName)
+    /// <param name="description">Program description placed at the top of the usage string.</param>
+    static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?description : string) =
+        new ArgumentParser<'Template>(?programName = programName, ?description = description)
 
 
 [<AutoOpen>]

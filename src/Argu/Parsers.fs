@@ -55,6 +55,7 @@ type CliParseResults(argInfo : UnionArgInfo) =
 type CliParseState =
     {
         ProgramName : string
+        Description : string option
         Exiter : IExiter
         IgnoreUnrecognizedArgs : bool
         RaiseOnUsage : bool
@@ -154,25 +155,26 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     existential.Accept { new ITemplateFunc<obj> with
                         member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
                             new ParseResult<'Template>(nestedUnion, nestedResults, 
-                                        printUsage nestedUnion state.ProgramName >> String.build, state.Exiter) :> obj }
+                                        printUsage nestedUnion state.ProgramName state.Description >> String.build, state.Exiter) :> obj }
 
                 let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine name [|result|]
                 results.AppendResult result
-                
 
-/// <summary>
-///     Parse the entire command line
-/// </summary>
 and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInfo) =
     let results = new CliParseResults(argInfo)
     while not state.Reader.IsCompleted do parseCommandLinePartial state argInfo results
     results.ToUnionParseResults()
 
-and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (exiter : IExiter) 
-                        (raiseOnUsage : bool) (ignoreUnrecognized : bool) (inputs : string []) =
+/// <summary>
+///     Parse the entire command line
+/// </summary>
+and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (description : string option) 
+                        (exiter : IExiter) (raiseOnUsage : bool) (ignoreUnrecognized : bool) 
+                        (inputs : string []) =
     let state = {
         Reader = new CliTokenReader(inputs)
         ProgramName = programName
+        Description = description
         RaiseOnUsage = raiseOnUsage
         IgnoreUnrecognizedArgs = ignoreUnrecognized
         Exiter = exiter

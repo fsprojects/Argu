@@ -52,6 +52,14 @@ module internal Utils =
             for x in xs do isAccessed <- true; current <- x
             if isAccessed then Some current else None
 
+        /// partition sequence according to predicate
+        let partition (predicate : 'T -> bool) (ts : seq<'T>) =
+            let l,r = new ResizeArray<'T>(), new ResizeArray<'T>()
+            for t in ts do
+                if predicate t then l.Add t else r.Add t
+
+            l.ToArray(), r.ToArray()
+
     [<AbstractClass>]
     type Existential internal () =
         static let genTy = typedefof<Existential<_>>
