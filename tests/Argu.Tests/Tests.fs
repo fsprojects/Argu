@@ -218,6 +218,30 @@ module ``Simple Tests`` =
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
+    type RecursiveArgument1 =
+        | Rec1 of ParseResult<RecursiveArgument2>
+    with
+        interface IArgParserTemplate with
+            member a.Usage = "foo"
+
+    and RecursiveArgument2 =
+        | Rec2 of ParseResult<RecursiveArgument3>
+    with
+        interface IArgParserTemplate with
+            member a.Usage = "bar"
+
+    and RecursiveArgument3 =
+        | Rec3 of ParseResult<RecursiveArgument1>
+    with
+        interface IArgParserTemplate with
+            member a.Usage = "baz"
+
+    type GenericArgument<'T> =
+        | Bar of 'T
+    with
+        interface IArgParserTemplate with
+            member a.Usage = "baz"
+
     [<Fact>]
     let ``Identify conflicting CLI identifiers`` () =
         shouldFailwith<_, ArguException> (fun () -> ArgumentParser.Create<ConflictingCliNames>())
@@ -225,6 +249,14 @@ module ``Simple Tests`` =
     [<Fact>]
     let ``Identify conflicting AppSettings identifiers`` () =
         shouldFailwith<_, ArguException> (fun () -> ArgumentParser.Create<ConflictingAppSettingsNames>())
+
+    [<Fact>]
+    let ``Identify recursive subcommands`` () =
+        shouldFailwith<_, ArguException> (fun () -> ArgumentParser.Create<RecursiveArgument1>())
+
+    [<Fact>]
+    let ``Identify generic arguments`` () =
+        shouldFailwith<_, ArguException> (fun () -> ArgumentParser.Create<GenericArgument<string>>())
 
 
     [<CliPrefix(CliPrefix.Dash)>]

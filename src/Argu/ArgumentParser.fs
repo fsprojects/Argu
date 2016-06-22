@@ -31,7 +31,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         | _ -> None
 
     /// <summary>
-    ///     Creates a new parser instance based on supplied F# DU template.
+    ///     Creates a new parser instance based on supplied F# union template.
     /// </summary>
     /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
     /// <param name="description">Program description placed at the top of the usage string.</param>
@@ -127,7 +127,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     /// <summary>
     ///     Gets a subparser associated with specific subcommand instance
     /// </summary>
-    /// <param name="expr">Expression providing the subcommand DU constructor.</param>
+    /// <param name="expr">Expression providing the subcommand union constructor.</param>
     member __.GetSubParser (expr : Expr<ParseResult<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
         let uci = expr2Uci expr
         let case = argInfo.Cases.[uci.Tag]
@@ -136,7 +136,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         | _ -> arguExn "internal error when fetching subparser %O." uci
 
     /// <summary>
-    ///     Gets the DU tag representation for given argument
+    ///     Gets the F# union tag representation for given argument
     /// </summary>
     /// <param name="value">Argument instance.</param>
     member __.GetTag(value : 'Template) : int = argInfo.TagReader.Value (value :> obj)
@@ -193,6 +193,6 @@ module ArgumentParserUtils =
     let toParseResults (inputs : seq<'Template>) : ParseResult<'Template> =
         ArgumentParser.Create<'Template>().ToParseResult(inputs)
 
-    /// gets the DU tag representation of given argument instance
+    /// gets the F# union tag representation of given argument instance
     let tagOf (input : 'Template) : int =
         ArgumentParser.Create<'Template>().GetTag input

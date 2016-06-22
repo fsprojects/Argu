@@ -236,11 +236,11 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
 and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpParam option) (tryGetParent : unit -> UnionCaseArgInfo option) (t : Type) : UnionArgInfo =
     if not <| FSharpType.IsUnion(t, bindingFlags = allBindings) then
-        invalidArg t.Name "Argu: template type is not F# DU."
+        arguExn "template type '%O' is not an F# union." t
     elif stack |> List.exists ((=) t) then
-        invalidArg t.Name "Argu: template type implements unsupported recursive pattern."
+        arguExn "template type '%O' implements unsupported recursive pattern." t
     elif t.IsGenericType then
-        invalidArg t.Name "Argu: template type is generic which is not supported."
+        arguExn "template type '%O' is generic; this is not supported." t
 
     let helpParam =
         match helpParam with
