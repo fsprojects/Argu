@@ -1,6 +1,8 @@
 ﻿[<AutoOpen>]
 module internal Argu.PreCompute
 
+#nowarn "44"
+
 open System
 open System.Reflection
 open System.Collections.Generic
@@ -119,7 +121,6 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             arguExn "Error generating usage string from IArgParserTemplate for case %O." uci
 
     let isFirst = uci.ContainsAttribute<FirstAttribute> ()
-    let isPrintLabels = uci.ContainsAttribute<PrintLabelsAttribute> (true)
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let isMandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
     let isGatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
@@ -137,8 +138,12 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             false, false
 
     let parsers =
-        let getParser (p : PropertyInfo) =
-            let label = if isPrintLabels then Some p.Name else None
+        let getParser (index : int) (p : PropertyInfo) =
+            let label =
+                if types.Length = 1 && p.Name <> "Item" then Some p.Name
+                elif types.Length > 1 && p.Name <> sprintf "Item%d" index then Some p.Name
+                else None
+
             let ok, f = primitiveParsers.TryGetValue p.PropertyType
             if ok then f label
             else
@@ -157,7 +162,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             let shape = ShapeArgumentTemplate.FromType prt
             NestedUnion(shape, argInfo)
 
-        | _ -> Array.map getParser fields |> Primitives
+        | _ -> Array.mapi getParser fields |> Primitives
 
     let commandLineArgs =
         if uci.ContainsAttribute<NoCommandLineAttribute> (true) then 
@@ -225,7 +230,6 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         FieldParsers = parsers
         AppSettingsCSV = isAppSettingsCSV
         IsMandatory = isMandatory
-        PrintLabels = isPrintLabels
         GatherAllSources = isGatherAll
         IsRest = isRest
         IsFirst = isFirst

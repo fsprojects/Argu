@@ -9,6 +9,7 @@ open System
 type ParseCSVAttribute () = inherit Attribute ()
 
 /// Consume all remaining command line arguments.
+[<Obsolete("Please use variadic parameters instead.")>]
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type RestAttribute () = inherit Attribute ()
 
@@ -52,8 +53,9 @@ type HelpDescriptionAttribute (description : string) =
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type FirstAttribute () = inherit Attribute ()
 
-/// Print F# 3.1 field labels in 'Usage' string.
+/// Print F# 3.1 field labels in usage string.
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<Obsolete("Argu 3.0 prints union labels by default. Please remove this attribute.")>]
 type PrintLabelsAttribute () = inherit Attribute ()
 
 /// Use '--param=arg' assignment syntax in CLI.

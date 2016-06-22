@@ -32,7 +32,7 @@ with
     member inline p.Description =
         match p.Label with
         | None -> p.Name
-        | Some l -> sprintf "%s:%s" l p.Name
+        | Some l -> l
 
 /// Help Param description
 type HelpParam =
@@ -78,8 +78,6 @@ type UnionCaseArgInfo =
         IsEquals1Assignment : bool
         /// If specified, use '--param key=value' CLI parsing syntax
         IsEquals2Assignment : bool
-        /// Print labels in Usage ()
-        PrintLabels : bool
         /// If specified, multiple parameters can be added in AppSettings in CSV form.
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified

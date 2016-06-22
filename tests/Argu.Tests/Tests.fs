@@ -30,7 +30,7 @@ module ``Simple Tests`` =
 
     type Argument =
         | Working_Directory of string
-        | [<PrintLabels>] Listener of host:string * port:int
+        | Listener of host:string * port:int
         | [<Mandatory>] Mandatory_Arg of bool
         | [<Rest>] Rest_Arg of int
         | Data of int * byte []
@@ -126,8 +126,8 @@ module ``Simple Tests`` =
     [<Fact>]
     let ``Usage documents explicitly named argument union case values`` () =
         let usage = parser.Usage()
-        usage.Contains "<host:string>" |> should equal true
-        usage.Contains "<port:int>" |> should equal true
+        usage.Contains "<host>" |> should equal true
+        usage.Contains "<port>" |> should equal true
 
     [<Fact>]
     let ``Parse byte[] parameters`` () =
