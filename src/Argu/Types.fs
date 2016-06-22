@@ -139,7 +139,7 @@ and ExceptionExiter() =
 and ProcessExiter() =
     interface IExiter with
         member __.Name = "Process Exiter"
-        member __.Exit(msg : string, ?errorCode) =
+        member __.Exit(msg : string, ?errorCode : int) =
             Console.Error.WriteLine msg
             do Console.Error.Flush()
-            Microsoft.FSharp.Core.Operators.exit (defaultArg errorCode 1)
+            exit (defaultArg errorCode 1)

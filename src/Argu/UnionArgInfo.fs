@@ -9,9 +9,9 @@ open System.Reflection
 open System.Runtime.Serialization.Formatters.Binary
 open System.Text.RegularExpressions
 
-open Microsoft.FSharp.Reflection
-open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Quotations.Patterns
+open FSharp.Reflection
+open FSharp.Quotations
+open FSharp.Quotations.Patterns
 
 /// Union Case Field info
 [<NoEquality; NoComparison>]
