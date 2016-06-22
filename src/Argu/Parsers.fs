@@ -13,6 +13,21 @@ exception HelpText of subcommand:UnionArgInfo
 let inline error argInfo code fmt = 
     Printf.ksprintf (fun msg -> raise <| ParseError(msg, code, argInfo)) fmt
 
+/// construct a parse result from untyped collection of parsed arguments
+let mkUnionCase (info : UnionCaseArgInfo) idx src ctx (fields : obj []) =
+    {
+        Value = info.CaseCtor fields
+        Index = idx
+        FieldContents =
+            match info.FieldCtor.Value with
+            | None -> null
+            | Some ctor -> ctor fields
+
+        ArgInfo = info
+        Source = src
+        ParseContext = ctx
+    }
+
 //
 //  CLI Parser
 //
@@ -20,14 +35,20 @@ let inline error argInfo code fmt =
 type CliTokenReader(inputs : string[]) =
     let mutable position = -1
 
-    member __.IsCompleted = position = inputs.Length - 1
+    member __.IsCompleted = position + 1 = inputs.Length
     member __.Position = position
     member __.Current =
         if position < 0 then null
         else inputs.[position]
 
+    member __.Peek() =
+        if position + 1 < inputs.Length then
+            inputs.[position + 1]
+        else
+            null
+
     member __.MoveNext() = 
-        if position < inputs.Length - 1 then
+        if position + 1 < inputs.Length then
             position <- position + 1
             true
         else
@@ -60,41 +81,50 @@ type CliParseState =
         IgnoreUnrecognizedArgs : bool
         RaiseOnUsage : bool
         Reader : CliTokenReader
-    }    
+    }
 
 // parses the first part of a command line parameter
 // recognizes if parameter is of kind --param arg or --param=arg
 let private assignRegex = new Regex("""^([^=]*)=(.*)$""", RegexOptions.Compiled)
-let private parseEqualityParam (param : string) =
-    let m = assignRegex.Match param
+
+let private tryGetMatchingUnionCase (info : UnionArgInfo) (token : string) =
+    let ok, found = info.CliParamIndex.Value.TryGetValue token
+    if ok then Some(found, token, None)
+    else
+        let m = assignRegex.Match token
+        if m.Success then
+            let name = m.Groups.[1].Value
+            let ok, found = info.CliParamIndex.Value.TryGetValue name
+            if ok && found.IsEquals1Assignment then 
+                Some(found, name, Some m.Groups.[2].Value)
+            else None
+        else None
+
+let private parseEqualityParam (token : string) =
+    let m = assignRegex.Match token
     if m.Success then
         let name = m.Groups.[1].Value
         let param = m.Groups.[2].Value
         name, Some param
     else
-        param, None
-
-/// construct a parse result from untyped collection of parsed arguments
-let mkUnionCase (info : UnionCaseArgInfo) idx src ctx (fields : obj []) =
-    {
-        Value = info.CaseCtor fields
-        Index = idx
-        FieldContents =
-            match info.FieldCtor.Value with
-            | None -> null
-            | Some ctor -> ctor fields
-
-        ArgInfo = info
-        Source = src
-        ParseContext = ctx
-    }
+        token, None
 
 /// parse the next command line argument and append to state
 let rec private parseCommandLinePartial (state : CliParseState) (argInfo : UnionArgInfo) (results : CliParseResults) =
-    let inline parseField (info : UnionCaseArgInfo) (name : string) (field : FieldParserInfo) (arg : string) =
+    let inline parseField (caseInfo : UnionCaseArgInfo) (name : string) (field : FieldParserInfo) (arg : string) =
         try field.Parser arg
         with _ -> 
             error argInfo ErrorCode.CommandLine "option '%s' expects argument <%s> but was '%s'." name field.Description arg
+
+    let inline tryPeekNonParserToken (parser : FieldParserInfo) =
+        match state.Reader.Peek() with
+        | null -> None
+        | token -> 
+            if Option.isSome (tryGetMatchingUnionCase argInfo token) then None
+            else
+                match (try parser.Parser token |> Some with _ -> None) with
+                | Some _ as r -> let _ = state.Reader.MoveNext() in r
+                | None -> None
 
     if not <| state.Reader.MoveNext() then () else
     let token = state.Reader.Current
@@ -103,25 +133,23 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         if state.RaiseOnUsage then raise <| HelpText argInfo
         else results.IsUsageRequested <- true
     else
-        let name, equalityParam = parseEqualityParam token
-
-        match argInfo.CliParamIndex.Value.TryFind name with
+        match tryGetMatchingUnionCase argInfo token with
         | None -> 
-            match argInfo.GroupedSwitchExtractor.Value name with
+            match argInfo.GroupedSwitchExtractor.Value token with
             | [||] when state.IgnoreUnrecognizedArgs -> results.AppendUnrecognized token
-            | [||] -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." name
+            | [||] -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
             | switches ->
                 for sw in switches do
                     let caseInfo = argInfo.CliParamIndex.Value.[sw]
                     let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine sw [||]
                     results.AppendResult result
 
-        | Some caseInfo when equalityParam.IsSome && not caseInfo.IsEquals1Assignment ->
+        | Some (caseInfo, name, Some _) when not caseInfo.IsEquals1Assignment ->
             error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s=<param>'." name
-        | Some caseInfo when caseInfo.IsFirst && results.ResultCount > 0 ->
+        | Some (caseInfo, name, _) when caseInfo.IsFirst && results.ResultCount > 0 ->
             error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." name
 
-        | Some caseInfo ->
+        | Some (caseInfo, name, equalityParam) ->
             match caseInfo.FieldParsers with
             | Primitives [|field|] when caseInfo.IsEquals1Assignment ->
                 match equalityParam with
@@ -161,6 +189,43 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                         parseSingleParameter()
                 else
                     parseSingleParameter()
+
+            | OptionalParam(existential, field) when caseInfo.IsEquals1Assignment ->
+                let optArgument = existential.Accept { new IFunc<obj> with 
+                    member __.Invoke<'T> () =
+                        match equalityParam with
+                        | None -> Option<'T>.None :> obj
+                        | Some eqp -> parseField caseInfo name field eqp :?> 'T |> Some :> obj }
+
+                let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine name [| optArgument |]
+                results.AppendResult result
+
+            | OptionalParam(existential, field) ->
+                let argument = tryPeekNonParserToken field
+                let optArgument = existential.Accept { new IFunc<obj> with
+                    member __.Invoke<'T> () =
+                        match argument with
+                        | None -> Option<'T>.None :> obj
+                        | Some arg -> Some (arg :?> 'T) :> obj }
+
+                let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine name [| optArgument |]
+                results.AppendResult result
+
+            | ListParam(existential, field) ->
+                let listArg = existential.Accept { new IFunc<obj> with
+                    member __.Invoke<'T>() =
+                        let args = new ResizeArray<'T> ()
+                        let rec gather () =
+                            match tryPeekNonParserToken field with
+                            | None -> ()
+                            | Some r -> args.Add(r :?> 'T) ; gather ()
+
+                        do gather()
+                        Seq.toList args :> obj
+                }
+
+                let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine name [| listArg |]
+                results.AppendResult result
 
             | NestedUnion (existential, nestedUnion) ->
                 let nestedResults = parseCommandLineInner state nestedUnion

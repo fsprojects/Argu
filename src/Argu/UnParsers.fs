@@ -33,7 +33,6 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = str
             yield name
 
             match aI.FieldParsers with
-            | NestedUnion _ -> yield " <subcommands>"
             | Primitives parsers ->
                 if aI.IsEquals1Assignment then
                     assert(parsers.Length = 1)
@@ -46,6 +45,16 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = str
                         yield sprintf " <%s>" p.Description
 
                 if aI.IsRest then yield " ..."
+
+            | OptionalParam (_,parser) ->
+                if aI.IsEquals1Assignment then
+                    yield sprintf "[=<%s>]" parser.Description
+                else
+                    yield sprintf " [<%s>]" parser.Description
+
+            | NestedUnion _ -> yield " <subcommands>"
+            | ListParam (_,parser) ->
+                yield sprintf " <%s> ..." parser.Description
 
             if not aI.IsMandatory then yield ']'
 
@@ -87,6 +96,15 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
                     yield sprintf " <%s>" p.Description
 
             if aI.IsRest then yield " ..."
+
+        | OptionalParam (_,parser) ->
+            if aI.IsEquals1Assignment then
+                yield sprintf "[=<%s>]" parser.Description
+            else
+                yield sprintf " [<%s>]" parser.Description
+
+        | ListParam (_,parser) ->
+            yield sprintf " <%s> ..." parser.Description
 
         | NestedUnion (_, argInfo) ->
             yield " <options>"
@@ -192,6 +210,21 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
                     for i = 0 to fields.Length - 1 do
                         yield unpars i
 
+            | OptionalParam(existential, parser) ->
+                let optional = 
+                    existential.Accept { new IFunc<obj option> with
+                        member __.Invoke<'T> () = fields.[0] :?> 'T option |> Option.map box }
+
+                match optional with
+                | None -> yield clname
+                | Some v when aI.IsEquals1Assignment -> yield sprintf "%s=%s" clname (parser.UnParser v)
+                | Some v -> yield clname ; yield parser.UnParser v
+
+            | ListParam(existential, parser) ->
+                yield clname
+                let objSeq = fields.[0] |> unbox<System.Collections.IEnumerable> |> Seq.cast<obj>
+                for obj in objSeq do yield parser.UnParser obj
+
             | NestedUnion (_, nested) ->
                 yield clname
                 let nestedResult = fields.[0] :?> IParseResults
@@ -237,10 +270,10 @@ let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template li
                         | [] -> ()
                         | first :: rest ->
                             yield " : "
-                            yield first.ToString()
+                            yield first.Description
                             for p in rest do
                                 yield ", "
-                                yield p.ToString()
+                                yield p.Description
 
                         yield ' '
 

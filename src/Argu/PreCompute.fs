@@ -77,11 +77,20 @@ let primitiveParsers =
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
 
+let getPrimitiveParserByType label (t : Type) = 
+    let ok, f = primitiveParsers.TryGetValue t
+    if ok then f label
+    else
+        arguExn "template contains unsupported field of type '%O'." t
 
-let (|UnionParseResult|_|) (t : Type) =
-    if t.IsGenericType && t.GetGenericTypeDefinition() = typedefof<ParseResult<_>> then
-        Some(t.GetGenericArguments().[0])
-    else None
+let (|UnionParseResult|Optional|List|Other|) (t : Type) =
+    if t.IsGenericType then
+        let gt = t.GetGenericTypeDefinition()
+        if gt = typedefof<ParseResult<_>> then UnionParseResult(t.GetGenericArguments().[0])
+        elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
+        elif gt = typedefof<_ list> then List(t.GetGenericArguments().[0])
+        else Other
+    else Other
 
 let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
 let validateCliParam (name : string) =
@@ -138,17 +147,6 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             false, false
 
     let parsers =
-        let getParser (index : int) (p : PropertyInfo) =
-            let label =
-                if types.Length = 1 && p.Name <> "Item" then Some p.Name
-                elif types.Length > 1 && p.Name <> sprintf "Item%d" index then Some p.Name
-                else None
-
-            let ok, f = primitiveParsers.TryGetValue p.PropertyType
-            if ok then f label
-            else
-                arguExn "template contains unsupported field of type '%O'." p.PropertyType
-
         match types with
         | [|UnionParseResult prt|] -> 
             if isEquals1Assignment then
@@ -162,7 +160,31 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             let shape = ShapeArgumentTemplate.FromType prt
             NestedUnion(shape, argInfo)
 
-        | _ -> Array.mapi getParser fields |> Primitives
+        | [|Optional t|] ->
+            if isRest then
+                arguExn "Rest attribute in '%s' not supported for optional cases." uci.Name
+
+            OptionalParam(Existential.FromType t, getPrimitiveParserByType None t)
+
+        | [|List t|] ->
+            if isEquals1Assignment then
+                arguExn "EqualsAssignment in '%s' not supported for variadic list cases." uci.Name
+
+            if isRest then
+                arguExn "Rest attribute in '%s' not supported for variadic list cases." uci.Name
+
+            ListParam(Existential.FromType t, getPrimitiveParserByType None t)
+
+        | _ -> 
+            let getParser index (p : PropertyInfo) =
+                let label =
+                    if types.Length = 1 && p.Name <> "Item" then Some p.Name
+                    elif types.Length > 1 && p.Name <> sprintf "Item%d" index then Some p.Name
+                    else None
+
+                getPrimitiveParserByType label p.PropertyType
+
+            Array.mapi getParser fields |> Primitives
 
     let commandLineArgs =
         if uci.ContainsAttribute<NoCommandLineAttribute> (true) then 

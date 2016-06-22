@@ -91,9 +91,12 @@ with
     member inline __.Tag = __.UnionCaseInfo.Tag
     member inline __.NoCommandLine = __.CommandLineNames.Length = 0
     member inline __.IsNested = match __.FieldParsers with NestedUnion _ -> true | _ -> false
+    member inline __.IsOptional = match __.FieldParsers with OptionalParam _ -> true | _ -> false
 
 and ParameterType =
     | Primitives of FieldParserInfo []
+    | OptionalParam of Existential * FieldParserInfo
+    | ListParam of Existential * FieldParserInfo
     | NestedUnion of ShapeArgumentTemplate * UnionArgInfo
 with
     member inline t.IsNested = match t with NestedUnion _ -> true | _ -> false
