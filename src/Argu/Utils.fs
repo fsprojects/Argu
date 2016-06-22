@@ -19,6 +19,8 @@ module internal Utils =
 
     let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
 
+    let inline arguExn fmt = Printf.ksprintf(fun msg -> raise <| new ArguException(msg)) fmt
+
     [<RequireQualifiedAccess>]
     module Enum =
 

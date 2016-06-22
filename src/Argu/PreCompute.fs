@@ -84,7 +84,7 @@ let (|UnionParseResult|_|) (t : Type) =
 let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
 let validateCliParam (name : string) =
     if name = null || not <| validCliParamRegex.IsMatch name then
-        failwithf "Argu: CLI parameter '%s' contains invalid characters." name
+        arguExn "CLI parameter '%s' contains invalid characters." name
     
 
 /// extracts the subcommand argument hierarchy for given UnionArgInfo
@@ -115,9 +115,51 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
         let dummy = caseCtor dummyFields :?> IArgParserTemplate
         dummy.Usage
-        
+
+    let isPrintLabels = uci.ContainsAttribute<PrintLabelsAttribute> (true)
+    let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
+    let isMandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
+    let isGatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
+    let isRest = uci.ContainsAttribute<RestAttribute> ()
+    let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
+    let isEqualsAssignment = 
+        if uci.ContainsAttribute<EqualsAssignmentAttribute> (true) then
+            if types.Length <> 1 then
+                arguExn "parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
+            elif isRest then
+                arguExn "parameter '%s' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci.Name
+            true
+        else
+            false
+
+    let parsers =
+        let getParser (p : PropertyInfo) =
+            let label = if isPrintLabels then Some p.Name else None
+            let ok, f = primitiveParsers.TryGetValue p.PropertyType
+            if ok then f label
+            else
+                arguExn "template contains unsupported field of type '%O'." p.PropertyType
+
+        match types with
+        | [|UnionParseResult prt|] -> 
+            if isEqualsAssignment then
+                arguExn "EqualsAssignment in '%s' not supported for nested union cases." uci.Name
+            if isRest then
+                arguExn "Rest attribute in '%s' not supported for nested union cases." uci.Name
+            if isMandatory then
+                arguExn "Mandatory attribute in '%s' not supported for nested union cases." uci.Name
+
+            let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt 
+            let shape = ShapeArgumentTemplate.FromType prt
+            NestedUnion(shape, argInfo)
+
+        | _ -> Array.map getParser fields |> Primitives
+
     let commandLineArgs =
-        if uci.ContainsAttribute<NoCommandLineAttribute> (true) then []
+        if uci.ContainsAttribute<NoCommandLineAttribute> (true) then 
+            if parsers.IsNested then
+                arguExn "NoCommandLine attribute in '%s' not supported for nested union cases." uci.Name
+            []
         else
             let defaultName =
                 match uci.TryGetAttribute<CustomCommandLineAttribute> () with 
@@ -141,50 +183,16 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
             | None -> Some <| generateAppSettingsName uci
             // take last registered attribute
+            | Some attr when parsers.IsNested -> arguExn "CustomAppSettings in %s not supported for nested union cases" uci.Name
             | Some attr when not <| String.IsNullOrWhiteSpace attr.Name -> Some attr.Name
-            | Some attr -> failwithf "Argu: AppSettings parameter '%s' contains invalid characters." attr.Name
+            | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name
 
     /// gets the default name of the argument
     let defaultName =
         match commandLineArgs with
         | h :: _ -> h
         | _ when Option.isSome appSettingsName -> appSettingsName.Value
-        | _ -> failwithf "Argu: parameter '%s' needs to have at least one parse source." uci.Name
-
-    let printLabels = uci.ContainsAttribute<PrintLabelsAttribute> (true)
-    let appSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
-    let mandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
-    let gatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
-    let isRest = uci.ContainsAttribute<RestAttribute> ()
-    let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
-    let isEqualsAssignment = 
-        if uci.ContainsAttribute<EqualsAssignmentAttribute> (true) then
-            if types.Length <> 1 then
-                failwithf "Argu: Parameter '%s' has EqualsAssignment attribute but has arity <> 1." uci.Name
-            elif isRest then
-                failwithf "Argu: Parameter '%s' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci.Name
-            true
-        else
-            false
-
-    let parsers =
-        let getParser (p : PropertyInfo) =
-            let label = if printLabels then Some p.Name else None
-            let ok, f = primitiveParsers.TryGetValue p.PropertyType
-            if ok then f label
-            else
-                failwithf "Argu: template contains unsupported field of type '%O'." p.PropertyType
-
-        match types with
-        | [|UnionParseResult prt|] -> 
-            if isEqualsAssignment then
-                failwithf "Argu: EqualsAssignment in '%s' not supported for nested union cases." uci.Name
-
-            let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt 
-            let shape = ShapeArgumentTemplate.FromType prt
-            NestedUnion(shape, argInfo)
-
-        | _ ->  Array.map getParser fields |> Primitives
+        | _ -> arguExn "parameter '%s' needs to have at least one parse source." uci.Name
 
     let fieldCtor = lazy(
         match types.Length with
@@ -199,8 +207,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let first = uci.ContainsAttribute<FirstAttribute> ()
 
-    if appSettingsCSV && fields.Length <> 1 then 
-        failwith "Argu: CSV attribute is only compatible with branches of unary fields." 
+    if isAppSettingsCSV && fields.Length <> 1 then 
+        arguExn "CSV attribute is only compatible with branches of unary fields." 
 
     let uai = {
         UnionCaseInfo = uci
@@ -213,10 +221,10 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         AppSettingsName = appSettingsName
         Usage = usageString
         FieldParsers = parsers
-        AppSettingsCSV = appSettingsCSV
-        Mandatory = mandatory
-        PrintLabels = printLabels
-        GatherAllSources = gatherAll
+        AppSettingsCSV = isAppSettingsCSV
+        Mandatory = isMandatory
+        PrintLabels = isPrintLabels
+        GatherAllSources = isGatherAll
         IsRest = isRest
         IsFirst = first
         IsEqualsAssignment = isEqualsAssignment
@@ -269,7 +277,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         |> Seq.collect (fun arg -> arg.CommandLineNames |> Seq.map (fun name -> arg, name))
         |> Seq.map (fun ((arg, name) as t) ->
             if helpParam.Flags |> List.exists ((=) name) then
-                failwithf "Argu: Parameter '%O' using CLI identifier '%s' which is reserved for help params." arg.UnionCaseInfo name
+                arguExn "parameter '%O' using CLI identifier '%s' which is reserved for help params." arg.UnionCaseInfo name
             t)
         |> Seq.groupBy snd
         |> Seq.map (fun (name, args) -> name, args |> Seq.map fst |> Seq.toArray)
@@ -279,8 +287,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
 
     if cliConflicts.Length > 0 then
         let id, cs = cliConflicts.[0]
-        let msg = sprintf "Argu: Parameters '%O' and '%O' using conflicting CLI identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
-        raise <| new ArgumentException(msg)
+        arguExn "parameters '%O' and '%O' using conflicting CLI identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
 
     // check for conflicting CLI identifiers
     let appSettingsConflicts =
@@ -294,8 +301,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
 
     if appSettingsConflicts.Length > 0 then
         let id, cs = appSettingsConflicts.[0]
-        let msg = sprintf "Argu: Parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
-        raise <| new ArgumentException(msg)
+        arguExn "parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
 
     // recognizes and extracts grouped switches
     // e.g. -efx --> -e -f -x

@@ -97,17 +97,17 @@ module ``Simple Tests`` =
     [<Fact>]
     let ``Help String`` () =
         fun () -> parser.ParseCommandLine [| "--help" |] |> ignore
-        |> should throw typeof<ArgumentException>
+        |> shouldFailwith<_, ArguParseException>
 
     [<Fact>]
     let ``Missing Mandatory parameter`` () =
         fun () -> parser.ParseCommandLine [| "-D" |] |> ignore
-        |> should throw typeof<ArgumentException>
+        |> shouldFailwith<_, ArguParseException>
 
     [<Fact>]
     let ``First Parameter not placed at beggining`` () =
         fun () -> parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] |> ignore
-        |> should throw typeof<ArgumentException>
+        |> shouldFailwith<_, ArguParseException>
 
     [<Fact>]
     let ``Rest Parameter`` () =
@@ -211,7 +211,7 @@ module ``Simple Tests`` =
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
-    type ConflictinAppSettingsNames =
+    type ConflictingAppSettingsNames =
         | [<CustomAppSettings "foo">]Foo of int
         | [<CustomAppSettings "foo">] Bar of string
     with
@@ -220,11 +220,11 @@ module ``Simple Tests`` =
 
     [<Fact>]
     let ``Identify conflicting CLI identifiers`` () =
-        shouldFailwith<_, ArgumentException> (fun () -> ArgumentParser.Create<ConflictingCliNames>())
+        shouldFailwith<_, ArguException> (fun () -> ArgumentParser.Create<ConflictingCliNames>())
 
     [<Fact>]
     let ``Identify conflicting AppSettings identifiers`` () =
-        shouldFailwith<_, ArgumentException> (fun () -> ArgumentParser.Create<ConflictinAppSettingsNames>())
+        shouldFailwith<_, ArguException> (fun () -> ArgumentParser.Create<ConflictingAppSettingsNames>())
 
 
     [<CliPrefix(CliPrefix.Dash)>]
@@ -275,7 +275,7 @@ module ``Simple Tests`` =
 
     [<Fact>]
     let ``Should fail if EqualsAssignment missing assignment.`` () =
-        shouldFailwith<_, ArgumentException>(fun () -> parser.ParseCommandLine [|"--assignment"; "value"|])
+        shouldFailwith<_, ArguParseException>(fun () -> parser.ParseCommandLine [|"--assignment"; "value"|])
 
     [<Fact>]
     let ``Slash in Commandline`` () =
@@ -285,7 +285,7 @@ module ``Simple Tests`` =
     
     [<Fact>]
     let ``Should fail wenn Usage, Mandatory and raiseOnUsage = true`` () =
-        shouldFailwith<_, ArgumentException>(fun () -> parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true))
+        shouldFailwith<_, ArguParseException>(fun () -> parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true))
 
     [<Fact>]
     let ``Usage, Mandatory and raiseOnusage = false`` () =

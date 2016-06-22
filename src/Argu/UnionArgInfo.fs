@@ -95,6 +95,8 @@ with
 and ParameterType =
     | Primitives of FieldParserInfo []
     | NestedUnion of ShapeArgumentTemplate * UnionArgInfo
+with
+    member inline t.IsNested = match t with NestedUnion _ -> true | _ -> false
 
 and [<NoEquality; NoComparison>] 
   UnionArgInfo =

@@ -113,21 +113,30 @@ type IArgParserTemplate =
     /// returns a usage string for every union case
     abstract Usage : string
 
+/// Exception raised by Argu
+type ArguException internal (message : string) =
+    inherit Exception(message)
+
+/// Parse exception raised by Argu
+type ArguParseException internal (message : string) =
+    inherit ArguException(message)
+
 /// An interface for error handling in the argument parser
 type IExiter =
+    abstract Name : string
     abstract Exit : msg : string * ?errorCode : int -> 'T
 
 /// Handles argument parser errors by raising an exception
-and ExceptionExiter(ctor : string -> exn) =
-    static member ArgumentExceptionExiter () = 
-        new ExceptionExiter(fun msg -> new System.ArgumentException(msg) :> _) :> IExiter
+and ExceptionExiter() =
     interface IExiter with
-        member __.Exit(msg, _) = raise (ctor msg)
+        member __.Name = "ArguException Exiter"
+        member __.Exit(msg, _) = raise (new ArguParseException(msg))
 
 /// Handles argument parser errors by exiting the process
 /// after printing a parse error.
 and ProcessExiter() =
     interface IExiter with
+        member __.Name = "Process Exiter"
         member __.Exit(msg : string, ?errorCode) =
             Console.Error.WriteLine msg
             do Console.Error.Flush()

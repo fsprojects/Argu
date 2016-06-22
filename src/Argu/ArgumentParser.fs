@@ -9,7 +9,7 @@ open FSharp.Quotations
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
 [<NoEquality; NoComparison; Sealed; AutoSerializable(false)>]
-type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (argInfo : UnionArgInfo, ?programName : string, ?description : string) =
+type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (argInfo : UnionArgInfo, ?programName : string, ?description : string, ?errorHandler : IExiter) =
     // memoize parser generation for given template type
     static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
 
@@ -19,6 +19,8 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         | Some pn -> pn
 
     let mkUsageString argInfo msgOpt = printUsage argInfo _programName description msgOpt |> String.build
+
+    let mutable errorHandler = match errorHandler with Some e -> e | None -> new ExceptionExiter() :> _
 
     let (|ParserExn|_|) (e : exn) =
         match e with
@@ -33,25 +35,30 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     /// </summary>
     /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
     /// <param name="description">Program description placed at the top of the usage string.</param>
-    new (?programName : string, ?description : string) =
-        new ArgumentParser<'Template>(argInfoLazy.Value, ?programName = programName, ?description = description)
+    /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
+    new (?programName : string, ?description : string, ?errorHandler : IExiter) =
+        new ArgumentParser<'Template>(argInfoLazy.Value, ?programName = programName, 
+                                        ?description = description, ?errorHandler = errorHandler)
 
 
     /// Returns true if top-level parser
     /// and false if parser defined for a subcommand
     member __.IsTopLevelParser = argInfo.TryGetParent() |> Option.isNone
 
+    /// Gets or sets the default error handler used by the instance
+    member __.ErrorHandler
+        with get () = errorHandler
+        and set e = errorHandler <- e
+
     /// <summary>Parse command line arguments only.</summary>
     /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
-    member __.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+    member __.ParseCommandLine (?inputs : string [], ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
-        let errorHandler = match errorHandler with Some e -> e | None -> ExceptionExiter.ArgumentExceptionExiter()
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
 
         try
@@ -65,14 +72,9 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
     /// <summary>Parse AppSettings section of XML configuration only.</summary>
     /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member __.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing : bool) : ParseResult<'Template> =
+    member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
-        let errorHandler = 
-            match errorHandler with
-            | None -> ExceptionExiter.ArgumentExceptionExiter()
-            | Some eh -> eh
 
         try
             let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
@@ -84,25 +86,22 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
     /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
     /// <param name="assembly">assembly to get application configuration from.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member s.ParseAppSettings(assembly : Assembly, ?errorHandler : IExiter, ?ignoreMissing) =
+    member s.ParseAppSettings(assembly : Assembly, ?ignoreMissing : bool) =
         let configFile = assembly.Location + ".config"
-        s.ParseAppSettings(xmlConfigurationFile = configFile, ?errorHandler = errorHandler, ?ignoreMissing = ignoreMissing)
+        s.ParseAppSettings(xmlConfigurationFile = configFile, ?ignoreMissing = ignoreMissing)
 
     /// <summary>Parse both command line args and AppSettings section of XML configuration.
     ///          Results are merged with command line args overriding XML config.</summary>
     /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
     /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given configuration file.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
-    member __.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+    member __.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
-        let errorHandler = match errorHandler with Some e -> e | None -> ExceptionExiter.ArgumentExceptionExiter()
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
 
         try
@@ -118,9 +117,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     ///     Converts a sequence of template argument inputs into a ParseResult instance
     /// </summary>
     /// <param name="inputs">Argument input sequence.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-    member __.ToParseResult (inputs : seq<'Template>, ?errorHandler : IExiter) : ParseResult<'Template> =
-        let errorHandler = match errorHandler with Some e -> e | None -> ExceptionExiter.ArgumentExceptionExiter()
+    member __.ToParseResult (inputs : seq<'Template>) : ParseResult<'Template> =
         mkParseResultFromValues argInfo errorHandler (mkUsageString argInfo) inputs
 
     /// <summary>Returns the usage string.</summary>
@@ -136,7 +133,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         let case = argInfo.Cases.[uci.Tag]
         match case.FieldParsers with
         | NestedUnion (_,nestedUnion) -> new ArgumentParser<'SubTemplate>(nestedUnion, programName = _programName)
-        | _ -> failwith "Argu: internal error"
+        | _ -> arguExn "internal error when fetching subparser %O." uci
 
     /// <summary>
     ///     Gets the DU tag representation for given argument
@@ -184,7 +181,8 @@ type ArgumentParser =
     /// </summary>
     /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
     /// <param name="description">Program description placed at the top of the usage string.</param>
-    static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?description : string) =
+    /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
+    static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?description : string, ?errorHandler : IExiter) =
         new ArgumentParser<'Template>(?programName = programName, ?description = description)
 
 
