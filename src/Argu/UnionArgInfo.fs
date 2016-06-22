@@ -33,6 +33,13 @@ with
         match p.Label with
         | None -> p.Name
         | Some l -> sprintf "%s:%s" l p.Name
+
+/// Help Param description
+type HelpParam =
+    {
+        Flags : string list
+        Description : string
+    }
         
 /// Represents a parsing schema for a single parameter
 [<NoEquality; NoComparison>]
@@ -69,8 +76,6 @@ type UnionCaseArgInfo =
         IsFirst : bool
         /// If specified, use '--param=arg' CLI parsing syntax
         IsEqualsAssignment : bool
-        // Declares that the given argument should replace the default '--help' parameter template
-        IsHelpParameter : bool
         /// Print labels in Usage ()
         PrintLabels : bool
         /// If specified, multiple parameters can be added in AppSettings in CSV form.
@@ -96,6 +101,8 @@ and [<NoEquality; NoComparison>]
     {
         /// Union Case Argument Info
         Type : Type
+        /// True iff union contains subcommand cases
+        ContainsSubCommands : bool
         /// If subcommand, attempt to retrieve the parent record
         TryGetParent : unit -> UnionCaseArgInfo option
         /// Union cases
@@ -106,8 +113,8 @@ and [<NoEquality; NoComparison>]
         GroupedSwitchExtractor : Lazy<string -> string []>
         /// Union cases indexed by appsettings parameter names
         AppSettingsParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
-        /// Use default helper flag provided by the library
-        UseDefaultHelper : bool
+        /// Help flags specified by the library
+        HelpParam : HelpParam
         /// Union cases indexed by cli parameter names
         CliParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
     }

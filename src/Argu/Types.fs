@@ -32,13 +32,21 @@ type NoCommandLineAttribute () = inherit Attribute ()
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
 type NoAppSettingsAttribute () = inherit Attribute ()
 
-/// Specifies that property is a replacement for the --help template
-[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-type HelpAttribute () = inherit Attribute ()
+/// Specifies replacement flags for help params
+[<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
+type HelpFlagsAttribute ([<ParamArray>] names : string []) = 
+    inherit Attribute()
+    member __.Names = names
 
 /// Specifies that the union should not take --help parameters
 [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
-type DisableHelpAttribute () = inherit Attribute ()
+type DisableHelpFlagsAttribute () = inherit HelpFlagsAttribute ()
+
+/// Specifies a custom help param description for the usage string
+[<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
+type HelpDescriptionAttribute (description : string) =
+    inherit Attribute()
+    member __.Description = description
 
 /// Argument can only be placed at the beginning of the command line.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
@@ -63,7 +71,6 @@ type CustomCommandLineAttribute (name : string) =
 type AltCommandLineAttribute ([<ParamArray>] names :string []) = 
     inherit Attribute ()
     member __.Names = names
-    new(name:string) = AltCommandLineAttribute([|name|])
 
 /// Sets a custom AppSettings key name.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]

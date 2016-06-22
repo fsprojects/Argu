@@ -11,7 +11,7 @@ open FSharp.Quotations
 [<NoEquality; NoComparison; Sealed; AutoSerializable(false)>]
 type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (argInfo : UnionArgInfo, ?programName : string) =
     // memoize parser generation for given template type
-    static let argInfoLazy = lazy(preComputeUnionArgInfo typeof<'Template>)
+    static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
 
     let _programName =
         match programName with

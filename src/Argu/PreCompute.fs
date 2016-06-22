@@ -4,12 +4,11 @@ module internal Argu.PreCompute
 open System
 open System.Reflection
 open System.Collections.Generic
-open System.Collections.Concurrent
 open System.Text.RegularExpressions
 
 open FSharp.Reflection
 
-let defaultHelpParams = HashSet [| "--help" |]
+let defaultHelpParams = [ "--help" ; "-h" ]
 let defaultHelpDescription = "display this list of options."
 
 /// construct a CLI param from UCI name
@@ -82,6 +81,10 @@ let (|UnionParseResult|_|) (t : Type) =
     else None
 
 let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
+let validateCliParam (name : string) =
+    if name = null || not <| validCliParamRegex.IsMatch name then
+        failwithf "Argu: CLI parameter '%s' contains invalid characters." name
+    
 
 /// extracts the subcommand argument hierarchy for given UnionArgInfo
 let getHierarchy (uai : UnionArgInfo) =
@@ -93,7 +96,7 @@ let getHierarchy (uai : UnionArgInfo) =
     aux [] uai
 
 /// generate argument parsing schema from given UnionCaseInfo
-let rec private preComputeUnionCaseArgInfo (stack : Type list)
+let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : HelpParam option)
                                             (getParent : unit -> UnionArgInfo)
                                             (uci : UnionCaseInfo) : UnionCaseArgInfo =
 
@@ -127,9 +130,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
 
             let cliNames = defaultName :: altNames
 
-            for name in cliNames do
-                if name = null || not <| validCliParamRegex.IsMatch name then
-                    failwithf "Argu: CLI parameter '%s' contains invalid characters." name
+            for name in cliNames do validateCliParam name
 
             cliNames
 
@@ -155,7 +156,6 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
     let gatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
     let isRest = uci.ContainsAttribute<RestAttribute> ()
     let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
-    let isHelpParameter = uci.ContainsAttribute<HelpAttribute> ()
     let isEqualsAssignment = 
         if uci.ContainsAttribute<EqualsAssignmentAttribute> (true) then
             if types.Length <> 1 then
@@ -179,7 +179,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
             if isEqualsAssignment then
                 failwithf "Argu: EqualsAssignment in '%s' not supported for nested union cases." uci.Name
 
-            let argInfo = preComputeUnionArgInfoInner stack tryGetCurrent prt 
+            let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt 
             let shape = ShapeArgumentTemplate.FromType prt
             NestedUnion(shape, argInfo)
 
@@ -220,13 +220,12 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list)
         IsFirst = first
         IsEqualsAssignment = isEqualsAssignment
         Hidden = isHidden
-        IsHelpParameter = isHelpParameter
     }
 
     current := Some uai // assign result to children
     uai
 
-and private preComputeUnionArgInfoInner (stack : Type list) (tryGetParent : unit -> UnionCaseArgInfo option) (t : Type) : UnionArgInfo =
+and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpParam option) (tryGetParent : unit -> UnionCaseArgInfo option) (t : Type) : UnionArgInfo =
     if not <| FSharpType.IsUnion(t, bindingFlags = allBindings) then
         invalidArg t.Name "Argu: template type is not F# DU."
     elif stack |> List.exists ((=) t) then
@@ -234,29 +233,42 @@ and private preComputeUnionArgInfoInner (stack : Type list) (tryGetParent : unit
     elif t.IsGenericType then
         invalidArg t.Name "Argu: template type is generic which is not supported."
 
+    let helpParam =
+        match helpParam with
+        | Some hp -> hp // always inherit help schema from parent union
+        | None ->
+            let helpSwitches =
+                match t.TryGetAttribute<HelpFlagsAttribute>() with
+                | None -> defaultHelpParams
+                | Some hf -> 
+                    for f in hf.Names do validateCliParam f
+                    Array.toList hf.Names
+
+            let description = 
+                match t.TryGetAttribute<HelpDescriptionAttribute> () with
+                | None -> defaultHelpDescription
+                | Some attr -> attr.Description
+
+            { Flags = helpSwitches ; Description = description }
+
+
     // use ref cell for late binding of parent argInfo
     let current = ref Unchecked.defaultof<_>
     let getCurrent = fun () -> !current
 
-    let disableDefaultHelpParameter = t.ContainsAttribute<DisableHelpAttribute>()
-
     let caseInfo =
         FSharpType.GetUnionCases(t, bindingFlags = allBindings)
-        |> Seq.map (preComputeUnionCaseArgInfo (t :: stack) getCurrent)
+        |> Seq.map (preComputeUnionCaseArgInfo (t :: stack) (Some helpParam) getCurrent)
         |> Seq.sortBy (fun a -> a.Tag)
         |> Seq.toArray
-
-    let useDefaultHelperSwitches =
-        if caseInfo |> Array.exists (fun c -> c.IsHelpParameter) then false
-        else t.ContainsAttribute<DisableHelpAttribute>() |> not
 
     // check for conflicting CLI identifiers
     let cliConflicts =
         caseInfo
         |> Seq.collect (fun arg -> arg.CommandLineNames |> Seq.map (fun name -> arg, name))
         |> Seq.map (fun ((arg, name) as t) ->
-            if useDefaultHelperSwitches && defaultHelpParams.Contains name then
-                failwithf "Argu: Parameter '%O' using CLI identifier '%s' which is reserved for help param." arg.UnionCaseInfo name
+            if helpParam.Flags |> List.exists ((=) name) then
+                failwithf "Argu: Parameter '%O' using CLI identifier '%s' which is reserved for help params." arg.UnionCaseInfo name
             t)
         |> Seq.groupBy snd
         |> Seq.map (fun (name, args) -> name, args |> Seq.map fst |> Seq.toArray)
@@ -319,14 +331,16 @@ and private preComputeUnionArgInfoInner (stack : Type list) (tryGetParent : unit
         Type = t
         TryGetParent = tryGetParent
         Cases = caseInfo
+        ContainsSubCommands = caseInfo |> Array.exists (fun c -> c.IsNested)
         TagReader = tagReader
         GroupedSwitchExtractor = groupedSwitchExtractor
         AppSettingsParamIndex = appSettingsIndex
-        UseDefaultHelper = useDefaultHelperSwitches
+        HelpParam = helpParam
         CliParamIndex = cliIndex
     }
 
     current := result // assign result to children
     result
 
-and preComputeUnionArgInfo (t : Type) = preComputeUnionArgInfoInner [] (fun () -> None) t
+and preComputeUnionArgInfo<'Template when 'Template :> IArgParserTemplate> () = 
+    preComputeUnionArgInfoInner [] None (fun () -> None) typeof<'Template>

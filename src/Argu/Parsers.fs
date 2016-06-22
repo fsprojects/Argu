@@ -35,17 +35,14 @@ type CliTokenReader(inputs : string[]) =
 
 type CliParseResults(argInfo : UnionArgInfo) =
     let mutable resultCount = 0
-    let mutable helpCount = 0
     let unrecognized = new ResizeArray<string>()
     let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
 
     member val IsUsageRequested = false with get,set
     member __.ResultCount = resultCount
-    member __.HelpCount = helpCount
 
     member __.AppendResult(result : UnionCaseParseResult) =
         resultCount <- resultCount + 1
-        if result.ArgInfo.IsHelpParameter then helpCount <- helpCount + 1
         results.[result.Tag].Add result
 
     member __.AppendUnrecognized(token:string) = unrecognized.Add token
@@ -101,10 +98,9 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     if not <| state.Reader.MoveNext() then () else
     let token = state.Reader.Current
 
-    if argInfo.UseDefaultHelper && defaultHelpParams.Contains token then
+    if argInfo.HelpParam.Flags |> List.exists (fun f -> f = token) then
         if state.RaiseOnUsage then raise <| HelpText argInfo
-        else
-            results.IsUsageRequested <- true
+        else results.IsUsageRequested <- true
     else
         let name, equalityParam = parseEqualityParam token
 
@@ -121,14 +117,10 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
         | Some caseInfo when equalityParam.IsSome && not caseInfo.IsEqualsAssignment ->
             error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s=<param>'." name
-        | Some caseInfo when caseInfo.IsFirst && results.ResultCount - results.HelpCount > 0 ->
+        | Some caseInfo when caseInfo.IsFirst && results.ResultCount > 0 ->
             error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." name
 
         | Some caseInfo ->
-            if caseInfo.IsHelpParameter then 
-                if state.RaiseOnUsage then raise <| HelpText argInfo
-                else results.IsUsageRequested <- true
-
             match caseInfo.FieldParsers with
             | Primitives [|field|] when caseInfo.IsEqualsAssignment ->
                 match equalityParam with

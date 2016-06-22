@@ -179,7 +179,7 @@ module ``Simple Tests`` =
         nested.GetAllResults() |> should equal [F; D; X]
 
     [<Fact>]
-    let ``Simple unrecognized CLI params`` () =
+    let ``Unrecognized CLI params`` () =
         let args = [| "--mandatory-arg" ; "true" ; "foobar" ; "-z" |]
         let results = parser.ParseCommandLine(args, ignoreUnrecognized = true)
         results.UnrecognizedCliParams |> should equal ["foobar"]
@@ -294,27 +294,36 @@ module ``Simple Tests`` =
         results.IsUsageRequested |> should equal true
 
 
+    [<HelpFlags("--my-help")>]
+    [<HelpDescription("waka jawaka")>]
     type ArgumentWithAltHelp =
-        | [<Help>] My_Help
+        | AltHelp1 of string
+        | AltHelp2 of int
     with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
 
-    [<DisableHelp>]
+    [<DisableHelpFlags>]
     type NoHelp =
-        | No_Help
+        | NoHelp1 of string
+        | NoHelp2 of int
     with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
 
     [<Fact>]
-    let ``Simple Custom Help attribute`` () =
+    let ``Custom Help attribute`` () =
         let parser = ArgumentParser.Create<ArgumentWithAltHelp>()
         let results = parser.Parse([|"--my-help"|], raiseOnUsage = false)
         results.IsUsageRequested |> should equal true
 
     [<Fact>]
-    let ``Simple Custom Help attribute should not use default helper`` () =
+    let ``Custom Help Description attribute`` () =
+        let parser = ArgumentParser.Create<ArgumentWithAltHelp>()
+        parser.Usage().Contains "waka jawaka" |> should equal true
+
+    [<Fact>]
+    let ``Custom Help attribute should not use default helper`` () =
         let parser = ArgumentParser.Create<ArgumentWithAltHelp>()
         let results = parser.Parse([|"--help"|], raiseOnUsage = false, ignoreUnrecognized = true)
         results.IsUsageRequested |> should equal false

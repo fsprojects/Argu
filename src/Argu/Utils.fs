@@ -24,6 +24,34 @@ module internal Utils =
 
         let inline hasFlag (flag : ^Enum) (value : ^Enum) = flag &&& value = value
 
+    [<RequireQualifiedAccess>]
+    module Array =
+
+        let last (ts : 'T[]) =
+            match ts.Length with
+            | 0 -> invalidArg "xs" "input array is empty."
+            | n -> ts.[n - 1]
+
+    [<RequireQualifiedAccess>]
+    module List =
+
+        /// try fetching last element of a list
+        let rec tryLast xs =
+            match xs with
+            | [] -> None
+            | [x] -> Some x
+            | _ :: rest -> tryLast rest
+
+    [<RequireQualifiedAccess>]
+    module Seq =
+
+        /// try fetching last element of a sequence
+        let tryLast (xs : seq<'T>) =
+            let mutable isAccessed = false
+            let mutable current = Unchecked.defaultof<'T>
+            for x in xs do isAccessed <- true; current <- x
+            if isAccessed then Some current else None
+
     [<AbstractClass>]
     type Existential internal () =
         static let genTy = typedefof<Existential<_>>
@@ -68,7 +96,13 @@ module internal Utils =
 
     type MemberInfo with
         member m.ContainsAttribute<'T when 'T :> Attribute> () =
-            m.GetCustomAttributes(typeof<'T>,true) |> Array.isEmpty |> not
+            m.GetCustomAttributes(typeof<'T>, true) |> Array.isEmpty |> not
+
+        member m.TryGetAttribute<'T when 'T :> Attribute> () =
+            match m.GetCustomAttributes(typeof<'T>, true) with
+            | [||] -> None
+            | attrs -> attrs |> Array.last |> unbox<'T> |> Some
+
 
     type IDictionary<'K,'V> with
         member d.TryFind k =
@@ -130,35 +164,6 @@ module internal Utils =
             | _ -> invalidArg "expr" "Only union constructors are permitted in expression based queries."
 
         aux None [] e
-
-    [<RequireQualifiedAccess>]
-    module Array =
-
-        let last (ts : 'T[]) =
-            match ts.Length with
-            | 0 -> invalidArg "xs" "input array is empty."
-            | n -> ts.[n - 1]
-
-    [<RequireQualifiedAccess>]
-    module List =
-
-        /// try fetching last element of a list
-        let rec tryLast xs =
-            match xs with
-            | [] -> None
-            | [x] -> Some x
-            | _ :: rest -> tryLast rest
-
-    [<RequireQualifiedAccess>]
-    module Seq =
-
-        /// try fetching last element of a sequence
-        let tryLast (xs : seq<'T>) =
-            let mutable isAccessed = false
-            let mutable current = Unchecked.defaultof<'T>
-            for x in xs do isAccessed <- true; current <- x
-            if isAccessed then Some current else None
-
 
     let private whitespaceRegex = new Regex("\s", RegexOptions.Compiled)
     let escapeCliString (value : string) =

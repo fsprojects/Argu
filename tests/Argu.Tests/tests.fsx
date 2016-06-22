@@ -23,7 +23,7 @@ with
 
 [<CliPrefix(CliPrefix.None)>]
 type GitArgs =
-    | Bar of int
+    | [<AltCommandLine("foo")>]Bar of int
     | Push of ParseResult<PushArgs>
     | Clean of ParseResult<CleanArgs>
 with 
@@ -34,7 +34,7 @@ let parser = ArgumentParser.Create<GitArgs>()
 
 parser.PrintCommandLineFlat [Bar 42 ; Push(toParseResults [Remote "a b"])]
 
-let result = parser.Parse([|"bar" ; "haha" ; "clean" ; "-fdfx"|])
+let result = parser.Parse([|"bar" ; "2" ; "clean" ; "-fdfx"|])
 let nested = result.GetResult(<@ Clean @>)
 
 result.Usage() |> System.Console.WriteLine
