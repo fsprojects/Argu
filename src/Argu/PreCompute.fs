@@ -92,7 +92,7 @@ let getPrimitiveParserByType label (t : Type) =
     else
         // refine error messaging depending on the input time
         match t with
-        | UnionParseResult _ -> arguExn "Nested ParserResult<'T> parameters can only occur as standalone parameters in union constructors."
+        | UnionParseResult _ -> arguExn "Nested ParseResult<'T> parameters can only occur as standalone parameters in union constructors."
         | Optional _ -> arguExn "F# Option parameters can only occur as standalone parameters in union constructors."
         | List _ -> arguExn "F# List parameters can only occur as standalone parameters in union constructors."
         | _ -> arguExn "template contains unsupported field of type '%O'." t
