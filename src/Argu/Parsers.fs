@@ -320,47 +320,70 @@ let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInf
     let inline success ts = state.Results.AddResults caseInfo ts
 
     try
-        match caseInfo.AppSettingsName, caseInfo.FieldParsers with
-        | Some name, Primitives fields ->
+        match caseInfo.AppSettingsName with
+        | Some name when not caseInfo.IsNested ->
             match (try state.GetKey name with _ -> null) with
             | null | "" -> ()
-            | entry when fields.Length = 0 ->
-                let ok, flag = Boolean.TryParse entry
-                if ok then
-                    if flag then 
-                        let results = [| mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [||] |]
-                        success results
-                else
-                    error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' is not <bool>." name
-
             | entry ->
-                let tokens = 
-                    if caseInfo.AppSettingsCSV || fields.Length > 1 then entry.Split(',')
-                    else [| entry |]
-
-                let pos = ref 0
-                let parseNext (parser : FieldParserInfo) =
-                    if !pos < tokens.Length then
-                        try 
-                            let tok = tokens.[!pos]
-                            incr pos
-                            parser.Parser tok
-
-                        with _ -> error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' is not <%s>." name parser.Description
+                match caseInfo.FieldParsers with
+                | Primitives [||] ->
+                    let ok, flag = Boolean.TryParse entry
+                    if ok then
+                        if flag then 
+                            let results = [| mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [||] |]
+                            success results
                     else
-                        error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' missing <%s> argument." name parser.Description
+                        error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' is not <bool>." name
 
-                let parseSingleArgument() =
-                    let fields = fields |> Array.map parseNext
-                    mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name fields
+                | Primitives fields ->
+                    let tokens = 
+                        if caseInfo.AppSettingsCSV || fields.Length > 1 then entry.Split(',')
+                        else [| entry |]
 
-                let results =
-                    if caseInfo.AppSettingsCSV then [| while !pos < tokens.Length do yield parseSingleArgument () |]
-                    else [| parseSingleArgument () |]
+                    let pos = ref 0
+                    let parseNext (parser : FieldParserInfo) =
+                        if !pos < tokens.Length then
+                            try 
+                                let tok = tokens.[!pos]
+                                incr pos
+                                parser.Parser tok
 
-                success results
+                            with _ -> error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' is not <%s>." name parser.Description
+                        else
+                            error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' missing <%s> argument." name parser.Description
+
+                    let parseSingleArgument() =
+                        let fields = fields |> Array.map parseNext
+                        mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name fields
+
+                    let results =
+                        if caseInfo.AppSettingsCSV then [| while !pos < tokens.Length do yield parseSingleArgument () |]
+                        else [| parseSingleArgument () |]
+
+                    success results
+
+                | OptionalParam (existential, fp) ->
+                    let parsed = existential.Accept { new IFunc<obj> with
+                        member __.Invoke<'T>() =
+                            try (fp.Parser entry :?> 'T) |> Some :> obj
+                            with _ -> error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' is not <%s>." name fp.Description }
+
+                    let case = mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [|parsed|]
+                    success [|case|]
+
+                | ListParam (existential, fp) ->
+                    let results = existential.Accept { new IFunc<obj> with
+                        member __.Invoke<'T>() =
+                            let tokens = entry.Split(',')
+                            tokens |> Seq.map (fun t -> fp.Parser t :?> 'T) |> Seq.toList :> _ }
+
+                    let case = mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [|results|]
+                    success [|case|]
+
+                | _ -> ()
 
         | _ -> ()
+            
 
     with ParseError _ as e -> state.Results.AddException caseInfo e
 
