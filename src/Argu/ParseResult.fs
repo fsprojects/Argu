@@ -29,17 +29,17 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
         match Seq.tryLast results with
         | None -> 
             let aI = argInfo.Cases.[id.Tag]
-            exit aI.NoCommandLine (sprintf "missing argument '%s'." aI.Name) (int ErrorCode.PostProcess)
+            exit aI.NoCommandLine (sprintf "missing argument '%s'." aI.Name) ErrorCode.PostProcess
         | Some r -> 
             if restrictF rs r then r
             else
                 let aI = r.ArgInfo
-                exit aI.NoCommandLine (sprintf "missing argument '%s'." aI.Name) (int ErrorCode.PostProcess)
+                exit aI.NoCommandLine (sprintf "missing argument '%s'." aI.Name) ErrorCode.PostProcess
 
     let parseResult (f : 'F -> 'S) (r : UnionCaseParseResult) =
         try f (r.FieldContents :?> 'F)
         with e ->
-            exit r.ArgInfo.NoCommandLine (sprintf "Error parsing '%s': %s" r.ParseContext e.Message) (int ErrorCode.PostProcess)
+            exit r.ArgInfo.NoCommandLine (sprintf "Error parsing '%s': %s" r.ParseContext e.Message) ErrorCode.PostProcess
 
     interface IParseResults with
         member __.GetAllResults () =
@@ -123,24 +123,24 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
 
     /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="msg">The error message to be displayed.</param>
-    /// <param name="errorCode">The error code to returned.</param>
+    /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member __.Raise (msg : string, ?errorCode : int, ?showUsage : bool) : 'T =
+    member __.Raise (msg : string, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
         let showUsage = defaultArg showUsage true
-        exit (not showUsage) msg (defaultArg errorCode (int ErrorCode.PostProcess))
+        exit (not showUsage) msg (defaultArg errorCode ErrorCode.PostProcess)
 
     /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="error">The error to be displayed.</param>
-    /// <param name="errorCode">The error code to returned.</param>
+    /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member r.Raise (error : exn, ?errorCode : int, ?showUsage : bool) : 'T = 
+    member r.Raise (error : exn, ?errorCode : ErrorCode, ?showUsage : bool) : 'T = 
         r.Raise (error.Message, ?errorCode = errorCode, ?showUsage = showUsage)
 
     /// <summary>Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="f">The operation to be executed.</param>
-    /// <param name="errorCode">The error code to returned.</param>
+    /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member r.Catch (f : unit -> 'T, ?errorCode : int, ?showUsage : bool) : 'T =
+    member r.Catch (f : unit -> 'T, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
         try f () with e -> r.Raise(e.Message, ?errorCode = errorCode, ?showUsage = showUsage)
 
     /// <summary>Returns the *last* specified parameter of given type. 

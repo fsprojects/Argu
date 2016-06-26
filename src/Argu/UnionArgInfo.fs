@@ -40,6 +40,13 @@ type HelpParam =
         Flags : string list
         Description : string
     }
+with
+    member inline hp.IsHelpFlag(flag : string) =
+        let rec aux = function 
+            | [] -> false 
+            | h :: tl' -> if h = flag then true else aux tl'
+
+        aux hp.Flags
         
 /// Represents a parsing schema for a single parameter
 [<NoEquality; NoComparison>]

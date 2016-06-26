@@ -99,12 +99,12 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
 
         | OptionalParam (_,parser) ->
             if aI.IsEquals1Assignment then
-                yield sprintf "[=<%s>]" parser.Description
+                yield sprintf "?=<%s>" parser.Description
             else
-                yield sprintf " [<%s>]" parser.Description
+                yield sprintf " <?%s>" parser.Description
 
         | ListParam (_,parser) ->
-            yield sprintf " <%s> ..." parser.Description
+            yield sprintf " <%s ...>" parser.Description
 
         | NestedUnion (_, argInfo) ->
             yield " <options>"

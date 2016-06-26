@@ -1,5 +1,7 @@
 ﻿namespace Argu.Tests
 
+#nowarn "44"
+
 open System
 open System.IO
 open Xunit
@@ -7,7 +9,8 @@ open FsUnit.Xunit
 
 open Argu
 
-module ``Simple Tests`` =
+module ``Argu Tests`` =
+
 
     let shouldFailwith<'T, 'Exn when 'Exn :> exn>(f : unit -> 'T) =
         ignore <| Assert.Throws<'Exn>(f >> ignore)
@@ -40,6 +43,8 @@ module ``Simple Tests`` =
         | [<EqualsAssignment>] Assignment of string
         | [<EqualsAssignment>] Env of key:string * value:string
         | [<First>] First_Parameter of string
+        | Optional of int option
+        | List of int list
         | [<CliPrefix(CliPrefix.Dash)>] A
         | [<CliPrefix(CliPrefix.Dash)>] B
         | [<CliPrefix(CliPrefix.Dash)>] C
@@ -62,6 +67,8 @@ module ``Simple Tests`` =
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
                 | Push _ -> "push changes"
                 | Clean _ -> "clean state"
+                | List _ -> "variadic params"
+                | Optional _ -> "optional params"
                 | A | B | C -> "misc arguments"
 
     let parser = ArgumentParser.Create<Argument> ()
@@ -212,6 +219,33 @@ module ``Simple Tests`` =
     let ``Should allow '--help' before mandatory args`` () =
         let result = parser.Parse([| "--help" ; "--mandatory-arg" ; "true"|], raiseOnUsage = false)
         result.IsUsageRequested |> should equal true
+
+
+    [<Fact>]
+    let ``Optional parameter: None`` () =
+        let result = parser.Parse([|"--optional" ; "--mandatory-arg" ; "true"|])
+        result.GetResult <@ Optional @> |> should equal None
+
+    [<Fact>]
+    let ``Optional parameter: Some`` () =
+        let result = parser.Parse([|"--optional" ; "42" ; "--mandatory-arg" ; "true"|])
+        result.GetResult <@ Optional @> |> should equal (Some 42)
+
+    [<Fact>]
+    let ``List parameter: empty`` () =
+        let result = parser.Parse([|"--list" ; "--mandatory-arg" ; "true"|])
+        result.GetResult(<@ List @>).Length |> should equal 0 // should equal [] fails
+
+    [<Fact>]
+    let ``List parameter: singleton`` () =
+        let result = parser.Parse([|"--list" ; "42" ; "--mandatory-arg" ; "true"|])
+        result.GetResult <@ List @> |> should equal [42]
+
+    [<Fact>]
+    let ``List parameter: multiple args`` () =
+        let result = parser.Parse([|"--mandatory-arg" ; "true"; "--list" ; "1" ; "2" ; "3" ; "4" ; "5" |])
+        result.GetResult <@ List @> |> should equal [1 .. 5]
+
 
     type ConflictingCliNames =
         | [<CustomCommandLine "foo">] Foo of int

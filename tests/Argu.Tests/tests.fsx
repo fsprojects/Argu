@@ -21,13 +21,13 @@ with
     interface IArgParserTemplate with
         member this.Usage = "foo bar foo bar foo bar"
 
-[<CliPrefix(CliPrefix.None)>]
 type GitArgs =
-    | [<AltCommandLine("foo")>]Bar of int
+    | Bar of int
+    | Foo of address:string * number:int
     | [<AltCommandLine("-p")>]Push of ParseResult<PushArgs>
     | Clean of ParseResult<CleanArgs>
-    | [<CustomCommandLine("-E")>][<EqualsAssignment>]Env of key:string * value:string
-    | Optional of string option
+    | [<CustomCommandLine("-E")>][<EqualsAssignment>]Env of key:string * value:int
+    | Optional of int option
     | List of int list
 with 
     interface IArgParserTemplate with 
@@ -37,7 +37,7 @@ let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", description 
 
 parser.PrintCommandLineFlat [Bar 42 ; Push(toParseResults [Remote "a b"])]
 
-let result = parser.Parse [|"bar" ; "2" ; "optional" ; "test" ; "list" ; "-1" ; "1821" ; "781" ; "-E" ; "A=12" ; "clean" ; "-fdfx"|]
+let result = parser.Parse [| "--list" ; "1" ; "2" ; "b" ;|]
 result.GetAllResults()
 let nested = result.GetResult(<@ Clean @>)
 

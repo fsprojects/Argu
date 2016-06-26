@@ -120,26 +120,27 @@ type ArguException internal (message : string) =
     inherit Exception(message)
 
 /// Parse exception raised by Argu
-type ArguParseException internal (message : string) =
+type ArguParseException internal (message : string, errorCode : ErrorCode) =
     inherit ArguException(message)
+    member __.ErrorCode = errorCode
 
 /// An interface for error handling in the argument parser
 type IExiter =
     abstract Name : string
-    abstract Exit : msg : string * ?errorCode : int -> 'T
+    abstract Exit : msg : string * errorCode : ErrorCode -> 'T
 
 /// Handles argument parser errors by raising an exception
 and ExceptionExiter() =
     interface IExiter with
         member __.Name = "ArguException Exiter"
-        member __.Exit(msg, _) = raise (new ArguParseException(msg))
+        member __.Exit(msg, errorCode) = raise (new ArguParseException(msg, errorCode))
 
 /// Handles argument parser errors by exiting the process
 /// after printing a parse error.
 and ProcessExiter() =
     interface IExiter with
         member __.Name = "Process Exiter"
-        member __.Exit(msg : string, ?errorCode : int) =
+        member __.Exit(msg : string, errorCode : ErrorCode) =
             Console.Error.WriteLine msg
             do Console.Error.Flush()
-            exit (defaultArg errorCode 1)
+            exit (int errorCode)

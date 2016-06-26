@@ -180,6 +180,21 @@ module internal Utils =
         if whitespaceRegex.IsMatch value then sprintf "'%s'" value
         else value
 
+    let flattenCliTokens (tokens : seq<string>) =
+        tokens |> Seq.map escapeCliString |> String.concat " "
+
+    let private assignRegex = new Regex(@"^([^=]*)=(.*)$", RegexOptions.Compiled)
+    /// parses the first part of a command line parameter
+    /// recognizes if parameter is of kind --param arg or --param=arg
+    let tryGetEqualsAssignment (name : string) (key:byref<string>) (value:byref<string>) : bool =
+        let m = assignRegex.Match name
+        if m.Success then
+            key <- m.Groups.[1].Value
+            value <- m.Groups.[2].Value
+            true
+        else
+            false
+
     // string builder compexpr
 
     type StringExpr = StringBuilder -> unit

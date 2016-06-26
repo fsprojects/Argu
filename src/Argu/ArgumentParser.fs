@@ -68,7 +68,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
             new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
 
-        with ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
     /// <summary>Parse AppSettings section of XML configuration only.</summary>
     /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
@@ -82,7 +82,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
             new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
 
-        with ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
     /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
     /// <param name="assembly">assembly to get application configuration from.</param>
@@ -111,7 +111,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
             new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
 
-        with ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
     /// <summary>
     ///     Converts a sequence of template argument inputs into a ParseResult instance
@@ -155,9 +155,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
     member __.PrintCommandLineFlat (args : 'Template list) : string =
-        __.PrintCommandLine args
-        |> Seq.map escapeCliString
-        |> String.concat " "
+        __.PrintCommandLine args |> flattenCliTokens
 
     /// <summary>Prints parameters in App.Config format.</summary>
     /// <param name="args">The parameters that fill out the XML document.</param>
