@@ -77,12 +77,6 @@ let primitiveParsers =
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
 
-let getPrimitiveParserByType label (t : Type) = 
-    let ok, f = primitiveParsers.TryGetValue t
-    if ok then f label
-    else
-        arguExn "template contains unsupported field of type '%O'." t
-
 let (|UnionParseResult|Optional|List|Other|) (t : Type) =
     if t.IsGenericType then
         let gt = t.GetGenericTypeDefinition()
@@ -91,6 +85,17 @@ let (|UnionParseResult|Optional|List|Other|) (t : Type) =
         elif gt = typedefof<_ list> then List(t.GetGenericArguments().[0])
         else Other
     else Other
+
+let getPrimitiveParserByType label (t : Type) = 
+    let ok, f = primitiveParsers.TryGetValue t
+    if ok then f label
+    else
+        // refine error messaging depending on the input time
+        match t with
+        | UnionParseResult _ -> arguExn "Nested ParserResult<'T> parameters can only occur as standalone parameters in union constructors."
+        | Optional _ -> arguExn "F# Option parameters can only occur as standalone parameters in union constructors."
+        | List _ -> arguExn "F# List parameters can only occur as standalone parameters in union constructors."
+        | _ -> arguExn "template contains unsupported field of type '%O'." t
 
 let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
 let validateCliParam (name : string) =
