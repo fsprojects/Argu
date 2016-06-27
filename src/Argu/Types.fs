@@ -5,11 +5,12 @@ open System
 // Attribute declarations
 
 /// Parse comma separated values in AppSettings
+[<Obsolete("Please use list parameters instead.")>]
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type ParseCSVAttribute () = inherit Attribute ()
 
 /// Consume all remaining command line arguments.
-[<Obsolete("Please use variadic parameters instead.")>]
+[<Obsolete("Please use list parameters instead.")>]
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type RestAttribute () = inherit Attribute ()
 
@@ -59,7 +60,7 @@ type FirstAttribute () = inherit Attribute ()
 type PrintLabelsAttribute () = inherit Attribute ()
 
 /// Use '--param=arg' assignment syntax in CLI.
-[<AttributeUsage(AttributeTargets.Property ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type EqualsAssignmentAttribute () = inherit Attribute ()
 
 /// Sets a custom command line name.
@@ -76,9 +77,17 @@ type AltCommandLineAttribute ([<ParamArray>] names :string []) =
 
 /// Sets a custom AppSettings key name.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-type CustomAppSettingsAttribute (name : string) = 
+type CustomAppSettingsAttribute (name : string) =
     inherit Attribute ()
     member __.Name = name
+
+/// Specify a custom value separator in AppSettings parameters
+[<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
+type AppSettingsSeparatorAttribute ([<ParamArray>] separators : string [], splitOptions : StringSplitOptions) =
+    inherit Attribute()
+    new (separator : char) = new AppSettingsSeparatorAttribute([|string separator|], StringSplitOptions.None)
+    member __.Separators = separators
+    member __.SplitOptions = splitOptions
 
 /// Predefined CLI prefixes to be added
 /// 

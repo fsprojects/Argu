@@ -321,7 +321,7 @@ let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInf
 
     try
         match caseInfo.AppSettingsName with
-        | Some name when not caseInfo.IsNested ->
+        | Some name ->
             match (try state.GetKey name with _ -> null) with
             | null | "" -> ()
             | entry ->
@@ -337,7 +337,8 @@ let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInf
 
                 | Primitives fields ->
                     let tokens = 
-                        if caseInfo.AppSettingsCSV || fields.Length > 1 then entry.Split(',')
+                        if caseInfo.AppSettingsCSV || fields.Length > 1 then
+                            entry.Split(caseInfo.AppSettingsSeparators, caseInfo.AppSettingsSplitOptions)
                         else [| entry |]
 
                     let pos = ref 0
@@ -372,15 +373,15 @@ let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInf
                     success [|case|]
 
                 | ListParam (existential, fp) ->
+                    let tokens = entry.Split(caseInfo.AppSettingsSeparators, caseInfo.AppSettingsSplitOptions)
                     let results = existential.Accept { new IFunc<obj> with
                         member __.Invoke<'T>() =
-                            let tokens = entry.Split(',')
                             tokens |> Seq.map (fun t -> fp.Parser t :?> 'T) |> Seq.toList :> _ }
 
                     let case = mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [|results|]
                     success [|case|]
 
-                | _ -> ()
+                | NestedUnion _ -> () // AppSettings will not handle nested arguments
 
         | _ -> ()
             
@@ -395,7 +396,7 @@ and parseAppSettings configReader (argInfo : UnionArgInfo) =
     for caseInfo in argInfo.Cases do parseAppSettingsPartial state caseInfo
     state.Results.Results
 
-
+/// Gets a configuration reader from an AppSettings file
 let getConfigurationManagerReader (appConfigFile : string option) : string -> string =
     match appConfigFile with
     | None -> fun name -> ConfigurationManager.AppSettings.[name]
@@ -412,6 +413,19 @@ let getConfigurationManagerReader (appConfigFile : string option) : string -> st
     // file not found, return null strings for everything
     | Some _ -> fun _ -> null
 
+/// Gets a configuration reader from an AppSettings file
+let getFuncReader (tryGetValue : string -> string option) : string -> string =
+    fun key ->
+        match tryGetValue key with
+        | None -> null
+        | Some value -> value
+
+/// Gets a configuration reader from a key/value store
+let getDictionaryReader (dict : IDictionary<string, string>) : string -> string =
+    fun key ->
+        if key = null then null else
+        let ok, value = dict.TryGetValue key
+        if ok then value else null
 
 //
 //  Misc parser tools
@@ -425,7 +439,7 @@ let getConfigurationManagerReader (appConfigFile : string option) : string -> st
 /// <param name="ignoreMissing">do not raise exception if missing mandatory parameters.</param>
 /// <param name="appSettingsResults">parsed results from AppSettings</param>
 /// <param name="commandLineResults">parsed results from CLI</param>
-let postProcessResults (argInfo : UnionArgInfo) ignoreMissingMandatory 
+let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
                 (appSettingsResults : AppSettingsParseResult [] option)
                 (commandLineResults : UnionParseResults option) =
 
@@ -458,15 +472,13 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter)
                             (mkUsageString : string option -> string) (values : seq<'Template>) =
 
     let agg = info.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult>())
-    let mutable i = 0
-    for value in values do
+    values |> Seq.iteri (fun i value ->
         let value = value :> obj
         let tag = info.TagReader.Value value
         let case = info.Cases.[tag]
         let fields = case.FieldReader.Value value
         let result = mkUnionCase case i ParseSource.None case.Name fields
-        agg.[tag].Add result
-        i <- i + 1
+        agg.[tag].Add result)
 
     let results = 
         { 

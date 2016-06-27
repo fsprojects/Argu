@@ -151,6 +151,19 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         else
             false, false
 
+    let appSettingsSeparators, appSettingsSplitOptions =
+        match uci.TryGetAttribute<AppSettingsSeparatorAttribute> (true) with
+        | None -> [|","|], StringSplitOptions.None
+        | Some attr when attr.Separators.Length = 0 ->
+            arguExn "parameter '%s' specifies a null or empty AppSettings separator." uci.Name
+
+        | Some attr ->
+            for sep in attr.Separators do
+                if String.IsNullOrEmpty sep then
+                    arguExn "parameter '%s' specifies a null or empty AppSettings separator." uci.Name
+
+            attr.Separators, attr.SplitOptions
+
     let parsers =
         match types with
         | [|UnionParseResult prt|] -> 
@@ -253,6 +266,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         GetParent = getParent
         CommandLineNames = commandLineArgs
         AppSettingsName = appSettingsName
+        AppSettingsSeparators = appSettingsSeparators
+        AppSettingsSplitOptions = appSettingsSplitOptions
         Usage = usageString
         FieldParsers = parsers
         AppSettingsCSV = isAppSettingsCSV

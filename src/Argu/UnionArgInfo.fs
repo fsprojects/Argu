@@ -77,6 +77,11 @@ type UnionCaseArgInfo =
         /// Description of the parameter
         Usage : string
 
+        /// AppSettings parameter separator
+        AppSettingsSeparators : string []
+        /// AppSettings parameter split options
+        AppSettingsSplitOptions : StringSplitOptions
+
         /// If specified, should consume remaining tokens from the CLI
         IsRest : bool
         /// If specified, parameter can only be at start of CLI parameters

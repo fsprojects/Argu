@@ -1,6 +1,7 @@
 ﻿namespace Argu
 
 open System
+open System.Collections.Generic
 open System.Reflection
 
 open FSharp.Quotations
@@ -90,6 +91,38 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     member s.ParseAppSettings(assembly : Assembly, ?ignoreMissing : bool) =
         let configFile = assembly.Location + ".config"
         s.ParseAppSettings(xmlConfigurationFile = configFile, ?ignoreMissing = ignoreMissing)
+
+    /// <summary>
+    ///     Parse application configuration settings from a user-supplied key/value dictionary.
+    /// </summary>
+    /// <param name="settings">Key/Value configuration dictionary</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    member s.ParseKeyValueSettings(settings : IDictionary<string, string>, ?ignoreMissing : bool) : ParseResult<'Template> =
+        let ignoreMissing = defaultArg ignoreMissing false
+
+        try
+            let appSettingsResults = parseAppSettings (getDictionaryReader settings) argInfo
+            let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
+
+            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
+
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
+
+    /// <summary>
+    ///     Parse application configuration settings from a user-supplied function reader.
+    /// </summary>
+    /// <param name="tryGetValue">Configuration resolution function.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    member s.ParseKeyValueSettings(tryGetValue : string -> string option, ?ignoreMissing : bool) : ParseResult<'Template> =
+        let ignoreMissing = defaultArg ignoreMissing false
+
+        try
+            let appSettingsResults = parseAppSettings (getFuncReader tryGetValue) argInfo
+            let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
+
+            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
+
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)        
 
     /// <summary>Parse both command line args and AppSettings section of XML configuration.
     ///          Results are merged with command line args overriding XML config.</summary>

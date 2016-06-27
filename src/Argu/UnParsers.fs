@@ -240,28 +240,37 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 /// <param name="printComments"></param>
 /// <param name="args"></param>
 let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template list) =
-    let printEntry (t : 'Template) : XNode list =
+    let printEntry (t : 'Template) : XNode [] =
         let tag = argInfo.TagReader.Value (t :> _)
         let aI = argInfo.Cases.[tag]
-        let fields = aI.FieldReader.Value (t :> _)
+        let getFields () = aI.FieldReader.Value (t :> _)
 
-        match aI.AppSettingsName, aI.FieldParsers with
-        | None, _ | _, NestedUnion _ -> []
-        | Some key, Primitives parsers ->
-            let values =
-                if fields.Length = 0 then "true"
-                else
-                    (fields, parsers)
-                    ||> Seq.map2 (fun f p -> p.UnParser f)
-                    |> String.concat ", "
-
+        let mkElem (mkComment : unit -> string) (key : string) (value : string) : XNode [] =
             let xelem = 
                 XElement(XName.Get "add", 
-                            XAttribute(XName.Get "key", key), 
-                            XAttribute(XName.Get "value", values))
-                    
-            if printComments then 
-                let comment =
+                    XAttribute(XName.Get "key", key), 
+                    XAttribute(XName.Get "value", value))
+
+            if printComments then
+                [|XComment (mkComment()); xelem|]
+            else
+                [|xelem|]
+
+        match aI.AppSettingsName with
+        | None -> [||]
+        | Some key ->
+            match aI.FieldParsers with
+            | NestedUnion _ -> [||]
+            | Primitives parsers ->
+                let values =
+                    match getFields() with
+                    | [||] -> "true"
+                    | fields ->
+                        (fields, parsers)
+                        ||> Seq.map2 (fun f p -> p.UnParser f)
+                        |> String.concat aI.AppSettingsSeparators.[0]
+
+                let mkComment () =
                     stringExpr {
                         yield ' '
                         yield aI.Usage
@@ -272,15 +281,38 @@ let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template li
                             yield " : "
                             yield first.Description
                             for p in rest do
-                                yield ", "
+                                yield aI.AppSettingsSeparators.[0]
                                 yield p.Description
 
                         yield ' '
 
                     } |> String.build
 
-                [ XComment(comment) ; xelem ]
-            else [ xelem ]
+                mkElem mkComment key values
+
+            | ListParam(ex,fp) ->
+                ex.Accept { new IFunc<XNode []> with
+                    member __.Invoke<'T> () =
+                        let values =
+                            getFields().[0] :?> 'T list
+                            |> Seq.map (fun t -> fp.UnParser (t :> _))
+                            |> String.concat aI.AppSettingsSeparators.[0]
+
+                        let mkComment () = sprintf " %s : %s ..." aI.Usage fp.Description
+
+                        mkElem mkComment key values }
+
+            | OptionalParam(ex,fp) ->
+                ex.Accept { new IFunc<XNode []> with
+                    member __.Invoke<'T> () =
+                        let value =
+                            match getFields().[0] :?> 'T option with
+                            | None -> ""
+                            | Some t -> fp.UnParser (t :> _)
+
+                        let mkComment () = sprintf " %s : ?%s" aI.Usage fp.Description
+
+                        mkElem mkComment key value }
 
     XDocument(
         XElement(XName.Get "configuration",

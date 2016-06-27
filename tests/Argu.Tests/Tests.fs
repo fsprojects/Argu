@@ -33,9 +33,9 @@ module ``Argu Tests`` =
 
     type Argument =
         | Working_Directory of string
-        | Listener of host:string * port:int
+        | [<AppSettingsSeparator(':')>] Listener of host:string * port:int
         | [<Mandatory>] Mandatory_Arg of bool
-        | [<Rest>] Rest_Arg of int
+        | [<Rest>][<ParseCSV>] Rest_Arg of int
         | Data of int * byte []
         | Log_Level of int
         | [<AltCommandLine("/D", "-D", "-z")>] Detach
@@ -102,6 +102,44 @@ module ``Argu Tests`` =
         results.GetResult <@ Listener @> |> should equal ("localhost", 8080)
         results.GetResults <@ Log_Level @> |> should equal [2]
         results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) |> should equal 3
+
+    [<Fact>]
+    let ``AppSettings CSV parsing`` () =
+        let results = parser.ParseKeyValueSettings((function "rest arg" -> Some("1,2,3,4,5") | _ -> None), ignoreMissing = true)
+        results.GetResults <@ Rest_Arg @> |> should equal [1 .. 5]
+
+    [<Fact>]
+    let ``AppSettings Flag parsing`` () =
+        let results = parser.ParseKeyValueSettings((function "a" -> Some("true") | "b" -> Some("false") | _ -> None), ignoreMissing = true)
+        results.Contains <@ A @> |> should equal true
+        results.Contains <@ B @> |> should equal false
+        results.Contains <@ C @> |> should equal false
+
+    [<Fact>]
+    let ``AppSettings multi-parameter parsing 1`` () =
+        let results = parser.ParseKeyValueSettings((function "env" -> Some("key,value") | _ -> None), ignoreMissing = true)
+        results.GetResult <@ Env @> |> should equal ("key", "value")
+
+    [<Fact>]
+    let ``AppSettings multi-parameter parsing 2`` () =
+        let results = parser.ParseKeyValueSettings((function "listener" -> Some("localhost:80") | _ -> None), ignoreMissing = true)
+        results.GetResult <@ Listener @> |> should equal ("localhost", 80)
+
+    [<Fact>]
+    let ``AppSettings Optional param`` () =
+        let results = parser.ParseKeyValueSettings((function "optional" -> Some "42" | _ -> None), ignoreMissing = true)
+        results.GetResult <@ Optional @> |> should equal (Some 42)
+
+    [<Fact>]
+    let ``AppSettings List param populated`` () =
+        let results = parser.ParseKeyValueSettings((function "list" -> Some "1,2,3,4,5" | _ -> None), ignoreMissing = true)
+        results.GetResult <@ List @> |> should equal [1 .. 5]
+
+    [<Fact>]
+    let ``AppSettings List param single`` () =
+        let results = parser.ParseKeyValueSettings((function "list" -> Some "42" | _ -> None), ignoreMissing = true)
+        results.GetResult <@ List @> |> should equal [42]
+        
 
     [<Fact>]
     let ``Help String`` () =
