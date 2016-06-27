@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\bin\net40\Argu.XML</DocumentationFile>
+    <OtherFlags>--warnon:1182</OtherFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -69,6 +70,7 @@
     <Compile Include="PreCompute.fs" />
     <Compile Include="UnParsers.fs" />
     <Compile Include="Parsers.fs" />
+    <Compile Include="ConfigReaders.fs" />
     <Compile Include="ArgumentParser.fs" />
     <None Include="paket.template" />
   </ItemGroup>

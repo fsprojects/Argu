@@ -237,7 +237,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
             | None -> Some <| generateAppSettingsName uci
             // take last registered attribute
-            | Some attr when parsers.IsNested -> arguExn "CustomAppSettings in %s not supported for nested union cases" uci.Name
+            | Some _ when parsers.IsNested -> arguExn "CustomAppSettings in %s not supported for nested union cases" uci.Name
             | Some attr when not <| isNullOrWhiteSpace attr.Name -> Some attr.Name
             | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name
 

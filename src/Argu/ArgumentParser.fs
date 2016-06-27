@@ -46,10 +46,8 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     /// and false if parser defined for a subcommand
     member __.IsTopLevelParser = argInfo.TryGetParent() |> Option.isNone
 
-    /// Gets or sets the default error handler used by the instance
-    member __.ErrorHandler
-        with get () = errorHandler
-        and set e = errorHandler <- e
+    /// Gets the default error handler used by the instance
+    member __.ErrorHandler = errorHandler
 
     /// <summary>Parse command line arguments only.</summary>
     /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
@@ -71,80 +69,62 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
-    /// <summary>Parse AppSettings section of XML configuration only.</summary>
-    /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
+    /// <summary>Parse arguments using specified configuration reader only. This defaults to the AppSettings configuration of the current process.</summary>
+    /// <param name="configurationReader">Configuration reader used to source the arguments. Defaults to the AppSettings configuration of the current process.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResult<'Template> =
+    member __.ParseConfiguration (configurationReader : IConfigurationReader, ?ignoreMissing : bool) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
 
         try
-            let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
+            let appSettingsResults = parseKeyValueConfig configurationReader argInfo
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
 
             new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
 
-        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)    
 
-    /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
-    /// <param name="assembly">assembly to get application configuration from.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member s.ParseAppSettings(assembly : Assembly, ?ignoreMissing : bool) =
-        let configFile = assembly.Location + ".config"
-        s.ParseAppSettings(xmlConfigurationFile = configFile, ?ignoreMissing = ignoreMissing)
-
-    /// <summary>
-    ///     Parse application configuration settings from a user-supplied key/value dictionary.
-    /// </summary>
-    /// <param name="settings">Key/Value configuration dictionary</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member s.ParseKeyValueSettings(settings : IDictionary<string, string>, ?ignoreMissing : bool) : ParseResult<'Template> =
-        let ignoreMissing = defaultArg ignoreMissing false
-
-        try
-            let appSettingsResults = parseAppSettings (getDictionaryReader settings) argInfo
-            let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
-
-            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
-
-        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
-
-    /// <summary>
-    ///     Parse application configuration settings from a user-supplied function reader.
-    /// </summary>
-    /// <param name="tryGetValue">Configuration resolution function.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member s.ParseKeyValueSettings(tryGetValue : string -> string option, ?ignoreMissing : bool) : ParseResult<'Template> =
-        let ignoreMissing = defaultArg ignoreMissing false
-
-        try
-            let appSettingsResults = parseAppSettings (getFuncReader tryGetValue) argInfo
-            let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
-
-            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
-
-        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)        
-
-    /// <summary>Parse both command line args and AppSettings section of XML configuration.
-    ///          Results are merged with command line args overriding XML config.</summary>
+    /// <summary>Parse both command line args and supplied configuration reader.
+    ///          Results are merged with command line args overriding configuration parameters.</summary>
     /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
-    /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given configuration file.</param>
+    /// <param name="configurationReader">Configuration reader used to source the arguments. Defaults to the AppSettings configuration of the current process.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
-    member __.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+    member __.Parse (?inputs : string [], ?configurationReader : IConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
+        let configurationReader = match configurationReader with Some c -> c | None -> ConfigurationReader.FromAppSettings()
 
         try
-            let appSettingsResults = parseAppSettings (getConfigurationManagerReader xmlConfigurationFile) argInfo
+            let appSettingsResults = parseKeyValueConfig configurationReader argInfo
             let cliResults = parseCommandLine argInfo _programName description errorHandler raiseOnUsage ignoreUnrecognized inputs
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
             new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
+
+    /// <summary>Parse AppSettings section of XML configuration only.</summary>
+    /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
+    member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResult<'Template> =
+        let configurationReader =
+            match xmlConfigurationFile with
+            | None -> ConfigurationReader.FromAppSettings()
+            | Some f -> ConfigurationReader.FromAppSettingsFile(f)
+
+        __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
+
+    /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
+    /// <param name="assembly">assembly to get application configuration from.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
+    member __.ParseAppSettings(assembly : Assembly, ?ignoreMissing : bool) =
+        let configurationReader = ConfigurationReader.FromAppSettings(assembly)
+        __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
 
     /// <summary>
     ///     Converts a sequence of template argument inputs into a ParseResult instance
@@ -214,7 +194,7 @@ type ArgumentParser =
     /// <param name="description">Program description placed at the top of the usage string.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
     static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?description : string, ?errorHandler : IExiter) =
-        new ArgumentParser<'Template>(?programName = programName, ?description = description)
+        new ArgumentParser<'Template>(?programName = programName, ?description = description, ?errorHandler = errorHandler)
 
 
 [<AutoOpen>]

@@ -74,6 +74,7 @@ module ``Argu Tests`` =
                 | A | B | C -> "misc arguments"
 
     let parser = ArgumentParser.Create<Argument> ()
+    let parseFunc ignoreMissing f = parser.ParseConfiguration(ConfigurationReader.FromFunction f, ignoreMissing)
 
     [<Fact>]
     let ``Simple command line parsing`` () =
@@ -96,7 +97,8 @@ module ``Argu Tests`` =
         let xmlSource = parser.PrintAppSettings args
         let xmlFile = Path.GetTempFileName()
         do File.WriteAllText(xmlFile, xmlSource)
-        let results = parser.ParseAppSettings(xmlFile)
+        let reader = ConfigurationReader.FromAppSettingsFile(xmlFile)
+        let results = parser.ParseConfiguration(reader)
 
         results.GetAllResults () |> should equal args
 
@@ -107,39 +109,39 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``AppSettings CSV parsing`` () =
-        let results = parser.ParseKeyValueSettings((function "rest arg" -> Some("1,2,3,4,5") | _ -> None), ignoreMissing = true)
+        let results = parseFunc true (function "rest arg" -> Some("1,2,3,4,5") | _ -> None)
         results.GetResults <@ Rest_Arg @> |> should equal [1 .. 5]
 
     [<Fact>]
     let ``AppSettings Flag parsing`` () =
-        let results = parser.ParseKeyValueSettings((function "a" -> Some("true") | "b" -> Some("false") | _ -> None), ignoreMissing = true)
+        let results = parseFunc true (function "a" -> Some("true") | "b" -> Some("false") | _ -> None)
         results.Contains <@ A @> |> should equal true
         results.Contains <@ B @> |> should equal false
         results.Contains <@ C @> |> should equal false
 
     [<Fact>]
     let ``AppSettings multi-parameter parsing 1`` () =
-        let results = parser.ParseKeyValueSettings((function "env" -> Some("key,value") | _ -> None), ignoreMissing = true)
+        let results = parseFunc true (function "env" -> Some("key,value") | _ -> None)
         results.GetResult <@ Env @> |> should equal ("key", "value")
 
     [<Fact>]
     let ``AppSettings multi-parameter parsing 2`` () =
-        let results = parser.ParseKeyValueSettings((function "listener" -> Some("localhost:80") | _ -> None), ignoreMissing = true)
+        let results = parseFunc true (function "listener" -> Some("localhost:80") | _ -> None)
         results.GetResult <@ Listener @> |> should equal ("localhost", 80)
 
     [<Fact>]
     let ``AppSettings Optional param`` () =
-        let results = parser.ParseKeyValueSettings((function "optional" -> Some "42" | _ -> None), ignoreMissing = true)
+        let results = parseFunc true (function "optional" -> Some "42" | _ -> None)
         results.GetResult <@ Optional @> |> should equal (Some 42)
 
     [<Fact>]
     let ``AppSettings List param populated`` () =
-        let results = parser.ParseKeyValueSettings((function "list" -> Some "1,2,3,4,5" | _ -> None), ignoreMissing = true)
+        let results = parseFunc true (function "list" -> Some "1,2,3,4,5" | _ -> None)
         results.GetResult <@ List @> |> should equal [1 .. 5]
 
     [<Fact>]
     let ``AppSettings List param single`` () =
-        let results = parser.ParseKeyValueSettings((function "list" -> Some "42" | _ -> None), ignoreMissing = true)
+        let results = parseFunc true (function "list" -> Some "42" | _ -> None)
         results.GetResult <@ List @> |> should equal [42]
         
 

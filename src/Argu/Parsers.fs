@@ -2,7 +2,6 @@
 module internal Argu.Parsers
         
 open System
-open System.Configuration
 open System.Collections.Generic
 open System.Text.RegularExpressions
 open System.IO
@@ -297,12 +296,12 @@ and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (descriptio
 //  App.Config parser
 //
 
-type AppSettingsParseResult = Choice<UnionCaseParseResult [], exn>
+type KeyValueParseResult = Choice<UnionCaseParseResult [], exn>
 
-let private emptyResult : AppSettingsParseResult = Choice1Of2 [||]
+let private emptyResult : KeyValueParseResult = Choice1Of2 [||]
 
 // AppSettings parse errors are threaded to the state rather than raised directly
-type AppSettingsParseResults (argInfo : UnionArgInfo) =
+type KeyValueParseResults (argInfo : UnionArgInfo) =
     let results = Array.init argInfo.Cases.Length (fun _ -> emptyResult)
     member __.AddResults (case : UnionCaseArgInfo) (ts : UnionCaseParseResult []) =
         results.[case.Tag] <- Choice1Of2 ts
@@ -310,25 +309,25 @@ type AppSettingsParseResults (argInfo : UnionArgInfo) =
     member __.AddException (case : UnionCaseArgInfo) exn =
         results.[case.Tag] <- Choice2Of2 exn
 
-    member __.Results : AppSettingsParseResult [] = results
+    member __.Results : KeyValueParseResult [] = results
 
-type AppSettingsParseState =
+type KeyValueParseState =
     {
         ArgInfo : UnionArgInfo
-        GetKey : string -> string
-        Results : AppSettingsParseResults
+        Reader : IConfigurationReader
+        Results : KeyValueParseResults
     }
 
 /// <summary>
-///     Parse single AppSettings entry
+///     Parse single entry from key/value configuration
 /// </summary>
-let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInfo : UnionCaseArgInfo) =
+let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionCaseArgInfo) =
     let inline success ts = state.Results.AddResults caseInfo ts
 
     try
         match caseInfo.AppSettingsName with
         | Some name ->
-            match (try state.GetKey name with _ -> null) with
+            match (try state.Reader.GetValue name with _ -> null) with
             | null | "" -> ()
             | entry ->
                 match caseInfo.FieldParsers with
@@ -395,43 +394,12 @@ let rec private parseAppSettingsPartial (state : AppSettingsParseState) (caseInf
     with ParseError _ as e -> state.Results.AddException caseInfo e
 
 /// <summary>
-///     Parse a given AppSettings file.  
+///     Parse a given key/value configuration
 /// </summary>
-and parseAppSettings configReader (argInfo : UnionArgInfo) =
-    let state = { ArgInfo = argInfo ; GetKey = configReader ; Results = new AppSettingsParseResults(argInfo) }
-    for caseInfo in argInfo.Cases do parseAppSettingsPartial state caseInfo
+let parseKeyValueConfig (configReader : IConfigurationReader) (argInfo : UnionArgInfo) =
+    let state = { ArgInfo = argInfo ; Reader = configReader ; Results = new KeyValueParseResults(argInfo) }
+    for caseInfo in argInfo.Cases do parseKeyValuePartial state caseInfo
     state.Results.Results
-
-/// Gets a configuration reader from an AppSettings file
-let getConfigurationManagerReader (appConfigFile : string option) : string -> string =
-    match appConfigFile with
-    | None -> fun name -> ConfigurationManager.AppSettings.[name]
-    | Some file when File.Exists file ->
-        let fileMap = new ExeConfigurationFileMap()
-        fileMap.ExeConfigFilename <- file
-        let config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None)
-
-        fun name ->
-            match config.AppSettings.Settings.[name] with
-            | null -> null
-            | entry -> entry.Value
-
-    // file not found, return null strings for everything
-    | Some _ -> fun _ -> null
-
-/// Gets a configuration reader from an AppSettings file
-let getFuncReader (tryGetValue : string -> string option) : string -> string =
-    fun key ->
-        match tryGetValue key with
-        | None -> null
-        | Some value -> value
-
-/// Gets a configuration reader from a key/value store
-let getDictionaryReader (dict : IDictionary<string, string>) : string -> string =
-    fun key ->
-        if key = null then null else
-        let ok, value = dict.TryGetValue key
-        if ok then value else null
 
 //
 //  Misc parser tools
@@ -446,7 +414,7 @@ let getDictionaryReader (dict : IDictionary<string, string>) : string -> string 
 /// <param name="appSettingsResults">parsed results from AppSettings</param>
 /// <param name="commandLineResults">parsed results from CLI</param>
 let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
-                (appSettingsResults : AppSettingsParseResult [] option)
+                (appSettingsResults : KeyValueParseResult [] option)
                 (commandLineResults : UnionParseResults option) =
 
     let combineSingle (caseInfo : UnionCaseArgInfo) =

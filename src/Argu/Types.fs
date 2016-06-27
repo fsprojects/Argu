@@ -141,21 +141,30 @@ type ArguParseException internal (message : string, errorCode : ErrorCode) =
 
 /// An interface for error handling in the argument parser
 type IExiter =
+    /// IExiter identifier
     abstract Name : string
+    /// handle error of given message and error code
     abstract Exit : msg : string * errorCode : ErrorCode -> 'T
 
 /// Handles argument parser errors by raising an exception
-and ExceptionExiter() =
+type ExceptionExiter() =
     interface IExiter with
         member __.Name = "ArguException Exiter"
         member __.Exit(msg, errorCode) = raise (new ArguParseException(msg, errorCode))
 
 /// Handles argument parser errors by exiting the process
 /// after printing a parse error.
-and ProcessExiter() =
+type ProcessExiter() =
     interface IExiter with
         member __.Name = "Process Exiter"
         member __.Exit(msg : string, errorCode : ErrorCode) =
             Console.Error.WriteLine msg
             do Console.Error.Flush()
             exit (int errorCode)
+
+/// Abstract key/value configuration reader
+type IConfigurationReader =
+    /// Configuration reader identifier
+    abstract Name : string
+    /// Gets value corresponding to supplied key
+    abstract GetValue : key:string -> string

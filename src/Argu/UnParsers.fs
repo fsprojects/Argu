@@ -106,7 +106,7 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         | ListParam (_,parser) ->
             yield sprintf " <%s ...>" parser.Description
 
-        | NestedUnion (_, argInfo) ->
+        | NestedUnion _ ->
             yield " <options>"
 
         yield ": "
@@ -147,10 +147,10 @@ let printUsage (argInfo : UnionArgInfo) programName (description : string option
     | Some u -> yield u
     | None -> 
         match description with
-        | Some d -> yield d; yield Environment.NewLine; yield Environment.NewLine
+        | Some d -> yield d ; yield Environment.NewLine; yield Environment.NewLine
         | None -> ()
 
-        yield "USAGE: "; yield! printCommandLineSyntax argInfo programName
+        yield "USAGE: " ; yield! printCommandLineSyntax argInfo programName
 
     let options, subcommands =
         argInfo.Cases
@@ -220,7 +220,7 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
                 | Some v when aI.IsEquals1Assignment -> yield sprintf "%s=%s" clname (parser.UnParser v)
                 | Some v -> yield clname ; yield parser.UnParser v
 
-            | ListParam(existential, parser) ->
+            | ListParam(_, parser) ->
                 yield clname
                 let objSeq = fields.[0] |> unbox<System.Collections.IEnumerable> |> Seq.cast<obj>
                 for obj in objSeq do yield parser.UnParser obj
