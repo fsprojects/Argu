@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>HiddenAttribute - Argu</title>
+    <title>AppSettingsSeparatorAttribute - Argu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,12 +35,13 @@
 
 
 
-<h1>HiddenAttribute</h1>
+<h1>AppSettingsSeparatorAttribute</h1>
 <p>
   <span>Namespace: Argu</span><br />
+  <span>Parent Module: <a href="argu-arguattributes.html">ArguAttributes</a></span>
 </p>
 <div class="xmldoc">
-<p>Hide from command line argument documentation.</p>
+<p>Specify a custom value separator in AppSettings parameters</p>
 
 </div>
   <h3>Constructors</h3>
@@ -52,20 +53,85 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
-            new()
+          <code onmouseout="hideTip(event, '8', 8)" onmouseover="showTip(event, '8', 8)">
+            new(separator)
           </code>
-          <div class="tip" id="28">
-            <strong>Signature:</strong> unit -&gt; HiddenAttribute<br />
+          <div class="tip" id="8">
+            <strong>Signature:</strong> separator:char -&gt; AppSettingsSeparatorAttribute<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L53-53" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L95-95" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
               <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '9', 9)" onmouseover="showTip(event, '9', 9)">
+            new(separators, splitOptions)
+          </code>
+          <div class="tip" id="9">
+            <strong>Signature:</strong> (separators:string [] * splitOptions:StringSplitOptions) -&gt; AppSettingsSeparatorAttribute<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L93-93" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '10', 10)" onmouseover="showTip(event, '10', 10)">
+            Separators
+          </code>
+          <div class="tip" id="10">
+            <strong>Signature:</strong> string []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L96-96" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>get_Separators</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '11', 11)" onmouseover="showTip(event, '11', 11)">
+            SplitOptions
+          </code>
+          <div class="tip" id="11">
+            <strong>Signature:</strong> StringSplitOptions<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L97-97" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>get_SplitOptions</code></p>
         </td>
       </tr>
     </tbody>

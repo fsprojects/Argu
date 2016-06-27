@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>ParseSource - Argu</title>
+    <title>ArgumentParserUtils - Argu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,94 +35,59 @@
 
 
 
-<h1>ParseSource</h1>
+<h1>ArgumentParserUtils</h1>
 <p>
   <span>Namespace: Argu</span><br />
 </p>
 <div class="xmldoc">
-<p>Source from which to parse arguments</p>
-
 </div>
-  <h3>Record Fields</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '87', 87)" onmouseover="showTip(event, '87', 87)">
-            All
+          <code onmouseout="hideTip(event, '1', 1)" onmouseover="showTip(event, '1', 1)">
+            tagOf input
           </code>
-          <div class="tip" id="87">
-            <strong>Signature:</strong> ParseSource<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
+          <div class="tip" id="1">
+            <strong>Signature:</strong> input:&#39;Template -&gt; int<br />
+                          <strong>Type parameters:</strong> 'Template          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L120-120" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L208-208" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>gets the F# union tag representation of given argument instance</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '88', 88)" onmouseover="showTip(event, '88', 88)">
-            AppSettings
+          <code onmouseout="hideTip(event, '2', 2)" onmouseover="showTip(event, '2', 2)">
+            toParseResults inputs
           </code>
-          <div class="tip" id="88">
-            <strong>Signature:</strong> ParseSource<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
+          <div class="tip" id="2">
+            <strong>Signature:</strong> inputs:seq&lt;&#39;Template&gt; -&gt; ParseResult&lt;&#39;Template&gt;<br />
+                          <strong>Type parameters:</strong> 'Template          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L118-118" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L204-204" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
+          <p>converts a sequence of inputs to a ParseResult instance</p>
 
-          <code onmouseout="hideTip(event, '89', 89)" onmouseover="showTip(event, '89', 89)">
-            CommandLine
-          </code>
-          <div class="tip" id="89">
-            <strong>Signature:</strong> ParseSource<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L119-119" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '90', 90)" onmouseover="showTip(event, '90', 90)">
-            None
-          </code>
-          <div class="tip" id="90">
-            <strong>Signature:</strong> ParseSource<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L117-117" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
         </td>
       </tr>
     </tbody>

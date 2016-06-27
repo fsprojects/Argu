@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>AltCommandLineAttribute - Argu</title>
+    <title>ConfigurationReader - Argu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,83 +35,118 @@
 
 
 
-<h1>AltCommandLineAttribute</h1>
+<h1>ConfigurationReader</h1>
 <p>
   <span>Namespace: Argu</span><br />
 </p>
 <div class="xmldoc">
-<p>Sets alternative command line names.</p>
+<p>Configuration reader implementations</p>
 
 </div>
-  <h3>Constructors</h3>
+  <h3>Static members</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
+      <tr><td>Static member</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '1', 1)" onmouseover="showTip(event, '1', 1)">
-            new(name)
+          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
+            FromAppSettings(assembly)
           </code>
-          <div class="tip" id="1">
-            <strong>Signature:</strong> name:string -&gt; AltCommandLineAttribute<br />
+          <div class="tip" id="52">
+            <strong>Signature:</strong> assembly:Assembly -&gt; IConfigurationReader<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L94-94" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ConfigReaders.fs#L57-57" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-              <p>CompiledName: <code>.ctor</code></p>
+          <p>Create a configuration reader instance using the location of an assembly file</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '2', 2)" onmouseover="showTip(event, '2', 2)">
-            new(names)
+          <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
+            FromAppSettings()
           </code>
-          <div class="tip" id="2">
-            <strong>Signature:</strong> (names:string []) -&gt; AltCommandLineAttribute<br />
+          <div class="tip" id="53">
+            <strong>Signature:</strong> unit -&gt; IConfigurationReader<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L91-91" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ConfigReaders.fs#L53-53" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-              <p>CompiledName: <code>.ctor</code></p>
+          <p>Create a configuration reader instance using the application's resident AppSettings configuration</p>
+
+
         </td>
       </tr>
-    </tbody>
-  </table>
-  <h3>Instance members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Instance member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '3', 3)" onmouseover="showTip(event, '3', 3)">
-            Names
+          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
+            FromAppSettingsFile(path)
           </code>
-          <div class="tip" id="3">
-            <strong>Signature:</strong> string []<br />
+          <div class="tip" id="54">
+            <strong>Signature:</strong> path:string -&gt; IConfigurationReader<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L93-93" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ConfigReaders.fs#L55-55" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-              <p>CompiledName: <code>get_Names</code></p>
+          <p>Create a configuration reader instance using a local xml App.Config file</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
+            FromDictionary(keyValueDictionary, name)
+          </code>
+          <div class="tip" id="55">
+            <strong>Signature:</strong> (keyValueDictionary:IDictionary&lt;string,string&gt; * name:string option) -&gt; IConfigurationReader<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ConfigReaders.fs#L66-66" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Create a configuration reader instance using an IDictionary instance</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
+            FromFunction(reader, name)
+          </code>
+          <div class="tip" id="56">
+            <strong>Signature:</strong> (reader:(string -&gt; string option) * name:string option) -&gt; IConfigurationReader<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ConfigReaders.fs#L70-70" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Create a configuration reader instance using an F# function</p>
+
+
         </td>
       </tr>
     </tbody>

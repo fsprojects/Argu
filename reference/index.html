@@ -45,9 +45,17 @@
     <tbody>
         <tr>
           <td class="type-name">
-            <a href="argu-altcommandlineattribute.html">AltCommandLineAttribute</a>
+            <a href="argu-arguexception.html">ArguException</a>
           </td>
-          <td class="xmldoc"><p>Sets alternative command line names.</p>
+          <td class="xmldoc"><p>Exception raised by Argu</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="argu-arguparseexception.html">ArguParseException</a>
+          </td>
+          <td class="xmldoc"><p>Parse exception raised by Argu</p>
 
 </td>
         </tr>
@@ -71,73 +79,23 @@ or XML configuration.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="argu-cliprefix.html">CliPrefix</a>
+            <a href="argu-configurationreader.html">ConfigurationReader</a>
           </td>
-          <td class="xmldoc"><p>CLI prefix enumeration</p>
+          <td class="xmldoc"><p>Configuration reader implementations</p>
 
 </td>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="argu-cliprefixattribute.html">CliPrefixAttribute</a>
+            <a href="argu-errorcode.html">ErrorCode</a>
           </td>
-          <td class="xmldoc"><p>Specifies a custom prefix for auto generated CLI names.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-customappsettingsattribute.html">CustomAppSettingsAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Sets a custom AppSettings key name.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-customcommandlineattribute.html">CustomCommandLineAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Sets a custom command line name.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-equalsassignmentattribute.html">EqualsAssignmentAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Use '--param=arg' assignment syntax in CLI.</p>
-
-</td>
+          <td class="xmldoc"></td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="argu-exceptionexiter.html">ExceptionExiter</a>
           </td>
           <td class="xmldoc"><p>Handles argument parser errors by raising an exception</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-firstattribute.html">FirstAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Argument can only be placed at the beginning of the command line.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-gatherallsourcesattribute.html">GatherAllSourcesAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Gathers all parsed results from both AppSettings and command line.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-hiddenattribute.html">HiddenAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Hide from command line argument documentation.</p>
 
 </td>
         </tr>
@@ -151,6 +109,14 @@ or XML configuration.</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="argu-iconfigurationreader.html">IConfigurationReader</a>
+          </td>
+          <td class="xmldoc"><p>Abstract key/value configuration reader</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="argu-iexiter.html">IExiter</a>
           </td>
           <td class="xmldoc"><p>An interface for error handling in the argument parser</p>
@@ -159,39 +125,7 @@ or XML configuration.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="argu-mandatoryattribute.html">MandatoryAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Demands at least one parsed result for this branch; an exception is raised otherwise.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-noappsettingsattribute.html">NoAppSettingsAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Disable AppSettings parsing for this branch.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-nocommandlineattribute.html">NoCommandLineAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Disable command line parsing for this branch.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-parsecsvattribute.html">ParseCSVAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Parse comma separated values in AppSettings</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-parseresults-1.html">ParseResults<'Template></a>
+            <a href="argu-parseresult-1.html">ParseResult<'Template></a>
           </td>
           <td class="xmldoc"><p>Argument parsing result holder.</p>
 
@@ -207,14 +141,6 @@ or XML configuration.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="argu-printlabelsattribute.html">PrintLabelsAttribute</a>
-          </td>
-          <td class="xmldoc"><p>Print F# 3.1 field labels in 'Usage' string.</p>
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
             <a href="argu-processexiter.html">ProcessExiter</a>
           </td>
           <td class="xmldoc"><p>Handles argument parser errors by exiting the process
@@ -222,11 +148,30 @@ after printing a parse error.</p>
 
 </td>
         </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
         <tr>
-          <td class="type-name">
-            <a href="argu-restattribute.html">RestAttribute</a>
+          <td class="module-name">
+            <a href="argu-arguattributes.html">ArguAttributes</a>
           </td>
-          <td class="xmldoc"><p>Consume all remaining command line arguments.</p>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="argu-argumentparserutils.html">ArgumentParserUtils</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="argu-cliprefix.html">CliPrefix</a>
+          </td>
+          <td class="xmldoc"><p>Predefined CLI prefixes to be added</p>
 
 </td>
         </tr>

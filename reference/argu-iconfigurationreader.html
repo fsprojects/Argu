@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>RestAttribute - Argu</title>
+    <title>IConfigurationReader - Argu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,37 +35,61 @@
 
 
 
-<h1>RestAttribute</h1>
+<h1>IConfigurationReader</h1>
 <p>
   <span>Namespace: Argu</span><br />
 </p>
 <div class="xmldoc">
-<p>Consume all remaining command line arguments.</p>
+<p>Abstract key/value configuration reader</p>
 
 </div>
-  <h3>Constructors</h3>
+  <h3>Instance members</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
+      <tr><td>Instance member</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
-            new()
+          <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
+            GetValue(key)
           </code>
-          <div class="tip" id="59">
-            <strong>Signature:</strong> unit -&gt; RestAttribute<br />
+          <div class="tip" id="63">
+            <strong>Signature:</strong> key:string -&gt; string<br />
+              <strong>Modifiers:</strong> abstract<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L49-49" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L170-170" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-              <p>CompiledName: <code>.ctor</code></p>
+          <p>Gets value corresponding to supplied key</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '64', 64)" onmouseover="showTip(event, '64', 64)">
+            Name
+          </code>
+          <div class="tip" id="64">
+            <strong>Signature:</strong> string<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L168-168" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Configuration reader identifier</p>
+
+
+              <p>CompiledName: <code>get_Name</code></p>
         </td>
       </tr>
     </tbody>
