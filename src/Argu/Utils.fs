@@ -175,13 +175,23 @@ module internal Utils =
 
         aux None [] e
 
-    let private whitespaceRegex = new Regex("\s", RegexOptions.Compiled)
+    let private whitespaceRegex = new Regex(@"\s", RegexOptions.Compiled)
     let escapeCliString (value : string) =
         if whitespaceRegex.IsMatch value then sprintf "'%s'" value
         else value
 
     let flattenCliTokens (tokens : seq<string>) =
         tokens |> Seq.map escapeCliString |> String.concat " "
+
+    let private whitespaceAllRegex = new Regex(@"^\s*$", RegexOptions.Compiled)
+    /// Replacement of String.IsNullOrWhiteSpace for NET35
+    let isNullOrWhiteSpace (string:string) =
+#if NET35
+        if string = null then true
+        else whitespaceAllRegex.IsMatch string
+#else
+        String.IsNullOrWhiteSpace string
+#endif
 
     let private assignRegex = new Regex(@"^([^=]*)=(.*)$", RegexOptions.Compiled)
     /// parses the first part of a command line parameter

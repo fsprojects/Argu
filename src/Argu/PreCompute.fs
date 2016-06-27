@@ -34,6 +34,10 @@ let generateOptionName (uci : UnionCaseInfo) =
 let generateAppSettingsName (uci : UnionCaseInfo) =
     uci.Name.ToLower().Replace('_',' ')
 
+/// Generates an argument label name from given PropertyInfo
+let generateLabelName (p:PropertyInfo) =
+    p.Name.Replace('_',' ')
+
 /// get CL arguments from environment
 let getEnvironmentCommandLineArgs () =
     match System.Environment.GetCommandLineArgs() with
@@ -197,8 +201,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | _ -> 
             let getParser index (p : PropertyInfo) =
                 let label =
-                    if types.Length = 1 && p.Name <> "Item" then Some p.Name
-                    elif types.Length > 1 && p.Name <> sprintf "Item%d" index then Some p.Name
+                    if types.Length = 1 && p.Name <> "Item" then Some (generateLabelName p)
+                    elif types.Length > 1 && p.Name <> sprintf "Item%d" index then Some (generateLabelName p)
                     else None
 
                 getPrimitiveParserByType label p.PropertyType
@@ -234,7 +238,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             | None -> Some <| generateAppSettingsName uci
             // take last registered attribute
             | Some attr when parsers.IsNested -> arguExn "CustomAppSettings in %s not supported for nested union cases" uci.Name
-            | Some attr when not <| String.IsNullOrWhiteSpace attr.Name -> Some attr.Name
+            | Some attr when not <| isNullOrWhiteSpace attr.Name -> Some attr.Name
             | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name
 
     /// gets the default name of the argument
