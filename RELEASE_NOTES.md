@@ -1,4 +1,4 @@
-### 3.0-alpha01
+### 3.0.0-alpha001
 * Add subcommand support.
 * Add support for list and option parameters.
 * Add support for grouped switches.
@@ -7,10 +7,10 @@
 * Implement HelpFlagsAttribute, HelpDescriptionAttribute and DisableHelpAttribute.
 * Add ParseResult.UnrecognizedCliParams property.
 
-### 2.1
+### 2.1.0
 * AltCommandLineAttribute supporting variadic parameters.
 
-### 2.0
+### 2.0.0
 * Move to fsprojects, rename root namespace.
 
 ### 1.1.3
