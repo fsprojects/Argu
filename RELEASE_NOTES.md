@@ -1,3 +1,12 @@
+### 3.0-alpha01
+* Add subcommand support.
+* Add support for list and option parameters.
+* Add support for grouped switches.
+* Extend EqualsAssignment attribute for parameters of arity 2.
+* Implement UniqueAttribute.
+* Implement HelpFlagsAttribute, HelpDescriptionAttribute and DisableHelpAttribute.
+* Add ParseResult.UnrecognizedCliParams property.
+
 ### 2.1
 * AltCommandLineAttribute supporting variadic parameters.
 

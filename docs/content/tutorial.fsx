@@ -221,9 +221,9 @@ which would yield the following:
     <?xml version="1.0" encoding="utf-16"?>
     <configuration>
       <appSettings>
-        <!-- sets the port number. : int -->
+        <!-- sets the port number. : port -->
         <add key="port" value="42" />
-        <!-- sets the working directory. : string -->
+        <!-- sets the working directory. : path -->
         <add key="working directory" value="/tmp" />
       </appSettings>
     </configuration>
