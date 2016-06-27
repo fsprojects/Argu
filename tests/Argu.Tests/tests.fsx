@@ -6,41 +6,62 @@ open Argu
 open Argu.Tests
 
 type PushArgs =
-    | Remote of name:string
-    | Branch of name:string
+    | All
+    | Prune
+    | [<AltCommandLine("-f")>]Force
+    | [<AltCommandLine("-v")>]Verbose
+    | Remote of repository:string
+    | Branch of branch:string
 with
     interface IArgParserTemplate with
-        member this.Usage = "foo bar foo bar foo bar"
+        member this.Usage =
+            match this with
+            | All -> "Push all branches (i.e. refs under refs/heads/); cannot be used with other <refspec>."
+            | Prune -> "Remove remote branches that don't have a local counterpart."
+            | Verbose -> "Run verbosely."
+            | Force -> "Usually, the command refuses to update a remote ref that is not an ancestor of the local ref used to overwrite it."
+            | Remote _ -> "Specify a remote repository to push to."
+            | Branch _ -> "Specify a branch to push changes to."
 
 [<CliPrefix(CliPrefix.Dash)>]
 type CleanArgs =
     | D
-    | F
+    | [<AltCommandLine("--force")>]F
     | X
 with
     interface IArgParserTemplate with
-        member this.Usage = "foo bar foo bar foo bar"
+        member this.Usage =
+            match this with
+            | D -> "Remove untracked directories in addition to untracked files"
+            | F -> "If the Git configuration variable clean.requireForce is not set to false, git clean will refuse to delete files or directories unless given -f."
+            | X -> "Remove only files ignored by Git. This may be useful to rebuild everything from scratch, but keep manually created files."
 
 type GitArgs =
-    | Bar of int
-    | Foo of address:string * number:int
-    | [<AltCommandLine("-p")>]Push of ParseResult<PushArgs>
-    | Clean of ParseResult<CleanArgs>
-    | [<CustomCommandLine("-E")>][<EqualsAssignment>]Env of key:string * value:int
-    | Optional of int option
-    | List of int list
+    | [<Unique>] Listener of address:string * number:int
+    | Log_Level of level:int
+    | [<CliPrefix(CliPrefix.None)>]Push of ParseResult<PushArgs>
+    | [<CliPrefix(CliPrefix.None)>]Clean of ParseResult<CleanArgs>
+    | [<AltCommandLine("-E")>][<EqualsAssignment>]Environment_Variable of key:string * value:string
+    | Ports of int list
 with 
     interface IArgParserTemplate with 
-        member this.Usage = "foo bar foo bar foo bar"
+        member this.Usage =
+            match this with
+            | Listener _ -> "Specify a listener host/port combination."
+            | Log_Level _ -> "Specify a log level for the process."
+            | Push _ -> "Pushes changes to remote repo. See 'gadget push --help' for more info."
+            | Clean _ -> "Cleans the local repo. See 'gadget clean --help' for more info."
+            | Environment_Variable _ -> "Specifies an environment variable for the process."
+            | Ports _ -> "Specifies a collection of port for the process."
 
 let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", description = "Gadget -- my awesome CLI tool")
 
-parser.PrintCommandLineFlat [Bar 42 ; Push(toParseResults [Remote "a b"])]
+parser.PrintCommandLineFlat [Push(toParseResults [Remote "origin" ; Branch "master"])]
 
-let result = parser.Parse [| "--list" ; "1" ; "2" ; "b" ;|]
+let result = parser.Parse [| "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
+let nested = result.GetResult <@ Clean @>
+
 result.GetAllResults()
-let nested = result.GetResult(<@ Clean @>)
-
 result.Usage() |> System.Console.WriteLine
 nested.Usage() |> System.Console.WriteLine
 

@@ -22,6 +22,10 @@ type HiddenAttribute () = inherit Attribute ()
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
 type MandatoryAttribute () = inherit Attribute ()
 
+/// Demands that the argument should be specified at most once; an exception is raised otherwise.
+[<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
+type UniqueAttribute () = inherit Attribute ()
+
 /// Gathers all parsed results from both AppSettings and command line.
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
 type GatherAllSourcesAttribute () = inherit Attribute ()

@@ -6,7 +6,7 @@ type private IParseResults =
     abstract GetAllResults : unit -> seq<obj>    
 
 /// Argument parsing result holder.
-[<Sealed; AutoSerializable(false)>]
+[<Sealed; AutoSerializable(false); StructuredFormatDisplay("{StructuredFormatDisplay}")>]
 type ParseResult<'Template when 'Template :> IArgParserTemplate> 
     internal (argInfo : UnionArgInfo, results : UnionParseResults, mkUsageString : string option -> string, exiter : IExiter) =
 
@@ -194,3 +194,8 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
     /// <param name="source">Option source restriction: AppSettings or CommandLine.</param>
     member r.IterResult (expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
         expr |> tryGetResult source |> Option.iter (parseResult iterator)
+
+    override r.ToString() = sprintf "%A" (r.GetAllResults())
+
+    // used by StructuredFormatDisplay attribute
+    member private r.StructuredFormatDisplay = r.ToString()

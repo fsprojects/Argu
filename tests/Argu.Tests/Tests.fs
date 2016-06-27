@@ -35,6 +35,7 @@ module ``Argu Tests`` =
         | Working_Directory of string
         | [<AppSettingsSeparator(':')>] Listener of host:string * port:int
         | [<Mandatory>] Mandatory_Arg of bool
+        | [<Unique>] Unique_Arg of bool
         | [<Rest>][<ParseCSV>] Rest_Arg of int
         | Data of int * byte []
         | Log_Level of int
@@ -57,6 +58,7 @@ module ``Argu Tests`` =
                 | Working_Directory _ -> "specify a working directory."
                 | Listener _ -> "specify a listener."
                 | Mandatory_Arg _ -> "a mandatory argument."
+                | Unique_Arg _ -> "a unique argument."
                 | Rest_Arg _ -> "an argument that consumes all remaining command line tokens."
                 | Data _ -> "pass raw data in base64 format."
                 | Log_Level _ -> "set the log level."
@@ -149,6 +151,16 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Missing Mandatory parameter`` () =
         fun () -> parser.ParseCommandLine [| "-D" |] |> ignore
+        |> shouldFailwith<_, ArguParseException>
+
+    [<Fact>]
+    let ``Unique parameter specified once`` () =
+        let result = parser.ParseCommandLine([| "--unique-arg" ; "true" |], ignoreMissing = true)
+        result.GetResult <@ Unique_Arg @> |> should equal true
+
+    [<Fact>]
+    let ``Unique parameter specified twice`` () =
+        fun () -> parser.ParseCommandLine([| "--unique-arg" ; "true" ; "--unique-arg" ; "false" |], ignoreMissing = true) |> ignore
         |> shouldFailwith<_, ArguParseException>
 
     [<Fact>]

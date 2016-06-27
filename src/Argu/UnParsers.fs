@@ -21,7 +21,7 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = str
     let sorted = 
         argInfo.Cases
         |> Seq.filter (fun aI -> not aI.IsHidden)
-        |> Seq.sortBy (fun aI -> not aI.IsFirst, aI.IsRest, aI.IsNested)
+        |> Seq.sortBy (fun aI -> not aI.IsFirst, aI.IsRest || aI.IsNested, aI.Tag)
         |> Seq.toArray
 
     for aI in sorted do

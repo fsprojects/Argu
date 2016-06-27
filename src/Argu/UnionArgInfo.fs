@@ -94,6 +94,8 @@ type UnionCaseArgInfo =
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
         IsMandatory : bool
+        /// Specifies that argument should be specified at most once in CLI
+        IsUnique : bool
         /// Hide from Usage
         IsHidden : bool
         /// Combine AppSettings with CLI inputs

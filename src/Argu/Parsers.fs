@@ -47,6 +47,8 @@ type CliTokenReader(inputs : string[]) =
     member __.BeginCliSegment() =
         segmentStartPos <- position
 
+    /// returns the substring that corresponds to the current argument being parsed
+    /// e.g "-port 2" from "-Cf -port 2 -bar"
     member __.CurrentSegment =
         inputs.[segmentStartPos .. position - 1] |> flattenCliTokens
 
@@ -91,7 +93,11 @@ type CliParseResultAggregator(argInfo : UnionArgInfo) =
 
     member __.AppendResult(result : UnionCaseParseResult) =
         resultCount <- resultCount + 1
-        results.[result.Tag].Add result
+        let agg = results.[result.Tag]
+        if result.ArgInfo.IsUnique && agg.Count > 0 then
+            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.ArgInfo.Name
+
+        agg.Add(result)
 
     member __.AppendUnrecognized(token:string) = unrecognized.Add token
 
