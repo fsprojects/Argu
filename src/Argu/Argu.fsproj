@@ -65,12 +65,12 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Utils.fs" />
+    <Compile Include="ConfigReaders.fs" />
     <Compile Include="UnionArgInfo.fs" />
-    <Compile Include="ParseResult.fs" />
     <Compile Include="PreCompute.fs" />
     <Compile Include="UnParsers.fs" />
+    <Compile Include="ParseResult.fs" />
     <Compile Include="Parsers.fs" />
-    <Compile Include="ConfigReaders.fs" />
     <Compile Include="ArgumentParser.fs" />
     <None Include="paket.template" />
   </ItemGroup>

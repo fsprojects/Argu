@@ -160,7 +160,7 @@ type ProcessExiter() =
     interface IExiter with
         member __.Name = "Process Exiter"
         member __.Exit(msg : string, errorCode : ErrorCode) =
-            Console.Error.WriteLine msg
+            Console.Error.WriteLine (msg)
             do Console.Error.Flush()
             exit (int errorCode)
 

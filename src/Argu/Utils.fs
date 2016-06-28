@@ -34,6 +34,11 @@ module internal Utils =
             | 0 -> invalidArg "xs" "input array is empty."
             | n -> ts.[n - 1]
 
+        let tryLast (ts : 'T[]) =
+            match ts.Length with
+            | 0 -> None
+            | n -> Some ts.[n-1]
+
     [<RequireQualifiedAccess>]
     module List =
 
@@ -207,30 +212,36 @@ module internal Utils =
 
     // string builder compexpr
 
-    type StringExpr = StringBuilder -> unit
+    type StringExpr<'T> = StringBuilder -> 'T
 
     type StringExprBuilder () =
-        member __.Zero () : StringExpr = ignore
-        member __.Yield (txt : string) : StringExpr = fun b -> b.Append txt |> ignore
-        member __.Yield (c : char) : StringExpr = fun b -> b.Append c |> ignore
-        member __.YieldFrom f = f : StringExpr
+        member __.Zero () : StringExpr<unit> = ignore
+        member __.Bind(f : StringExpr<'T>, g : 'T -> StringExpr<'S>) : StringExpr<'S> =
+            fun sb -> g (f sb) sb
 
-        member __.Combine(f : StringExpr, g : StringExpr) : StringExpr = fun b -> f b; g b
-        member __.Delay (f : unit -> StringExpr) : StringExpr = fun b -> f () b
+        member __.Yield (txt : string) : StringExpr<unit> = fun b -> b.Append txt |> ignore
+        member __.Yield (c : char) : StringExpr<unit> = fun b -> b.Append c |> ignore
+        member __.YieldFrom (f : StringExpr<unit>) = f
+
+        member __.Combine(f : StringExpr<unit>, g : StringExpr<'T>) : StringExpr<'T> = fun b -> f b; g b
+        member __.Delay (f : unit -> StringExpr<'T>) : StringExpr<'T> = fun b -> f () b
         
-        member __.For (xs : 'a seq, f : 'a -> StringExpr) : StringExpr =
+        member __.For (xs : 'a seq, f : 'a -> StringExpr<unit>) : StringExpr<unit> =
             fun b ->
                 use e = xs.GetEnumerator ()
                 while e.MoveNext() do f e.Current b
 
-        member __.While (p : unit -> bool, f : StringExpr) : StringExpr =
+        member __.While (p : unit -> bool, f : StringExpr<unit>) : StringExpr<unit> =
             fun b -> while p () do f b
 
     let stringExpr = new StringExprBuilder ()
 
     [<RequireQualifiedAccess>]
-    module String =
-        let build (f : StringExpr) =
+    [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    module StringExpr =
+        let build (f : StringExpr<unit>) =
             let b = new StringBuilder ()
             do f b
             b.ToString ()
+
+        let currentLength : StringExpr<int> = fun sb -> sb.Length

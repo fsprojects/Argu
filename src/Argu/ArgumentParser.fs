@@ -11,22 +11,25 @@ open FSharp.Reflection
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
 [<NoEquality; NoComparison; AutoSerializable(false)>]
-type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (argInfo : UnionArgInfo, ?programName : string, ?description : string, ?errorHandler : IExiter) =
+type ArgumentParser<'Template when 'Template :> IArgParserTemplate> 
+        internal (argInfo : UnionArgInfo, ?programName : string, ?description : string, 
+                    ?usageStringCharacterWidth : int, ?errorHandler : IExiter) =
+
     // memoize parser generation for given template type
     static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
 
+    let _usageStringCharacterWidth = defaultArg usageStringCharacterWidth 80
     let _programName = match programName with Some pn -> pn | None -> currentProgramName.Value
     let errorHandler = match errorHandler with Some e -> e  | None -> new ExceptionExiter() :> _
 
-    let mkUsageString argInfo msgOpt = printUsage argInfo _programName description msgOpt |> String.build
-
+    let mkUsageString argInfo msgOpt = printUsage argInfo _programName _usageStringCharacterWidth msgOpt |> StringExpr.build
 
     let (|ParserExn|_|) (e : exn) =
         match e with
         // do not display usage for App.Config parameter errors
-        | ParseError (msg, id, _) when id <> ErrorCode.CommandLine -> Some(id, msg)
+        | ParseError (msg, ErrorCode.AppSettings, _) -> Some(ErrorCode.AppSettings, msg)
         | ParseError (msg, id, aI) -> Some (id, mkUsageString aI (Some msg))
-        | HelpText aI -> Some (ErrorCode.HelpText, mkUsageString aI None)
+        | HelpText aI -> Some (ErrorCode.HelpText, mkUsageString aI description)
         | _ -> None
 
     /// <summary>
@@ -34,10 +37,11 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     /// </summary>
     /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
     /// <param name="description">Program description placed at the top of the usage string.</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
-    new (?programName : string, ?description : string, ?errorHandler : IExiter) =
+    new (?programName : string, ?description : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter) =
         new ArgumentParser<'Template>(argInfoLazy.Value, ?programName = programName, 
-                                        ?description = description, ?errorHandler = errorHandler)
+                                        ?usageStringCharacterWidth = usageStringCharacterWidth, ?description = description, ?errorHandler = errorHandler)
 
     /// Gets the help flags specified for the CLI parser
     member __.HelpFlags = argInfo.HelpParam.Flags
@@ -64,11 +68,11 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
 
         try
-            let cliResults = parseCommandLine argInfo _programName description errorHandler raiseOnUsage ignoreUnrecognized inputs
+            let cliResults = parseCommandLine argInfo _programName description _usageStringCharacterWidth errorHandler raiseOnUsage ignoreUnrecognized inputs
             let ignoreMissing = (cliResults.IsUsageRequested && not raiseOnUsage) || ignoreMissing
             let results = postProcessResults argInfo ignoreMissing None (Some cliResults)
 
-            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
+            new ParseResult<'Template>(argInfo, results, _programName, description, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
@@ -82,7 +86,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
             let appSettingsResults = parseKeyValueConfig configurationReader argInfo
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
 
-            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
+            new ParseResult<'Template>(argInfo, results, _programName, description, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)    
 
@@ -102,10 +106,10 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
 
         try
             let appSettingsResults = parseKeyValueConfig configurationReader argInfo
-            let cliResults = parseCommandLine argInfo _programName description errorHandler raiseOnUsage ignoreUnrecognized inputs
+            let cliResults = parseCommandLine argInfo _programName description _usageStringCharacterWidth errorHandler raiseOnUsage ignoreUnrecognized inputs
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
-            new ParseResult<'Template>(argInfo, results, mkUsageString argInfo, errorHandler)
+            new ParseResult<'Template>(argInfo, results, _programName, description, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
@@ -134,11 +138,7 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     /// </summary>
     /// <param name="inputs">Argument input sequence.</param>
     member __.ToParseResult (inputs : seq<'Template>) : ParseResult<'Template> =
-        mkParseResultFromValues argInfo errorHandler (mkUsageString argInfo) inputs
-
-    /// <summary>Returns the usage string.</summary>
-    /// <param name="message">The message to be displayed on top of the usage string.</param>
-    member __.Usage (?message : string) : string = mkUsageString argInfo message
+        mkParseResultFromValues argInfo errorHandler _usageStringCharacterWidth _programName description inputs
 
     /// <summary>
     ///     Gets a subparser associated with specific subcommand instance
@@ -174,26 +174,37 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         let uci = expr2Uci ctorExpr
         argInfo.Cases.[uci.Tag].ToArgumentCaseInfo()
 
+    /// <summary>Formats a usage string for the argument parser.</summary>
+    /// <param name="message">The message to be displayed on top of the usage string.</param>
+    /// <param name="programName">Override the default program name settings.</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
+    member __.PrintUsage (?message : string, ?programName : string, ?usageStringCharacterWidth : int) : string = 
+        let programName = defaultArg programName _programName
+        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
+        printUsage argInfo programName usageStringCharacterWidth message |> StringExpr.build
+
     /// <summary>
     ///     Prints command line syntax. Useful for generating documentation.
     /// </summary>
     /// <param name="programName">Program name identifier placed at start of syntax string</param>
-    member __.PrintCommandLineSyntax (?programName : string) : string =
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
+    member __.PrintCommandLineSyntax (?programName : string, ?usageStringCharacterWidth : int) : string =
         let programName = defaultArg programName _programName
-        printCommandLineSyntax argInfo programName |> String.build
+        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
+        printCommandLineSyntax argInfo "" usageStringCharacterWidth programName |> StringExpr.build
 
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
-    member __.PrintCommandLine (args : 'Template list) : string [] =
+    member __.PrintCommandLineArguments (args : 'Template list) : string [] =
         printCommandLineArgs argInfo (Seq.cast args) |> Seq.toArray
 
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
-    member __.PrintCommandLineFlat (args : 'Template list) : string =
-        __.PrintCommandLine args |> flattenCliTokens
+    member __.PrintCommandLineArgumentsFlat (args : 'Template list) : string =
+        __.PrintCommandLineArguments args |> flattenCliTokens
 
     /// <summary>Prints parameters in App.Config format.</summary>
     /// <param name="args">The parameters that fill out the XML document.</param>
     /// <param name="printComments">Print XML comments over every configuration entry.</param>
-    member __.PrintAppSettings (args : 'Template list, ?printComments : bool) : string =
+    member __.PrintAppSettingsArguments (args : 'Template list, ?printComments : bool) : string =
         let printComments = defaultArg printComments true
         let xmlDoc = printAppSettings argInfo printComments args
         use writer = { new System.IO.StringWriter() with member __.Encoding = System.Text.Encoding.UTF8 }
@@ -212,14 +223,21 @@ type ArgumentParser =
     /// </summary>
     /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
     /// <param name="description">Program description placed at the top of the usage string.</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
-    static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?description : string, ?errorHandler : IExiter) =
-        new ArgumentParser<'Template>(?programName = programName, ?description = description, ?errorHandler = errorHandler)
+    static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?description : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter) =
+        new ArgumentParser<'Template>(?programName = programName, ?description = description, ?errorHandler = errorHandler, ?usageStringCharacterWidth = usageStringCharacterWidth)
 
 
 [<AutoOpen>]
 module ArgumentParserUtils =
-    
+
+    type ParseResult<'Template when 'Template :> IArgParserTemplate> with
+        member r.Parser =
+            new ArgumentParser<'Template>(r.ArgInfo, r.ProgramName, ?description = r.Description, 
+                                                usageStringCharacterWidth = r.CharacterWidth, 
+                                                errorHandler = r.ErrorHandler)
+
     /// converts a sequence of inputs to a ParseResult instance
     let toParseResults (inputs : seq<'Template>) : ParseResult<'Template> =
         ArgumentParser.Create<'Template>().ToParseResult(inputs)

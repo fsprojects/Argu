@@ -11,20 +11,31 @@ open FSharp.Reflection
 /// <summary>
 ///     print the command line syntax
 /// </summary>
-let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = stringExpr {
+let printCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int) (programName : string) = stringExpr {
+    do if width < 1 then raise <| new ArgumentOutOfRangeException("width", "must be positive number")
+    let! length0 = StringExpr.currentLength
+    yield prefix
     yield programName
 
     for command in getHierarchy argInfo do
         yield ' '
         yield command.Name
-    
-    let sorted = 
-        argInfo.Cases
-        |> Seq.filter (fun aI -> not aI.IsHidden)
-        |> Seq.sortBy (fun aI -> not aI.IsFirst, aI.IsRest || aI.Type = ArgumentType.SubCommand, aI.Tag)
-        |> Seq.toArray
 
-    for aI in sorted do
+    let! length1 = StringExpr.currentLength
+    let offset = length1 - length0
+    let length = ref length1
+
+    let insertCutoffLine() = stringExpr {
+        let! length1 = StringExpr.currentLength
+        if length1 - !length > width then
+            yield Environment.NewLine
+            yield String(' ', offset)
+            length := length1 + offset + 1
+    }
+    
+    for aI in argInfo.Cases |> Seq.filter (fun aI -> not aI.IsHidden) do
+        yield! insertCutoffLine()
+
         match aI.CommandLineNames with
         | [] -> ()
         | name :: _ ->
@@ -59,7 +70,7 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = str
             if not aI.IsMandatory then yield ']'
 
     match argInfo.HelpParam.Flags with
-    | h :: _ -> yield sprintf " [%s]" h
+    | h :: _ -> yield! insertCutoffLine() ; yield sprintf " [%s]" h
     | _ -> ()
 }
  
@@ -142,32 +153,20 @@ let printHelpParam (hp : HelpParam) = stringExpr {
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
-let printUsage (argInfo : UnionArgInfo) programName (description : string option) (msg : string option) = stringExpr {
-    match msg with
-    | Some u -> yield u
-    | None -> 
-        match description with
-        | Some d -> yield d ; yield Environment.NewLine; yield Environment.NewLine
-        | None -> ()
+let printUsage (argInfo : UnionArgInfo) (programName : string) width (message : string option) = stringExpr {
+    match message with
+    | Some msg -> yield msg; yield Environment.NewLine
+    | None -> ()
 
-        yield "USAGE: " ; yield! printCommandLineSyntax argInfo programName
+    yield! printCommandLineSyntax argInfo "USAGE: " width programName
 
     let options, subcommands =
         argInfo.Cases
         |> Seq.filter (fun aI -> not aI.IsHidden)
         |> Seq.partition (fun aI -> aI.Type <> ArgumentType.SubCommand)
 
-    if options.Length > 0 || argInfo.UsesHelpParam then
-        yield Environment.NewLine; yield Environment.NewLine
-        yield "OPTIONS:"
-        yield Environment.NewLine; yield Environment.NewLine
-
-        for aI in options do yield! printArgUsage aI
-
-        yield! printHelpParam argInfo.HelpParam
-
     if subcommands.Length > 0 then
-        yield Environment.NewLine
+        yield Environment.NewLine; yield Environment.NewLine
         yield "SUBCOMMANDS:"
         yield Environment.NewLine; yield Environment.NewLine
 
@@ -179,6 +178,16 @@ let printUsage (argInfo : UnionArgInfo) programName (description : string option
             yield Environment.NewLine
             yield sprintf "\tUse '%s <subcommand> %s' for additional information." programName helpflag
             yield Environment.NewLine
+
+    if options.Length > 0 || argInfo.UsesHelpParam then
+        if subcommands.Length = 0 then yield Environment.NewLine
+        yield Environment.NewLine
+        yield "OPTIONS:"
+        yield Environment.NewLine; yield Environment.NewLine
+
+        for aI in options do yield! printArgUsage aI
+
+        yield! printHelpParam argInfo.HelpParam
 }
 
 /// <summary>
@@ -227,7 +236,7 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 
             | NestedUnion (_, nested) ->
                 yield clname
-                let nestedResult = fields.[0] :?> IParseResults
+                let nestedResult = fields.[0] :?> IParseResult
                 yield! printCommandLineArgs nested (nestedResult.GetAllResults())
         }
 
@@ -286,7 +295,7 @@ let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template li
 
                         yield ' '
 
-                    } |> String.build
+                    } |> StringExpr.build
 
                 mkElem mkComment key values
 

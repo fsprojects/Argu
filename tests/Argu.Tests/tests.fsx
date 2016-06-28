@@ -2,6 +2,7 @@
 #r "Argu.dll"
 #r "Argu.Tests.dll"
 
+open System
 open Argu
 open Argu.Tests
 
@@ -56,15 +57,18 @@ with
 
 let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", description = "Gadget -- my awesome CLI tool")
 
-parser.PrintCommandLineFlat [Push(toParseResults [Remote "origin" ; Branch "master"])]
+parser.PrintCommandLineArgumentsFlat [Push(toParseResults [Remote "origin" ; Branch "master"])]
 
 let result = parser.Parse [| "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
-let nested = result.GetResult <@ Clean @>
+let cresult = result.GetResult <@ Clean @>
 
-result.GetAllResults()
-result.Usage() |> System.Console.WriteLine
-nested.Usage() |> System.Console.WriteLine
+let pparser = parser.GetSubParser <@ Push @>
+let cparser = parser.GetSubParser <@ Clean @>
 
-parser.PrintCommandLineSyntax()
+parser.PrintUsage("Ooops\n") |> Console.WriteLine
+pparser.PrintUsage() |> Console.WriteLine
+cparser.PrintUsage() |> Console.WriteLine
 
-parser.GetSubParser(<@ Clean @>).PrintCommandLineSyntax()
+parser.PrintCommandLineSyntax(usageStringCharacterWidth = 1000) |> Console.WriteLine
+pparser.PrintCommandLineSyntax() |> Console.WriteLine
+cparser.PrintCommandLineSyntax() |> Console.WriteLine

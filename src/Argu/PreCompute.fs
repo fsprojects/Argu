@@ -84,7 +84,7 @@ let primitiveParsers =
 let (|UnionParseResult|Optional|List|Other|) (t : Type) =
     if t.IsGenericType then
         let gt = t.GetGenericTypeDefinition()
-        if gt = typedefof<ParseResult<_>> then UnionParseResult(t.GetGenericArguments().[0])
+        if typeof<IParseResult>.IsAssignableFrom t then UnionParseResult(t.GetGenericArguments().[0])
         elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
         elif gt = typedefof<_ list> then List(t.GetGenericArguments().[0])
         else Other
@@ -105,7 +105,6 @@ let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled ||| Reg
 let validateCliParam (name : string) =
     if name = null || not <| validCliParamRegex.IsMatch name then
         arguExn "CLI parameter '%s' contains invalid characters." name
-    
 
 /// extracts the subcommand argument hierarchy for given UnionArgInfo
 let getHierarchy (uai : UnionArgInfo) =

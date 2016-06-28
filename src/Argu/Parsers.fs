@@ -6,11 +6,11 @@ open System.Collections.Generic
 open System.Text.RegularExpressions
 open System.IO
 
-exception ParseError of string * ErrorCode * argInfo:UnionArgInfo
+exception ParseError of message:string * code:ErrorCode * argInfo:UnionArgInfo
 exception HelpText of subcommand:UnionArgInfo
 
-let inline private error argInfo code fmt = 
-    Printf.ksprintf (fun msg -> raise <| ParseError(msg, code, argInfo)) fmt
+let inline private error argInfo code fmt =
+    Printf.ksprintf (fun msg -> raise <| ParseError("ERROR: " + msg, code, argInfo)) fmt
 
 /// construct a parse result from untyped collection of parsed arguments
 let mkUnionCase (info : UnionCaseArgInfo) index parseSource parsecontext (fields : obj []) =
@@ -109,6 +109,7 @@ type CliParseState =
     {
         ProgramName : string
         Description : string option
+        UsageStringCharWidth : int
         Exiter : IExiter
         IgnoreUnrecognizedArgs : bool
         RaiseOnUsage : bool
@@ -219,14 +220,9 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                 member __.Invoke<'T> () =
                     match state.Reader.GetNextToken true argInfo with
                     | UnrecognizedOrArgument tok -> 
-                        let arg =
-                            try Some(field.Parser tok :?> 'T)
-                            with 
-                            | _ when state.IgnoreUnrecognizedArgs -> results.AppendUnrecognized tok ; Option<'T>.None
-                            | _ -> error argInfo ErrorCode.CommandLine "parameter '%s' should be followed by <?%s>, but was '%s'." state.Reader.CurrentSegment field.Description tok
-
-                        state.Reader.MoveNext()
-                        arg :> obj
+                        let argument = try Some(field.Parser tok :?> 'T) with _ -> None
+                        match argument with Some _ -> state.Reader.MoveNext() | None -> ()
+                        argument :> obj
 
                     | _ -> Option<'T>.None :> obj }
 
@@ -240,15 +236,13 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     let rec gather () =
                         match state.Reader.GetNextToken true argInfo with
                         | UnrecognizedOrArgument token ->
-                            try
-                                let item = field.Parser token :?> 'T
-                                args.Add item // this assumes that the add operation is exception safe
-                            with 
-                            | _ when state.IgnoreUnrecognizedArgs -> results.AppendUnrecognized token
-                            | _ -> error argInfo ErrorCode.CommandLine "parameter '%s' should be followed by <%s ...>, but was '%s'." state.Reader.CurrentSegment field.Description token
-
-                            state.Reader.MoveNext()
-                            gather ()
+                            let result = try Some (field.Parser token :?> 'T) with _ -> None
+                            match result with
+                            | None -> ()
+                            | Some item ->
+                                args.Add item
+                                state.Reader.MoveNext()
+                                gather()
                         | _ -> ()
 
                     do gather()
@@ -263,8 +257,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             let result = 
                 existential.Accept { new ITemplateFunc<obj> with
                     member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
-                        new ParseResult<'Template>(nestedUnion, nestedResults, 
-                                    printUsage nestedUnion state.ProgramName state.Description >> String.build, state.Exiter) :> obj }
+                        new ParseResult<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
 
             let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine name [|result|]
             results.AppendResult result
@@ -277,13 +270,13 @@ and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInf
 /// <summary>
 ///     Parse the entire command line
 /// </summary>
-and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (description : string option) 
-                        (exiter : IExiter) (raiseOnUsage : bool) (ignoreUnrecognized : bool) 
-                        (inputs : string []) =
+and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (description : string option) (width : int) (exiter : IExiter) 
+                        (raiseOnUsage : bool) (ignoreUnrecognized : bool) (inputs : string []) =
     let state = {
         Reader = new CliTokenReader(inputs)
         ProgramName = programName
         Description = description
+        UsageStringCharWidth = width
         RaiseOnUsage = raiseOnUsage
         IgnoreUnrecognizedArgs = ignoreUnrecognized
         Exiter = exiter
@@ -442,8 +435,9 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
 
 
 /// Create a ParseResult<_> instance from a set of template parameters
-let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) 
-                            (mkUsageString : string option -> string) (values : seq<'Template>) =
+let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : int)
+                            (programName : string) (description : string option) 
+                            (values : seq<'Template>) =
 
     let agg = info.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult>())
     values |> Seq.iteri (fun i value ->
@@ -461,4 +455,4 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter)
             Cases = agg |> Array.map (fun rs -> rs.ToArray())
         }
 
-    new ParseResult<'Template>(info, results, mkUsageString, exiter)
+    new ParseResult<'Template>(info, results, programName, description, width, exiter)

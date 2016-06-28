@@ -87,7 +87,7 @@ let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe")
  
 (** We can get the automatically generated usage string by typing *)
 
-let usage = parser.Usage()
+let usage = parser.PrintUsage()
 
 (** giving
 
@@ -204,7 +204,7 @@ Argu is convenient when it comes to automated process spawning:
 
 open System.Diagnostics
 
-let arguments = parser.PrintCommandLineFlat [ Port 42 ; Working_Directory "temp" ]
+let arguments = parser.PrintCommandLineArgumentsFlat [ Port 42 ; Working_Directory "temp" ]
 
 Process.Start("foo.exe", arguments)
 
@@ -212,7 +212,7 @@ Process.Start("foo.exe", arguments)
 It can also be used to auto-generate a suitable `AppSettings` configuration file:
 *)
 
-let xml = parser.PrintAppSettings [ Port 42 ; Working_Directory "/tmp" ]
+let xml = parser.PrintAppSettingsArguments [ Port 42 ; Working_Directory "/tmp" ]
 
 (**
 which would yield the following:

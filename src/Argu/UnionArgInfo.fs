@@ -13,6 +13,9 @@ open FSharp.Reflection
 open FSharp.Quotations
 open FSharp.Quotations.Patterns
 
+type IParseResult =
+    abstract GetAllResults : unit -> seq<obj>    
+
 /// Union Case Field info
 [<NoEquality; NoComparison>]
 type FieldParserInfo =
@@ -23,9 +26,9 @@ type FieldParserInfo =
         Label : string option
         /// field type
         Type : Type
-        /// parser
+        /// string to field value parser
         Parser : string -> obj
-        /// unparser
+        /// field value to string unparser
         UnParser : obj -> string
     }
 with
@@ -172,7 +175,6 @@ type UnionParseResults =
         /// Usage string requested by the caller
         IsUsageRequested : bool
     }
-
 
 type UnionCaseArgInfo with
     member ucai.ToArgumentCaseInfo() : ArgumentCaseInfo =

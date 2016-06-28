@@ -94,7 +94,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Simple AppSettings parsing`` () =
         let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ] |> List.sortBy tagOf
-        let xmlSource = parser.PrintAppSettings args
+        let xmlSource = parser.PrintAppSettingsArguments args
         let xmlFile = Path.GetTempFileName()
         do File.WriteAllText(xmlFile, xmlSource)
         let reader = ConfigurationReader.FromAppSettingsFile(xmlFile)
@@ -184,28 +184,28 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Usage documents explicitly named argument union case values`` () =
-        let usage = parser.Usage()
+        let usage = parser.PrintUsage()
         usage.Contains "<host>" |> should equal true
         usage.Contains "<port>" |> should equal true
 
     [<Fact>]
     let ``Parse byte[] parameters`` () =
         let bytes = [|1uy .. 255uy|]
-        let args = parser.PrintCommandLine [ Mandatory_Arg false ; Data(42, bytes) ]
+        let args = parser.PrintCommandLineArguments [ Mandatory_Arg false ; Data(42, bytes) ]
         let results = parser.ParseCommandLine args
         results.GetResult <@ Data @> |> snd |> should equal bytes
 
     [<Fact>]
     let ``Parse equals assignment`` () =
         let arg = [ Assignment "foo bar" ]
-        let clp = parser.PrintCommandLine arg
+        let clp = parser.PrintCommandLineArguments arg
         let result = parser.Parse(clp, ignoreMissing = true)
         result.GetResult <@ Assignment @> |> should equal "foo bar"
 
     [<Fact>]
     let ``Parse key-value equals assignment`` () =
         let arg = [ Env("foo", "bar") ]
-        let clp = parser.PrintCommandLine arg
+        let clp = parser.PrintCommandLineArguments arg
         let result = parser.Parse(clp, ignoreMissing = true)
         result.GetResult <@ Env @> |> should equal ("foo", "bar")
 
@@ -447,7 +447,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Custom Help Description attribute`` () =
         let parser = ArgumentParser.Create<ArgumentWithAltHelp>()
-        parser.Usage().Contains "waka jawaka" |> should equal true
+        parser.PrintUsage().Contains "waka jawaka" |> should equal true
 
     [<Fact>]
     let ``Custom Help attribute should not use default helper`` () =

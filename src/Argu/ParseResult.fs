@@ -2,18 +2,19 @@
 
 open FSharp.Quotations
 
-type private IParseResults =
-    abstract GetAllResults : unit -> seq<obj>    
-
 /// Argument parsing result holder.
 [<Sealed; AutoSerializable(false); StructuredFormatDisplay("{StructuredFormatDisplay}")>]
 type ParseResult<'Template when 'Template :> IArgParserTemplate> 
-    internal (argInfo : UnionArgInfo, results : UnionParseResults, mkUsageString : string option -> string, exiter : IExiter) =
+    internal (argInfo : UnionArgInfo, results : UnionParseResults, programName : string, description : string option, usageStringCharWidth : int, exiter : IExiter) =
 
-    // exiter wrapper
-    let exit hideUsage msg id =
-        if hideUsage then exiter.Exit(msg, id)
-        else exiter.Exit(mkUsageString (Some msg), id)
+    let mkUsageString message = printUsage argInfo programName usageStringCharWidth message |> StringExpr.build
+
+    // error handler functions
+    let error hideUsage code msg =
+        if hideUsage then exiter.Exit(msg, code)
+        else exiter.Exit(mkUsageString (Some msg), code)
+
+    let errorf hideusage code fmt = Printf.ksprintf (error hideusage code) fmt
 
     // restriction predicate based on optional parse source
     let restrictF flags : UnionCaseParseResult -> bool =
@@ -26,31 +27,28 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
     let getResult rs (e : Expr) =
         let id = expr2Uci e
         let results = results.Cases.[id.Tag]
-        match Seq.tryLast results with
+        match Array.tryLast results with
         | None -> 
             let aI = argInfo.Cases.[id.Tag]
-            exit aI.NoCommandLine (sprintf "missing argument '%s'." aI.Name) ErrorCode.PostProcess
-        | Some r -> 
-            if restrictF rs r then r
-            else
-                let aI = r.ArgInfo
-                exit aI.NoCommandLine (sprintf "missing argument '%s'." aI.Name) ErrorCode.PostProcess
+            errorf aI.NoCommandLine ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name
+        | Some r when restrictF rs r -> r
+        | Some r -> errorf r.ArgInfo.NoCommandLine ErrorCode.PostProcess "ERROR: missing argument '%s'." r.ArgInfo.Name
 
     let parseResult (f : 'F -> 'S) (r : UnionCaseParseResult) =
         try f (r.FieldContents :?> 'F)
-        with e ->
-            exit r.ArgInfo.NoCommandLine (sprintf "Error parsing '%s': %s" r.ParseContext e.Message) ErrorCode.PostProcess
+        with e -> errorf r.ArgInfo.NoCommandLine ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
 
-    interface IParseResults with
-        member __.GetAllResults () =
-            __.GetAllResults() |> Seq.map box
+    interface IParseResult with
+        member __.GetAllResults () = __.GetAllResults() |> Seq.map box
+
+    member __.ErrorHandler = exiter
+    member internal __.ProgramName = programName
+    member internal __.Description = description
+    member internal __.ArgInfo = argInfo
+    member internal __.CharacterWidth = usageStringCharWidth
 
     /// Returns true if '--help' parameter has been specified in the command line.
     member __.IsUsageRequested = results.IsUsageRequested
-
-    /// <summary>Returns the usage string.</summary>
-    /// <param name="message">The message to be displayed on top of the usage string.</param>
-    member __.Usage (?message : string) : string = mkUsageString message
 
     /// Gets all unrecognized CLI parameters which
     /// accumulates if parsed with 'ignoreUnrecognized = true'
@@ -126,8 +124,9 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
     /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
     member __.Raise (msg : string, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
+        let errorCode = defaultArg errorCode ErrorCode.PostProcess
         let showUsage = defaultArg showUsage true
-        exit (not showUsage) msg (defaultArg errorCode ErrorCode.PostProcess)
+        error (not showUsage) errorCode msg
 
     /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="error">The error to be displayed.</param>
