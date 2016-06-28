@@ -155,6 +155,13 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         argInfo.Cases.[tag].UnionCaseInfo
 
     /// <summary>
+    ///     Gets the F# union tag representation for given union case constructor
+    /// </summary>
+    /// <param name="ctorExpr">Quoted union case constructor.</param>
+    member __.GetTag(ctorExpr : Expr<'Fields -> 'Template>) : UnionCaseInfo =
+        expr2Uci ctorExpr
+
+    /// <summary>
     ///     Prints command line syntax. Useful for generating documentation.
     /// </summary>
     /// <param name="programName">Program name identifier placed at start of syntax string</param>
