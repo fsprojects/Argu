@@ -5,6 +5,7 @@ open System.Collections.Generic
 open System.Reflection
 
 open FSharp.Quotations
+open FSharp.Reflection
 
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
@@ -14,14 +15,11 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     // memoize parser generation for given template type
     static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
 
-    let _programName =
-        match programName with
-        | None -> currentProgramName.Value
-        | Some pn -> pn
+    let _programName = match programName with Some pn -> pn | None -> currentProgramName.Value
+    let errorHandler = match errorHandler with Some e -> e  | None -> new ExceptionExiter() :> _
 
     let mkUsageString argInfo msgOpt = printUsage argInfo _programName description msgOpt |> String.build
 
-    let mutable errorHandler = match errorHandler with Some e -> e | None -> new ExceptionExiter() :> _
 
     let (|ParserExn|_|) (e : exn) =
         match e with
@@ -145,14 +143,16 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         let uci = expr2Uci expr
         let case = argInfo.Cases.[uci.Tag]
         match case.FieldParsers with
-        | NestedUnion (_,nestedUnion) -> new ArgumentParser<'SubTemplate>(nestedUnion, programName = _programName)
+        | NestedUnion (_,nestedUnion) -> new ArgumentParser<'SubTemplate>(nestedUnion, programName = _programName, ?description = description)
         | _ -> arguExn "internal error when fetching subparser %O." uci
 
     /// <summary>
     ///     Gets the F# union tag representation for given argument
     /// </summary>
     /// <param name="value">Argument instance.</param>
-    member __.GetTag(value : 'Template) : int = argInfo.TagReader.Value (value :> obj)
+    member __.GetTag(value : 'Template) : UnionCaseInfo =
+        let tag = argInfo.TagReader.Value (value :> obj)
+        argInfo.Cases.[tag].UnionCaseInfo
 
     /// <summary>
     ///     Prints command line syntax. Useful for generating documentation.
@@ -205,5 +205,5 @@ module ArgumentParserUtils =
         ArgumentParser.Create<'Template>().ToParseResult(inputs)
 
     /// gets the F# union tag representation of given argument instance
-    let tagOf (input : 'Template) : int =
+    let tagOf (input : 'Template) : UnionCaseInfo =
         ArgumentParser.Create<'Template>().GetTag input
