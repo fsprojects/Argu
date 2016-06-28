@@ -21,7 +21,7 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (programName : string) = str
     let sorted = 
         argInfo.Cases
         |> Seq.filter (fun aI -> not aI.IsHidden)
-        |> Seq.sortBy (fun aI -> not aI.IsFirst, aI.IsRest || aI.IsNested, aI.Tag)
+        |> Seq.sortBy (fun aI -> not aI.IsFirst, aI.IsRest || aI.Type = ArgumentType.SubCommand, aI.Tag)
         |> Seq.toArray
 
     for aI in sorted do
@@ -110,7 +110,7 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
             yield " <options>"
 
         yield ": "
-        yield aI.Usage
+        yield aI.Description
         yield Environment.NewLine
 }
 
@@ -155,7 +155,7 @@ let printUsage (argInfo : UnionArgInfo) programName (description : string option
     let options, subcommands =
         argInfo.Cases
         |> Seq.filter (fun aI -> not aI.IsHidden)
-        |> Seq.partition (fun aI -> not aI.IsNested)
+        |> Seq.partition (fun aI -> aI.Type <> ArgumentType.SubCommand)
 
     if options.Length > 0 || argInfo.UsesHelpParam then
         yield Environment.NewLine; yield Environment.NewLine
@@ -273,7 +273,7 @@ let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template li
                 let mkComment () =
                     stringExpr {
                         yield ' '
-                        yield aI.Usage
+                        yield aI.Description
 
                         match parsers |> Array.toList with
                         | [] -> ()
@@ -298,7 +298,7 @@ let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template li
                             |> Seq.map (fun t -> fp.UnParser (t :> _))
                             |> String.concat aI.AppSettingsSeparators.[0]
 
-                        let mkComment () = sprintf " %s : %s ..." aI.Usage fp.Description
+                        let mkComment () = sprintf " %s : %s ..." aI.Description fp.Description
 
                         mkElem mkComment key values }
 
@@ -310,7 +310,7 @@ let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template li
                             | None -> ""
                             | Some t -> fp.UnParser (t :> _)
 
-                        let mkComment () = sprintf " %s : ?%s" aI.Usage fp.Description
+                        let mkComment () = sprintf " %s : ?%s" aI.Description fp.Description
 
                         mkElem mkComment key value }
 

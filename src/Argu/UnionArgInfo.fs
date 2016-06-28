@@ -75,11 +75,11 @@ type UnionCaseArgInfo =
         AppSettingsName : string option
 
         /// Description of the parameter
-        Usage : string
+        Description : string
 
-        /// AppSettings parameter separator
+        /// Configuration parsing parameter separator
         AppSettingsSeparators : string []
-        /// AppSettings parameter split options
+        /// Configuration parsing split options
         AppSettingsSplitOptions : StringSplitOptions
 
         /// If specified, should consume remaining tokens from the CLI
@@ -90,7 +90,7 @@ type UnionCaseArgInfo =
         IsEquals1Assignment : bool
         /// If specified, use '--param key=value' CLI parsing syntax
         IsEquals2Assignment : bool
-        /// If specified, multiple parameters can be added in AppSettings in CSV form.
+        /// If specified, multiple parameters can be added in Configuration in CSV form.
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
         IsMandatory : bool
@@ -104,8 +104,12 @@ type UnionCaseArgInfo =
 with
     member inline __.Tag = __.UnionCaseInfo.Tag
     member inline __.NoCommandLine = __.CommandLineNames.Length = 0
-    member inline __.IsNested = match __.FieldParsers with NestedUnion _ -> true | _ -> false
-    member inline __.IsOptional = match __.FieldParsers with OptionalParam _ -> true | _ -> false
+    member inline __.Type =
+        match __.FieldParsers with
+        | Primitives _ -> ArgumentType.Primitive
+        | OptionalParam _ -> ArgumentType.Optional
+        | ListParam _ -> ArgumentType.List
+        | NestedUnion _ -> ArgumentType.SubCommand
 
 and ParameterType =
     | Primitives of FieldParserInfo []
@@ -168,3 +172,26 @@ type UnionParseResults =
         /// Usage string requested by the caller
         IsUsageRequested : bool
     }
+
+
+type UnionCaseArgInfo with
+    member ucai.ToArgumentCaseInfo() : ArgumentCaseInfo =
+        {
+            Name = ucai.Name
+            ArgumentType = ucai.Type
+            UnionCaseInfo = ucai.UnionCaseInfo
+            CommandLineNames = ucai.CommandLineNames
+            AppSettingsName = ucai.AppSettingsName
+            Description = ucai.Description
+            AppSettingsSeparators = ucai.AppSettingsSeparators
+            AppSettingsSplitOptions = ucai.AppSettingsSplitOptions
+            IsRest = ucai.IsRest
+            IsFirst = ucai.IsFirst
+            IsEquals1Assignment = ucai.IsEquals1Assignment
+            IsEquals2Assignment = ucai.IsEquals2Assignment
+            AppSettingsCSV = ucai.AppSettingsCSV
+            IsMandatory = ucai.IsMandatory
+            IsUnique = ucai.IsUnique
+            IsHidden = ucai.IsHidden
+            GatherAllSources = ucai.GatherAllSources
+        }

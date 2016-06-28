@@ -273,7 +273,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         AppSettingsName = appSettingsName
         AppSettingsSeparators = appSettingsSeparators
         AppSettingsSplitOptions = appSettingsSplitOptions
-        Usage = usageString
+        Description = usageString
         FieldParsers = parsers
         AppSettingsCSV = isAppSettingsCSV
         IsMandatory = isMandatory

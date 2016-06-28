@@ -10,7 +10,7 @@ open FSharp.Reflection
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
-[<NoEquality; NoComparison; Sealed; AutoSerializable(false)>]
+[<NoEquality; NoComparison; AutoSerializable(false)>]
 type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (argInfo : UnionArgInfo, ?programName : string, ?description : string, ?errorHandler : IExiter) =
     // memoize parser generation for given template type
     static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
@@ -39,11 +39,16 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
         new ArgumentParser<'Template>(argInfoLazy.Value, ?programName = programName, 
                                         ?description = description, ?errorHandler = errorHandler)
 
-
-    /// Returns true if top-level parser
-    /// and false if parser defined for a subcommand
-    member __.IsTopLevelParser = argInfo.TryGetParent() |> Option.isNone
-
+    /// Gets the help flags specified for the CLI parser
+    member __.HelpFlags = argInfo.HelpParam.Flags
+    /// Gets the help description specified for the CLI parser
+    member __.HelpDescription = argInfo.HelpParam.Description
+    /// Gets metadata for all union cases used by parser
+    member __.GetArgumentCases() = argInfo.Cases |> Array.map (fun p -> p.ToArgumentCaseInfo())
+    /// Returns true if parser corresponds to a subcommand
+    member __.IsSubCommandParser = argInfo.TryGetParent() |> Option.isSome
+    /// If subcommand parsers, gets parent argument metadata
+    member __.ParentInfo = argInfo.TryGetParent() |> Option.map (fun p -> p.ToArgumentCaseInfo())
     /// Gets the default error handler used by the instance
     member __.ErrorHandler = errorHandler
 
@@ -150,16 +155,24 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate> private (arg
     ///     Gets the F# union tag representation for given argument
     /// </summary>
     /// <param name="value">Argument instance.</param>
-    member __.GetTag(value : 'Template) : UnionCaseInfo =
-        let tag = argInfo.TagReader.Value (value :> obj)
-        argInfo.Cases.[tag].UnionCaseInfo
+    member __.GetTag(value : 'Template) : int = 
+        argInfo.TagReader.Value (value :> obj)
 
     /// <summary>
-    ///     Gets the F# union tag representation for given union case constructor
+    ///     Gets argument metadata for given argument instance.
+    /// </summary>
+    /// <param name="value">Argument instance.</param>
+    member __.GetArgumentCaseInfo(value : 'Template) : ArgumentCaseInfo =
+        let tag = argInfo.TagReader.Value (value :> obj)
+        argInfo.Cases.[tag].ToArgumentCaseInfo()
+
+    /// <summary>
+    ///     Gets argument metadata for given union case constructor
     /// </summary>
     /// <param name="ctorExpr">Quoted union case constructor.</param>
-    member __.GetTag(ctorExpr : Expr<'Fields -> 'Template>) : UnionCaseInfo =
-        expr2Uci ctorExpr
+    member __.GetArgumentCaseInfo(ctorExpr : Expr<'Fields -> 'Template>) : ArgumentCaseInfo =
+        let uci = expr2Uci ctorExpr
+        argInfo.Cases.[uci.Tag].ToArgumentCaseInfo()
 
     /// <summary>
     ///     Prints command line syntax. Useful for generating documentation.
@@ -212,5 +225,5 @@ module ArgumentParserUtils =
         ArgumentParser.Create<'Template>().ToParseResult(inputs)
 
     /// gets the F# union tag representation of given argument instance
-    let tagOf (input : 'Template) : UnionCaseInfo =
+    let tagOf (input : 'Template) : int =
         ArgumentParser.Create<'Template>().GetTag input

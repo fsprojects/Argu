@@ -1,6 +1,7 @@
 ﻿namespace Argu
 
 open System
+open FSharp.Reflection
 
 // Attribute declarations
 
@@ -82,13 +83,13 @@ module ArguAttributes =
         inherit Attribute ()
         member __.Names = names
 
-    /// Sets a custom AppSettings key name.
+    /// Sets a custom Configuration parsing key name.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type CustomAppSettingsAttribute (name : string) =
         inherit Attribute ()
         member __.Name = name
 
-    /// Specify a custom value separator in AppSettings parameters
+    /// Specify a custom value separator in Configuration parsing parameters
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type AppSettingsSeparatorAttribute ([<ParamArray>] separators : string [], splitOptions : StringSplitOptions) =
         inherit Attribute()
@@ -113,6 +114,7 @@ module CliPrefix =
     let [<Literal>] DoubleDash = "--"
 
 /// Source from which to parse arguments
+[<Flags>]
 type ParseSource = 
     | None          = 0
     | AppSettings   = 1
@@ -168,3 +170,58 @@ type IConfigurationReader =
     abstract Name : string
     /// Gets value corresponding to supplied key
     abstract GetValue : key:string -> string
+
+/// Argument parameter type identifier
+type ArgumentType =
+    /// Argument specifies primitive parameters like strings or integers
+    | Primitive  = 1
+    /// Argument specifies an optional parameter which is primitive
+    | Optional   = 2
+    /// Argument specifies a list of parameters of specific primitive type
+    | List       = 3
+    /// Argument specifies a subcommand
+    | SubCommand = 4
+
+/// Union argument metadata
+[<NoEquality; NoComparison>]
+type ArgumentCaseInfo =
+    {
+        /// Human readable name identifier
+        Name : string
+        /// Union case reflection identifier
+        UnionCaseInfo : UnionCaseInfo
+        /// Type of argument parser
+        ArgumentType : ArgumentType
+
+        /// head element denotes primary command line arg
+        CommandLineNames : string list
+        /// name used in AppSettings
+        AppSettingsName : string option
+
+        /// Description of the parameter
+        Description : string
+
+        /// AppSettings parameter separator
+        AppSettingsSeparators : string []
+        /// AppSettings parameter split options
+        AppSettingsSplitOptions : StringSplitOptions
+
+        /// If specified, should consume remaining tokens from the CLI
+        IsRest : bool
+        /// If specified, parameter can only be at start of CLI parameters
+        IsFirst : bool
+        /// If specified, use '--param=arg' CLI parsing syntax
+        IsEquals1Assignment : bool
+        /// If specified, use '--param key=value' CLI parsing syntax
+        IsEquals2Assignment : bool
+        /// If specified, multiple parameters can be added in AppSettings in CSV form.
+        AppSettingsCSV : bool
+        /// Fails if no argument of this type is specified
+        IsMandatory : bool
+        /// Specifies that argument should be specified at most once in CLI
+        IsUnique : bool
+        /// Hide from Usage
+        IsHidden : bool
+        /// Combine AppSettings with CLI inputs
+        GatherAllSources : bool
+    }

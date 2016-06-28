@@ -93,7 +93,7 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Simple AppSettings parsing`` () =
-        let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ] |> List.sortBy (fun u -> tagOf(u).Tag)
+        let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ] |> List.sortBy tagOf
         let xmlSource = parser.PrintAppSettings args
         let xmlFile = Path.GetTempFileName()
         do File.WriteAllText(xmlFile, xmlSource)
