@@ -139,8 +139,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let isFirst = uci.ContainsAttribute<FirstAttribute> ()
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
-    let isMandatory = uci.ContainsAttribute<MandatoryAttribute> (true)
-    let isUnique = uci.ContainsAttribute<UniqueAttribute> (true)
+    let isExactlyOnce = uci.ContainsAttribute<ExactlyOnceAttribute>(true)
+    let isMandatory = isExactlyOnce || uci.ContainsAttribute<MandatoryAttribute> (true)
+    let isUnique = isExactlyOnce || uci.ContainsAttribute<UniqueAttribute> (true)
     let isGatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
     let isRest = uci.ContainsAttribute<RestAttribute> ()
     let isHidden = uci.ContainsAttribute<HiddenAttribute> ()

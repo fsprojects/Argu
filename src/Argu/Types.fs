@@ -30,6 +30,11 @@ module ArguAttributes =
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type UniqueAttribute () = inherit Attribute ()
 
+    /// Demands that the argument should be specified exactly once; an exception is raised otherwise.
+    /// Equivalent to attaching both the Mandatory and Unique attribute on the parameter.
+    [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
+    type ExactlyOnceAttribute () = inherit Attribute ()
+
     /// Gathers all parsed results from both AppSettings and command line.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type GatherAllSourcesAttribute () = inherit Attribute ()
