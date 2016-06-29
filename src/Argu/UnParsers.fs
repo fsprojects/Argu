@@ -43,7 +43,7 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : i
             if not aI.IsMandatory then yield '['
             yield name
 
-            match aI.FieldParsers with
+            match aI.ParameterInfo with
             | Primitives parsers ->
                 if aI.IsEquals1Assignment then
                     assert(parsers.Length = 1)
@@ -94,7 +94,7 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
                 yield n
             yield ']'
 
-        match aI.FieldParsers with
+        match aI.ParameterInfo with
         | Primitives fieldParsers ->
             if aI.IsEquals1Assignment then
                 assert (fieldParsers.Length = 1)
@@ -204,7 +204,7 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
         match aI.CommandLineNames with
         | [] -> ()
         | clname :: _ ->
-            match aI.FieldParsers with
+            match aI.ParameterInfo with
             | Primitives parsers ->  
                 let inline unpars i = parsers.[i].UnParser fields.[i]
                 if aI.IsEquals1Assignment then
@@ -268,7 +268,7 @@ let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template li
         match aI.AppSettingsName with
         | None -> [||]
         | Some key ->
-            match aI.FieldParsers with
+            match aI.ParameterInfo with
             | NestedUnion _ -> [||]
             | Primitives parsers ->
                 let values =

@@ -129,8 +129,11 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | GroupedParams(_, switches) ->
         for sw in switches do
             let caseInfo = argInfo.CliParamIndex.Value.[sw]
-            let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine sw [||]
-            results.AppendResult result
+            match caseInfo.ParameterInfo with
+            | Primitives [||] ->
+                let result = mkUnionCase caseInfo results.ResultCount ParseSource.CommandLine sw [||]
+                results.AppendResult result
+            | _ -> error argInfo ErrorCode.CommandLine "argument '%s' cannot be grouped with other switches." sw
 
     | CliParam(_, name, caseInfo, Some _) when not caseInfo.IsEquals1Assignment ->
         error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s=<param>'." name
@@ -138,7 +141,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." name
 
     | CliParam(token, name, caseInfo, equalityParam) ->
-        match caseInfo.FieldParsers with
+        match caseInfo.ParameterInfo with
         | Primitives [|field|] when caseInfo.IsEquals1Assignment ->
             match equalityParam with
             | None -> error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
@@ -323,7 +326,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
             match (try state.Reader.GetValue name with _ -> null) with
             | null | "" -> ()
             | entry ->
-                match caseInfo.FieldParsers with
+                match caseInfo.ParameterInfo with
                 | Primitives [||] ->
                     let ok, flag = Boolean.TryParse entry
                     if ok then

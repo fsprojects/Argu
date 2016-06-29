@@ -10,17 +10,77 @@ open FSharp.Reflection
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
-[<NoEquality; NoComparison; AutoSerializable(false)>]
-type ArgumentParser<'Template when 'Template :> IArgParserTemplate> 
-        internal (argInfo : UnionArgInfo, ?programName : string, ?description : string, 
-                    ?usageStringCharacterWidth : int, ?errorHandler : IExiter) =
+[<AbstractClass; NoEquality; NoComparison; AutoSerializable(false)>]
+type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, description : string option,
+                                _usageStringCharacterWidth : int, errorHandler : IExiter) =
+
+    /// Gets the help flags specified for the CLI parser
+    member __.HelpFlags = argInfo.HelpParam.Flags
+    /// Gets the help description specified for the CLI parser
+    member __.HelpDescription = argInfo.HelpParam.Description
+    /// Returns true if parser corresponds to a subcommand
+    member __.IsSubCommandParser = argInfo.TryGetParent() |> Option.isSome
+    /// If subcommand parser, gets parent argument metadata
+    member __.ParentInfo = argInfo.TryGetParent() |> Option.map (fun p -> p.ToArgumentCaseInfo())
+    /// Gets the default error handler used by the instance
+    member __.ErrorHandler = errorHandler
+
+    /// Gets metadata for all union cases used by parser
+    member __.GetArgumentCases() = 
+        argInfo.Cases 
+        |> Seq.map (fun p -> p.ToArgumentCaseInfo()) 
+        |> Seq.toList
+
+    /// Gets all subcommand parsers for given parser
+    member __.GetSubCommandParsers() =
+        argInfo.Cases
+        |> Seq.choose (fun cs -> match cs.ParameterInfo with NestedUnion(e,nu) -> Some(e,nu) | _ -> None)
+        |> Seq.map (fun (e,nu) -> 
+            e.Accept { 
+                new ITemplateFunc<ArgumentParser> with
+                    member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
+                        new ArgumentParser<'Template>(nu, _programName, description, _usageStringCharacterWidth, errorHandler) :> _ 
+            })
+        |> Seq.toList
+
+    /// <summary>Formats a usage string for the argument parser.</summary>
+    /// <param name="message">The message to be displayed on top of the usage string.</param>
+    /// <param name="programName">Override the default program name settings.</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
+    member __.PrintUsage (?message : string, ?programName : string, ?usageStringCharacterWidth : int) : string = 
+        let programName = defaultArg programName _programName
+        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
+        printUsage argInfo programName usageStringCharacterWidth message |> StringExpr.build
+
+    /// <summary>
+    ///     Prints command line syntax. Useful for generating documentation.
+    /// </summary>
+    /// <param name="programName">Program name identifier placed at start of syntax string</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
+    member __.PrintCommandLineSyntax (?programName : string, ?usageStringCharacterWidth : int) : string =
+        let programName = defaultArg programName _programName
+        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
+        printCommandLineSyntax argInfo "" usageStringCharacterWidth programName |> StringExpr.build
+
+    /// <summary>
+    ///     Enables access to the typed API of an ArgumentParser 
+    ///     when template type is unknown.
+    /// </summary>
+    /// <param name="visitor">Visitor used to access the parser.</param>
+    abstract Accept : visitor:IArgumentParserVisitor<'R> -> 'R
+
+/// The Argu type generates an argument parser given a type argument
+/// that is an F# discriminated union. It can then be used to parse command line arguments
+/// or XML configuration.
+and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
+    ArgumentParser<'Template when 'Template :> IArgParserTemplate> 
+        internal (argInfo : UnionArgInfo, _programName : string, description : string option, 
+                    _usageStringCharacterWidth : int, errorHandler : IExiter) =
+
+    inherit ArgumentParser(argInfo, _programName, description, _usageStringCharacterWidth, errorHandler)
 
     // memoize parser generation for given template type
     static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
-
-    let _usageStringCharacterWidth = defaultArg usageStringCharacterWidth 80
-    let _programName = match programName with Some pn -> pn | None -> currentProgramName.Value
-    let errorHandler = match errorHandler with Some e -> e  | None -> new ExceptionExiter() :> _
 
     let mkUsageString argInfo msgOpt = printUsage argInfo _programName _usageStringCharacterWidth msgOpt |> StringExpr.build
 
@@ -40,21 +100,10 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate>
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
     new (?programName : string, ?description : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter) =
-        new ArgumentParser<'Template>(argInfoLazy.Value, ?programName = programName, 
-                                        ?usageStringCharacterWidth = usageStringCharacterWidth, ?description = description, ?errorHandler = errorHandler)
-
-    /// Gets the help flags specified for the CLI parser
-    member __.HelpFlags = argInfo.HelpParam.Flags
-    /// Gets the help description specified for the CLI parser
-    member __.HelpDescription = argInfo.HelpParam.Description
-    /// Gets metadata for all union cases used by parser
-    member __.GetArgumentCases() = argInfo.Cases |> Array.map (fun p -> p.ToArgumentCaseInfo())
-    /// Returns true if parser corresponds to a subcommand
-    member __.IsSubCommandParser = argInfo.TryGetParent() |> Option.isSome
-    /// If subcommand parsers, gets parent argument metadata
-    member __.ParentInfo = argInfo.TryGetParent() |> Option.map (fun p -> p.ToArgumentCaseInfo())
-    /// Gets the default error handler used by the instance
-    member __.ErrorHandler = errorHandler
+        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth 80
+        let programName = match programName with Some pn -> pn | None -> currentProgramName.Value
+        let errorHandler = match errorHandler with Some e -> e  | None -> new ExceptionExiter() :> _
+        new ArgumentParser<'Template>(argInfoLazy.Value, programName, description, usageStringCharacterWidth, errorHandler)
 
     /// <summary>Parse command line arguments only.</summary>
     /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
@@ -144,11 +193,12 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate>
     ///     Gets a subparser associated with specific subcommand instance
     /// </summary>
     /// <param name="expr">Expression providing the subcommand union constructor.</param>
-    member __.GetSubParser (expr : Expr<ParseResult<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
+    member __.GetSubCommandParser (expr : Expr<ParseResult<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
         let uci = expr2Uci expr
         let case = argInfo.Cases.[uci.Tag]
-        match case.FieldParsers with
-        | NestedUnion (_,nestedUnion) -> new ArgumentParser<'SubTemplate>(nestedUnion, programName = _programName, ?description = description)
+        match case.ParameterInfo with
+        | NestedUnion (_,nestedUnion) -> 
+            new ArgumentParser<'SubTemplate>(nestedUnion, _programName, description, _usageStringCharacterWidth, errorHandler)
         | _ -> arguExn "internal error when fetching subparser %O." uci
 
     /// <summary>
@@ -174,25 +224,6 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate>
         let uci = expr2Uci ctorExpr
         argInfo.Cases.[uci.Tag].ToArgumentCaseInfo()
 
-    /// <summary>Formats a usage string for the argument parser.</summary>
-    /// <param name="message">The message to be displayed on top of the usage string.</param>
-    /// <param name="programName">Override the default program name settings.</param>
-    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
-    member __.PrintUsage (?message : string, ?programName : string, ?usageStringCharacterWidth : int) : string = 
-        let programName = defaultArg programName _programName
-        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
-        printUsage argInfo programName usageStringCharacterWidth message |> StringExpr.build
-
-    /// <summary>
-    ///     Prints command line syntax. Useful for generating documentation.
-    /// </summary>
-    /// <param name="programName">Program name identifier placed at start of syntax string</param>
-    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
-    member __.PrintCommandLineSyntax (?programName : string, ?usageStringCharacterWidth : int) : string =
-        let programName = defaultArg programName _programName
-        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
-        printCommandLineSyntax argInfo "" usageStringCharacterWidth programName |> StringExpr.build
-
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
     member __.PrintCommandLineArguments (args : 'Template list) : string [] =
         printCommandLineArgs argInfo (Seq.cast args) |> Seq.toArray
@@ -212,10 +243,21 @@ type ArgumentParser<'Template when 'Template :> IArgParserTemplate>
         writer.Flush()
         writer.ToString()
 
+
+    override self.Accept visitor = visitor.Visit self
+
+/// Rank-2 function used for accessing typed APIs of untyped parsers
+and IArgumentParserVisitor<'R> =
+    /// <summary>
+    ///     Visit argument parser of generic type.
+    /// </summary>
+    /// <param name="parser">Supplied argument parser.</param>
+    abstract Visit<'Template when 'Template :> IArgParserTemplate> : parser:ArgumentParser<'Template> -> 'R
+
 /// <summary>
 ///     Argu static methods
 /// </summary>
-type ArgumentParser =
+type ArgumentParser with
         
     /// <summary>
     ///     Create a new argument parsing scheme using given 'Template type
@@ -233,10 +275,10 @@ type ArgumentParser =
 module ArgumentParserUtils =
 
     type ParseResult<'Template when 'Template :> IArgParserTemplate> with
+        /// Gets the parser instance corresponding to the parse result
         member r.Parser =
-            new ArgumentParser<'Template>(r.ArgInfo, r.ProgramName, ?description = r.Description, 
-                                                usageStringCharacterWidth = r.CharacterWidth, 
-                                                errorHandler = r.ErrorHandler)
+            new ArgumentParser<'Template>(r.ArgInfo, r.ProgramName, r.Description, 
+                                                r.CharacterWidth, r.ErrorHandler)
 
     /// converts a sequence of inputs to a ParseResult instance
     let toParseResults (inputs : seq<'Template>) : ParseResult<'Template> =

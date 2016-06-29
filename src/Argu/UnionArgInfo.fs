@@ -6,7 +6,6 @@ open System.IO
 open System.Configuration
 open System.Collections.Generic
 open System.Reflection
-open System.Runtime.Serialization.Formatters.Binary
 open System.Text.RegularExpressions
 
 open FSharp.Reflection
@@ -60,7 +59,7 @@ type UnionCaseArgInfo =
         /// UCI identifier
         UnionCaseInfo : UnionCaseInfo
         /// Field parser definitions or nested union argument
-        FieldParsers : ParameterType
+        ParameterInfo : ParameterInfo
 
         /// Gets the parent record for union case
         GetParent : unit -> UnionArgInfo
@@ -108,13 +107,13 @@ with
     member inline __.Tag = __.UnionCaseInfo.Tag
     member inline __.NoCommandLine = __.CommandLineNames.Length = 0
     member inline __.Type =
-        match __.FieldParsers with
+        match __.ParameterInfo with
         | Primitives _ -> ArgumentType.Primitive
         | OptionalParam _ -> ArgumentType.Optional
         | ListParam _ -> ArgumentType.List
         | NestedUnion _ -> ArgumentType.SubCommand
 
-and ParameterType =
+and ParameterInfo =
     | Primitives of FieldParserInfo []
     | OptionalParam of Existential * FieldParserInfo
     | ListParam of Existential * FieldParserInfo

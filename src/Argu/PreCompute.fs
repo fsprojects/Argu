@@ -273,7 +273,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         AppSettingsSeparators = appSettingsSeparators
         AppSettingsSplitOptions = appSettingsSplitOptions
         Description = usageString
-        FieldParsers = parsers
+        ParameterInfo = parsers
         AppSettingsCSV = isAppSettingsCSV
         IsMandatory = isMandatory
         IsUnique = isUnique
@@ -362,7 +362,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     let groupedSwitchExtractor = lazy(
         let chars =
             caseInfo
-            |> Seq.collect (fun c -> c.CommandLineNames) 
+            |> Seq.collect (fun c -> c.CommandLineNames)
             |> Seq.filter (fun name -> name.Length = 2 && name.[0] = '-' && Char.IsLetterOrDigit name.[1])
             |> Seq.map (fun name -> name.[1])
             |> Seq.toArray
