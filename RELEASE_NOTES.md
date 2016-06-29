@@ -1,4 +1,4 @@
-### 3.0.0-alpha007
+### 3.0.0-alpha008
 * Add subcommand support.
 * Add support for list and option parameters.
 * Add support for grouped switches.
