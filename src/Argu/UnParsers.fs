@@ -63,7 +63,7 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : i
                 else
                     yield sprintf " [<%s>]" parser.Description
 
-            | NestedUnion _ -> yield " <subcommands>"
+            | NestedUnion _ -> yield " <options>"
             | ListParam (_,parser) ->
                 yield sprintf " <%s> ..." parser.Description
 
