@@ -165,8 +165,9 @@ type ProcessExiter() =
     interface IExiter with
         member __.Name = "Process Exiter"
         member __.Exit(msg : string, errorCode : ErrorCode) =
-            Console.Error.WriteLine (msg)
-            do Console.Error.Flush()
+            let writer = if errorCode = ErrorCode.HelpText then Console.Out else Console.Error
+            writer.WriteLine msg
+            writer.Flush()
             exit (int errorCode)
 
 /// Abstract key/value configuration reader

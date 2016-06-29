@@ -11,7 +11,7 @@ open FSharp.Reflection
 /// <summary>
 ///     print the command line syntax
 /// </summary>
-let printCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int) (programName : string) = stringExpr {
+let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int) (programName : string) = stringExpr {
     do if width < 1 then raise <| new ArgumentOutOfRangeException("width", "must be positive number")
     let! length0 = StringExpr.currentLength
     yield prefix
@@ -77,7 +77,7 @@ let printCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : i
 /// <summary>
 ///     print usage string for given arg info
 /// </summary>
-let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
+let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
     match aI.CommandLineNames with
     | [] -> ()
     | param :: altParams ->
@@ -128,7 +128,7 @@ let printArgUsage (aI : UnionCaseArgInfo) = stringExpr {
 /// <summary>
 ///     print usage string for given help param
 /// </summary>
-let printHelpParam (hp : HelpParam) = stringExpr {
+let mkHelpParamUsage (hp : HelpParam) = stringExpr {
     match hp.Flags with
     | [] -> ()
     | param :: altParams ->
@@ -153,12 +153,12 @@ let printHelpParam (hp : HelpParam) = stringExpr {
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
-let printUsage (argInfo : UnionArgInfo) (programName : string) width (message : string option) = stringExpr {
+let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message : string option) = stringExpr {
     match message with
     | Some msg -> yield msg; yield Environment.NewLine
     | None -> ()
 
-    yield! printCommandLineSyntax argInfo "USAGE: " width programName
+    yield! mkCommandLineSyntax argInfo "USAGE: " width programName
 
     let options, subcommands =
         argInfo.Cases
@@ -170,7 +170,7 @@ let printUsage (argInfo : UnionArgInfo) (programName : string) width (message : 
         yield "SUBCOMMANDS:"
         yield Environment.NewLine; yield Environment.NewLine
 
-        for aI in subcommands do yield! printArgUsage aI
+        for aI in subcommands do yield! mkArgUsage aI
 
         match argInfo.HelpParam.Flags with
         | [] -> ()
@@ -185,18 +185,16 @@ let printUsage (argInfo : UnionArgInfo) (programName : string) width (message : 
         yield "OPTIONS:"
         yield Environment.NewLine; yield Environment.NewLine
 
-        for aI in options do yield! printArgUsage aI
+        for aI in options do yield! mkArgUsage aI
 
-        yield! printHelpParam argInfo.HelpParam
+        yield! mkHelpParamUsage argInfo.HelpParam
 }
 
 /// <summary>
 ///     print a command line argument for a set of parameters   
 /// </summary>
-/// <param name="argInfo"></param>
-/// <param name="args"></param>
-let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
-    let printEntry (t : obj) = seq {
+let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
+    let mkEntry (t : obj) = seq {
         let tag = argInfo.TagReader.Value t
         let aI = argInfo.Cases.[tag]
         let fields = aI.FieldReader.Value t
@@ -237,19 +235,16 @@ let rec printCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
             | NestedUnion (_, nested) ->
                 yield clname
                 let nestedResult = fields.[0] :?> IParseResult
-                yield! printCommandLineArgs nested (nestedResult.GetAllResults())
+                yield! mkCommandLineArgs nested (nestedResult.GetAllResults())
         }
 
-    args |> Seq.collect printEntry
+    args |> Seq.collect mkEntry
 
 /// <summary>
-///     returns an App.Config XElement given a set of config parameters
+///     returns an App.Config XDocument given a set of config parameters
 /// </summary>
-/// <param name="argInfo"></param>
-/// <param name="printComments"></param>
-/// <param name="args"></param>
-let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template list) =
-    let printEntry (t : 'Template) : XNode [] =
+let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Template list) =
+    let mkArgumentEntry (t : 'Template) : XNode [] =
         let tag = argInfo.TagReader.Value (t :> _)
         let aI = argInfo.Cases.[tag]
         let getFields () = aI.FieldReader.Value (t :> _)
@@ -325,4 +320,4 @@ let printAppSettings (argInfo : UnionArgInfo) printComments (args : 'Template li
 
     XDocument(
         XElement(XName.Get "configuration",
-            XElement(XName.Get "appSettings", Seq.collect printEntry args)))
+            XElement(XName.Get "appSettings", Seq.collect mkArgumentEntry args)))

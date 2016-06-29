@@ -7,7 +7,7 @@ open FSharp.Quotations
 type ParseResult<'Template when 'Template :> IArgParserTemplate> 
     internal (argInfo : UnionArgInfo, results : UnionParseResults, programName : string, description : string option, usageStringCharWidth : int, exiter : IExiter) =
 
-    let mkUsageString message = printUsage argInfo programName usageStringCharWidth message |> StringExpr.build
+    let mkUsageString message = mkUsageString argInfo programName usageStringCharWidth message |> StringExpr.build
 
     // error handler functions
     let error hideUsage code msg =
