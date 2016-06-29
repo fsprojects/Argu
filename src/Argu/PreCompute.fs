@@ -81,10 +81,10 @@ let primitiveParsers =
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
 
-let (|UnionParseResult|Optional|List|Other|) (t : Type) =
+let (|NestedParseResult|Optional|List|Other|) (t : Type) =
     if t.IsGenericType then
         let gt = t.GetGenericTypeDefinition()
-        if typeof<IParseResult>.IsAssignableFrom t then UnionParseResult(t.GetGenericArguments().[0])
+        if typeof<IParseResult>.IsAssignableFrom t then NestedParseResult(t.GetGenericArguments().[0])
         elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
         elif gt = typedefof<_ list> then List(t.GetGenericArguments().[0])
         else Other
@@ -96,7 +96,7 @@ let getPrimitiveParserByType label (t : Type) =
     else
         // refine error messaging depending on the input time
         match t with
-        | UnionParseResult _ -> arguExn "Nested ParseResult<'T> parameters can only occur as standalone parameters in union constructors."
+        | NestedParseResult _ -> arguExn "Nested ParseResult<'T> parameters can only occur as standalone parameters in union constructors."
         | Optional _ -> arguExn "F# Option parameters can only occur as standalone parameters in union constructors."
         | List _ -> arguExn "F# List parameters can only occur as standalone parameters in union constructors."
         | _ -> arguExn "template contains unsupported field of type '%O'." t
@@ -140,8 +140,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isFirst = uci.ContainsAttribute<FirstAttribute> ()
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let isExactlyOnce = uci.ContainsAttribute<ExactlyOnceAttribute>(true)
-    let isMandatory = isExactlyOnce || uci.ContainsAttribute<MandatoryAttribute> (true)
+    let isMandatory = isExactlyOnce || uci.ContainsAttribute<MandatoryAttribute>(true)
     let isUnique = isExactlyOnce || uci.ContainsAttribute<UniqueAttribute> (true)
+    let isInherited = uci.ContainsAttribute<InheritAttribute>(true)
     let isGatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
     let isRest = uci.ContainsAttribute<RestAttribute> ()
     let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
@@ -171,13 +172,15 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let parsers =
         match types with
-        | [|UnionParseResult prt|] -> 
+        | [|NestedParseResult prt|] -> 
             if isEquals1Assignment then
                 arguExn "EqualsAssignment in '%s' not supported for nested union cases." uci.Name
             if isRest then
                 arguExn "Rest attribute in '%s' not supported for nested union cases." uci.Name
             if isMandatory then
                 arguExn "Mandatory attribute in '%s' not supported for nested union cases." uci.Name
+            if isInherited then
+                arguExn "Inherit attribute in '%s' not supported for nested union cases." uci.Name
 
             let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt 
             let shape = ShapeArgumentTemplate.FromType prt
@@ -264,6 +267,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let uai = {
         UnionCaseInfo = uci
+        Depth = List.length stack - 1
         CaseCtor = caseCtor
         FieldReader = fieldReader
         FieldCtor = fieldCtor
@@ -278,6 +282,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         AppSettingsCSV = isAppSettingsCSV
         IsMandatory = isMandatory
         IsUnique = isUnique
+        IsInherited = isInherited
         GatherAllSources = isGatherAll
         IsRest = isRest
         IsFirst = isFirst
@@ -358,14 +363,25 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         let id, cs = appSettingsConflicts.[0]
         arguExn "parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
 
+    let inheritedParams = lazy(
+        match tryGetParent() with
+        | Some parent ->
+            let pInfo = parent.GetParent()
+            let pInherited = pInfo.Cases |> Array.filter (fun cI -> cI.IsInherited)
+            pInherited :: pInfo.InheritedParams.Value
+        | None -> [])
+
     // recognizes and extracts grouped switches
     // e.g. -efx --> -e -f -x
     let groupedSwitchExtractor = lazy(
         let chars =
             caseInfo
+            |> Seq.append (Seq.concat inheritedParams.Value)
             |> Seq.collect (fun c -> c.CommandLineNames)
+            |> Seq.append helpParam.Flags
             |> Seq.filter (fun name -> name.Length = 2 && name.[0] = '-' && Char.IsLetterOrDigit name.[1])
             |> Seq.map (fun name -> name.[1])
+            |> Seq.distinct
             |> Seq.toArray
             |> String
 
@@ -379,24 +395,30 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
 
     let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, bindingFlags = allBindings))
 
+    let cliIndex = lazy(
+        // cases are passed in a parent-to-sibling order to ensure
+        // that correct scoping is preserved in cases of overriden parameter names
+        caseInfo :: inheritedParams.Value
+        |> List.rev
+        |> Seq.concat
+        |> Seq.collect (fun cs -> cs.CommandLineNames |> Seq.map (fun name -> name, cs))
+        |> dict)
+
     let appSettingsIndex = lazy(
         caseInfo
         |> Seq.choose (fun cs -> match cs.AppSettingsName with Some name -> Some(name, cs) | None -> None)
         |> dict)
 
-    let cliIndex = lazy(
-        caseInfo
-        |> Seq.collect (fun cs -> cs.CommandLineNames |> Seq.map (fun name -> name, cs))
-        |> dict)
-
     let result = {
         Type = t
+        Depth = List.length stack
         TryGetParent = tryGetParent
         Cases = caseInfo
         TagReader = tagReader
+        HelpParam = helpParam
         GroupedSwitchExtractor = groupedSwitchExtractor
         AppSettingsParamIndex = appSettingsIndex
-        HelpParam = helpParam
+        InheritedParams = inheritedParams
         CliParamIndex = cliIndex
     }
 

@@ -44,6 +44,7 @@ type GitArgs =
     | [<CliPrefix(CliPrefix.None)>]Clean of ParseResult<CleanArgs>
     | [<AltCommandLine("-E")>][<EqualsAssignment>]Environment_Variable of key:string * value:string
     | Ports of int list
+    | [<Inherit>] Silent
 with 
     interface IArgParserTemplate with 
         member this.Usage =
@@ -54,8 +55,9 @@ with
             | Clean _ -> "Cleans the local repo. See 'gadget clean --help' for more info."
             | Environment_Variable _ -> "Specifies an environment variable for the process."
             | Ports _ -> "Specifies a collection of port for the process."
+            | Silent -> "just be silent."
 
-let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", description = "Gadget -- my awesome CLI tool")
+let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMessage = "Gadget -- my awesome CLI tool")
 
 parser.PrintCommandLineArgumentsFlat [Push(toParseResults [Remote "origin" ; Branch "master"])]
 

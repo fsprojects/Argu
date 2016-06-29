@@ -29,12 +29,14 @@ module ``Argu Tests`` =
             member this.Usage = "clean"
 
     type Argument =
+        | [<AltCommandLine("-v"); Inherit>] Verbose
+        | [<AltCommandLine("-f"); Inherit>] Force
         | Working_Directory of string
         | [<AppSettingsSeparator(':')>] Listener of host:string * port:int
         | [<Mandatory>] Mandatory_Arg of bool
         | [<Unique>] Unique_Arg of bool
-        | [<Rest>][<ParseCSV>] Rest_Arg of int
-        | Data of int * byte []
+        | [<Rest; ParseCSV>] Rest_Arg of int
+        | [<Inherit>] Data of int * byte []
         | Log_Level of int
         | [<AltCommandLine("/D", "-D", "-z")>] Detach
         | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
@@ -52,6 +54,8 @@ module ``Argu Tests`` =
         interface IArgParserTemplate with
             member a.Usage =
                 match a with
+                | Verbose _ -> "be verbose."
+                | Force _ -> "let's force things."
                 | Working_Directory _ -> "specify a working directory."
                 | Listener _ -> "specify a listener."
                 | Mandatory_Arg _ -> "a mandatory argument."
@@ -144,11 +148,13 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Help String`` () =
-        raises<ArguParseException> <@ parser.ParseCommandLine [| "--help" |] @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--help" |] @>
+                                        (fun e -> <@ e.Message.Contains "USAGE:" @>)
 
     [<Fact>]
     let ``Missing Mandatory parameter`` () =
-        raises<ArguParseException> <@ parser.ParseCommandLine [| "-D" |] @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "-D" |] @>
+                                        (fun e -> <@ e.Message.Contains "missing parameter" @>)
 
     [<Fact>]
     let ``Unique parameter specified once`` () =
@@ -157,11 +163,14 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Unique parameter specified twice`` () =
-        raises<ArguParseException> <@ parser.ParseCommandLine([| "--unique-arg" ; "true" ; "--unique-arg" ; "false" |], ignoreMissing = true) @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine([| "--unique-arg" ; "true" ; "--unique-arg" ; "false" |], ignoreMissing = true) @>
+                                        (fun e -> <@ e.Message.Contains "more than once" @>)
 
     [<Fact>]
     let ``First Parameter not placed at beggining`` () =
-        raises<ArguParseException> <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
+                                        (fun e -> <@ e.Message.Contains "should precede all other" @>)
+                                        
 
     [<Fact>]
     let ``Rest Parameter`` () =
@@ -303,6 +312,46 @@ module ``Argu Tests`` =
         let subcommand = parser.GetSubCommandParser <@ Push @>
         test <@ subcommand.IsSubCommandParser @>
 
+    [<Fact>]
+    let ``Inherited parameter simple`` () =
+        let result1 = parser.Parse([|"-v"; "push"|], ignoreMissing = true)
+        let result2 = parser.Parse([|"push"; "-v"|], ignoreMissing = true)
+        test <@ result1.Contains <@ Verbose @> @>
+        test <@ result1.Contains <@ Push @> @>
+        test <@ result2.Contains <@ Verbose @> @>
+        test <@ result2.Contains <@ Push @> @>
+
+    [<Fact>]
+    let ``Inherited parameter parametric`` () =
+        let result1 = parser.Parse([|"--data" ; "42" ; "deadbeef" ; "push"|], ignoreMissing = true)
+        let result2 = parser.Parse([|"push" ; "--data" ; "42" ; "deadbeef"|], ignoreMissing = true)
+        test <@ result1.Contains <@ Data @> @>
+        test <@ result1.Contains <@ Push @> @>
+        test <@ result2.Contains <@ Data @> @>
+        test <@ result2.Contains <@ Push @> @>
+
+    [<Fact>]
+    let ``Inherited parameter grouped`` () =
+        let result1 = parser.Parse([|"-v" ; "clean" ; "-dx"|], ignoreMissing = true)
+        let result2 = parser.Parse([|"clean" ; "-vdx"|], ignoreMissing = true)
+        let subResult1 = result1.GetResult <@ Clean @>
+        let subResult2 = result2.GetResult <@ Clean @>
+        test <@ result1.Contains <@ Verbose @> @>
+        test <@ result2.Contains <@ Verbose @> @>
+        test <@ subResult1.Contains <@ X @> @>
+        test <@ subResult2.Contains <@ X @> @>
+
+    [<Fact>]
+    let ``Inherited parameter should be properly masked`` () =
+        let result1 = parser.Parse([|"-f" ; "clean"|], ignoreMissing = true)
+        let result2 = parser.Parse([|"clean" ; "-f"|], ignoreMissing = true)
+        let subResult1 = result1.GetResult <@ Clean @>
+        let subResult2 = result2.GetResult <@ Clean @>
+        test <@ result1.Contains <@ Force @> @>
+        test <@ result2.Contains <@ Force @> |> not @>
+        test <@ subResult1.Contains <@ F @> |> not @>
+        test <@ subResult2.Contains <@ F @> @>
+
 
     type ConflictingCliNames =
         | [<CustomCommandLine "foo">] Foo of int
@@ -344,19 +393,22 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Identify conflicting CLI identifiers`` () =
-        raises<ArguException> <@ ArgumentParser.Create<ConflictingCliNames>() @>
-
+        raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingCliNames>() @>
+                                    (fun e -> <@ e.Message.Contains "conflicting CLI" @>)
     [<Fact>]
     let ``Identify conflicting AppSettings identifiers`` () =
-        raises<ArguException> <@ ArgumentParser.Create<ConflictingAppSettingsNames>() @>
+        raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingAppSettingsNames>() @>
+                                    (fun e -> <@ e.Message.Contains "conflicting AppSettings" @>)
 
     [<Fact>]
     let ``Identify recursive subcommands`` () =
-        raises<ArguException> <@ ArgumentParser.Create<RecursiveArgument1>() @>
+        raisesWith<ArguException> <@ ArgumentParser.Create<RecursiveArgument1>() @>
+                                    (fun e -> <@ e.Message.Contains "recursive" @>)
 
     [<Fact>]
     let ``Identify generic arguments`` () =
-        raises<ArguException> <@ ArgumentParser.Create<GenericArgument<string>>() @>
+        raisesWith<ArguException> <@ ArgumentParser.Create<GenericArgument<string>>() @>
+                                    (fun e -> <@ e.Message.Contains "generic" @>)
 
 
     [<CliPrefix(CliPrefix.Dash)>]
@@ -406,7 +458,8 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Should fail if EqualsAssignment missing assignment.`` () =
-        raises<ArguParseException> <@ parser.ParseCommandLine [|"--assignment"; "value"|] @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine([|"--assignment"; "value"|], ignoreMissing = true) @>
+                                        (fun e -> <@ e.Message.Contains "missing an assignment" @>)
 
     [<Fact>]
     let ``Slash in Commandline`` () =
@@ -415,8 +468,9 @@ module ``Argu Tests`` =
         test <@ results.Contains <@ Detach @> @>
     
     [<Fact>]
-    let ``Should fail wenn Usage, Mandatory and raiseOnUsage = true`` () =
-         raises<ArguParseException> <@ parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true) @>
+    let ``Should fail when Usage, Mandatory and raiseOnUsage = true`` () =
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true) @>
+                                        (fun e -> <@ e.Message.Contains "USAGE:" @>)
 
     [<Fact>]
     let ``Usage, Mandatory and raiseOnusage = false`` () =
@@ -465,12 +519,24 @@ module ``Argu Tests`` =
         let result = parser.Parse([|"--help"|], raiseOnUsage = false, ignoreUnrecognized = true)
         test <@ not result.IsUsageRequested @>
 
+    [<DisableHelpFlags>]
+    type NestedInherited =
+        | [<Inherit>] Nested of ParseResult<NoHelp>
+    with
+        interface IArgParserTemplate with
+            member a.Usage = "not tested here"
+
+    [<Fact>]
+    let ``Fail on inherited nested union cases`` () =
+        raisesWith<ArguException> <@ ArgumentParser.Create<NestedInherited>() @>
+                                  (fun e -> <@ e.Message.Contains "Inherit" @>)
+
     [<Fact>]
     let ``Fail on malformed case constructors`` () =
         let result = parser.ToParseResult []
+        let wrapper = List
         raises<ArgumentException> <@ result.Contains <@ fun (y : string) -> Log_Level 42 @> @>
         raises<ArgumentException> <@ result.Contains <@ fun (y, x) -> Data(x,y) @> @>
         raises<ArgumentException> <@ result.Contains <@ fun x -> () ; Log_Level x @> @>
         raises<ArgumentException> <@ result.Contains <@ let wrapper = List in wrapper @> @>
-        let wrapper = List
         raises<ArgumentException> <@ result.Contains <@ wrapper @> @>

@@ -82,7 +82,7 @@ type CliTokenReader(inputs : string[]) =
 
     member __.IsCompleted = position = inputs.Length
 
-type CliParseResultAggregator(argInfo : UnionArgInfo) =
+type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParseResultAggregatorStack) =
     let mutable resultCount = 0
     let unrecognized = new ResizeArray<string>()
     let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
@@ -91,12 +91,20 @@ type CliParseResultAggregator(argInfo : UnionArgInfo) =
     member __.ResultCount = resultCount
 
     member __.AppendResult(result : UnionCaseParseResult) =
-        resultCount <- resultCount + 1
-        let agg = results.[result.Tag]
-        if result.ArgInfo.IsUnique && agg.Count > 0 then
-            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.ArgInfo.Name
+        match result.ArgInfo.Depth with
+        | d when d = argInfo.Depth ->
+            resultCount <- resultCount + 1
+            let agg = results.[result.Tag]
+            if result.ArgInfo.IsUnique && agg.Count > 0 then
+                error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.ArgInfo.Name
 
-        agg.Add(result)
+            agg.Add result
+
+        | d -> 
+            // this parse result corresponds to an inherited parameter
+            // from a parent syntax. Use the ResultAggregator stack to
+            // re-route the result to its matching aggregator
+            stack.[d].AppendResult result
 
     member __.AppendUnrecognized(token:string) = unrecognized.Add token
 
@@ -105,11 +113,26 @@ type CliParseResultAggregator(argInfo : UnionArgInfo) =
           UnrecognizedCliParams = Seq.toList unrecognized ;
           IsUsageRequested = __.IsUsageRequested }
 
+// this rudimentary stack implementation assumes that only one subcommand
+// can occur within any particular context; no need implement popping etc
+and CliParseResultAggregatorStack () =
+    let stack = new ResizeArray<CliParseResultAggregator>()
+
+    member __.Item (depth : int) : CliParseResultAggregator = stack.[depth]
+
+    member self.CreateNextAggregator(argInfo : UnionArgInfo) =
+        assert(stack.Count = argInfo.Depth)
+        let agg = new CliParseResultAggregator(argInfo, self)
+        stack.Add agg
+        agg
+
+
 type CliParseState =
     {
         ProgramName : string
         Description : string option
         UsageStringCharWidth : int
+        ResultStack : CliParseResultAggregatorStack
         Exiter : IExiter
         IgnoreUnrecognizedArgs : bool
         RaiseOnUsage : bool
@@ -266,7 +289,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             aggregator.AppendResult result
 
 and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInfo) =
-    let results = new CliParseResultAggregator(argInfo)
+    let results = state.ResultStack.CreateNextAggregator argInfo
     while not state.Reader.IsCompleted do parseCommandLinePartial state argInfo results
     results.ToUnionParseResults()
 
@@ -278,6 +301,7 @@ and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (descriptio
     let state = {
         Reader = new CliTokenReader(inputs)
         ProgramName = programName
+        ResultStack = new CliParseResultAggregatorStack()
         Description = description
         UsageStringCharWidth = width
         RaiseOnUsage = raiseOnUsage

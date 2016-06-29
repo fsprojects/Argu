@@ -56,6 +56,8 @@ type UnionCaseArgInfo =
     {
         /// Human readable name identifier
         Name : string
+        /// Contextual depth of current argument w.r.t subcommands
+        Depth : int
         /// UCI identifier
         UnionCaseInfo : UnionCaseInfo
         /// Field parser definitions or nested union argument
@@ -96,6 +98,8 @@ type UnionCaseArgInfo =
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
         IsMandatory : bool
+        /// Indicates that argument should be inherited in the scope of any sibling subcommands.
+        IsInherited : bool
         /// Specifies that argument should be specified at most once in CLI
         IsUnique : bool
         /// Hide from Usage
@@ -126,18 +130,22 @@ and [<NoEquality; NoComparison>]
     {
         /// Union Case Argument Info
         Type : Type
+        /// Contextual depth of current argument w.r.t subcommands
+        Depth : int
         /// If subcommand, attempt to retrieve the parent record
         TryGetParent : unit -> UnionCaseArgInfo option
         /// Union cases
         Cases : UnionCaseArgInfo []
+        /// Help flags specified by the library
+        HelpParam : HelpParam
         /// Precomputed union tag reader
         TagReader : Lazy<obj -> int>
+        /// Arguments inherited by parent commands
+        InheritedParams : Lazy<UnionCaseArgInfo [] list>
         /// Single character switches
         GroupedSwitchExtractor : Lazy<string -> string []>
         /// Union cases indexed by appsettings parameter names
         AppSettingsParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
-        /// Help flags specified by the library
-        HelpParam : HelpParam
         /// Union cases indexed by cli parameter names
         CliParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
     }

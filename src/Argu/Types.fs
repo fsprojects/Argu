@@ -35,6 +35,11 @@ module ArguAttributes =
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type ExactlyOnceAttribute () = inherit Attribute ()
 
+    /// Denotes that the given argument should be inherited in the scope of any subcommands
+    /// in the current argument template
+    [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
+    type InheritAttribute() = inherit Attribute()
+
     /// Gathers all parsed results from both AppSettings and command line.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type GatherAllSourcesAttribute () = inherit Attribute ()
