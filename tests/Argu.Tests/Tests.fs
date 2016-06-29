@@ -229,6 +229,7 @@ module ``Argu Tests`` =
         let args = [|"push"; "--remote" ; "origin" ; "--branch" ; "master"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested = results.GetResult <@ Push @>
+        test <@ match results.TryGetSubCommand() with Some (Push _) -> true | _ -> false @>
         test <@ nested.GetAllResults() = [Remote "origin" ; Branch "master"] @>
 
     [<Fact>]
@@ -236,6 +237,7 @@ module ``Argu Tests`` =
         let args = [|"clean"; "-fdx"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested = results.GetResult <@ Clean @>
+        test <@ match results.TryGetSubCommand() with Some (Clean _) -> true | _ -> false @>
         test <@ nested.GetAllResults() = [F; D; X] @>
 
     [<Fact>]

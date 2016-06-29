@@ -194,6 +194,18 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
     member r.IterResult (expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
         expr |> tryGetResult source |> Option.iter (parseResult iterator)
 
+    /// <summary>
+    ///     Attempts to recover the subcommand parameter from the results,
+    ///     if once has been specified.
+    /// </summary>
+    member r.TryGetSubCommand() : 'Template option =
+        results.Cases 
+        |> Seq.concat 
+        |> Seq.tryPick(fun c -> 
+            if c.ArgInfo.Type = ArgumentType.SubCommand then
+                Some(c.Value :?> 'Template)
+            else None)
+
     override r.ToString() = sprintf "%A" (r.GetAllResults())
 
     // used by StructuredFormatDisplay attribute
