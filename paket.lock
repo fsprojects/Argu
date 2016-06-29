@@ -1,11 +1,9 @@
+REDIRECTS: ON
 NUGET
   remote: https://www.nuget.org/api/v2
     FsCheck (2.5)
       FSharp.Core (>= 3.1.2.5)
     FSharp.Core (4.0.0.1)
-    FsUnit.xUnit (1.4.1)
-      FSharp.Core (>= 3.1.2.5)
-      xunit (2.1)
     Microsoft.NETCore.Platforms (1.0.1) - framework: dnxcore50
     Microsoft.NETCore.Targets (1.0.1) - framework: dnxcore50
     System.Collections (4.0.11) - framework: dnxcore50
@@ -113,6 +111,7 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.0.1) - framework: dnxcore50, netstandard10, >= netstandard13
       Microsoft.NETCore.Targets (>= 1.0.1) - framework: dnxcore50, netstandard10, >= netstandard13
       System.Runtime (>= 4.1) - framework: dnxcore50, netstandard10, >= netstandard13
+    Unquote (3.1.1)
     xunit (2.1)
       xunit.assert (2.1)
       xunit.core (2.1)
@@ -186,5 +185,5 @@ NUGET
       Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (911c3efbc9127d52b1db0dc0ed6e12aafd23d548)
+    modules/Octokit/Octokit.fsx (c56456abac6b744c3bb95b217687db19fd19b367)
       Octokit (>= 0.20)

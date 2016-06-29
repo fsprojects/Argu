@@ -62,8 +62,8 @@ parser.PrintCommandLineArgumentsFlat [Push(toParseResults [Remote "origin" ; Bra
 let result = parser.Parse [| "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
 let cresult = result.GetResult <@ Clean @>
 
-let pparser = parser.GetSubParser <@ Push @>
-let cparser = parser.GetSubParser <@ Clean @>
+let pparser = parser.GetSubCommandParser <@ Push @>
+let cparser = parser.GetSubCommandParser <@ Clean @>
 
 parser.PrintUsage("Ooops\n") |> Console.WriteLine
 pparser.PrintUsage() |> Console.WriteLine

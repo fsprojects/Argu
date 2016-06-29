@@ -1,8 +1,8 @@
-redirects: force
+redirects: on
 source https://www.nuget.org/api/v2
 
-nuget FsUnit.xUnit
 nuget FsCheck
+nuget Unquote
 nuget xunit ~> 2.0
 nuget xunit.extensions
 nuget xunit.runner.console

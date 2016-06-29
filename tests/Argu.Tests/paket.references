@@ -1,5 +1,5 @@
-﻿FsUnit.XUnit
-xunit
+﻿xunit
 xunit.extensions
 xunit.runner.visualstudio
+Unquote
 FsCheck
