@@ -425,9 +425,30 @@ Command line parameters have precedence over AppSettings parameters.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '118', 118)" onmouseover="showTip(event, '118', 118)">
-            TryPostProcessResult(...)
+            TryGetSubCommand()
           </code>
           <div class="tip" id="118">
+            <strong>Signature:</strong> unit -&gt; &#39;Template option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResult.fs#L201-201" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Attempts to recover the subcommand parameter from the results,
+if once has been specified.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '119', 119)" onmouseover="showTip(event, '119', 119)">
+            TryPostProcessResult(...)
+          </code>
+          <div class="tip" id="119">
             <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * source:ParseSource option) -&gt; &#39;R option<br />
                           <strong>Type parameters:</strong> 'R          </div>
         </td>
@@ -446,10 +467,10 @@ Results are passed to a post-processing function that is error handled by the pa
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '119', 119)" onmouseover="showTip(event, '119', 119)">
+          <code onmouseout="hideTip(event, '120', 120)" onmouseover="showTip(event, '120', 120)">
             UnrecognizedCliParams
           </code>
-          <div class="tip" id="119">
+          <div class="tip" id="120">
             <strong>Signature:</strong> string list<br />
                       </div>
         </td>
