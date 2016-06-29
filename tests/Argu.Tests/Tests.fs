@@ -5,6 +5,7 @@
 open System
 open System.IO
 open Xunit
+open FSharp.Quotations
 open Swensen.Unquote.Assertions
 
 open Argu
@@ -184,7 +185,7 @@ module ``Argu Tests`` =
         let bytes = [|1uy .. 255uy|]
         let args = parser.PrintCommandLineArguments [ Mandatory_Arg false ; Data(42, bytes) ]
         let results = parser.ParseCommandLine args
-        test <@ results.GetResult <@ Data @> |> snd = bytes @>
+        test <@ let _,bytes' = results.GetResult <@ Data @> in bytes' = bytes @>
 
     [<Fact>]
     let ``Parse equals assignment`` () =
@@ -290,10 +291,15 @@ module ``Argu Tests`` =
         test <@ result.GetResult <@ List @> = [1 .. 5] @>
 
     [<Fact>]
-    let ``Get all subcommands`` () =
+    let ``Get all subcommand parsers`` () =
         let subcommands = parser.GetSubCommandParsers()
         test <@ subcommands.Length = 2 @>
         test <@ subcommands |> List.forall (fun sc -> sc.IsSubCommandParser) @>
+
+    [<Fact>]
+    let ``Get specific subcommand parser`` () =
+        let subcommand = parser.GetSubCommandParser <@ Push @>
+        test <@ subcommand.IsSubCommandParser @>
 
 
     type ConflictingCliNames =
