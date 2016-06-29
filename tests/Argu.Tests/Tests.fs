@@ -393,8 +393,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Use no prefix as default`` () =
         let parser = ArgumentParser.Create<ArgumentNoDash>("usage string")
-        let args = 
-            [| "argument" ; "bar" ; "levels-deep" ; "3" |]
+        let args = [| "argument" ; "bar" ; "levels-deep" ; "3" |]
 
         let expected_outcome = set [ Argument "bar" ; Levels_Deep 3 ]
         let results = parser.ParseCommandLine args
@@ -466,7 +465,7 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Fail on malformed case constructors`` () =
-        let result = parser.ToParseResult([])
+        let result = parser.ToParseResult []
         raises<ArgumentException> <@ result.Contains <@ fun (y : string) -> Log_Level 42 @> @>
         raises<ArgumentException> <@ result.Contains <@ fun (y, x) -> Data(x,y) @> @>
         raises<ArgumentException> <@ result.Contains <@ fun x -> () ; Log_Level x @> @>
