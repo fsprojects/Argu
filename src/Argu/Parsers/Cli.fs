@@ -58,6 +58,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
     let mutable resultCount = 0
     let mutable isSubCommandDefined = false
     let unrecognized = new ResizeArray<string>()
+    let unrecognizedParseResults = new ResizeArray<obj>()
     let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
 
     member val IsUsageRequested = false with get,set
@@ -65,8 +66,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
     member __.IsSubCommandDefined = isSubCommandDefined
 
     member __.AppendResult(result : UnionCaseParseResult) =
-        match result.CaseInfo.Depth with
-        | d when argInfo.Depth = d ->
+        if result.CaseInfo.Depth = argInfo.Depth then
             resultCount <- resultCount + 1
             let agg = results.[result.Tag]
             if result.CaseInfo.IsUnique && agg.Count > 0 then
@@ -76,30 +76,36 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
                 isSubCommandDefined <- true
 
             agg.Add result
-
-        | d ->
+        else
             // this parse result corresponds to an inherited parameter
             // from a parent syntax. Use the ResultAggregator stack to
             // re-route the result to its matching aggregator
-            stack.[d].AppendResult result
+            if stack.TryDispatchResult result then ()
+            else unrecognizedParseResults.Add result.Value
 
     member __.AppendUnrecognized(token:string) = unrecognized.Add token
 
     member __.ToUnionParseResults() = 
         { Cases = results |> Array.map (fun c -> c.ToArray()) ; 
           UnrecognizedCliParams = Seq.toList unrecognized ;
+          UnrecognizedCliParseResults = Seq.toList unrecognizedParseResults ;
           IsUsageRequested = __.IsUsageRequested }
 
 // this rudimentary stack implementation assumes that only one subcommand
 // can occur within any particular context; no need implement popping etc.
 // Note that inheritting subcommands is explicitly prohibited by the library.
-and CliParseResultAggregatorStack () =
-    let stack = new ResizeArray<CliParseResultAggregator>(capacity = 5)
+and CliParseResultAggregatorStack (context : UnionArgInfo) =
+    let offset = context.Depth
+    let stack = new ResizeArray<CliParseResultAggregator>(capacity = 2)
 
-    member __.Item (depth : int) : CliParseResultAggregator = stack.[depth]
+    member self.TryDispatchResult(result : UnionCaseParseResult) =
+        if result.CaseInfo.Depth < offset then false
+        else
+            stack.[result.CaseInfo.Depth - offset].AppendResult result
+            true
 
     member self.CreateNextAggregator(argInfo : UnionArgInfo) =
-        assert(stack.Count = argInfo.Depth)
+        assert(stack.Count = argInfo.Depth - offset)
         let agg = new CliParseResultAggregator(argInfo, self)
         stack.Add agg
         agg
@@ -281,7 +287,7 @@ and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (descriptio
     let state = {
         Reader = new CliTokenReader(inputs)
         ProgramName = programName
-        ResultStack = new CliParseResultAggregatorStack()
+        ResultStack = new CliParseResultAggregatorStack(argInfo)
         Description = description
         UsageStringCharWidth = width
         RaiseOnUsage = raiseOnUsage

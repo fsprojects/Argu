@@ -269,6 +269,12 @@ module ``Argu Tests`` =
         test <@ nested.GetAllResults() = [F; D; X] @>
 
     [<Fact>]
+    let ``SubParsers should correctly handle inherited params`` () =
+        let subParser = parser.GetSubCommandParser <@ Clean @>
+        let result = subParser.ParseCommandLine [|"-fdxv"|]
+        test <@ match result.UnrecognizedCliParseResults with [:? Argument as c ] -> c = Verbose | _ -> false @>
+
+    [<Fact>]
     let ``Doubly nested subcommand parsing`` () =
         let args = [|"required" ; "--foo" ; "sub" ; "-fdx" |]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)

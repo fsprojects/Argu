@@ -54,6 +54,10 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
     /// accumulates if parsed with 'ignoreUnrecognized = true'
     member __.UnrecognizedCliParams = results.UnrecognizedCliParams
 
+    /// Gets all parse results that are not part of the current parsing context
+    /// This is only applicable to subcommand parsing operations
+    member __.UnrecognizedCliParseResults = results.UnrecognizedCliParseResults
+
     /// <summary>Query parse results for parameterless argument.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>

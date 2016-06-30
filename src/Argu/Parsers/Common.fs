@@ -42,6 +42,7 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : in
         { 
             IsUsageRequested = false
             UnrecognizedCliParams = []
+            UnrecognizedCliParseResults = []
             Cases = agg |> Array.map (fun rs -> rs.ToArray())
         }
 
@@ -76,5 +77,6 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
     {
         Cases = argInfo.Cases |> Array.map combineSingle
         UnrecognizedCliParams = match commandLineResults with Some clr -> clr.UnrecognizedCliParams | None -> []
+        UnrecognizedCliParseResults = match commandLineResults with Some clr -> clr.UnrecognizedCliParseResults | None -> []
         IsUsageRequested = commandLineResults |> Option.exists (fun r -> r.IsUsageRequested)
     }

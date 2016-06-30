@@ -183,6 +183,8 @@ type UnionParseResults =
         Cases : UnionCaseParseResult[][]
         /// CLI tokens not recognized by the parser
         UnrecognizedCliParams : string list
+        /// CLI parse objects not belonging to the current parser context
+        UnrecognizedCliParseResults : obj list
         /// Usage string requested by the caller
         IsUsageRequested : bool
     }
