@@ -100,13 +100,21 @@ let tryGetEnumerationParser label (t : Type) =
     let ucis = FSharpType.GetUnionCases(t, allBindings)
     if ucis |> Array.exists (fun uci -> uci.GetFields().Length > 0) then None else
 
-    let normalize (text : string) = text.ToLower().Trim()
     let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, allBindings))
-    let index = ucis |> Array.map (fun uci -> normalize uci.Name, FSharpValue.MakeUnion(uci, [||], allBindings))
+    let extractUciInfo (uci : UnionCaseInfo) =
+        let name =
+            match uci.TryGetAttribute<CustomCommandLineAttribute>() with
+            | None -> uci.Name.ToLower()
+            | Some attr -> attr.Name
+
+        let value = FSharpValue.MakeUnion(uci, [||], allBindings)
+        name, value
+
+    let index = ucis |> Array.map extractUciInfo
     let name = index |> Seq.map fst |> String.concat "|"
 
     let parser (text : string) =
-        let text = normalize text
+        let text = text.Trim()
         let _,value = index |> Array.find (fun (id,_) -> text = id)
         value
 
