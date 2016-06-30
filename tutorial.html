@@ -237,19 +237,17 @@ can be customized by fixing attributes to the union cases:</p>
 </table>
 <p>In this case,</p>
 <ul>
-<li><p><code>Mandatory</code>: parser will fail if no configuration for this parameter is given.</p></li>
-<li><p><code>NoCommandLine</code>: restricts this parameter to the AppSettings section.</p></li>
-<li><p><code>AltCommandLine</code>: specifies an alternative command line switch.</p></li>
-<li><p><code>EqualsAssignment</code> : enforces <code>--assignment=value</code> and <code>--assignment key=value</code> CLI syntax.</p></li>
-<li><p><code>Unique</code> : parser will fail if CLI provides this argument more than once.</p></li>
+<li><p><a href="reference/argu-arguattributes-mandatoryattribute.html"><code>Mandatory</code></a>: parser will fail if no configuration for this parameter is given.</p></li>
+<li><p><a href="reference/argu-arguattributes-nocommandlineattribute.html"><code>NoCommandLine</code></a>: restricts this parameter to the AppSettings section.</p></li>
+<li><p><a href="reference/argu-arguattributes-altcommandlineattribute.html"><code>AltCommandLine</code></a>: specifies an alternative command line switch.</p></li>
+<li><p><a href="reference/argu-arguattributes-equalsassignmentattribute.html"><code>EqualsAssignment</code></a> : enforces <code>--assignment=value</code> and <code>--assignment key=value</code> CLI syntax.</p></li>
+<li><p><a href="reference/argu-arguattributes-uniqueeattribute.html"><code>Unique</code></a> : parser will fail if CLI provides this argument more than once.</p></li>
 </ul>
-<p>The following attributes are also available:</p>
+<p>Many more attributes are also available, such as</p>
 <ul>
-<li><p><code>NoAppSettings</code>: restricts argument to CLI parsing only.</p></li>
-<li><p><code>Hidden</code>: do not display in the help usage string.</p></li>
-<li><p><code>GatherAllSources</code>: CLI arguments will not override AppSettings parameters.</p></li>
-<li><p><code>CustomAppSettings</code>: sets a custom key name for AppSettings.</p></li>
-<li><p><code>First</code>: Argument can only be placed at the beginning of the command line.</p></li>
+<li><p><a href="reference/argu-arguattributes-firstattribute.html"><code>First</code></a>: Argument can only be placed at the beginning of the command line.</p></li>
+<li><p><a href="reference/argu-arguattributes-hiddenattribute.html"><code>Hidden</code></a>: do not display in the help usage string.</p></li>
+<li><p><a href="reference/argu-arguattributes-customappsettingsattribute.html"><code>CustomAppSettings</code></a>: sets a custom key name for AppSettings.</p></li>
 </ul>
 <p>Please see the <a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">API Reference</a>
 for a complete list of all attributes provided by Argu.</p>
@@ -327,8 +325,8 @@ For example, consider this mock git CLI syntax:</p>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">and</span> <span onmouseout="hideTip(event, 'fs62', 104)" onmouseover="showTip(event, 'fs62', 104)" class="t">CommitArgs</span> <span class="o">=</span>
     | <span onmouseout="hideTip(event, 'fs63', 105)" onmouseover="showTip(event, 'fs63', 105)" class="p">Amend</span>
-    | [&lt;<span onmouseout="hideTip(event, 'fs47', 106)" onmouseover="showTip(event, 'fs47', 106)" class="t">AltCommandLine</span>(<span class="s">&quot;-p&quot;</span>)&gt;]<span onmouseout="hideTip(event, 'fs64', 107)" onmouseover="showTip(event, 'fs64', 107)" class="p">Patch</span>
-    | [&lt;<span onmouseout="hideTip(event, 'fs47', 108)" onmouseover="showTip(event, 'fs47', 108)" class="t">AltCommandLine</span>(<span class="s">&quot;-m&quot;</span>)&gt;]<span onmouseout="hideTip(event, 'fs65', 109)" onmouseover="showTip(event, 'fs65', 109)" class="p">Message</span> <span class="k">of</span> <span class="i">msg</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 110)" onmouseover="showTip(event, 'fs4', 110)" class="t">string</span>
+    | [&lt;<span onmouseout="hideTip(event, 'fs47', 106)" onmouseover="showTip(event, 'fs47', 106)" class="t">AltCommandLine</span>(<span class="s">&quot;-p&quot;</span>)&gt;] <span onmouseout="hideTip(event, 'fs64', 107)" onmouseover="showTip(event, 'fs64', 107)" class="p">Patch</span>
+    | [&lt;<span onmouseout="hideTip(event, 'fs47', 108)" onmouseover="showTip(event, 'fs47', 108)" class="t">AltCommandLine</span>(<span class="s">&quot;-m&quot;</span>)&gt;] <span onmouseout="hideTip(event, 'fs65', 109)" onmouseover="showTip(event, 'fs65', 109)" class="p">Message</span> <span class="k">of</span> <span class="i">msg</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 110)" onmouseover="showTip(event, 'fs4', 110)" class="t">string</span>
 <span class="k">with</span>
     <span class="k">interface</span> <span onmouseout="hideTip(event, 'fs18', 111)" onmouseover="showTip(event, 'fs18', 111)" class="t">IArgParserTemplate</span> <span class="k">with</span>
         <span class="k">member</span> <span onmouseout="hideTip(event, 'fs66', 112)" onmouseover="showTip(event, 'fs66', 112)" class="i">this</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs67', 113)" onmouseover="showTip(event, 'fs67', 113)" class="i">Usage</span> <span class="o">=</span>
@@ -355,7 +353,7 @@ For example, consider this mock git CLI syntax:</p>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">and</span> <span onmouseout="hideTip(event, 'fs68', 118)" onmouseover="showTip(event, 'fs68', 118)" class="t">GitArgs</span> <span class="o">=</span>
     | <span onmouseout="hideTip(event, 'fs69', 119)" onmouseover="showTip(event, 'fs69', 119)" class="p">Version</span>
-    | [&lt;<span onmouseout="hideTip(event, 'fs47', 120)" onmouseover="showTip(event, 'fs47', 120)" class="t">AltCommandLine</span>(<span class="s">&quot;-v&quot;</span>)&gt;]<span onmouseout="hideTip(event, 'fs70', 121)" onmouseover="showTip(event, 'fs70', 121)" class="p">Verbose</span>
+    | [&lt;<span onmouseout="hideTip(event, 'fs47', 120)" onmouseover="showTip(event, 'fs47', 120)" class="t">AltCommandLine</span>(<span class="s">&quot;-v&quot;</span>)&gt;] <span onmouseout="hideTip(event, 'fs70', 121)" onmouseover="showTip(event, 'fs70', 121)" class="p">Verbose</span>
     | [&lt;<span onmouseout="hideTip(event, 'fs54', 122)" onmouseover="showTip(event, 'fs54', 122)" class="t">CliPrefix</span>(<span onmouseout="hideTip(event, 'fs54', 123)" onmouseover="showTip(event, 'fs54', 123)" class="t">CliPrefix</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs71', 124)" onmouseover="showTip(event, 'fs71', 124)" class="i">None</span>)&gt;] <span onmouseout="hideTip(event, 'fs72', 125)" onmouseover="showTip(event, 'fs72', 125)" class="p">Clean</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs73', 126)" onmouseover="showTip(event, 'fs73', 126)" class="t">ParseResult</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs56', 127)" onmouseover="showTip(event, 'fs56', 127)" class="t">CleanArgs</span><span class="o">&gt;</span>
     | [&lt;<span onmouseout="hideTip(event, 'fs54', 128)" onmouseover="showTip(event, 'fs54', 128)" class="t">CliPrefix</span>(<span onmouseout="hideTip(event, 'fs54', 129)" onmouseover="showTip(event, 'fs54', 129)" class="t">CliPrefix</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs71', 130)" onmouseover="showTip(event, 'fs71', 130)" class="i">None</span>)&gt;] <span onmouseout="hideTip(event, 'fs74', 131)" onmouseover="showTip(event, 'fs74', 131)" class="p">Commit</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs73', 132)" onmouseover="showTip(event, 'fs73', 132)" class="t">ParseResult</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs62', 133)" onmouseover="showTip(event, 'fs62', 133)" class="t">CommitArgs</span><span class="o">&gt;</span>
 <span class="k">with</span>
