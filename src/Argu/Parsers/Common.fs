@@ -1,6 +1,8 @@
 ﻿[<AutoOpen>]
 module internal Argu.CommonParsers
 
+type KeyValueParseResult = Choice<UnionCaseParseResult [], exn>
+
 exception ParseError of message:string * code:ErrorCode * argInfo:UnionArgInfo
 exception HelpText of subcommand:UnionArgInfo
 
@@ -44,3 +46,35 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : in
         }
 
     new ParseResult<'Template>(info, results, programName, description, width, exiter)
+
+/// <summary>
+///     Combines two parse results, AppSettings and CLI, overriding where appropriate.
+///     By default, CLI parameters override AppSettings parameters.
+/// </summary>
+let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
+                (appSettingsResults : KeyValueParseResult [] option)
+                (commandLineResults : UnionParseResults option) =
+
+    let emptyResult = Choice1Of2 [||]
+    let combineSingle (caseInfo : UnionCaseArgInfo) =
+        let acr = match appSettingsResults with None -> emptyResult | Some ar -> ar.[caseInfo.Tag]
+        let clr = match commandLineResults with None -> [||] | Some cl -> cl.Cases.[caseInfo.Tag]
+
+        let combined =
+            match acr, clr with
+            | Choice1Of2 ts, [||] -> ts
+            | Choice2Of2 e, [||] -> raise e
+            | Choice2Of2 e, _ when caseInfo.GatherAllSources -> raise e
+            | Choice1Of2 ts, ts' when caseInfo.GatherAllSources -> Array.append ts ts'
+            | _, ts' -> ts'
+
+        match combined with
+        | [||] when caseInfo.IsMandatory && not ignoreMissingMandatory -> 
+            error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name
+        | _ -> combined
+
+    {
+        Cases = argInfo.Cases |> Array.map combineSingle
+        UnrecognizedCliParams = match commandLineResults with Some clr -> clr.UnrecognizedCliParams | None -> []
+        IsUsageRequested = commandLineResults |> Option.exists (fun r -> r.IsUsageRequested)
+    }

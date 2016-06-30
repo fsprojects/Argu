@@ -5,10 +5,9 @@ open System
 
 type KeyValueParseResult = Choice<UnionCaseParseResult [], exn>
 
-let private emptyResult : KeyValueParseResult = Choice1Of2 [||]
-
 // AppSettings parse errors are threaded to the state rather than raised directly
 type KeyValueParseResults (argInfo : UnionArgInfo) =
+    let emptyResult = Choice1Of2 [||]
     let results = Array.init argInfo.Cases.Length (fun _ -> emptyResult)
     member __.AddResults (case : UnionCaseArgInfo) (ts : UnionCaseParseResult []) =
         results.[case.Tag] <- Choice1Of2 ts
@@ -107,36 +106,3 @@ let parseKeyValueConfig (configReader : IConfigurationReader) (argInfo : UnionAr
     let state = { ArgInfo = argInfo ; Reader = configReader ; Results = new KeyValueParseResults(argInfo) }
     for caseInfo in argInfo.Cases do parseKeyValuePartial state caseInfo
     state.Results.Results
-
-
-
-/// <summary>
-///     Combines two parse results, AppSettings and CLI, overriding where appropriate.
-///     By default, CLI parameters override AppSettings parameters.
-/// </summary>
-let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
-                (appSettingsResults : KeyValueParseResult [] option)
-                (commandLineResults : UnionParseResults option) =
-
-    let combineSingle (caseInfo : UnionCaseArgInfo) =
-        let acr = match appSettingsResults with None -> emptyResult | Some ar -> ar.[caseInfo.Tag]
-        let clr = match commandLineResults with None -> [||] | Some cl -> cl.Cases.[caseInfo.Tag]
-
-        let combined =
-            match acr, clr with
-            | Choice1Of2 ts, [||] -> ts
-            | Choice2Of2 e, [||] -> raise e
-            | Choice2Of2 e, _ when caseInfo.GatherAllSources -> raise e
-            | Choice1Of2 ts, ts' when caseInfo.GatherAllSources -> Array.append ts ts'
-            | _, ts' -> ts'
-
-        match combined with
-        | [||] when caseInfo.IsMandatory && not ignoreMissingMandatory -> 
-            error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name
-        | _ -> combined
-
-    {
-        Cases = argInfo.Cases |> Array.map combineSingle
-        UnrecognizedCliParams = match commandLineResults with Some clr -> clr.UnrecognizedCliParams | None -> []
-        IsUsageRequested = commandLineResults |> Option.exists (fun r -> r.IsUsageRequested)
-    }
