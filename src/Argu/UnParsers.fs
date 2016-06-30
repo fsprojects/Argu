@@ -72,9 +72,9 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
                 else
                     yield sprintf " [<%s>]" parser.Description
 
-            | SubCommand _ -> yield " <options>"
-            | ListParam (_,parser) ->
-                yield sprintf " [<%s>...]" parser.Description
+            | SubCommand (label = None) -> yield " <options>"
+            | SubCommand (label = Some label) -> yield sprintf " <%s>" label
+            | ListParam (_,parser) -> yield sprintf " [<%s>...]" parser.Description
 
             if not aI.IsMandatory then yield ']'
 
@@ -123,8 +123,8 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         | ListParam (_,parser) ->
             yield sprintf " [<%s>...]" parser.Description
 
-        | SubCommand _ ->
-            yield " <options>"
+        | SubCommand(_,_,Some label) -> yield sprintf " <%s>" label
+        | SubCommand(_,_,None) -> yield " <options>"
 
         let! finish = StringExpr.currentLength
         if finish - start > descriptionOffset then
@@ -242,7 +242,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
                 let objSeq = fields.[0] |> unbox<System.Collections.IEnumerable> |> Seq.cast<obj>
                 for obj in objSeq do yield parser.UnParser obj
 
-            | SubCommand (_, nested) ->
+            | SubCommand (_, nested, _) ->
                 yield clname
                 let nestedResult = fields.[0] :?> IParseResult
                 yield! mkCommandLineArgs nested (nestedResult.GetAllResults())

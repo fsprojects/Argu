@@ -36,7 +36,7 @@ type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, hel
     /// Gets all subcommand parsers for given parser
     member __.GetSubCommandParsers() =
         argInfo.Cases
-        |> Seq.choose (fun cs -> match cs.ParameterInfo with SubCommand(e,nu) -> Some(e,nu) | _ -> None)
+        |> Seq.choose (fun cs -> match cs.ParameterInfo with SubCommand(e,nu,_) -> Some(e,nu) | _ -> None)
         |> Seq.map (fun (e,nu) -> 
             e.Accept { 
                 new ITemplateFunc<ArgumentParser> with
@@ -199,7 +199,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         let uci = expr2Uci expr
         let case = argInfo.Cases.[uci.Tag]
         match case.ParameterInfo with
-        | SubCommand (_,nestedUnion) -> 
+        | SubCommand (_,nestedUnion,_) -> 
             new ArgumentParser<'SubTemplate>(nestedUnion, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
         | _ -> arguExn "internal error when fetching subparser %O." uci
 

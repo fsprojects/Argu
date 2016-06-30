@@ -256,7 +256,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [| listArg |]
             aggregator.AppendResult result
 
-        | SubCommand (existential, nestedUnion) ->
+        | SubCommand (existential, nestedUnion, _) ->
             let nestedResults = parseCommandLineInner state nestedUnion
             let result = 
                 existential.Accept { new ITemplateFunc<obj> with

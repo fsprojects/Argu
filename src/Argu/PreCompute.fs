@@ -34,9 +34,11 @@ let generateOptionName (uci : UnionCaseInfo) =
 let generateAppSettingsName (uci : UnionCaseInfo) =
     uci.Name.ToLower().Replace('_',' ')
 
+let private defaultLabelRegex = new Regex(@"^Item[0-9]*$", RegexOptions.Compiled)
 /// Generates an argument label name from given PropertyInfo
-let generateLabelName (p:PropertyInfo) =
-    p.Name.Replace('_',' ')
+let tryExtractUnionParameterLabel (p : PropertyInfo) =
+    if defaultLabelRegex.IsMatch p.Name then None
+    else Some(p.Name.Replace('_',' '))
 
 /// get CL arguments from environment
 let getEnvironmentCommandLineArgs () =
@@ -184,13 +186,15 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
             let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt 
             let shape = ShapeArgumentTemplate.FromType prt
-            SubCommand(shape, argInfo)
+            SubCommand(shape, argInfo, tryExtractUnionParameterLabel fields.[0])
 
         | [|Optional t|] ->
             if isRest then
                 arguExn "Rest attribute in '%O' not supported for optional cases." uci
 
-            OptionalParam(Existential.FromType t, getPrimitiveParserByType None t)
+            let label = tryExtractUnionParameterLabel fields.[0]
+
+            OptionalParam(Existential.FromType t, getPrimitiveParserByType label t)
 
         | [|List t|] ->
             if isEquals1Assignment then
@@ -199,18 +203,16 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             if isRest then
                 arguExn "Rest attribute in '%O' not supported for variadic list cases." uci
 
-            ListParam(Existential.FromType t, getPrimitiveParserByType None t)
+            let label = tryExtractUnionParameterLabel fields.[0]
+
+            ListParam(Existential.FromType t, getPrimitiveParserByType label t)
 
         | _ -> 
-            let getParser index (p : PropertyInfo) =
-                let label =
-                    if types.Length = 1 && p.Name <> "Item" then Some (generateLabelName p)
-                    elif types.Length > 1 && p.Name <> sprintf "Item%d" index then Some (generateLabelName p)
-                    else None
-
+            let getParser (p : PropertyInfo) =
+                let label = tryExtractUnionParameterLabel p
                 getPrimitiveParserByType label p.PropertyType
 
-            Array.mapi getParser fields |> Primitives
+            Array.map getParser fields |> Primitives
 
     let commandLineArgs =
         if uci.ContainsAttribute<NoCommandLineAttribute> (true) then
@@ -431,7 +433,7 @@ and preComputeUnionArgInfo<'Template when 'Template :> IArgParserTemplate> () =
         // iterate through the child nodes
         for case in argInfo.Cases do
             match case.ParameterInfo with
-            | SubCommand(_,aI) -> postProcess aI
+            | SubCommand(_, aI, _) -> postProcess aI
             | _ -> ()
 
     postProcess result

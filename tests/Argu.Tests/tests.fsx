@@ -40,11 +40,11 @@ with
 type GitArgs =
     | [<Unique>] Listener of address:string * number:int
     | Log_Level of level:int
-    | [<CliPrefix(CliPrefix.None)>]Push of ParseResult<PushArgs>
-    | [<CliPrefix(CliPrefix.None)>]Clean of ParseResult<CleanArgs>
+    | [<CliPrefix(CliPrefix.None)>]Push of options:ParseResult<PushArgs>
+    | [<CliPrefix(CliPrefix.None)>]Clean of suboptions:ParseResult<CleanArgs>
     | [<AltCommandLine("-E")>][<EqualsAssignment>]Environment_Variable of key:string * value:string
     | Ports of tcp_port:int list
-    | Optional of optional:int option
+    | Optional of num:int option
     | [<Inherit>] Silent
 with 
     interface IArgParserTemplate with 
