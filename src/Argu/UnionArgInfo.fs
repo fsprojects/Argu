@@ -110,20 +110,20 @@ type UnionCaseArgInfo =
 with
     member inline __.Tag = __.UnionCaseInfo.Tag
     member inline __.NoCommandLine = __.CommandLineNames.Length = 0
-    member inline __.Type =
-        match __.ParameterInfo with
-        | Primitives _ -> ArgumentType.Primitive
-        | OptionalParam _ -> ArgumentType.Optional
-        | ListParam _ -> ArgumentType.List
-        | NestedUnion _ -> ArgumentType.SubCommand
+    member inline __.Type = __.ParameterInfo.Type
 
 and ParameterInfo =
     | Primitives of FieldParserInfo []
     | OptionalParam of Existential * FieldParserInfo
     | ListParam of Existential * FieldParserInfo
-    | NestedUnion of ShapeArgumentTemplate * UnionArgInfo
+    | SubCommand of ShapeArgumentTemplate * UnionArgInfo
 with
-    member inline t.IsNested = match t with NestedUnion _ -> true | _ -> false
+    member pI.Type =
+        match pI with
+        | Primitives _ -> ArgumentType.Primitive
+        | OptionalParam _ -> ArgumentType.Optional
+        | ListParam _ -> ArgumentType.List
+        | SubCommand _ -> ArgumentType.SubCommand
 
 and [<NoEquality; NoComparison>] 
   UnionArgInfo =
@@ -138,6 +138,10 @@ and [<NoEquality; NoComparison>]
         Cases : UnionCaseArgInfo []
         /// Help flags specified by the library
         HelpParam : HelpParam
+        /// Denotes that the current argument contains subcommands
+        ContainsSubcommands : bool
+        /// Specifies that CLI parse results require a subcommand
+        IsRequiredSubcommand : bool
         /// Precomputed union tag reader
         TagReader : Lazy<obj -> int>
         /// Arguments inherited by parent commands

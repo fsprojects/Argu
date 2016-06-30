@@ -12,6 +12,10 @@ open Argu
 
 module ``Argu Tests`` =
 
+    type Exception with
+        member inline __.FirstLine = 
+            __.Message.Split([|Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries).[0]
+
     type PushArgs =
         | Remote of name:string
         | Branch of name:string
@@ -27,6 +31,14 @@ module ``Argu Tests`` =
     with
         interface IArgParserTemplate with
             member this.Usage = "clean"
+
+    [<RequireSubcommand>]
+    type RequiredSubcommand =
+        | Foo
+        | [<CliPrefix(CliPrefix.None)>] Sub of ParseResult<CleanArgs>
+    with
+        interface IArgParserTemplate with
+            member this.Usage = "required"
 
     type Argument =
         | [<AltCommandLine("-v"); Inherit>] Verbose
@@ -49,6 +61,7 @@ module ``Argu Tests`` =
         | [<CliPrefix(CliPrefix.Dash)>] C
         | [<CliPrefix(CliPrefix.None)>] Push of ParseResult<PushArgs>
         | [<CliPrefix(CliPrefix.None)>] Clean of ParseResult<CleanArgs>
+        | [<CliPrefix(CliPrefix.None)>] Required of ParseResult<RequiredSubcommand>
     with
         interface IArgParserTemplate with
             member a.Usage =
@@ -68,6 +81,7 @@ module ``Argu Tests`` =
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
                 | Push _ -> "push changes"
                 | Clean _ -> "clean state"
+                | Required _ -> "required subcommand"
                 | List _ -> "variadic params"
                 | Optional _ -> "optional params"
                 | A | B | C -> "misc arguments"
@@ -152,7 +166,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Missing Mandatory parameter`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "-D" |] @>
-                                        (fun e -> <@ e.Message.Contains "missing parameter" @>)
+                                        (fun e -> <@ e.FirstLine.Contains "missing parameter" @>)
 
     [<Fact>]
     let ``Unique parameter specified once`` () =
@@ -248,6 +262,20 @@ module ``Argu Tests`` =
         test <@ nested.GetAllResults() = [F; D; X] @>
 
     [<Fact>]
+    let ``Doubly nested subcommand parsing`` () =
+        let args = [|"required" ; "--foo" ; "sub" ; "-fdx" |]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        let nested  = results.GetResult <@ Required @>
+        let nested' = nested.GetResult <@ Sub @>
+        test <@ nested'.Contains <@ F @> @>
+
+    [<Fact>]
+    let ``Required subcommand attribute should fail on missing subcommand`` () =
+        let args = [|"required" ; "--foo" |]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
+                                        (fun e -> <@ e.FirstLine.Contains "subcommand" @>)
+
+    [<Fact>]
     let ``Unrecognized CLI params`` () =
         let args = [| "--mandatory-arg" ; "true" ; "foobar" ; "-z" |]
         let results = parser.ParseCommandLine(args, ignoreUnrecognized = true)
@@ -302,7 +330,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Get all subcommand parsers`` () =
         let subcommands = parser.GetSubCommandParsers()
-        test <@ subcommands.Length = 2 @>
+        test <@ subcommands.Length = 3 @>
         test <@ subcommands |> List.forall (fun sc -> sc.IsSubCommandParser) @>
 
     [<Fact>]
@@ -387,27 +415,27 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Identify conflicting CLI identifiers`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingCliNames>() @>
-                                    (fun e -> <@ e.Message.Contains "conflicting CLI" @>)
+                                    (fun e -> <@ e.FirstLine.Contains "conflicting CLI" @>)
 
     [<Fact>]
     let ``Identify conflicting inherited CLI identifiers`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingInheritedCliName>() @>
-                                    (fun e -> <@ e.Message.Contains "conflicting CLI" @>)
+                                    (fun e -> <@ e.FirstLine.Contains "conflicting CLI" @>)
 
     [<Fact>]
     let ``Identify conflicting AppSettings identifiers`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingAppSettingsNames>() @>
-                                    (fun e -> <@ e.Message.Contains "conflicting AppSettings" @>)
+                                    (fun e -> <@ e.FirstLine.Contains "conflicting AppSettings" @>)
 
     [<Fact>]
     let ``Identify recursive subcommands`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<RecursiveArgument1>() @>
-                                    (fun e -> <@ e.Message.Contains "recursive" @>)
+                                    (fun e -> <@ e.FirstLine.Contains "recursive" @>)
 
     [<Fact>]
     let ``Identify generic arguments`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<GenericArgument<string>>() @>
-                                    (fun e -> <@ e.Message.Contains "generic" @>)
+                                    (fun e -> <@ e.FirstLine.Contains "generic" @>)
 
 
     [<CliPrefix(CliPrefix.Dash)>]
@@ -458,7 +486,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Should fail if EqualsAssignment missing assignment.`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine([|"--assignment"; "value"|], ignoreMissing = true) @>
-                                        (fun e -> <@ e.Message.Contains "missing an assignment" @>)
+                                        (fun e -> <@ e.FirstLine.Contains "missing an assignment" @>)
 
     [<Fact>]
     let ``Slash in Commandline`` () =
@@ -469,7 +497,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Should fail when Usage, Mandatory and raiseOnUsage = true`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true) @>
-                                        (fun e -> <@ e.Message.Contains "USAGE:" @>)
+                                        (fun e -> <@ e.FirstLine.Contains "USAGE:" @>)
 
     [<Fact>]
     let ``Usage, Mandatory and raiseOnusage = false`` () =
@@ -528,7 +556,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Fail on inherited nested union cases`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<NestedInherited>() @>
-                                  (fun e -> <@ e.Message.Contains "Inherit" @>)
+                                  (fun e -> <@ e.FirstLine.Contains "Inherit" @>)
 
     [<Fact>]
     let ``Fail on malformed case constructors`` () =

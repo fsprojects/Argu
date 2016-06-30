@@ -1,6 +1,8 @@
 ﻿[<AutoOpen>]
 module internal Argu.CliParser
 
+open System
+
 [<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
 type CliParseToken =
     | EndOfStream
@@ -54,11 +56,13 @@ type CliTokenReader(inputs : string[]) =
 
 type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParseResultAggregatorStack) =
     let mutable resultCount = 0
+    let mutable isSubCommandDefined = false
     let unrecognized = new ResizeArray<string>()
     let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
 
     member val IsUsageRequested = false with get,set
     member __.ResultCount = resultCount
+    member __.IsSubCommandDefined = isSubCommandDefined
 
     member __.AppendResult(result : UnionCaseParseResult) =
         match result.CaseInfo.Depth with
@@ -67,6 +71,9 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
             let agg = results.[result.Tag]
             if result.CaseInfo.IsUnique && agg.Count > 0 then
                 error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name
+
+            if result.CaseInfo.Type = ArgumentType.SubCommand then
+                isSubCommandDefined <- true
 
             agg.Add result
 
@@ -249,7 +256,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [| listArg |]
             aggregator.AppendResult result
 
-        | NestedUnion (existential, nestedUnion) ->
+        | SubCommand (existential, nestedUnion) ->
             let nestedResults = parseCommandLineInner state nestedUnion
             let result = 
                 existential.Accept { new ITemplateFunc<obj> with
@@ -262,6 +269,8 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInfo) =
     let results = state.ResultStack.CreateNextAggregator argInfo
     while not state.Reader.IsCompleted do parseCommandLinePartial state argInfo results
+    if argInfo.IsRequiredSubcommand && not results.IsSubCommandDefined then
+        error argInfo ErrorCode.CommandLine "no valid subcommand has been specified."
     results.ToUnionParseResults()
 
 /// <summary>

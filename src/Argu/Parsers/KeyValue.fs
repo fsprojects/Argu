@@ -92,7 +92,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
                     let case = mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [|results|]
                     success [|case|]
 
-                | NestedUnion _ -> () // AppSettings will not handle nested arguments
+                | SubCommand _ -> () // AppSettings will not handle subcommands
 
         | _ -> ()
             

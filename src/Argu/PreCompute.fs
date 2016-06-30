@@ -174,17 +174,17 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         match types with
         | [|NestedParseResult prt|] -> 
             if isEquals1Assignment then
-                arguExn "EqualsAssignment in '%O' not supported for nested union cases." uci
+                arguExn "EqualsAssignment in '%O' not supported in subcommands." uci
             if isRest then
-                arguExn "Rest attribute in '%O' not supported for nested union cases." uci
+                arguExn "Rest attribute in '%O' not supported in subcommands." uci
             if isMandatory then
-                arguExn "Mandatory attribute in '%O' not supported for nested union cases." uci
+                arguExn "Mandatory attribute in '%O' not supported in subcommands." uci
             if isInherited then
-                arguExn "Inherit attribute in '%O' not supported for nested union cases." uci
+                arguExn "Inherit attribute in '%O' not supported in subcommands." uci
 
             let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt 
             let shape = ShapeArgumentTemplate.FromType prt
-            NestedUnion(shape, argInfo)
+            SubCommand(shape, argInfo)
 
         | [|Optional t|] ->
             if isRest then
@@ -214,9 +214,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let commandLineArgs =
         if uci.ContainsAttribute<NoCommandLineAttribute> (true) then
-            if parsers.IsNested then
-                arguExn "NoCommandLine attribute in '%O' not supported for nested union cases." uci
-            []
+            match parsers with
+            | SubCommand _ -> arguExn "NoCommandLine attribute in '%O' not supported in subcommands." uci
+            | _ -> []
         else
             let defaultName =
                 match uci.TryGetAttribute<CustomCommandLineAttribute> () with 
@@ -239,8 +239,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         else
             match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
             | None -> Some <| generateAppSettingsName uci
-            // take last registered attribute
-            | Some _ when parsers.IsNested -> arguExn "CustomAppSettings in %O not supported for nested union cases" uci
+            | Some _ when parsers.Type = ArgumentType.SubCommand -> arguExn "CustomAppSettings in %O not supported in subcommands." uci
             | Some attr when not <| isNullOrWhiteSpace attr.Name -> Some attr.Name
             | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name
 
@@ -330,6 +329,9 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         |> Seq.sortBy (fun a -> a.Tag)
         |> Seq.toArray
 
+    let containsSubcommands = caseInfo |> Array.exists (fun c -> c.Type = ArgumentType.SubCommand)
+    let isRequiredSubcommand = containsSubcommands && t.ContainsAttribute<RequireSubcommandAttribute>()
+
     // need to delay this computation since it depends
     // on completed process of any potential parents
     let inheritedParams = lazy(
@@ -384,6 +386,8 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         Cases = caseInfo
         TagReader = tagReader
         HelpParam = helpParam
+        ContainsSubcommands = containsSubcommands
+        IsRequiredSubcommand = isRequiredSubcommand
         GroupedSwitchExtractor = groupedSwitchExtractor
         AppSettingsParamIndex = appSettingsIndex
         InheritedParams = inheritedParams
@@ -427,7 +431,7 @@ and preComputeUnionArgInfo<'Template when 'Template :> IArgParserTemplate> () =
         // iterate through the child nodes
         for case in argInfo.Cases do
             match case.ParameterInfo with
-            | NestedUnion(_,aI) -> postProcess aI
+            | SubCommand(_,aI) -> postProcess aI
             | _ -> ()
 
     postProcess result

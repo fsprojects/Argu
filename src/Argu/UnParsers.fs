@@ -63,7 +63,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
                 else
                     yield sprintf " [<%s>]" parser.Description
 
-            | NestedUnion _ -> yield " <options>"
+            | SubCommand _ -> yield " <options>"
             | ListParam (_,parser) ->
                 yield sprintf " [<%s>...]" parser.Description
 
@@ -117,7 +117,7 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         | ListParam (_,parser) ->
             yield sprintf " [<%s>...]" parser.Description
 
-        | NestedUnion _ ->
+        | SubCommand _ ->
             yield " <options>"
 
         yield ": "
@@ -233,7 +233,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
                 let objSeq = fields.[0] |> unbox<System.Collections.IEnumerable> |> Seq.cast<obj>
                 for obj in objSeq do yield parser.UnParser obj
 
-            | NestedUnion (_, nested) ->
+            | SubCommand (_, nested) ->
                 yield clname
                 let nestedResult = fields.[0] :?> IParseResult
                 yield! mkCommandLineArgs nested (nestedResult.GetAllResults())
@@ -265,7 +265,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
         | None -> [||]
         | Some key ->
             match aI.ParameterInfo with
-            | NestedUnion _ -> [||]
+            | SubCommand _ -> [||]
             | Primitives parsers ->
                 let values =
                     match getFields() with

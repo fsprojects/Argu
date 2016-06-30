@@ -40,6 +40,10 @@ module ArguAttributes =
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type InheritAttribute() = inherit Attribute()
 
+    /// Demands that at least one subcommand is specified in the CLI; an exception is raised otherwise.
+    [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
+    type RequireSubcommandAttribute () = inherit Attribute()
+
     /// Gathers all parsed results from both AppSettings and command line.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type GatherAllSourcesAttribute () = inherit Attribute ()
