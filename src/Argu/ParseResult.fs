@@ -206,6 +206,15 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
                 Some(c.Value :?> 'Template)
             else None)
 
+    /// <summary>
+    ///     Attempts to recover the subcommand parameter from the results,
+    ///     if once has been specified.
+    /// </summary>
+    member r.GetSubCommand() : 'Template =
+        match r.TryGetSubCommand() with
+        | Some sc -> sc
+        | None -> error false ErrorCode.PostProcess "no valid subcommand has been specified."
+
     override r.ToString() = sprintf "%A" (r.GetAllResults())
 
     // used by StructuredFormatDisplay attribute
