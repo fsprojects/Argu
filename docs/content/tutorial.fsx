@@ -92,17 +92,20 @@ let usage = parser.PrintUsage()
 (** giving
 
     [lang=bash]
-    USAGE: gadget.exe [--working-directory <path>] [--listener <host> <port>] [--data <base64>] [--port <tcp port>] [--log-level <level>] [--detach] [--help]
+    USAGE: gadget.exe [--help] [--working-directory <path>] [--listener <host> <port>] [--data <base64>]
+                      [--port <tcp port>] [--log-level <level>] [--detach]
 
     OPTIONS:
 
-	    --working-directory <path>: specify a working directory.
-	    --listener <host> <port>: specify a listener (hostname : port).
-	    --data <base64>: binary data in base64 encoding.
-	    --port <tcp port>: specify a primary port.
-	    --log-level <level>: set the log level.
-	    --detach: detach daemon from console.
-	    --help: display this list of options.
+        --working-directory <path>
+                              specify a working directory.
+        --listener <host> <port>
+                              specify a listener (hostname : port).
+        --data <base64>       binary data in base64 encoding.
+        --port <tcp port>     specify a primary port.
+        --log-level <level>   set the log level.
+        --detach              detach daemon from console.
+        --help                display this list of options.
  
 To parse a command line input:
 
@@ -127,6 +130,7 @@ let detach = results.Contains <@ Detach @>
 let listener = results.GetResults <@ Listener @>
 
 // returns the last observed result of this parameter
+let dataOpt = results.TryGetResult <@ Data @>
 let logLevel = results.GetResult (<@ Log_Level @>, defaultValue = 0)
 
 (**
@@ -146,7 +150,7 @@ type Argument =
     | [<NoCommandLine>] Connection_String of conn:string
     | [<Unique>] Listener of host:string * port:int
     | [<EqualsAssignment>] Assignment of value:string
-    | [<AltCommandLine("-pP")>] Primary_Port of tcp_port:int
+    | [<AltCommandLine("-p")>] Primary_Port of tcp_port:int
 
 (**
 
@@ -164,19 +168,141 @@ In this case,
 
 The following attributes are also available:
 
-  * `NoAppSettings`: restricts to command line.
+  * `NoAppSettings`: restricts argument to CLI parsing only.
 
-  * `Rest`: all remaining command line args are consumed by this parameter.
+  * `Hidden`: do not display in the help usage string.
 
-  * `Hidden`: do not display in the help text.
-
-  * `GatherAllSources`: command line does not override AppSettings.
-
-  * `ParseCSV`: AppSettings entries are given as comma separated values.
+  * `GatherAllSources`: CLI arguments will not override AppSettings parameters.
 
   * `CustomAppSettings`: sets a custom key name for AppSettings.
 
   * `First`: Argument can only be placed at the beginning of the command line.
+
+For a complete list of all attributes provided by Argu, 
+please see http://fsprojects.github.io/Argu/reference/argu-arguattributes.html.
+
+## Optional and List parameters
+
+It is possible to specify argument parameters that are either optional or lists:
+
+*)
+
+type VariadicParameters =
+    | [<EqualsAssignment>] Enable_Logging of path:string option
+    | Tcp_Ports of port:int list
+
+(**
+
+which results in the following syntax:
+
+    [lang=console]
+    USAGE: gadget.exe [--help] [--enable-logging[=<path>]] [--tcp-ports [<port>...]]
+
+    OPTIONS:
+
+        --enable-logging[=<path>]  enable logging for the process; optionally path to the logfile can be specified.
+        --tcp-ports [<port>...]    specify a list of TCP ports for the process.
+        --help                     display this list of options.
+
+## SubCommand parsing
+
+As of Argu 3.0, it is possible to provide nested, contextual parsing.
+For example, consider this mock git CLI syntax:
+
+*)
+
+[<CliPrefix(CliPrefix.Dash)>]
+type CleanArgs =
+    | D
+    | F
+    | X
+with
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | D -> "Remove untracked directories in addition to untracked files"
+            | F -> "Git clean will refuse to delete files or directories unless given -f."
+            | X -> "Remove only files ignored by Git."
+
+and CommitArgs =
+    | Amend
+    | [<AltCommandLine("-p")>]Patch
+    | [<AltCommandLine("-m")>]Message of msg:string
+with
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | Amend -> "Replace the tip of the current branch by creating a new commit."
+            | Patch -> "Use the interactive patch selection interface to chose which changes to commit."
+            | Message _ -> "Use the given <msg> as the commit message. "
+
+and GitArgs =
+    | Version
+    | [<AltCommandLine("-v")>]Verbose
+    | [<CliPrefix(CliPrefix.None)>] Clean of ParseResult<CleanArgs>
+    | [<CliPrefix(CliPrefix.None)>] Commit of ParseResult<CommitArgs>
+with
+    interface IArgParserTemplate with
+        member this.Usage = 
+            match this with
+            | Version -> "Prints the Git suite version that the git program came from."
+            | Verbose -> "Print a lot of output to stdout."
+            | Clean _ -> "Remove untracked files from the working tree."
+            | Commit _ -> "Record changes to the repository."
+
+
+let parser = ArgumentParser.Create<GitArgs>(programName = "git")
+
+parser.PrintUsage() |> Console.WriteLine
+
+parser.Parse [|"-f"|]
+
+(**
+
+which generates the following syntax:
+
+    [lang=console]
+    USAGE: git [--help] [--version] [--verbose] [<subcommand> [<options>]]
+
+    SUBCOMMANDS:
+
+        clean <options>       Remove untracked files from the working tree.
+        commit <options>      Record changes to the repository.
+
+	    Use 'git <subcommand> --help' for additional information.
+
+    OPTIONS:
+
+        --version             Prints the Git suite version that the git program came from.
+        --verbose, -v         Print a lot of output to stdout.
+        --help                display this list of options.
+
+
+This allows specifying parameters that are particular to a subcommand context.
+For instance, `git clean -fdx` parses correctly to `[Clean [F; D; X]]`, however
+`git -f` or `git commit -f` will both result in a parse error:
+
+    [lang=console]
+    ERROR: unrecognized argument: '-f'.
+
+### Inheriting parent arguments
+
+Switches specified in the parent argument union do not automatically
+make it to the syntax of the child subcommand. For example the command
+
+    [lang=console]
+    git clean --version
+
+will result in parse error since `Version` is not a part of the subcommand syntax,
+but one of its parent syntax. It is possible to parent options visible inside subcommands 
+by attaching the [`InheritAttribute`](http://fsprojects.github.io/Argu/reference/argu-arguattributes-inheritattribute.html) 
+to switches.
+
+    [lang=fsharp]
+    type GitArgs =
+        | [<Inherit>] Version
+
+which would make the aforementioned syntax valid.
 
 ## Post Processing
 

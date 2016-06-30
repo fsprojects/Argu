@@ -8,102 +8,109 @@ open FSharp.Reflection
 [<AutoOpen>]
 module ArguAttributes =
 
-    /// Parse comma separated values in AppSettings
+    /// Parse multiple parameters in AppSettings as comma separated values. OBSOLETE
     [<Obsolete("Please use list parameters instead.")>]
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type ParseCSVAttribute () = inherit Attribute ()
 
-    /// Consume all remaining command line arguments.
+    /// Consume all remaining CLI tokens using this parameter wherever it might occur. OBSOLETE
     [<Obsolete("Please use list parameters instead.")>]
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type RestAttribute () = inherit Attribute ()
 
-    /// Hide from command line argument documentation.
+    /// Hides argument from command line argument usage string.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type HiddenAttribute () = inherit Attribute ()
 
-    /// Demands at least one parsed result for this branch; an exception is raised otherwise.
+    /// Demands at least one parsed result for this argument; a parse exception is raised otherwise.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type MandatoryAttribute () = inherit Attribute ()
 
-    /// Demands that the argument should be specified at most once; an exception is raised otherwise.
+    /// Demands that the argument should be specified at most once; a parse exception is raised otherwise.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type UniqueAttribute () = inherit Attribute ()
 
-    /// Demands that the argument should be specified exactly once; an exception is raised otherwise.
+    /// Demands that the argument should be specified exactly once; a parse exception is raised otherwise.
     /// Equivalent to attaching both the Mandatory and Unique attribute on the parameter.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type ExactlyOnceAttribute () = inherit Attribute ()
 
-    /// Denotes that the given argument should be inherited in the scope of any subcommands
-    /// in the current argument template
+    /// Denotes that the given argument should be inherited in the scope of any subcommands.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type InheritAttribute() = inherit Attribute()
 
-    /// Demands that at least one subcommand is specified in the CLI; an exception is raised otherwise.
+    /// Demands that at least one subcommand is specified in the CLI; a parse exception is raised otherwise.
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
     type RequireSubcommandAttribute () = inherit Attribute()
 
-    /// Gathers all parsed results from both AppSettings and command line.
+    /// Requires that CLI parameters should not override AppSettings parameters.
+    /// Will return parsed results from both AppSettings and CLI.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type GatherAllSourcesAttribute () = inherit Attribute ()
 
-    /// Disable command line parsing for this branch.
+    /// Disable CLI parsing for this argument. Use for AppSettings parsing only.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type NoCommandLineAttribute () = inherit Attribute ()
 
-    /// Disable AppSettings parsing for this branch.
+    /// Disable AppSettings parsing for this branch. Use for CLI parsing only.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type NoAppSettingsAttribute () = inherit Attribute ()
 
-    /// Specifies replacement flags for help params
+    /// Specifies a custom set of Help/Usage switches for the CLI.
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
     type HelpFlagsAttribute ([<ParamArray>] names : string []) = 
         inherit Attribute()
         member __.Names = names
 
-    /// Specifies that the union should not take --help parameters
+    /// Specifies that Help/Usage switches should be disabled for the CLI.
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
     type DisableHelpFlagsAttribute () = inherit HelpFlagsAttribute ()
 
-    /// Specifies a custom help param description for the usage string
+    /// Specifies a custom description text for the Help/Usage switches in the usage string.
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
     type HelpDescriptionAttribute (description : string) =
         inherit Attribute()
         member __.Description = description
 
-    /// Argument can only be placed at the beginning of the command line.
+    /// Declares that argument can only be placed at the beginning of the CLI syntax.
+    /// A parse exception will be raised if that is not the case.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type FirstAttribute () = inherit Attribute ()
 
-    /// Print F# 3.1 field labels in usage string.
+    /// Print F# 3.1 field labels in usage string. OBSOLETE
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     [<Obsolete("Argu 3.0 prints union labels by default. Please remove this attribute.")>]
     type PrintLabelsAttribute () = inherit Attribute ()
 
     /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
+    /// Requires that the argument should have parameters of arity 1 or 2 only.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type EqualsAssignmentAttribute () = inherit Attribute ()
 
-    /// Sets a custom command line name.
+    /// Declares a custom default CLI identifier for the current parameter.
+    /// Replaces the auto-generated identifier name.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type CustomCommandLineAttribute (name : string) =
         inherit Attribute ()
         member __.Name = name
 
-    /// Sets alternative command line names.
+    /// Declares a set of secondary CLI identifiers for the current parameter.
+    /// Does not replace the default identifier which is either auto-generated
+    /// or specified by the CustomCommandLine attribute.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = true)>]
     type AltCommandLineAttribute ([<ParamArray>] names :string []) = 
         inherit Attribute ()
         member __.Names = names
 
-    /// Sets a custom Configuration parsing key name.
+    /// Declares a custom key identifier for the current parameter in AppSettings parsing.
+    /// Replaces the auto-generated identifier name.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type CustomAppSettingsAttribute (name : string) =
         inherit Attribute ()
         member __.Name = name
 
-    /// Specify a custom value separator in Configuration parsing parameters
+    /// Specify a custom value separator in AppSettings parsing parameters.
+    /// Used in CSV or list-based parameter parsing.
     [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
     type AppSettingsSeparatorAttribute ([<ParamArray>] separators : string [], splitOptions : StringSplitOptions) =
         inherit Attribute()
@@ -111,7 +118,8 @@ module ArguAttributes =
         member __.Separators = separators
         member __.SplitOptions = splitOptions
 
-    /// Specifies a custom prefix for auto generated CLI names.
+    /// Specifies a custom prefix for auto-generated CLI names.
+    /// This defaults to double dash ('--').
     [<AttributeUsage(AttributeTargets.Property ||| AttributeTargets.Class, AllowMultiple = false)>]
     type CliPrefixAttribute(prefix : string) = 
         inherit Attribute() 
