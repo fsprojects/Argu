@@ -32,11 +32,11 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
             let aI = argInfo.Cases.[id.Tag]
             errorf aI.NoCommandLine ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name
         | Some r when restrictF rs r -> r
-        | Some r -> errorf r.ArgInfo.NoCommandLine ErrorCode.PostProcess "ERROR: missing argument '%s'." r.ArgInfo.Name
+        | Some r -> errorf r.CaseInfo.NoCommandLine ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name
 
     let parseResult (f : 'F -> 'S) (r : UnionCaseParseResult) =
         try f (r.FieldContents :?> 'F)
-        with e -> errorf r.ArgInfo.NoCommandLine ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
+        with e -> errorf r.CaseInfo.NoCommandLine ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
 
     interface IParseResult with
         member __.GetAllResults () = __.GetAllResults() |> Seq.map box
@@ -202,7 +202,7 @@ type ParseResult<'Template when 'Template :> IArgParserTemplate>
         results.Cases 
         |> Seq.concat 
         |> Seq.tryPick(fun c -> 
-            if c.ArgInfo.Type = ArgumentType.SubCommand then
+            if c.CaseInfo.Type = ArgumentType.SubCommand then
                 Some(c.Value :?> 'Template)
             else None)
 

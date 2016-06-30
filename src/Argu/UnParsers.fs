@@ -65,7 +65,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
 
             | NestedUnion _ -> yield " <options>"
             | ListParam (_,parser) ->
-                yield sprintf " <%s> ..." parser.Description
+                yield sprintf " [<%s>...]" parser.Description
 
             if not aI.IsMandatory then yield ']'
 
@@ -110,12 +110,12 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
 
         | OptionalParam (_,parser) ->
             if aI.IsEquals1Assignment then
-                yield sprintf "?=<%s>" parser.Description
+                yield sprintf "[=<%s>]" parser.Description
             else
-                yield sprintf " <?%s>" parser.Description
+                yield sprintf " [<%s>]" parser.Description
 
         | ListParam (_,parser) ->
-            yield sprintf " <%s ...>" parser.Description
+            yield sprintf " [<%s>...]" parser.Description
 
         | NestedUnion _ ->
             yield " <options>"

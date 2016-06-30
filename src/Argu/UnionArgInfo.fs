@@ -163,14 +163,14 @@ type UnionCaseParseResult =
         /// Index denoting order of parse result
         Index : int
         /// ArgInfo used to parse parameter
-        ArgInfo : UnionCaseArgInfo
+        CaseInfo : UnionCaseArgInfo
         /// metadata provided by the parser
         ParseContext : string
         /// parse source 
         Source : ParseSource
     }
 with
-    member inline __.Tag = __.ArgInfo.Tag
+    member inline __.Tag = __.CaseInfo.Tag
 
 [<NoEquality; NoComparison>]
 type UnionParseResults =

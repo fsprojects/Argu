@@ -19,7 +19,7 @@ let mkUnionCase (info : UnionCaseArgInfo) index parseSource parsecontext (fields
             | None -> null
             | Some ctor -> ctor fields
 
-        ArgInfo = info
+        CaseInfo = info
         Source = parseSource
         ParseContext = parsecontext
     }

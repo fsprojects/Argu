@@ -61,16 +61,16 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
     member __.ResultCount = resultCount
 
     member __.AppendResult(result : UnionCaseParseResult) =
-        match result.ArgInfo.Depth with
-        | d when d = argInfo.Depth ->
+        match result.CaseInfo.Depth with
+        | d when argInfo.Depth = d ->
             resultCount <- resultCount + 1
             let agg = results.[result.Tag]
-            if result.ArgInfo.IsUnique && agg.Count > 0 then
-                error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.ArgInfo.Name
+            if result.CaseInfo.IsUnique && agg.Count > 0 then
+                error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name
 
             agg.Add result
 
-        | d -> 
+        | d ->
             // this parse result corresponds to an inherited parameter
             // from a parent syntax. Use the ResultAggregator stack to
             // re-route the result to its matching aggregator
@@ -84,9 +84,10 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
           IsUsageRequested = __.IsUsageRequested }
 
 // this rudimentary stack implementation assumes that only one subcommand
-// can occur within any particular context; no need implement popping etc
+// can occur within any particular context; no need implement popping etc.
+// Note that inheritting subcommands is explicitly prohibited by the library.
 and CliParseResultAggregatorStack () =
-    let stack = new ResizeArray<CliParseResultAggregator>()
+    let stack = new ResizeArray<CliParseResultAggregator>(capacity = 5)
 
     member __.Item (depth : int) : CliParseResultAggregator = stack.[depth]
 
