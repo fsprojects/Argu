@@ -46,6 +46,15 @@ let getEnvironmentCommandLineArgs () =
     | [||] -> [||]
     | args -> args.[1..]
 
+let (|NestedParseResult|Optional|List|Other|) (t : Type) =
+    if t.IsGenericType then
+        let gt = t.GetGenericTypeDefinition()
+        if typeof<IParseResult>.IsAssignableFrom t then NestedParseResult(t.GetGenericArguments().[0])
+        elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
+        elif gt = typedefof<_ list> then List(t.GetGenericArguments().[0])
+        else Other
+    else Other
+
 /// Creates a primitive field parser from given parser/unparser lambdas
 let mkPrimitiveParser (name : string) (parser : string -> 'T) (unparser : 'T -> string) (label : string option) =
     {
@@ -83,19 +92,45 @@ let primitiveParsers =
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
 
-let (|NestedParseResult|Optional|List|Other|) (t : Type) =
-    if t.IsGenericType then
-        let gt = t.GetGenericTypeDefinition()
-        if typeof<IParseResult>.IsAssignableFrom t then NestedParseResult(t.GetGenericArguments().[0])
-        elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
-        elif gt = typedefof<_ list> then List(t.GetGenericArguments().[0])
-        else Other
-    else Other
+/// Creates a primitive parser from an F# DU enumeration 
+/// (i.e. one with no parameters in any of its union cases)
+let tryGetEnumerationParser label (t : Type) =
+    if not <| FSharpType.IsUnion(t, allBindings) then None else
+
+    let ucis = FSharpType.GetUnionCases(t, allBindings)
+    if ucis |> Array.exists (fun uci -> uci.GetFields().Length > 0) then None else
+
+    let normalize (text : string) = text.ToLower().Trim()
+    let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, allBindings))
+    let index = ucis |> Array.map (fun uci -> normalize uci.Name, FSharpValue.MakeUnion(uci, [||], allBindings))
+    let name = index |> Seq.map fst |> String.concat "|"
+
+    let parser (text : string) =
+        let text = normalize text
+        let _,value = index |> Array.find (fun (id,_) -> text = id)
+        value
+
+    let unparser (value : obj) =
+        let tag = tagReader.Value value
+        let id,_ = index.[tag]
+        id
+
+    Some {
+        Name = name
+        Label = label
+        Type = t
+        Parser = parser
+        UnParser = unparser
+    }
 
 let getPrimitiveParserByType label (t : Type) = 
     let ok, f = primitiveParsers.TryGetValue t
     if ok then f label
     else
+        match tryGetEnumerationParser label t with
+        | Some p -> p
+        | None ->
+
         // refine error messaging depending on the input time
         match t with
         | NestedParseResult _ -> arguExn "Nested ParseResult<'T> parameters can only occur as standalone parameters in union constructors."
@@ -206,7 +241,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             let label = tryExtractUnionParameterLabel fields.[0]
 
             ListParam(Existential.FromType t, getPrimitiveParserByType label t)
-
+            
         | _ -> 
             let getParser (p : PropertyInfo) =
                 let label = tryExtractUnionParameterLabel p

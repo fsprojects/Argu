@@ -116,7 +116,7 @@ and ParameterInfo =
     | Primitives of FieldParserInfo []
     | OptionalParam of Existential * FieldParserInfo
     | ListParam of Existential * FieldParserInfo
-    | SubCommand of existential:ShapeArgumentTemplate * argInfo:UnionArgInfo * label:string option
+    | SubCommand of ShapeArgumentTemplate * argInfo:UnionArgInfo * label:string option
 with
     member pI.Type =
         match pI with

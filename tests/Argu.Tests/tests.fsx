@@ -6,6 +6,11 @@ open System
 open Argu
 open Argu.Tests
 
+type Enum =
+    | First
+    | Second
+    | Third
+
 type PushArgs =
     | All
     | Prune
@@ -45,6 +50,7 @@ type GitArgs =
     | [<AltCommandLine("-E")>][<EqualsAssignment>]Environment_Variable of key:string * value:string
     | Ports of tcp_port:int list
     | Optional of num:int option
+    | [<EqualsAssignment>] Options of Enum option
     | [<Inherit>] Silent
 with 
     interface IArgParserTemplate with 
@@ -57,13 +63,14 @@ with
             | Environment_Variable _ -> "Specifies an environment variable for the process."
             | Ports _ -> "Specifies a collection of port for the process."
             | Optional _ -> "just an optional parameter."
+            | Options _ -> "enumeration of options."
             | Silent -> "just be silent."
 
 let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMessage = "Gadget -- my awesome CLI tool")
 
-parser.PrintCommandLineArgumentsFlat [Push(toParseResults [Remote "origin" ; Branch "master"])]
+parser.PrintCommandLineArgumentsFlat [Options(Some First) ; Push(toParseResults [Remote "origin" ; Branch "master"])]
 
-let result = parser.Parse [| "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
+let result = parser.Parse [| "--options=second" ; "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
 let cresult = result.GetResult <@ Clean @>
 
 let pparser = parser.GetSubCommandParser <@ Push @>
