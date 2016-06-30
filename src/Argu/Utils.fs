@@ -245,3 +245,5 @@ module internal Utils =
             b.ToString ()
 
         let currentLength : StringExpr<int> = fun sb -> sb.Length
+
+        let whiteSpace len : StringExpr<unit> = fun sb -> ignore(sb.Append(String(' ', len)))

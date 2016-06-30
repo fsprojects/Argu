@@ -24,16 +24,25 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
     let! length1 = StringExpr.currentLength
     let offset = length1 - length0
     let length = ref length1
-
     let insertCutoffLine() = stringExpr {
         let! length1 = StringExpr.currentLength
         if length1 - !length > width then
             yield Environment.NewLine
-            yield String(' ', offset)
+            yield! StringExpr.whiteSpace offset
             length := length1 + offset + 1
     }
+
+    let printedCases =
+        argInfo.Cases
+        |> Seq.filter (fun aI -> not aI.IsHidden)
+        |> Seq.filter (fun aI -> aI.Type <> ArgumentType.SubCommand)
+
+
+    match argInfo.HelpParam.Flags with
+    | h :: _ -> yield sprintf " [%s]" h
+    | _ -> ()
     
-    for aI in argInfo.Cases |> Seq.filter (fun aI -> not aI.IsHidden) do
+    for aI in printedCases do
         yield! insertCutoffLine()
 
         match aI.CommandLineNames with
@@ -55,7 +64,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
                     for p in parsers do
                         yield sprintf " <%s>" p.Description
 
-                if aI.IsRest then yield " ..."
+                if aI.IsRest then yield "..."
 
             | OptionalParam (_,parser) ->
                 if aI.IsEquals1Assignment then
@@ -69,10 +78,16 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
 
             if not aI.IsMandatory then yield ']'
 
-    match argInfo.HelpParam.Flags with
-    | h :: _ -> yield! insertCutoffLine() ; yield sprintf " [%s]" h
-    | _ -> ()
+    if argInfo.ContainsSubcommands then
+        yield! insertCutoffLine()
+        yield ' '
+        if not argInfo.IsRequiredSubcommand then yield '['
+        yield "<subcommand> [<options>]"
+        if not argInfo.IsRequiredSubcommand then yield ']'
 }
+
+let [<Literal>] switchOffset = 4
+let [<Literal>] descriptionOffset = 26
  
 /// <summary>
 ///     print usage string for given arg info
@@ -80,19 +95,10 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
 let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
     match aI.CommandLineNames with
     | [] -> ()
-    | param :: altParams ->
-        yield '\t'
-        yield param
-
-        match altParams with
-        | [] -> ()
-        | h :: rest ->
-            yield " ["
-            yield h
-            for n in rest do
-                yield '|'
-                yield n
-            yield ']'
+    | flags ->
+        let! start = StringExpr.currentLength
+        yield! StringExpr.whiteSpace switchOffset
+        yield String.concat ", " flags
 
         match aI.ParameterInfo with
         | Primitives fieldParsers ->
@@ -106,7 +112,7 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
                 for p in fieldParsers do
                     yield sprintf " <%s>" p.Description
 
-            if aI.IsRest then yield " ..."
+            if aI.IsRest then yield "..."
 
         | OptionalParam (_,parser) ->
             if aI.IsEquals1Assignment then
@@ -120,7 +126,13 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         | SubCommand _ ->
             yield " <options>"
 
-        yield ": "
+        let! finish = StringExpr.currentLength
+        if finish - start > descriptionOffset then
+            yield Environment.NewLine
+            yield! StringExpr.whiteSpace descriptionOffset
+        else
+            yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
+            
         yield aI.Description
         yield Environment.NewLine
 }
@@ -131,21 +143,18 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
 let mkHelpParamUsage (hp : HelpParam) = stringExpr {
     match hp.Flags with
     | [] -> ()
-    | param :: altParams ->
-        yield '\t'
-        yield param
+    | flags ->
+        let! start = StringExpr.currentLength
+        yield! StringExpr.whiteSpace switchOffset
+        yield String.concat ", " flags
 
-        match altParams with
-        | [] -> ()
-        | h :: rest ->
-            yield " ["
-            yield h
-            for n in rest do
-                yield '|'
-                yield n
-            yield ']'
+        let! finish = StringExpr.currentLength
+        if finish - start > descriptionOffset then
+            yield Environment.NewLine
+            yield! StringExpr.whiteSpace descriptionOffset
+        else
+            yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-        yield ": "
         yield hp.Description
         yield Environment.NewLine
 }
