@@ -54,7 +54,9 @@
           <td class="type-name">
             <a href="argu-arguattributes-altcommandlineattribute.html">AltCommandLineAttribute</a>
           </td>
-          <td class="xmldoc"><p>Sets alternative command line names.</p>
+          <td class="xmldoc"><p>Declares a set of secondary CLI identifiers for the current parameter.
+Does not replace the default identifier which is either auto-generated
+or specified by the CustomCommandLine attribute.</p>
 
 </td>
         </tr>
@@ -62,7 +64,8 @@
           <td class="type-name">
             <a href="argu-arguattributes-appsettingsseparatorattribute.html">AppSettingsSeparatorAttribute</a>
           </td>
-          <td class="xmldoc"><p>Specify a custom value separator in Configuration parsing parameters</p>
+          <td class="xmldoc"><p>Specify a custom value separator in AppSettings parsing parameters.
+Used in CSV or list-based parameter parsing.</p>
 
 </td>
         </tr>
@@ -70,7 +73,8 @@
           <td class="type-name">
             <a href="argu-arguattributes-cliprefixattribute.html">CliPrefixAttribute</a>
           </td>
-          <td class="xmldoc"><p>Specifies a custom prefix for auto generated CLI names.</p>
+          <td class="xmldoc"><p>Specifies a custom prefix for auto-generated CLI names.
+This defaults to double dash ('--').</p>
 
 </td>
         </tr>
@@ -78,7 +82,8 @@
           <td class="type-name">
             <a href="argu-arguattributes-customappsettingsattribute.html">CustomAppSettingsAttribute</a>
           </td>
-          <td class="xmldoc"><p>Sets a custom Configuration parsing key name.</p>
+          <td class="xmldoc"><p>Declares a custom key identifier for the current parameter in AppSettings parsing.
+Replaces the auto-generated identifier name.</p>
 
 </td>
         </tr>
@@ -86,7 +91,8 @@
           <td class="type-name">
             <a href="argu-arguattributes-customcommandlineattribute.html">CustomCommandLineAttribute</a>
           </td>
-          <td class="xmldoc"><p>Sets a custom command line name.</p>
+          <td class="xmldoc"><p>Declares a custom default CLI identifier for the current parameter.
+Replaces the auto-generated identifier name.</p>
 
 </td>
         </tr>
@@ -94,7 +100,7 @@
           <td class="type-name">
             <a href="argu-arguattributes-disablehelpflagsattribute.html">DisableHelpFlagsAttribute</a>
           </td>
-          <td class="xmldoc"><p>Specifies that the union should not take --help parameters</p>
+          <td class="xmldoc"><p>Specifies that Help/Usage switches should be disabled for the CLI.</p>
 
 </td>
         </tr>
@@ -102,7 +108,8 @@
           <td class="type-name">
             <a href="argu-arguattributes-equalsassignmentattribute.html">EqualsAssignmentAttribute</a>
           </td>
-          <td class="xmldoc"><p>Use '--param=arg' or '--param key=value' assignment syntax in CLI.</p>
+          <td class="xmldoc"><p>Use '--param=arg' or '--param key=value' assignment syntax in CLI.
+Requires that the argument should have parameters of arity 1 or 2 only.</p>
 
 </td>
         </tr>
@@ -110,7 +117,7 @@
           <td class="type-name">
             <a href="argu-arguattributes-exactlyonceattribute.html">ExactlyOnceAttribute</a>
           </td>
-          <td class="xmldoc"><p>Demands that the argument should be specified exactly once; an exception is raised otherwise.
+          <td class="xmldoc"><p>Demands that the argument should be specified exactly once; a parse exception is raised otherwise.
 Equivalent to attaching both the Mandatory and Unique attribute on the parameter.</p>
 
 </td>
@@ -119,7 +126,8 @@ Equivalent to attaching both the Mandatory and Unique attribute on the parameter
           <td class="type-name">
             <a href="argu-arguattributes-firstattribute.html">FirstAttribute</a>
           </td>
-          <td class="xmldoc"><p>Argument can only be placed at the beginning of the command line.</p>
+          <td class="xmldoc"><p>Declares that argument can only be placed at the beginning of the CLI syntax.
+A parse exception will be raised if that is not the case.</p>
 
 </td>
         </tr>
@@ -127,7 +135,8 @@ Equivalent to attaching both the Mandatory and Unique attribute on the parameter
           <td class="type-name">
             <a href="argu-arguattributes-gatherallsourcesattribute.html">GatherAllSourcesAttribute</a>
           </td>
-          <td class="xmldoc"><p>Gathers all parsed results from both AppSettings and command line.</p>
+          <td class="xmldoc"><p>Requires that CLI parameters should not override AppSettings parameters.
+Will return parsed results from both AppSettings and CLI.</p>
 
 </td>
         </tr>
@@ -135,7 +144,7 @@ Equivalent to attaching both the Mandatory and Unique attribute on the parameter
           <td class="type-name">
             <a href="argu-arguattributes-helpdescriptionattribute.html">HelpDescriptionAttribute</a>
           </td>
-          <td class="xmldoc"><p>Specifies a custom help param description for the usage string</p>
+          <td class="xmldoc"><p>Specifies a custom description text for the Help/Usage switches in the usage string.</p>
 
 </td>
         </tr>
@@ -143,7 +152,7 @@ Equivalent to attaching both the Mandatory and Unique attribute on the parameter
           <td class="type-name">
             <a href="argu-arguattributes-helpflagsattribute.html">HelpFlagsAttribute</a>
           </td>
-          <td class="xmldoc"><p>Specifies replacement flags for help params</p>
+          <td class="xmldoc"><p>Specifies a custom set of Help/Usage switches for the CLI.</p>
 
 </td>
         </tr>
@@ -151,7 +160,7 @@ Equivalent to attaching both the Mandatory and Unique attribute on the parameter
           <td class="type-name">
             <a href="argu-arguattributes-hiddenattribute.html">HiddenAttribute</a>
           </td>
-          <td class="xmldoc"><p>Hide from command line argument documentation.</p>
+          <td class="xmldoc"><p>Hides argument from command line argument usage string.</p>
 
 </td>
         </tr>
@@ -159,8 +168,7 @@ Equivalent to attaching both the Mandatory and Unique attribute on the parameter
           <td class="type-name">
             <a href="argu-arguattributes-inheritattribute.html">InheritAttribute</a>
           </td>
-          <td class="xmldoc"><p>Denotes that the given argument should be inherited in the scope of any subcommands
-in the current argument template</p>
+          <td class="xmldoc"><p>Denotes that the given argument should be inherited in the scope of any subcommands.</p>
 
 </td>
         </tr>
@@ -168,7 +176,7 @@ in the current argument template</p>
           <td class="type-name">
             <a href="argu-arguattributes-mandatoryattribute.html">MandatoryAttribute</a>
           </td>
-          <td class="xmldoc"><p>Demands at least one parsed result for this branch; an exception is raised otherwise.</p>
+          <td class="xmldoc"><p>Demands at least one parsed result for this argument; a parse exception is raised otherwise.</p>
 
 </td>
         </tr>
@@ -176,7 +184,7 @@ in the current argument template</p>
           <td class="type-name">
             <a href="argu-arguattributes-noappsettingsattribute.html">NoAppSettingsAttribute</a>
           </td>
-          <td class="xmldoc"><p>Disable AppSettings parsing for this branch.</p>
+          <td class="xmldoc"><p>Disable AppSettings parsing for this branch. Use for CLI parsing only.</p>
 
 </td>
         </tr>
@@ -184,7 +192,7 @@ in the current argument template</p>
           <td class="type-name">
             <a href="argu-arguattributes-nocommandlineattribute.html">NoCommandLineAttribute</a>
           </td>
-          <td class="xmldoc"><p>Disable command line parsing for this branch.</p>
+          <td class="xmldoc"><p>Disable CLI parsing for this argument. Use for AppSettings parsing only.</p>
 
 </td>
         </tr>
@@ -192,7 +200,7 @@ in the current argument template</p>
           <td class="type-name">
             <a href="argu-arguattributes-parsecsvattribute.html">ParseCSVAttribute</a>
           </td>
-          <td class="xmldoc"><p>Parse comma separated values in AppSettings</p>
+          <td class="xmldoc"><p>Parse multiple parameters in AppSettings as comma separated values. OBSOLETE</p>
 
 </td>
         </tr>
@@ -200,7 +208,7 @@ in the current argument template</p>
           <td class="type-name">
             <a href="argu-arguattributes-printlabelsattribute.html">PrintLabelsAttribute</a>
           </td>
-          <td class="xmldoc"><p>Print F# 3.1 field labels in usage string.</p>
+          <td class="xmldoc"><p>Print F# 3.1 field labels in usage string. OBSOLETE</p>
 
 </td>
         </tr>
@@ -208,7 +216,7 @@ in the current argument template</p>
           <td class="type-name">
             <a href="argu-arguattributes-requiresubcommandattribute.html">RequireSubcommandAttribute</a>
           </td>
-          <td class="xmldoc"><p>Demands that at least one subcommand is specified in the CLI; an exception is raised otherwise.</p>
+          <td class="xmldoc"><p>Demands that at least one subcommand is specified in the CLI; a parse exception is raised otherwise.</p>
 
 </td>
         </tr>
@@ -216,7 +224,7 @@ in the current argument template</p>
           <td class="type-name">
             <a href="argu-arguattributes-restattribute.html">RestAttribute</a>
           </td>
-          <td class="xmldoc"><p>Consume all remaining command line arguments.</p>
+          <td class="xmldoc"><p>Consume all remaining CLI tokens using this parameter wherever it might occur. OBSOLETE</p>
 
 </td>
         </tr>
@@ -224,7 +232,7 @@ in the current argument template</p>
           <td class="type-name">
             <a href="argu-arguattributes-uniqueattribute.html">UniqueAttribute</a>
           </td>
-          <td class="xmldoc"><p>Demands that the argument should be specified at most once; an exception is raised otherwise.</p>
+          <td class="xmldoc"><p>Demands that the argument should be specified at most once; a parse exception is raised otherwise.</p>
 
 </td>
         </tr>
