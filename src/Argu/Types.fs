@@ -37,7 +37,7 @@ module ArguAttributes =
 
     /// Denotes that the given argument should be inherited in the scope of any subcommands
     /// in the current argument template
-    [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
+    [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type InheritAttribute() = inherit Attribute()
 
     /// Gathers all parsed results from both AppSettings and command line.

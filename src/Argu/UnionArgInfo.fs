@@ -141,7 +141,7 @@ and [<NoEquality; NoComparison>]
         /// Precomputed union tag reader
         TagReader : Lazy<obj -> int>
         /// Arguments inherited by parent commands
-        InheritedParams : Lazy<UnionCaseArgInfo [] list>
+        InheritedParams : Lazy<UnionCaseArgInfo []>
         /// Single character switches
         GroupedSwitchExtractor : Lazy<string -> string []>
         /// Union cases indexed by appsettings parameter names

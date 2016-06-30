@@ -30,7 +30,6 @@ module ``Argu Tests`` =
 
     type Argument =
         | [<AltCommandLine("-v"); Inherit>] Verbose
-        | [<AltCommandLine("-f"); Inherit>] Force
         | Working_Directory of string
         | [<AppSettingsSeparator(':')>] Listener of host:string * port:int
         | [<Mandatory>] Mandatory_Arg of bool
@@ -55,7 +54,6 @@ module ``Argu Tests`` =
             member a.Usage =
                 match a with
                 | Verbose _ -> "be verbose."
-                | Force _ -> "let's force things."
                 | Working_Directory _ -> "specify a working directory."
                 | Listener _ -> "specify a listener."
                 | Mandatory_Arg _ -> "a mandatory argument."
@@ -341,18 +339,6 @@ module ``Argu Tests`` =
         test <@ subResult1.Contains <@ X @> @>
         test <@ subResult2.Contains <@ X @> @>
 
-    [<Fact>]
-    let ``Inherited parameter should be properly masked`` () =
-        let result1 = parser.Parse([|"-f" ; "clean"|], ignoreMissing = true)
-        let result2 = parser.Parse([|"clean" ; "-f"|], ignoreMissing = true)
-        let subResult1 = result1.GetResult <@ Clean @>
-        let subResult2 = result2.GetResult <@ Clean @>
-        test <@ result1.Contains <@ Force @> @>
-        test <@ result2.Contains <@ Force @> |> not @>
-        test <@ subResult1.Contains <@ F @> |> not @>
-        test <@ subResult2.Contains <@ F @> @>
-
-
     type ConflictingCliNames =
         | [<CustomCommandLine "foo">] Foo of int
         | [<AltCommandLine "foo">] Bar of string
@@ -366,6 +352,13 @@ module ``Argu Tests`` =
     with
         interface IArgParserTemplate with
             member a.Usage = "foo"
+
+    type ConflictingInheritedCliName =
+        | [<AltCommandLine("-f"); Inherit>] Force
+        | Nested of ParseResult<CleanArgs>
+    with
+        interface IArgParserTemplate with
+            member __.Usage = "not tested"
 
     type RecursiveArgument1 =
         | Rec1 of ParseResult<RecursiveArgument2>
@@ -395,6 +388,12 @@ module ``Argu Tests`` =
     let ``Identify conflicting CLI identifiers`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingCliNames>() @>
                                     (fun e -> <@ e.Message.Contains "conflicting CLI" @>)
+
+    [<Fact>]
+    let ``Identify conflicting inherited CLI identifiers`` () =
+        raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingInheritedCliName>() @>
+                                    (fun e -> <@ e.Message.Contains "conflicting CLI" @>)
+
     [<Fact>]
     let ``Identify conflicting AppSettings identifiers`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingAppSettingsNames>() @>

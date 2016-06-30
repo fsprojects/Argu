@@ -186,7 +186,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message
         yield Environment.NewLine; yield Environment.NewLine
 
         for aI in options do yield! mkArgUsage aI
-//        for aI in argInfo.InheritedParams.Value |> Seq.concat do yield! mkArgUsage aI
+        for aI in argInfo.InheritedParams.Value do yield! mkArgUsage aI
 
         yield! mkHelpParamUsage argInfo.HelpParam
 }

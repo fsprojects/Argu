@@ -139,19 +139,19 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let isFirst = uci.ContainsAttribute<FirstAttribute> ()
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
-    let isExactlyOnce = uci.ContainsAttribute<ExactlyOnceAttribute>(true)
-    let isMandatory = isExactlyOnce || uci.ContainsAttribute<MandatoryAttribute>(true)
+    let isExactlyOnce = uci.ContainsAttribute<ExactlyOnceAttribute> (true)
+    let isMandatory = isExactlyOnce || uci.ContainsAttribute<MandatoryAttribute> (true)
     let isUnique = isExactlyOnce || uci.ContainsAttribute<UniqueAttribute> (true)
-    let isInherited = uci.ContainsAttribute<InheritAttribute>(true)
+    let isInherited = uci.ContainsAttribute<InheritAttribute> ()
     let isGatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
     let isRest = uci.ContainsAttribute<RestAttribute> ()
     let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
     let isEquals1Assignment, isEquals2Assignment = 
         if uci.ContainsAttribute<EqualsAssignmentAttribute> (true) then
             if types.Length <> 1 && types.Length <> 2 then
-                arguExn "parameter '%s' has EqualsAssignment attribute but specifies %d parameters." uci.Name types.Length
+                arguExn "parameter '%O' has EqualsAssignment attribute but specifies %d parameters." uci types.Length
             elif isRest then
-                arguExn "parameter '%s' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci.Name
+                arguExn "parameter '%O' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci
 
             types.Length = 1, types.Length = 2
         else
@@ -161,12 +161,12 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         match uci.TryGetAttribute<AppSettingsSeparatorAttribute> (true) with
         | None -> [|","|], StringSplitOptions.None
         | Some attr when attr.Separators.Length = 0 ->
-            arguExn "parameter '%s' specifies a null or empty AppSettings separator." uci.Name
+            arguExn "parameter '%O' specifies a null or empty AppSettings separator." uci
 
         | Some attr ->
             for sep in attr.Separators do
                 if String.IsNullOrEmpty sep then
-                    arguExn "parameter '%s' specifies a null or empty AppSettings separator." uci.Name
+                    arguExn "parameter '%O' specifies a null or empty AppSettings separator." uci
 
             attr.Separators, attr.SplitOptions
 
@@ -174,13 +174,13 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         match types with
         | [|NestedParseResult prt|] -> 
             if isEquals1Assignment then
-                arguExn "EqualsAssignment in '%s' not supported for nested union cases." uci.Name
+                arguExn "EqualsAssignment in '%O' not supported for nested union cases." uci
             if isRest then
-                arguExn "Rest attribute in '%s' not supported for nested union cases." uci.Name
+                arguExn "Rest attribute in '%O' not supported for nested union cases." uci
             if isMandatory then
-                arguExn "Mandatory attribute in '%s' not supported for nested union cases." uci.Name
+                arguExn "Mandatory attribute in '%O' not supported for nested union cases." uci
             if isInherited then
-                arguExn "Inherit attribute in '%s' not supported for nested union cases." uci.Name
+                arguExn "Inherit attribute in '%O' not supported for nested union cases." uci
 
             let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt 
             let shape = ShapeArgumentTemplate.FromType prt
@@ -188,16 +188,16 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         | [|Optional t|] ->
             if isRest then
-                arguExn "Rest attribute in '%s' not supported for optional cases." uci.Name
+                arguExn "Rest attribute in '%O' not supported for optional cases." uci
 
             OptionalParam(Existential.FromType t, getPrimitiveParserByType None t)
 
         | [|List t|] ->
             if isEquals1Assignment then
-                arguExn "EqualsAssignment in '%s' not supported for variadic list cases." uci.Name
+                arguExn "EqualsAssignment in '%O' not supported for variadic list cases." uci
 
             if isRest then
-                arguExn "Rest attribute in '%s' not supported for variadic list cases." uci.Name
+                arguExn "Rest attribute in '%O' not supported for variadic list cases." uci
 
             ListParam(Existential.FromType t, getPrimitiveParserByType None t)
 
@@ -213,9 +213,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             Array.mapi getParser fields |> Primitives
 
     let commandLineArgs =
-        if uci.ContainsAttribute<NoCommandLineAttribute> (true) then 
+        if uci.ContainsAttribute<NoCommandLineAttribute> (true) then
             if parsers.IsNested then
-                arguExn "NoCommandLine attribute in '%s' not supported for nested union cases." uci.Name
+                arguExn "NoCommandLine attribute in '%O' not supported for nested union cases." uci
             []
         else
             let defaultName =
@@ -240,7 +240,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
             | None -> Some <| generateAppSettingsName uci
             // take last registered attribute
-            | Some _ when parsers.IsNested -> arguExn "CustomAppSettings in %s not supported for nested union cases" uci.Name
+            | Some _ when parsers.IsNested -> arguExn "CustomAppSettings in %O not supported for nested union cases" uci
             | Some attr when not <| isNullOrWhiteSpace attr.Name -> Some attr.Name
             | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name
 
@@ -249,7 +249,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         match commandLineArgs with
         | h :: _ -> h
         | _ when Option.isSome appSettingsName -> appSettingsName.Value
-        | _ -> arguExn "parameter '%s' needs to have at least one parse source." uci.Name
+        | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci
 
     let fieldCtor = lazy(
         match types.Length with
@@ -320,7 +320,6 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
 
             { Flags = helpSwitches ; Description = description }
 
-
     // use ref cell for late binding of parent argInfo
     let current = ref Unchecked.defaultof<_>
     let getCurrent = fun () -> !current
@@ -331,52 +330,24 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         |> Seq.sortBy (fun a -> a.Tag)
         |> Seq.toArray
 
-    // check for conflicting CLI identifiers
-    let cliConflicts =
-        caseInfo
-        |> Seq.collect (fun arg -> arg.CommandLineNames |> Seq.map (fun name -> arg, name))
-        |> Seq.map (fun ((arg, name) as t) ->
-            if helpParam.Flags |> List.exists ((=) name) then
-                arguExn "parameter '%O' using CLI identifier '%s' which is reserved for help params." arg.UnionCaseInfo name
-            t)
-        |> Seq.groupBy snd
-        |> Seq.map (fun (name, args) -> name, args |> Seq.map fst |> Seq.toArray)
-        |> Seq.filter (fun (_,args) -> args.Length > 1)
-        |> Seq.sortBy (fun (_,args) -> -args.Length)
-        |> Seq.toArray
-
-    if cliConflicts.Length > 0 then
-        let id, cs = cliConflicts.[0]
-        arguExn "parameters '%O' and '%O' using conflicting CLI identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
-
-    // check for conflicting CLI identifiers
-    let appSettingsConflicts =
-        caseInfo
-        |> Seq.choose(fun arg -> arg.AppSettingsName |> Option.map (fun name -> arg, name))
-        |> Seq.groupBy snd
-        |> Seq.map (fun (name, args) -> name, args |> Seq.map fst |> Seq.toArray)
-        |> Seq.filter (fun (_,args) -> args.Length > 1)
-        |> Seq.sortBy (fun (_,args) -> -args.Length)
-        |> Seq.toArray
-
-    if appSettingsConflicts.Length > 0 then
-        let id, cs = appSettingsConflicts.[0]
-        arguExn "parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." cs.[0].UnionCaseInfo cs.[1].UnionCaseInfo id
-
+    // need to delay this computation since it depends
+    // on completed process of any potential parents
     let inheritedParams = lazy(
         match tryGetParent() with
+        | None -> [||]
         | Some parent ->
             let pInfo = parent.GetParent()
-            let pInherited = pInfo.Cases |> Array.filter (fun cI -> cI.IsInherited)
-            pInherited :: pInfo.InheritedParams.Value
-        | None -> [])
+            pInfo.Cases
+            |> Seq.filter (fun cI -> cI.IsInherited)
+            |> Seq.append pInfo.InheritedParams.Value
+            |> Seq.toArray)
 
     // recognizes and extracts grouped switches
     // e.g. -efx --> -e -f -x
     let groupedSwitchExtractor = lazy(
         let chars =
             caseInfo
-            |> Seq.append (Seq.concat inheritedParams.Value)
+            |> Seq.append inheritedParams.Value
             |> Seq.collect (fun c -> c.CommandLineNames)
             |> Seq.append helpParam.Flags
             |> Seq.filter (fun name -> name.Length = 2 && name.[0] = '-' && Char.IsLetterOrDigit name.[1])
@@ -396,11 +367,8 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, bindingFlags = allBindings))
 
     let cliIndex = lazy(
-        // cases are passed in a parent-to-sibling order to ensure
-        // that correct scoping is preserved in cases of overriden parameter names
-        caseInfo :: inheritedParams.Value
-        |> List.rev
-        |> Seq.concat
+        caseInfo
+        |> Seq.append inheritedParams.Value
         |> Seq.collect (fun cs -> cs.CommandLineNames |> Seq.map (fun name -> name, cs))
         |> dict)
 
@@ -426,4 +394,41 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     result
 
 and preComputeUnionArgInfo<'Template when 'Template :> IArgParserTemplate> () = 
-    preComputeUnionArgInfoInner [] None (fun () -> None) typeof<'Template>
+    let result = preComputeUnionArgInfoInner [] None (fun () -> None) typeof<'Template>
+
+    // used for performing additional checks on the completed dependency graph
+    let rec postProcess (argInfo : UnionArgInfo) =
+        // check for conflicting CLI identifiers
+        argInfo.Cases
+        |> Seq.append argInfo.InheritedParams.Value // this will only have been populated post-construction
+        |> Seq.collect (fun arg -> arg.CommandLineNames |> Seq.map (fun cliName -> cliName, arg))
+        |> Seq.map (fun ((name, arg) as t) ->
+            if argInfo.HelpParam.IsHelpFlag name then
+                arguExn "parameter '%O' using CLI identifier '%s' which is reserved for help parameters." arg.UnionCaseInfo name
+            t)
+        |> Seq.groupBy fst
+        |> Seq.tryFind (fun (_,args) -> Seq.length args > 1)
+        |> Option.iter (fun (name,args) ->
+            let conflicts = args |> Seq.map snd |> Seq.toArray
+            arguExn "parameters '%O' and '%O' using conflicting CLI identifier '%s'." 
+                conflicts.[0].UnionCaseInfo conflicts.[1].UnionCaseInfo name)
+
+        // check for conflicting AppSettings identifiers
+        if argInfo.Depth = 0 then
+            argInfo.Cases
+            |> Seq.choose(fun arg -> arg.AppSettingsName |> Option.map (fun name -> name, arg))
+            |> Seq.groupBy fst
+            |> Seq.tryFind(fun (_,args) -> Seq.length args > 1)
+            |> Option.iter (fun (name,args) ->
+                let conflicts = args |> Seq.map snd |> Seq.toArray
+                arguExn "parameters '%O' and '%O' using conflicting AppSettings identifier '%s'." 
+                    conflicts.[0].UnionCaseInfo conflicts.[1].UnionCaseInfo name)
+
+        // iterate through the child nodes
+        for case in argInfo.Cases do
+            match case.ParameterInfo with
+            | NestedUnion(_,aI) -> postProcess aI
+            | _ -> ()
+
+    postProcess result
+    result
