@@ -81,7 +81,7 @@ module ArguAttributes =
     [<Obsolete("Argu 3.0 prints union labels by default. Please remove this attribute.")>]
     type PrintLabelsAttribute () = inherit Attribute ()
 
-    /// Use '--param=arg' assignment syntax in CLI.
+    /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
     type EqualsAssignmentAttribute () = inherit Attribute ()
 
