@@ -1,4 +1,4 @@
-### 3.0.0-alpha008
+### 3.0.0-alpha009
 * Add subcommand support.
 * Add support for list and option parameters.
 * Add support for grouped switches.
@@ -6,6 +6,7 @@
 * Implement UniqueAttribute and ExactlyOnceAttribute.
 * Implement HelpFlagsAttribute, HelpDescriptionAttribute and DisableHelpAttribute.
 * Add ParseResult.UnrecognizedCliParams property.
+* Add support for F# unions used as enumeration parameters.
 
 ### 2.1.0
 * AltCommandLineAttribute supporting variadic parameters.
