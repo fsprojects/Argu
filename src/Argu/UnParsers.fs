@@ -127,7 +127,7 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         | SubCommand(_,_,None) -> yield " <options>"
 
         let! finish = StringExpr.currentLength
-        if finish - start > descriptionOffset then
+        if finish - start >= descriptionOffset then
             yield Environment.NewLine
             yield! StringExpr.whiteSpace descriptionOffset
         else
