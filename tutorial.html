@@ -251,8 +251,8 @@ can be customized by fixing attributes to the union cases:</p>
 <li><p><code>CustomAppSettings</code>: sets a custom key name for AppSettings.</p></li>
 <li><p><code>First</code>: Argument can only be placed at the beginning of the command line.</p></li>
 </ul>
-<p>For a complete list of all attributes provided by Argu,
-please see <a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html.">http://fsprojects.github.io/Argu/reference/argu-arguattributes.html.</a></p>
+<p>Please see the <a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">API Reference</a>
+for a complete list of all attributes provided by Argu.</p>
 <h2><a name="Optional-and-List-parameters" class="anchor" href="#Optional-and-List-parameters">Optional and List parameters</a></h2>
 <p>It is possible to specify argument parameters that are either optional or lists:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
@@ -297,39 +297,6 @@ For example, consider this mock git CLI syntax:</p>
 <span class="l">10: </span>
 <span class="l">11: </span>
 <span class="l">12: </span>
-<span class="l">13: </span>
-<span class="l">14: </span>
-<span class="l">15: </span>
-<span class="l">16: </span>
-<span class="l">17: </span>
-<span class="l">18: </span>
-<span class="l">19: </span>
-<span class="l">20: </span>
-<span class="l">21: </span>
-<span class="l">22: </span>
-<span class="l">23: </span>
-<span class="l">24: </span>
-<span class="l">25: </span>
-<span class="l">26: </span>
-<span class="l">27: </span>
-<span class="l">28: </span>
-<span class="l">29: </span>
-<span class="l">30: </span>
-<span class="l">31: </span>
-<span class="l">32: </span>
-<span class="l">33: </span>
-<span class="l">34: </span>
-<span class="l">35: </span>
-<span class="l">36: </span>
-<span class="l">37: </span>
-<span class="l">38: </span>
-<span class="l">39: </span>
-<span class="l">40: </span>
-<span class="l">41: </span>
-<span class="l">42: </span>
-<span class="l">43: </span>
-<span class="l">44: </span>
-<span class="l">45: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[&lt;<span onmouseout="hideTip(event, 'fs54', 90)" onmouseover="showTip(event, 'fs54', 90)" class="t">CliPrefix</span>(<span onmouseout="hideTip(event, 'fs54', 91)" onmouseover="showTip(event, 'fs54', 91)" class="t">CliPrefix</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs55', 92)" onmouseover="showTip(event, 'fs55', 92)" class="i">Dash</span>)&gt;]
 <span class="k">type</span> <span onmouseout="hideTip(event, 'fs56', 93)" onmouseover="showTip(event, 'fs56', 93)" class="t">CleanArgs</span> <span class="o">=</span>
@@ -343,8 +310,22 @@ For example, consider this mock git CLI syntax:</p>
             | <span onmouseout="hideTip(event, 'fs57', 101)" onmouseover="showTip(event, 'fs57', 101)" class="p">D</span> <span class="k">-&gt;</span> <span class="s">&quot;Remove untracked directories in addition to untracked files&quot;</span>
             | <span onmouseout="hideTip(event, 'fs58', 102)" onmouseover="showTip(event, 'fs58', 102)" class="p">F</span> <span class="k">-&gt;</span> <span class="s">&quot;Git clean will refuse to delete files or directories unless given -f.&quot;</span>
             | <span onmouseout="hideTip(event, 'fs59', 103)" onmouseover="showTip(event, 'fs59', 103)" class="p">X</span> <span class="k">-&gt;</span> <span class="s">&quot;Remove only files ignored by Git.&quot;</span>
-
-<span class="k">and</span> <span onmouseout="hideTip(event, 'fs62', 104)" onmouseover="showTip(event, 'fs62', 104)" class="t">CommitArgs</span> <span class="o">=</span>
+</code></pre></td>
+</tr>
+</table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">and</span> <span onmouseout="hideTip(event, 'fs62', 104)" onmouseover="showTip(event, 'fs62', 104)" class="t">CommitArgs</span> <span class="o">=</span>
     | <span onmouseout="hideTip(event, 'fs63', 105)" onmouseover="showTip(event, 'fs63', 105)" class="p">Amend</span>
     | [&lt;<span onmouseout="hideTip(event, 'fs47', 106)" onmouseover="showTip(event, 'fs47', 106)" class="t">AltCommandLine</span>(<span class="s">&quot;-p&quot;</span>)&gt;]<span onmouseout="hideTip(event, 'fs64', 107)" onmouseover="showTip(event, 'fs64', 107)" class="p">Patch</span>
     | [&lt;<span onmouseout="hideTip(event, 'fs47', 108)" onmouseover="showTip(event, 'fs47', 108)" class="t">AltCommandLine</span>(<span class="s">&quot;-m&quot;</span>)&gt;]<span onmouseout="hideTip(event, 'fs65', 109)" onmouseover="showTip(event, 'fs65', 109)" class="p">Message</span> <span class="k">of</span> <span class="i">msg</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 110)" onmouseover="showTip(event, 'fs4', 110)" class="t">string</span>
@@ -355,8 +336,24 @@ For example, consider this mock git CLI syntax:</p>
             | <span onmouseout="hideTip(event, 'fs63', 115)" onmouseover="showTip(event, 'fs63', 115)" class="p">Amend</span> <span class="k">-&gt;</span> <span class="s">&quot;Replace the tip of the current branch by creating a new commit.&quot;</span>
             | <span onmouseout="hideTip(event, 'fs64', 116)" onmouseover="showTip(event, 'fs64', 116)" class="p">Patch</span> <span class="k">-&gt;</span> <span class="s">&quot;Use the interactive patch selection interface to chose which changes to commit.&quot;</span>
             | <span onmouseout="hideTip(event, 'fs65', 117)" onmouseover="showTip(event, 'fs65', 117)" class="p">Message</span> _ <span class="k">-&gt;</span> <span class="s">&quot;Use the given &lt;msg&gt; as the commit message. &quot;</span>
-
-<span class="k">and</span> <span onmouseout="hideTip(event, 'fs68', 118)" onmouseover="showTip(event, 'fs68', 118)" class="t">GitArgs</span> <span class="o">=</span>
+</code></pre></td>
+</tr>
+</table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">and</span> <span onmouseout="hideTip(event, 'fs68', 118)" onmouseover="showTip(event, 'fs68', 118)" class="t">GitArgs</span> <span class="o">=</span>
     | <span onmouseout="hideTip(event, 'fs69', 119)" onmouseover="showTip(event, 'fs69', 119)" class="p">Version</span>
     | [&lt;<span onmouseout="hideTip(event, 'fs47', 120)" onmouseover="showTip(event, 'fs47', 120)" class="t">AltCommandLine</span>(<span class="s">&quot;-v&quot;</span>)&gt;]<span onmouseout="hideTip(event, 'fs70', 121)" onmouseover="showTip(event, 'fs70', 121)" class="p">Verbose</span>
     | [&lt;<span onmouseout="hideTip(event, 'fs54', 122)" onmouseover="showTip(event, 'fs54', 122)" class="t">CliPrefix</span>(<span onmouseout="hideTip(event, 'fs54', 123)" onmouseover="showTip(event, 'fs54', 123)" class="t">CliPrefix</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs71', 124)" onmouseover="showTip(event, 'fs71', 124)" class="i">None</span>)&gt;] <span onmouseout="hideTip(event, 'fs72', 125)" onmouseover="showTip(event, 'fs72', 125)" class="p">Clean</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs73', 126)" onmouseover="showTip(event, 'fs73', 126)" class="t">ParseResult</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs56', 127)" onmouseover="showTip(event, 'fs56', 127)" class="t">CleanArgs</span><span class="o">&gt;</span>
@@ -369,13 +366,6 @@ For example, consider this mock git CLI syntax:</p>
             | <span onmouseout="hideTip(event, 'fs70', 139)" onmouseover="showTip(event, 'fs70', 139)" class="p">Verbose</span> <span class="k">-&gt;</span> <span class="s">&quot;Print a lot of output to stdout.&quot;</span>
             | <span onmouseout="hideTip(event, 'fs72', 140)" onmouseover="showTip(event, 'fs72', 140)" class="p">Clean</span> _ <span class="k">-&gt;</span> <span class="s">&quot;Remove untracked files from the working tree.&quot;</span>
             | <span onmouseout="hideTip(event, 'fs74', 141)" onmouseover="showTip(event, 'fs74', 141)" class="p">Commit</span> _ <span class="k">-&gt;</span> <span class="s">&quot;Record changes to the repository.&quot;</span>
-
-
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs77', 142)" onmouseover="showTip(event, 'fs77', 142)" class="i">parser</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 143)" onmouseover="showTip(event, 'fs22', 143)" class="t">ArgumentParser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 144)" onmouseover="showTip(event, 'fs23', 144)" class="f">Create</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs68', 145)" onmouseover="showTip(event, 'fs68', 145)" class="t">GitArgs</span><span class="o">&gt;</span>(<span class="i">programName</span> <span class="o">=</span> <span class="s">&quot;git&quot;</span>)
-
-<span onmouseout="hideTip(event, 'fs77', 146)" onmouseover="showTip(event, 'fs77', 146)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 147)" onmouseover="showTip(event, 'fs25', 147)" class="f">PrintUsage</span>() <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs78', 148)" onmouseover="showTip(event, 'fs78', 148)" class="t">Console</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs79', 149)" onmouseover="showTip(event, 'fs79', 149)" class="f">WriteLine</span>
-
-<span onmouseout="hideTip(event, 'fs77', 150)" onmouseover="showTip(event, 'fs77', 150)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 151)" onmouseover="showTip(event, 'fs27', 151)" class="f">Parse</span> [|<span class="s">&quot;-f&quot;</span>|]
 </code></pre></td>
 </tr>
 </table>
@@ -431,8 +421,8 @@ to switches.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs80', 152)" onmouseover="showTip(event, 'fs80', 152)" class="t">GitArgs</span> <span class="o">=</span>
-    | [&lt;<span class="i">Inherit</span>&gt;] <span onmouseout="hideTip(event, 'fs81', 153)" onmouseover="showTip(event, 'fs81', 153)" class="p">Version</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs77', 142)" onmouseover="showTip(event, 'fs77', 142)" class="t">GitArgs</span> <span class="o">=</span>
+    | [&lt;<span class="i">Inherit</span>&gt;] <span onmouseout="hideTip(event, 'fs78', 143)" onmouseover="showTip(event, 'fs78', 143)" class="p">Version</span>
 </code></pre></td>
 </tr>
 </table>
@@ -449,12 +439,12 @@ a post-process facility is provided.</p>
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs82', 154)" onmouseover="showTip(event, 'fs82', 154)" class="f">parsePort</span> <span onmouseout="hideTip(event, 'fs83', 155)" onmouseover="showTip(event, 'fs83', 155)" class="i">p</span> <span class="o">=</span> 
-    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs83', 156)" onmouseover="showTip(event, 'fs83', 156)" class="i">p</span> <span class="o">&lt;</span> <span class="n">0</span> <span class="o">||</span> <span onmouseout="hideTip(event, 'fs83', 157)" onmouseover="showTip(event, 'fs83', 157)" class="i">p</span> <span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs6', 158)" onmouseover="showTip(event, 'fs6', 158)" class="f">int</span> <span onmouseout="hideTip(event, 'fs84', 159)" onmouseover="showTip(event, 'fs84', 159)" class="t">UInt16</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 160)" onmouseover="showTip(event, 'fs85', 160)" class="i">MaxValue</span> <span class="k">then</span> 
-        <span onmouseout="hideTip(event, 'fs86', 161)" onmouseover="showTip(event, 'fs86', 161)" class="f">failwith</span> <span class="s">&quot;invalid port number.&quot;</span>
-    <span class="k">else</span> <span onmouseout="hideTip(event, 'fs83', 162)" onmouseover="showTip(event, 'fs83', 162)" class="i">p</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs79', 144)" onmouseover="showTip(event, 'fs79', 144)" class="f">parsePort</span> <span onmouseout="hideTip(event, 'fs80', 145)" onmouseover="showTip(event, 'fs80', 145)" class="i">p</span> <span class="o">=</span> 
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs80', 146)" onmouseover="showTip(event, 'fs80', 146)" class="i">p</span> <span class="o">&lt;</span> <span class="n">0</span> <span class="o">||</span> <span onmouseout="hideTip(event, 'fs80', 147)" onmouseover="showTip(event, 'fs80', 147)" class="i">p</span> <span class="o">&gt;</span> <span onmouseout="hideTip(event, 'fs6', 148)" onmouseover="showTip(event, 'fs6', 148)" class="f">int</span> <span onmouseout="hideTip(event, 'fs81', 149)" onmouseover="showTip(event, 'fs81', 149)" class="t">UInt16</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs82', 150)" onmouseover="showTip(event, 'fs82', 150)" class="i">MaxValue</span> <span class="k">then</span> 
+        <span onmouseout="hideTip(event, 'fs83', 151)" onmouseover="showTip(event, 'fs83', 151)" class="f">failwith</span> <span class="s">&quot;invalid port number.&quot;</span>
+    <span class="k">else</span> <span onmouseout="hideTip(event, 'fs80', 152)" onmouseover="showTip(event, 'fs80', 152)" class="i">p</span>
  
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs87', 163)" onmouseover="showTip(event, 'fs87', 163)" class="i">ports</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 164)" onmouseover="showTip(event, 'fs26', 164)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs88', 165)" onmouseover="showTip(event, 'fs88', 165)" class="f">PostProcessResults</span> (&lt;@ <span onmouseout="hideTip(event, 'fs15', 166)" onmouseover="showTip(event, 'fs15', 166)" class="p">Port</span> @&gt;, <span onmouseout="hideTip(event, 'fs82', 167)" onmouseover="showTip(event, 'fs82', 167)" class="f">parsePort</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs84', 153)" onmouseover="showTip(event, 'fs84', 153)" class="i">ports</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 154)" onmouseover="showTip(event, 'fs26', 154)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs85', 155)" onmouseover="showTip(event, 'fs85', 155)" class="f">PostProcessResults</span> (&lt;@ <span onmouseout="hideTip(event, 'fs15', 156)" onmouseover="showTip(event, 'fs15', 156)" class="p">Port</span> @&gt;, <span onmouseout="hideTip(event, 'fs79', 157)" onmouseover="showTip(event, 'fs79', 157)" class="f">parsePort</span>)
 </code></pre></td>
 </tr>
 </table>
@@ -467,18 +457,18 @@ a post-process facility is provided.</p>
 <span class="l">4: </span>
 <span class="l">5: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 168)" onmouseover="showTip(event, 'fs1', 168)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs89', 169)" onmouseover="showTip(event, 'fs89', 169)" class="i">Diagnostics</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 158)" onmouseover="showTip(event, 'fs1', 158)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs86', 159)" onmouseover="showTip(event, 'fs86', 159)" class="i">Diagnostics</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs90', 170)" onmouseover="showTip(event, 'fs90', 170)" class="i">arguments</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs77', 171)" onmouseover="showTip(event, 'fs77', 171)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs91', 172)" onmouseover="showTip(event, 'fs91', 172)" class="f">PrintCommandLineArgumentsFlat</span> [ <span onmouseout="hideTip(event, 'fs15', 173)" onmouseover="showTip(event, 'fs15', 173)" class="p">Port</span> <span class="n">42</span> ; <span onmouseout="hideTip(event, 'fs11', 174)" onmouseover="showTip(event, 'fs11', 174)" class="p">Working_Directory</span> <span class="s">&quot;temp&quot;</span> ]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs87', 160)" onmouseover="showTip(event, 'fs87', 160)" class="i">arguments</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 161)" onmouseover="showTip(event, 'fs21', 161)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs88', 162)" onmouseover="showTip(event, 'fs88', 162)" class="f">PrintCommandLineArgumentsFlat</span> [ <span onmouseout="hideTip(event, 'fs15', 163)" onmouseover="showTip(event, 'fs15', 163)" class="p">Port</span> <span class="n">42</span> ; <span onmouseout="hideTip(event, 'fs11', 164)" onmouseover="showTip(event, 'fs11', 164)" class="p">Working_Directory</span> <span class="s">&quot;temp&quot;</span> ]
 
-<span onmouseout="hideTip(event, 'fs92', 175)" onmouseover="showTip(event, 'fs92', 175)" class="t">Process</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs93', 176)" onmouseover="showTip(event, 'fs93', 176)" class="f">Start</span>(<span class="s">&quot;foo.exe&quot;</span>, <span onmouseout="hideTip(event, 'fs90', 177)" onmouseover="showTip(event, 'fs90', 177)" class="i">arguments</span>)
+<span onmouseout="hideTip(event, 'fs89', 165)" onmouseover="showTip(event, 'fs89', 165)" class="t">Process</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs90', 166)" onmouseover="showTip(event, 'fs90', 166)" class="f">Start</span>(<span class="s">&quot;foo.exe&quot;</span>, <span onmouseout="hideTip(event, 'fs87', 167)" onmouseover="showTip(event, 'fs87', 167)" class="i">arguments</span>)
 </code></pre></td>
 </tr>
 </table>
 <p>It can also be used to auto-generate a suitable <code>AppSettings</code> configuration file:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs94', 178)" onmouseover="showTip(event, 'fs94', 178)" class="i">xml</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs77', 179)" onmouseover="showTip(event, 'fs77', 179)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs95', 180)" onmouseover="showTip(event, 'fs95', 180)" class="f">PrintAppSettingsArguments</span> [ <span onmouseout="hideTip(event, 'fs15', 181)" onmouseover="showTip(event, 'fs15', 181)" class="p">Port</span> <span class="n">42</span> ; <span onmouseout="hideTip(event, 'fs11', 182)" onmouseover="showTip(event, 'fs11', 182)" class="p">Working_Directory</span> <span class="s">&quot;/tmp&quot;</span> ]
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs91', 168)" onmouseover="showTip(event, 'fs91', 168)" class="i">xml</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 169)" onmouseover="showTip(event, 'fs21', 169)" class="i">parser</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs92', 170)" onmouseover="showTip(event, 'fs92', 170)" class="f">PrintAppSettingsArguments</span> [ <span onmouseout="hideTip(event, 'fs15', 171)" onmouseover="showTip(event, 'fs15', 171)" class="p">Port</span> <span class="n">42</span> ; <span onmouseout="hideTip(event, 'fs11', 172)" onmouseover="showTip(event, 'fs11', 172)" class="p">Working_Directory</span> <span class="s">&quot;/tmp&quot;</span> ]
 </code></pre></td>
 </tr>
 </table>
@@ -580,25 +570,22 @@ a post-process facility is provided.</p>
 <div class="tip" id="fs74">union case GitArgs.Commit: ParseResult&lt;CommitArgs&gt; -&gt; GitArgs</div>
 <div class="tip" id="fs75">val this : GitArgs</div>
 <div class="tip" id="fs76">override GitArgs.Usage : string<br /><br />Full name: Tutorial.GitArgs.Usage</div>
-<div class="tip" id="fs77">val parser : ArgumentParser&lt;GitArgs&gt;<br /><br />Full name: Tutorial.parser</div>
-<div class="tip" id="fs78">type Console =<br />&#160;&#160;static member BackgroundColor : ConsoleColor with get, set<br />&#160;&#160;static member Beep : unit -&gt; unit + 1 overload<br />&#160;&#160;static member BufferHeight : int with get, set<br />&#160;&#160;static member BufferWidth : int with get, set<br />&#160;&#160;static member CapsLock : bool<br />&#160;&#160;static member Clear : unit -&gt; unit<br />&#160;&#160;static member CursorLeft : int with get, set<br />&#160;&#160;static member CursorSize : int with get, set<br />&#160;&#160;static member CursorTop : int with get, set<br />&#160;&#160;static member CursorVisible : bool with get, set<br />&#160;&#160;...<br /><br />Full name: System.Console</div>
-<div class="tip" id="fs79">Console.WriteLine() : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: string) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: obj) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: uint64) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: int64) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: uint32) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: int) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: float32) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: float) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br />Console.WriteLine(value: decimal) : unit<br />&#160;&#160;&#160;<em>(+0 other overloads)</em></div>
-<div class="tip" id="fs80">type GitArgs = | Version<br /><br />Full name: tutorial.GitArgs</div>
-<div class="tip" id="fs81">union case GitArgs.Version: GitArgs</div>
-<div class="tip" id="fs82">val parsePort : p:int -&gt; int<br /><br />Full name: Tutorial.parsePort</div>
-<div class="tip" id="fs83">val p : int</div>
-<div class="tip" id="fs84">type UInt16 =<br />&#160;&#160;struct<br />&#160;&#160;&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;member Equals : obj:obj -&gt; bool + 1 overload<br />&#160;&#160;&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;&#160;&#160;member GetTypeCode : unit -&gt; TypeCode<br />&#160;&#160;&#160;&#160;member ToString : unit -&gt; string + 3 overloads<br />&#160;&#160;&#160;&#160;static val MaxValue : uint16<br />&#160;&#160;&#160;&#160;static val MinValue : uint16<br />&#160;&#160;&#160;&#160;static member Parse : s:string -&gt; uint16 + 3 overloads<br />&#160;&#160;&#160;&#160;static member TryParse : s:string * result:uint16 -&gt; bool + 1 overload<br />&#160;&#160;end<br /><br />Full name: System.UInt16</div>
-<div class="tip" id="fs85">field uint16.MaxValue = 65535us</div>
-<div class="tip" id="fs86">val failwith : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.failwith</div>
-<div class="tip" id="fs87">val ports : int list<br /><br />Full name: Tutorial.ports</div>
-<div class="tip" id="fs88">member ParseResult.PostProcessResults : expr:Quotations.Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * ?source:ParseSource -&gt; &#39;R list</div>
-<div class="tip" id="fs89">namespace System.Diagnostics</div>
-<div class="tip" id="fs90">val arguments : string<br /><br />Full name: Tutorial.arguments</div>
-<div class="tip" id="fs91">member ArgumentParser.PrintCommandLineArgumentsFlat : args:&#39;Template list -&gt; string</div>
-<div class="tip" id="fs92">Multiple items<br />type Process =<br />&#160;&#160;inherit Component<br />&#160;&#160;new : unit -&gt; Process<br />&#160;&#160;member BasePriority : int<br />&#160;&#160;member BeginErrorReadLine : unit -&gt; unit<br />&#160;&#160;member BeginOutputReadLine : unit -&gt; unit<br />&#160;&#160;member CancelErrorRead : unit -&gt; unit<br />&#160;&#160;member CancelOutputRead : unit -&gt; unit<br />&#160;&#160;member Close : unit -&gt; unit<br />&#160;&#160;member CloseMainWindow : unit -&gt; bool<br />&#160;&#160;member EnableRaisingEvents : bool with get, set<br />&#160;&#160;member ExitCode : int<br />&#160;&#160;...<br /><br />Full name: System.Diagnostics.Process<br /><br />--------------------<br />Process() : unit</div>
-<div class="tip" id="fs93">Process.Start(startInfo: ProcessStartInfo) : Process<br />Process.Start(fileName: string) : Process<br />Process.Start(fileName: string, arguments: string) : Process<br />Process.Start(fileName: string, userName: string, password: Security.SecureString, domain: string) : Process<br />Process.Start(fileName: string, arguments: string, userName: string, password: Security.SecureString, domain: string) : Process</div>
-<div class="tip" id="fs94">val xml : string<br /><br />Full name: Tutorial.xml</div>
-<div class="tip" id="fs95">member ArgumentParser.PrintAppSettingsArguments : args:&#39;Template list * ?printComments:bool -&gt; string</div>
+<div class="tip" id="fs77">type GitArgs = | Version<br /><br />Full name: tutorial.GitArgs</div>
+<div class="tip" id="fs78">union case GitArgs.Version: GitArgs</div>
+<div class="tip" id="fs79">val parsePort : p:int -&gt; int<br /><br />Full name: Tutorial.parsePort</div>
+<div class="tip" id="fs80">val p : int</div>
+<div class="tip" id="fs81">type UInt16 =<br />&#160;&#160;struct<br />&#160;&#160;&#160;&#160;member CompareTo : value:obj -&gt; int + 1 overload<br />&#160;&#160;&#160;&#160;member Equals : obj:obj -&gt; bool + 1 overload<br />&#160;&#160;&#160;&#160;member GetHashCode : unit -&gt; int<br />&#160;&#160;&#160;&#160;member GetTypeCode : unit -&gt; TypeCode<br />&#160;&#160;&#160;&#160;member ToString : unit -&gt; string + 3 overloads<br />&#160;&#160;&#160;&#160;static val MaxValue : uint16<br />&#160;&#160;&#160;&#160;static val MinValue : uint16<br />&#160;&#160;&#160;&#160;static member Parse : s:string -&gt; uint16 + 3 overloads<br />&#160;&#160;&#160;&#160;static member TryParse : s:string * result:uint16 -&gt; bool + 1 overload<br />&#160;&#160;end<br /><br />Full name: System.UInt16</div>
+<div class="tip" id="fs82">field uint16.MaxValue = 65535us</div>
+<div class="tip" id="fs83">val failwith : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.failwith</div>
+<div class="tip" id="fs84">val ports : int list<br /><br />Full name: Tutorial.ports</div>
+<div class="tip" id="fs85">member ParseResult.PostProcessResults : expr:Quotations.Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * ?source:ParseSource -&gt; &#39;R list</div>
+<div class="tip" id="fs86">namespace System.Diagnostics</div>
+<div class="tip" id="fs87">val arguments : string<br /><br />Full name: Tutorial.arguments</div>
+<div class="tip" id="fs88">member ArgumentParser.PrintCommandLineArgumentsFlat : args:&#39;Template list -&gt; string</div>
+<div class="tip" id="fs89">Multiple items<br />type Process =<br />&#160;&#160;inherit Component<br />&#160;&#160;new : unit -&gt; Process<br />&#160;&#160;member BasePriority : int<br />&#160;&#160;member BeginErrorReadLine : unit -&gt; unit<br />&#160;&#160;member BeginOutputReadLine : unit -&gt; unit<br />&#160;&#160;member CancelErrorRead : unit -&gt; unit<br />&#160;&#160;member CancelOutputRead : unit -&gt; unit<br />&#160;&#160;member Close : unit -&gt; unit<br />&#160;&#160;member CloseMainWindow : unit -&gt; bool<br />&#160;&#160;member EnableRaisingEvents : bool with get, set<br />&#160;&#160;member ExitCode : int<br />&#160;&#160;...<br /><br />Full name: System.Diagnostics.Process<br /><br />--------------------<br />Process() : unit</div>
+<div class="tip" id="fs90">Process.Start(startInfo: ProcessStartInfo) : Process<br />Process.Start(fileName: string) : Process<br />Process.Start(fileName: string, arguments: string) : Process<br />Process.Start(fileName: string, userName: string, password: Security.SecureString, domain: string) : Process<br />Process.Start(fileName: string, arguments: string, userName: string, password: Security.SecureString, domain: string) : Process</div>
+<div class="tip" id="fs91">val xml : string<br /><br />Full name: Tutorial.xml</div>
+<div class="tip" id="fs92">member ArgumentParser.PrintAppSettingsArguments : args:&#39;Template list * ?printComments:bool -&gt; string</div>
 
         </div>
         <div class="span3">
