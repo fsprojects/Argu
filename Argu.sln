@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{FB06D972-6D76-4220-AD16-8E5F20DADAA6}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,8 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{FB06D9
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu", "src\Argu\Argu.fsproj", "{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB909722-1B3F-46A1-9245-277905B1E346}"
 	ProjectSection(SolutionItems) = preProject
@@ -46,6 +44,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{33A4833E
 		docs\tools\templates\template.cshtml = docs\tools\templates\template.cshtml
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{B94D60AD-2083-4E08-B28F-43122BE14819}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,11 +59,11 @@ Global
 		{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}.Release-NET35|Any CPU.ActiveCfg = Release-NET35|Any CPU
 		{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}.Release-NET35|Any CPU.Build.0 = Release-NET35|Any CPU
-		{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13BB06E0-3036-42A8-A0E1-93401AEB0DEE}.Release-NET35|Any CPU.ActiveCfg = Release|Any CPU
+		{B94D60AD-2083-4E08-B28F-43122BE14819}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B94D60AD-2083-4E08-B28F-43122BE14819}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B94D60AD-2083-4E08-B28F-43122BE14819}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B94D60AD-2083-4E08-B28F-43122BE14819}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B94D60AD-2083-4E08-B28F-43122BE14819}.Release-NET35|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

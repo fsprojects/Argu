@@ -1,344 +1,291 @@
 ﻿namespace Argu
 
 open System
-open System.Configuration
+open System.Collections.Generic
 open System.Reflection
-open System.Xml
-open System.Xml.Linq
 
-open Microsoft.FSharp.Reflection
-open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Quotations.Patterns
+open FSharp.Quotations
+open FSharp.Reflection
 
-open Argu.ArgInfo
-open Argu.Parsers
-open Argu.UnParsers
+/// The Argu type generates an argument parser given a type argument
+/// that is an F# discriminated union. It can then be used to parse command line arguments
+/// or XML configuration.
+[<AbstractClass; NoEquality; NoComparison; AutoSerializable(false)>]
+type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, helpTextMessage : string option,
+                                _usageStringCharacterWidth : int, errorHandler : IExiter) =
+
+    /// Gets the help flags specified for the CLI parser
+    member __.HelpFlags = argInfo.HelpParam.Flags
+    /// Gets the help description specified for the CLI parser
+    member __.HelpDescription = argInfo.HelpParam.Description
+    /// Gets the message that will be displayed at the top of the help text
+    member __.HelpTextMessage = helpTextMessage
+    /// Returns true if parser corresponds to a subcommand
+    member __.IsSubCommandParser = argInfo.TryGetParent() |> Option.isSome
+    /// If subcommand parser, gets parent argument metadata
+    member __.ParentInfo = argInfo.TryGetParent() |> Option.map (fun p -> p.ToArgumentCaseInfo())
+    /// Gets the default error handler used by the instance
+    member __.ErrorHandler = errorHandler
+
+    /// Gets metadata for all union cases used by parser
+    member __.GetArgumentCases() = 
+        argInfo.Cases 
+        |> Seq.map (fun p -> p.ToArgumentCaseInfo()) 
+        |> Seq.toList
+
+    /// Gets all subcommand parsers for given parser
+    member __.GetSubCommandParsers() =
+        argInfo.Cases
+        |> Seq.choose (fun cs -> match cs.ParameterInfo with SubCommand(e,nu,_) -> Some(e,nu) | _ -> None)
+        |> Seq.map (fun (e,nu) -> 
+            e.Accept { 
+                new ITemplateFunc<ArgumentParser> with
+                    member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
+                        new ArgumentParser<'Template>(nu, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler) :> _ 
+            })
+        |> Seq.toList
+
+    /// <summary>Formats a usage string for the argument parser.</summary>
+    /// <param name="message">The message to be displayed on top of the usage string.</param>
+    /// <param name="programName">Override the default program name settings.</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
+    member __.PrintUsage (?message : string, ?programName : string, ?usageStringCharacterWidth : int) : string = 
+        let programName = defaultArg programName _programName
+        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
+        mkUsageString argInfo programName usageStringCharacterWidth message |> StringExpr.build
+
+    /// <summary>
+    ///     Prints command line syntax. Useful for generating documentation.
+    /// </summary>
+    /// <param name="programName">Program name identifier placed at start of syntax string</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
+    member __.PrintCommandLineSyntax (?programName : string, ?usageStringCharacterWidth : int) : string =
+        let programName = defaultArg programName _programName
+        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
+        mkCommandLineSyntax argInfo "" usageStringCharacterWidth programName |> StringExpr.build
+
+    /// <summary>
+    ///     Enables access to the typed API of an ArgumentParser 
+    ///     when template type is unknown.
+    /// </summary>
+    /// <param name="visitor">Visitor used to access the parser.</param>
+    abstract Accept : visitor:IArgumentParserVisitor<'R> -> 'R
+
+/// The Argu type generates an argument parser given a type argument
+/// that is an F# discriminated union. It can then be used to parse command line arguments
+/// or XML configuration.
+and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
+    ArgumentParser<'Template when 'Template :> IArgParserTemplate> 
+        internal (argInfo : UnionArgInfo, _programName : string, helpTextMessage : string option, 
+                    _usageStringCharacterWidth : int, errorHandler : IExiter) =
+
+    inherit ArgumentParser(argInfo, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
+
+    // memoize parser generation for given template type
+    static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
+
+    let mkUsageString argInfo msgOpt = mkUsageString argInfo _programName _usageStringCharacterWidth msgOpt |> StringExpr.build
+
+    let (|ParserExn|_|) (e : exn) =
+        match e with
+        // do not display usage for App.Config parameter errors
+        | ParseError (msg, ErrorCode.AppSettings, _) -> Some(ErrorCode.AppSettings, msg)
+        | ParseError (msg, id, aI) -> Some (id, mkUsageString aI (Some msg))
+        | HelpText aI -> Some (ErrorCode.HelpText, mkUsageString aI helpTextMessage)
+        | _ -> None
+
+    /// <summary>
+    ///     Creates a new parser instance based on supplied F# union template.
+    /// </summary>
+    /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
+    /// <param name="helpTextMessage">Message that will be displayed at the top of the help text.</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
+    /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
+    new (?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter) =
+        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth 80
+        let programName = match programName with Some pn -> pn | None -> currentProgramName.Value
+        let errorHandler = match errorHandler with Some e -> e  | None -> new ExceptionExiter() :> _
+        new ArgumentParser<'Template>(argInfoLazy.Value, programName, helpTextMessage, usageStringCharacterWidth, errorHandler)
+
+    /// <summary>Parse command line arguments only.</summary>
+    /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
+    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
+    member __.ParseCommandLine (?inputs : string [], ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+        let ignoreMissing = defaultArg ignoreMissing false
+        let ignoreUnrecognized = defaultArg ignoreUnrecognized false
+        let raiseOnUsage = defaultArg raiseOnUsage true
+        let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
+
+        try
+            let cliResults = parseCommandLine argInfo _programName helpTextMessage _usageStringCharacterWidth errorHandler raiseOnUsage ignoreUnrecognized inputs
+            let ignoreMissing = (cliResults.IsUsageRequested && not raiseOnUsage) || ignoreMissing
+            let results = postProcessResults argInfo ignoreMissing None (Some cliResults)
+
+            new ParseResult<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
+
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
+
+    /// <summary>Parse arguments using specified configuration reader only. This defaults to the AppSettings configuration of the current process.</summary>
+    /// <param name="configurationReader">Configuration reader used to source the arguments. Defaults to the AppSettings configuration of the current process.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    member __.ParseConfiguration (configurationReader : IConfigurationReader, ?ignoreMissing : bool) : ParseResult<'Template> =
+        let ignoreMissing = defaultArg ignoreMissing false
+
+        try
+            let appSettingsResults = parseKeyValueConfig configurationReader argInfo
+            let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
+
+            new ParseResult<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
+
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)    
+
+    /// <summary>Parse both command line args and supplied configuration reader.
+    ///          Results are merged with command line args overriding configuration parameters.</summary>
+    /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
+    /// <param name="configurationReader">Configuration reader used to source the arguments. Defaults to the AppSettings configuration of the current process.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
+    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
+    member __.Parse (?inputs : string [], ?configurationReader : IConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+        let ignoreMissing = defaultArg ignoreMissing false
+        let ignoreUnrecognized = defaultArg ignoreUnrecognized false
+        let raiseOnUsage = defaultArg raiseOnUsage true
+        let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
+        let configurationReader = match configurationReader with Some c -> c | None -> ConfigurationReader.FromAppSettings()
+
+        try
+            let appSettingsResults = parseKeyValueConfig configurationReader argInfo
+            let cliResults = parseCommandLine argInfo _programName helpTextMessage _usageStringCharacterWidth errorHandler raiseOnUsage ignoreUnrecognized inputs
+            let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
+
+            new ParseResult<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
+
+        with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
+
+    /// <summary>Parse AppSettings section of XML configuration only.</summary>
+    /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
+    member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResult<'Template> =
+        let configurationReader =
+            match xmlConfigurationFile with
+            | None -> ConfigurationReader.FromAppSettings()
+            | Some f -> ConfigurationReader.FromAppSettingsFile(f)
+
+        __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
+
+    /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
+    /// <param name="assembly">assembly to get application configuration from.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
+    member __.ParseAppSettings(assembly : Assembly, ?ignoreMissing : bool) =
+        let configurationReader = ConfigurationReader.FromAppSettings(assembly)
+        __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
+
+    /// <summary>
+    ///     Converts a sequence of template argument inputs into a ParseResult instance
+    /// </summary>
+    /// <param name="inputs">Argument input sequence.</param>
+    member __.ToParseResult (inputs : seq<'Template>) : ParseResult<'Template> =
+        mkParseResultFromValues argInfo errorHandler _usageStringCharacterWidth _programName helpTextMessage inputs
+
+    /// <summary>
+    ///     Gets a subparser associated with specific subcommand instance
+    /// </summary>
+    /// <param name="expr">Expression providing the subcommand union constructor.</param>
+    member __.GetSubCommandParser (expr : Expr<ParseResult<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
+        let uci = expr2Uci expr
+        let case = argInfo.Cases.[uci.Tag]
+        match case.ParameterInfo with
+        | SubCommand (_,nestedUnion,_) -> 
+            new ArgumentParser<'SubTemplate>(nestedUnion, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
+        | _ -> arguExn "internal error when fetching subparser %O." uci
+
+    /// <summary>
+    ///     Gets the F# union tag representation for given argument
+    /// </summary>
+    /// <param name="value">Argument instance.</param>
+    member __.GetTag(value : 'Template) : int = 
+        argInfo.TagReader.Value (value :> obj)
+
+    /// <summary>
+    ///     Gets argument metadata for given argument instance.
+    /// </summary>
+    /// <param name="value">Argument instance.</param>
+    member __.GetArgumentCaseInfo(value : 'Template) : ArgumentCaseInfo =
+        let tag = argInfo.TagReader.Value (value :> obj)
+        argInfo.Cases.[tag].ToArgumentCaseInfo()
+
+    /// <summary>
+    ///     Gets argument metadata for given union case constructor
+    /// </summary>
+    /// <param name="ctorExpr">Quoted union case constructor.</param>
+    member __.GetArgumentCaseInfo(ctorExpr : Expr<'Fields -> 'Template>) : ArgumentCaseInfo =
+        let uci = expr2Uci ctorExpr
+        argInfo.Cases.[uci.Tag].ToArgumentCaseInfo()
+
+    /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
+    member __.PrintCommandLineArguments (args : 'Template list) : string [] =
+        mkCommandLineArgs argInfo (Seq.cast args) |> Seq.toArray
+
+    /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
+    member __.PrintCommandLineArgumentsFlat (args : 'Template list) : string =
+        __.PrintCommandLineArguments args |> flattenCliTokens
+
+    /// <summary>Prints parameters in App.Config format.</summary>
+    /// <param name="args">The parameters that fill out the XML document.</param>
+    /// <param name="printComments">Print XML comments over every configuration entry.</param>
+    member __.PrintAppSettingsArguments (args : 'Template list, ?printComments : bool) : string =
+        let printComments = defaultArg printComments true
+        let xmlDoc = mkAppSettingsDocument argInfo printComments args
+        use writer = { new System.IO.StringWriter() with member __.Encoding = System.Text.Encoding.UTF8 }
+        xmlDoc.Save writer
+        writer.Flush()
+        writer.ToString()
+
+
+    override self.Accept visitor = visitor.Visit self
+
+/// Rank-2 function used for accessing typed APIs of untyped parsers
+and IArgumentParserVisitor<'R> =
+    /// <summary>
+    ///     Visit argument parser of generic type.
+    /// </summary>
+    /// <param name="parser">Supplied argument parser.</param>
+    abstract Visit<'Template when 'Template :> IArgParserTemplate> : parser:ArgumentParser<'Template> -> 'R
 
 /// <summary>
 ///     Argu static methods
 /// </summary>
-type ArgumentParser =
+type ArgumentParser with
         
     /// <summary>
     ///     Create a new argument parsing scheme using given 'Template type
     ///     which must be an F# Discriminated Union.
     /// </summary>
-    /// <param name="usageText">Specify a usage text to prefixed at the '--help' output.</param>
-    static member Create<'Template when 'Template :> IArgParserTemplate>(?usageText : string) =
-        new ArgumentParser<'Template>(?usageText = usageText)
+    /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
+    /// <param name="helpTextMessage">Message that will be displayed at the top of the help text.</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
+    /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
+    static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter) =
+        new ArgumentParser<'Template>(?programName = programName, ?helpTextMessage = helpTextMessage, ?errorHandler = errorHandler, ?usageStringCharacterWidth = usageStringCharacterWidth)
 
-/// The Argu type generates an argument parser given a type argument
-/// that is an F# discriminated union. It can then be used to parse command line arguments
-/// or XML configuration.
-and ArgumentParser<'Template when 'Template :> IArgParserTemplate> internal (?usageText : string) =
-    do 
-        if not <| FSharpType.IsUnion(typeof<'Template>, bindingFlags = allBindings) then
-            invalidArg typeof<'Template>.Name "Argu: template type inaccessible or not F# DU."
 
-    let argInfo =
-        FSharpType.GetUnionCases(typeof<'Template>, bindingFlags = allBindings)
-        |> Seq.map preComputeArgInfo
-        |> Seq.sortBy (fun a -> a.UCI.Tag)
-        |> Seq.toList
+[<AutoOpen>]
+module ArgumentParserUtils =
 
-    do checkForConflictingParameters argInfo
+    type ParseResult<'Template when 'Template :> IArgParserTemplate> with
+        /// Gets the parser instance corresponding to the parse result
+        member r.Parser =
+            new ArgumentParser<'Template>(r.ArgInfo, r.ProgramName, r.Description, 
+                                                r.CharacterWidth, r.ErrorHandler)
 
-    let clArgIdx =
-        argInfo
-        |> Seq.map (fun aI -> aI.CommandLineNames |> Seq.map (fun name -> name, aI))
-        |> Seq.concat
-        |> Map.ofSeq
+    /// converts a sequence of inputs to a ParseResult instance
+    let toParseResults (inputs : seq<'Template>) : ParseResult<'Template> =
+        ArgumentParser.Create<'Template>().ToParseResult(inputs)
 
-    let (|ParserExn|_|) (e : exn) =
-        match e with
-        // do not display usage for App.Config-only parameter errors
-        | Bad (msg, id, Some aI) when aI.NoCommandLine -> Some(id, msg)
-        | Bad (msg, id, _) -> Some (id, printUsage (Some msg) argInfo)
-        | HelpText -> Some (ErrorCode.HelpText, printUsage usageText argInfo)
-        | _ -> None
-
-    /// <summary>Parse command line arguments only.</summary>
-    /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
-    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
-    member s.ParseCommandLine (?inputs : string [], ?errorHandler: IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) =
-        let ignoreMissing = defaultArg ignoreMissing false
-        let ignoreUnrecognized = defaultArg ignoreUnrecognized false
-        let raiseOnUsage = defaultArg raiseOnUsage true
-        let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
-        let inputs = match inputs with None -> getEnvArgs () | Some args -> args
-
-        try
-            let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
-
-            if cliResults.HelpArgs > 0 && raiseOnUsage then raise HelpText
-
-            let ignoreMissing = (cliResults.HelpArgs > 0 && not raiseOnUsage) || ignoreMissing
-
-            let results = combine argInfo ignoreMissing None (Some cliResults.ParseResults)
-
-            ParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)
-        with
-        | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
-
-    /// <summary>Parse AppSettings section of XML configuration only.</summary>
-    /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member s.ParseAppSettings (?xmlConfigurationFile : string, ?errorHandler: IExiter, ?ignoreMissing) =
-        let ignoreMissing = defaultArg ignoreMissing false
-        let errorHandler = 
-            match errorHandler with
-            | None -> ExceptionExiter.ArgumentExceptionExiter()
-            | Some eh -> eh
-
-        try
-            let appSettingsResults = parseAppSettings xmlConfigurationFile argInfo
-            let results = combine argInfo ignoreMissing (Some appSettingsResults) None
-
-            ParseResults<_>(s, errorHandler, results, false)
-        with
-        | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
-
-    /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
-    /// <param name="assembly">assembly to get application configuration from.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member s.ParseAppSettings(assembly : Assembly, ?errorHandler : IExiter, ?ignoreMissing) =
-        let configFile = assembly.Location + ".config"
-        s.ParseAppSettings(xmlConfigurationFile = configFile, ?errorHandler = errorHandler, ?ignoreMissing = ignoreMissing)
-
-    /// <summary>Parse both command line args and AppSettings section of XML configuration.
-    ///          Results are merged with command line args overriding XML config.</summary>
-    /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
-    /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given configuration file.</param>
-    /// <param name="errorHandler">The implementation of IExiter used for error handling. ArgumentException is default.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
-    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
-    member s.Parse (?inputs : string [], ?xmlConfigurationFile : string, ?errorHandler : IExiter, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) =
-        let ignoreMissing = defaultArg ignoreMissing false
-        let ignoreUnrecognized = defaultArg ignoreUnrecognized false
-        let raiseOnUsage = defaultArg raiseOnUsage true
-        let errorHandler = defaultArg errorHandler <| ExceptionExiter.ArgumentExceptionExiter()
-        let inputs = match inputs with None -> getEnvArgs () | Some args -> args
-
-        try
-            let appSettingsResults = parseAppSettings xmlConfigurationFile argInfo
-            let cliResults = parseCommandLine<'Template> clArgIdx ignoreUnrecognized inputs
-            if cliResults.HelpArgs > 0 && raiseOnUsage then raise HelpText
-
-            let results = combine argInfo ignoreMissing (Some appSettingsResults) (Some cliResults.ParseResults)
-
-            ParseResults<_>(s, errorHandler, results, cliResults.HelpArgs > 0)
-        with
-        | ParserExn (id, msg) -> errorHandler.Exit (msg, int id)
-
-    /// <summary>Returns the usage string.</summary>
-    /// <param name="message">The message to be displayed on top of the usage string.</param>
-    member __.Usage (?message : string) : string = printUsage message argInfo
-
-    /// <summary>Prints command line syntax. Useful for generating documentation.</summary>
-    member __.PrintCommandLineSyntax () : string =
-        printCommandLineSyntax argInfo
-
-    /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
-    member __.PrintCommandLine (args : 'Template list) : string [] =
-        printCommandLineArgs argInfo args
-
-    /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
-    member __.PrintCommandLineFlat (args : 'Template list) : string =
-        __.PrintCommandLine args
-        |> Seq.map (sprintf "\"%s\"")
-        |> String.concat " "
-
-    /// <summary>Prints parameters in App.Config format.</summary>
-    /// <param name="args">The parameters that fill out the XML document.</param>
-    /// <param name="printComments">Print XML comments over every configuration entry.</param>
-    member __.PrintAppSettings (args : 'Template list, ?printComments) : string =
-        let printComments = defaultArg printComments true
-        let xmlDoc = printAppSettings argInfo printComments args
-        use writer = { new System.IO.StringWriter() with member __.Encoding = System.Text.Encoding.UTF8 }
-        xmlDoc.Save writer
-        writer.Flush()
-        writer.ToString()
-            
-/// Argument parsing result holder.
-and ParseResults<'Template when 'Template :> IArgParserTemplate> 
-        internal (ap : ArgumentParser<'Template>, exiter : IExiter, 
-                    results : Map<ArgId, ArgInfo * ArgParseResult<'Template> list>, isUsageRequested : bool) =
-
-    // exiter wrapper
-    let exit hideUsage msg id =
-        if hideUsage then exiter.Exit(msg, id)
-        else exiter.Exit(ap.Usage msg, id)
-
-    // restriction predicate based on optional parse source
-    let restrictF flags : ArgParseResult<'T> -> bool =
-        let flags = defaultArg flags ParseSource.All
-        fun x -> Enum.hasFlag flags x.Source
-
-    let getResults rs (e : Expr) = results.[expr2ArgId e] |> snd |> List.filter (restrictF rs)
-    let containsResult rs (e : Expr) = e |> getResults rs |> List.isEmpty |> not
-    let tryGetResult rs (e : Expr) = e |> getResults rs |> List.tryLast
-    let getResult rs (e : Expr) =
-        let id = expr2ArgId e
-        let aI, results = results.[id]
-        match List.tryLast results with
-        | None -> exit aI.NoCommandLine (sprintf "missing argument '%s'." <| getName aI) (int ErrorCode.PostProcess)
-        | Some r -> 
-            if restrictF rs r then r
-            else
-                exit aI.NoCommandLine (sprintf "missing argument '%s'." <| getName aI) (int ErrorCode.PostProcess)
-
-    let parseResult (f : 'F -> 'S) (r : ArgParseResult<'T>) =
-        try f (r.FieldContents :?> 'F)
-        with e ->
-            exit r.ArgInfo.NoCommandLine (sprintf "Error parsing '%s': %s" r.ParseContext e.Message) (int ErrorCode.PostProcess)
-
-    /// Returns true if '--help' parameter has been specified in the command line.
-    member __.IsUsageRequested = isUsageRequested
-        
-    /// <summary>Returns the usage string.</summary>
-    /// <param name="message">The message to be displayed on top of the usage string.</param>
-    member __.Usage ?message = ap.Usage(?message = message)
-
-    /// <summary>Query parse results for parameterless argument.</summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetResults (expr : Expr<'Template>, ?source : ParseSource) : 'Template list = 
-        expr |> getResults source |> List.map (fun r -> r.Value)
-
-    /// <summary>Query parse results for argument with parameters.</summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetResults (expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields list = 
-        expr |> getResults source |> List.map (fun r -> r.FieldContents :?> 'Fields)
-
-    /// <summary>Gets all parse results.</summary>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetAllResults (?source : ParseSource) : 'Template list = 
-        results 
-        |> Seq.collect (fun (KeyValue(_,(_,rs))) -> rs)
-        |> Seq.filter (restrictF source)
-        |> Seq.map (fun r -> r.Value)
-        |> Seq.toList
-
-    /// <summary>Returns the *last* specified parameter of given type, if it exists. 
-    ///          Command line parameters have precedence over AppSettings parameters.</summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.TryGetResult (expr : Expr<'Template>, ?source : ParseSource) : 'Template option = 
-        expr |> tryGetResult source |> Option.map (fun r -> r.Value)
-
-    /// <summary>Returns the *last* specified parameter of given type, if it exists. 
-    ///          Command line parameters have precedence over AppSettings parameters.</summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.TryGetResult (expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields option = 
-        expr |> tryGetResult source |> Option.map (fun r -> r.FieldContents :?> 'Fields)
-
-    /// <summary>Returns the *last* specified parameter of given type. 
-    ///          Command line parameters have precedence over AppSettings parameters.</summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="defaultValue">Return this of no parameter of specific kind has been specified.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member s.GetResult (expr : Expr<'Template>, ?defaultValue : 'Template, ?source : ParseSource) : 'Template =
-        match defaultValue with
-        | None -> let r = getResult source expr in r.Value
-        | Some def -> defaultArg (s.TryGetResult(expr, ?source = source)) def
-                
-    /// <summary>Returns the *last* specified parameter of given type. 
-    ///          Command line parameters have precedence over AppSettings parameters.</summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="defaultValue">Return this of no parameter of specific kind has been specified.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member s.GetResult (expr : Expr<'Fields -> 'Template>, ?defaultValue : 'Fields , ?source : ParseSource) : 'Fields =
-        match defaultValue with
-        | None -> let r = getResult source expr in r.FieldContents :?> 'Fields
-        | Some def -> defaultArg (s.TryGetResult expr) def
-
-    /// <summary>Checks if parameter of specific kind has been specified.</summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.Contains (expr : Expr<'Template>, ?source : ParseSource) : bool = containsResult source expr
-    /// <summary>Checks if parameter of specific kind has been specified.</summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.Contains (expr : Expr<_ -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
-
-    /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
-    /// <param name="msg">The error message to be displayed.</param>
-    /// <param name="errorCode">The error code to returned.</param>
-    /// <param name="showUsage">Print usage together with error message.</param>
-    member __.Raise (msg, ?errorCode : int, ?showUsage : bool) : 'T =
-        let showUsage = defaultArg showUsage true
-        exit (not showUsage) msg (defaultArg errorCode (int ErrorCode.PostProcess))
-
-    /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
-    /// <param name="e">The error to be displayed.</param>
-    /// <param name="errorCode">The error code to returned.</param>
-    /// <param name="showUsage">Print usage together with error message.</param>
-    member r.Raise (e : exn, ?errorCode : int, ?showUsage : bool) : 'T = 
-        r.Raise (e.Message, ?errorCode = errorCode, ?showUsage = showUsage)
-
-    /// <summary>Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.</summary>
-    /// <param name="f">The operation to be executed.</param>
-    /// <param name="errorCode">The error code to returned.</param>
-    /// <param name="showUsage">Print usage together with error message.</param>
-    member r.Catch (f : unit -> 'T, ?errorCode : int, ?showUsage : bool) : 'T =
-        try f () with e -> r.Raise(e.Message, ?errorCode = errorCode, ?showUsage = showUsage)
-
-    /// <summary>Returns the *last* specified parameter of given type. 
-    ///          Command line parameters have precedence over AppSettings parameters.
-    ///          Results are passed to a post-processing function that is error handled by the parser.
-    /// </summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="parser">The post-processing parser.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member r.PostProcessResult (expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R =
-        expr |> getResult source |> parseResult parser
-
-    /// <summary>Query parse results for given argument kind.
-    ///          Command line parameters have precedence over AppSettings parameters.
-    ///          Results are passed to a post-processing function that is error handled by the parser.
-    /// </summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="parser">The post-processing parser.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member r.PostProcessResults (expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R list =
-        expr |> getResults source |> List.map (parseResult parser)
-
-    /// <summary>Returns the *last* specified parameter of given type. 
-    ///          Command line parameters have precedence over AppSettings parameters.
-    ///          Results are passed to a post-processing function that is error handled by the parser.
-    /// </summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="parser">The post-processing parser.</param>
-    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member r.TryPostProcessResult (expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R option =
-        expr |> tryGetResult source |> Option.map (parseResult parser)
-
-    /// <summary>
-    ///     Iterates through *all* parse results for a given argument kind.
-    ///     Command line parameters have precedence over AppSettings parameters.
-    ///     Results are passed to an iterator function that is error handled by the parser.
-    /// </summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="iterator">The iterator body.</param>
-    /// <param name="source">Option source restriction: AppSettings or CommandLine.</param>
-    member r.IterResults (expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
-        expr |> getResults source |> List.iter (parseResult iterator)
-
-    /// <summary>
-    ///     Iterates through the *last* parse result for a given argument kind.
-    ///     Command line parameters have precedence over AppSettings parameters.
-    ///     Results are passed to an iterator function that is error handled by the parser.
-    /// </summary>
-    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="iterator">The iterator body.</param>
-    /// <param name="source">Option source restriction: AppSettings or CommandLine.</param>
-    member r.IterResult (expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
-        expr |> tryGetResult source |> Option.iter (parseResult iterator)
+    /// gets the F# union tag representation of given argument instance
+    let tagOf (input : 'Template) : int =
+        ArgumentParser.Create<'Template>().GetTag input

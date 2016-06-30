@@ -19,9 +19,9 @@ For instance:
 *)
 
 type Arguments =
-    | Working_Directory of string
+    | Working_Directory of path:string
     | Listener of host:string * port:int
-    | Log_Level of int
+    | Log_Level of level:int
     | Detach
 
 (**
@@ -64,11 +64,11 @@ A minimal parser based on the above example can be created as follows:
 open Argu
 
 type CLIArguments =
-    | Working_Directory of string
+    | Working_Directory of path:string
     | Listener of host:string * port:int
-    | Data of byte []
-    | Port of int
-    | Log_Level of int
+    | Data of base64:byte[]
+    | Port of tcp_port:int
+    | Log_Level of level:int
     | Detach
 with
     interface IArgParserTemplate with
@@ -81,22 +81,37 @@ with
             | Log_Level _ -> "set the log level."
             | Detach _ -> "detach daemon from console."
  
-// build the argument parser
-let parser = ArgumentParser.Create<CLIArguments>()
+(** We extract the argument parser from the template using the following command: *)
+
+let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe")
  
-// get usage text
-let usage = parser.Usage()
-// output:
-//    --working-directory <string>: specify a working directory.
-//    --listener <host:string> <port:int>: specify a listener (hostname : port).
-//    --log-level <int>: set the log level.
-//    --detach: detach daemon from console.
-//    --help [-h|/h|/help|/?]: display this list of options.
+(** We can get the automatically generated usage string by typing *)
+
+let usage = parser.PrintUsage()
+
+(** giving
+
+    [lang=bash]
+    USAGE: gadget.exe [--working-directory <path>] [--listener <host> <port>] [--data <base64>] [--port <tcp port>] [--log-level <level>] [--detach] [--help]
+
+    OPTIONS:
+
+	    --working-directory <path>: specify a working directory.
+	    --listener <host> <port>: specify a listener (hostname : port).
+	    --data <base64>: binary data in base64 encoding.
+	    --port <tcp port>: specify a primary port.
+	    --log-level <level>: set the log level.
+	    --detach: detach daemon from console.
+	    --help: display this list of options.
  
-// parse given input
-let results = parser.Parse([| "--detach" ; "--listener" ; "localhost" ; "8080" |])
+To parse a command line input:
+
+*)
+
+let results = parser.Parse [| "--detach" ; "--listener" ; "localhost" ; "8080" |]
  
-// get all parsed results
+(** which gives *)
+
 let all = results.GetAllResults() // [ Detach ; Listener ("localhost", 8080) ]
 
 (**
@@ -105,6 +120,7 @@ let all = results.GetAllResults() // [ Detach ; Listener ("localhost", 8080) ]
 
 While getting a single list of all parsed results might be useful for some cases, 
 it is more likely that you need to query the results for specific parameters:
+
 *)
 
 let detach = results.Contains <@ Detach @>
@@ -126,11 +142,11 @@ can be customized by fixing attributes to the union cases:
 *)
 
 type Argument =
-    | [<Mandatory>] Cache_Path of string
-    | [<NoCommandLine>] Connection_String of string
-    | [<PrintLabels>] Listener of host:string * port:int
-    | [<EqualsAssignment>] Assignment of string
-    | [<AltCommandLine("-pP")>] Primary_Port of int
+    | [<Mandatory>] Cache_Path of path:string
+    | [<NoCommandLine>] Connection_String of conn:string
+    | [<Unique>] Listener of host:string * port:int
+    | [<EqualsAssignment>] Assignment of value:string
+    | [<AltCommandLine("-pP")>] Primary_Port of tcp_port:int
 
 (**
 
@@ -142,9 +158,9 @@ In this case,
 
   * `AltCommandLine`: specifies an alternative command line switch.
 
-  * `EqualsAssignment` : enforces '--assignment=value' CLI syntax.
+  * `EqualsAssignment` : enforces `--assignment=value` and `--assignment key=value` CLI syntax.
 
-  * `PrintLabels` : Augments documentation with label names in F# 3.1 programs.
+  * `Unique` : parser will fail if CLI provides this argument more than once.
 
 The following attributes are also available:
 
@@ -188,16 +204,15 @@ Argu is convenient when it comes to automated process spawning:
 
 open System.Diagnostics
 
-let arguments : string [] = 
-    parser.PrintCommandLine [ Port 42 ; Working_Directory "temp" ]
+let arguments = parser.PrintCommandLineArgumentsFlat [ Port 42 ; Working_Directory "temp" ]
 
-Process.Start("foo.exe", String.concat " " arguments)
+Process.Start("foo.exe", arguments)
 
 (**
 It can also be used to auto-generate a suitable `AppSettings` configuration file:
 *)
 
-let xml = parser.PrintAppSettings [ Port 42 ; Working_Directory "/tmp" ]
+let xml = parser.PrintAppSettingsArguments [ Port 42 ; Working_Directory "/tmp" ]
 
 (**
 which would yield the following:
@@ -206,9 +221,9 @@ which would yield the following:
     <?xml version="1.0" encoding="utf-16"?>
     <configuration>
       <appSettings>
-        <!-- sets the port number. : int -->
+        <!-- sets the port number. : port -->
         <add key="port" value="42" />
-        <!-- sets the working directory. : string -->
+        <!-- sets the working directory. : path -->
         <add key="working directory" value="/tmp" />
       </appSettings>
     </configuration>

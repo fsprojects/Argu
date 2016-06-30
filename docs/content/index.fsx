@@ -33,9 +33,9 @@ For instance:
 *)
 
 type Arguments =
-    | Working_Directory of string
+    | Working_Directory of path:string
     | Listener of host:string * port:int
-    | Log_Level of int
+    | Log_Level of level:int
     | Detach
 
 (**

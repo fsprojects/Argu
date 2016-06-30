@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\bin\net40\Argu.XML</DocumentationFile>
+    <OtherFlags>--warnon:1182</OtherFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -62,11 +63,16 @@
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Utils.fs" />
     <Compile Include="Types.fs" />
-    <Compile Include="ArgInfo.fs" />
-    <Compile Include="Parsers.fs" />
+    <Compile Include="Utils.fs" />
+    <Compile Include="ConfigReaders.fs" />
+    <Compile Include="UnionArgInfo.fs" />
+    <Compile Include="PreCompute.fs" />
     <Compile Include="UnParsers.fs" />
+    <Compile Include="ParseResult.fs" />
+    <Compile Include="Parsers\Common.fs" />
+    <Compile Include="Parsers\Cli.fs" />
+    <Compile Include="Parsers\KeyValue.fs" />
     <Compile Include="ArgumentParser.fs" />
     <None Include="paket.template" />
   </ItemGroup>
@@ -89,4 +95,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\..\.paket\paket.targets" />
 </Project>

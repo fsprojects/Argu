@@ -4,31 +4,68 @@ open System
 open System.IO
 open System.Collections.Generic
 open System.Text
+open System.Text.RegularExpressions
 open System.Reflection
 
 open System.Xml
 open System.Xml.Linq
 
-open Microsoft.FSharp.Reflection
-open Microsoft.FSharp.Quotations.Patterns
+open FSharp.Reflection
+open FSharp.Quotations
+open FSharp.Quotations.Patterns
 
 [<AutoOpen>]
 module internal Utils =
 
     let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
 
-    /// gets the top-Level methodInfo call in a quotation
-    let rec getMethod =
-        function
-        | Lambda(_,e) -> getMethod e
-        | Call(_,f,_) -> f
-        | _ -> invalidArg "expr" "quotation is not of method."
-
+    let inline arguExn fmt = Printf.ksprintf(fun msg -> raise <| new ArguException(msg)) fmt
 
     [<RequireQualifiedAccess>]
-    module internal Enum =
+    module Enum =
 
         let inline hasFlag (flag : ^Enum) (value : ^Enum) = flag &&& value = value
+
+    [<RequireQualifiedAccess>]
+    module Array =
+
+        let last (ts : 'T[]) =
+            match ts.Length with
+            | 0 -> invalidArg "xs" "input array is empty."
+            | n -> ts.[n - 1]
+
+        let tryLast (ts : 'T[]) =
+            match ts.Length with
+            | 0 -> None
+            | n -> Some ts.[n-1]
+
+    [<RequireQualifiedAccess>]
+    module List =
+
+        /// try fetching last element of a list
+        let rec tryLast xs =
+            match xs with
+            | [] -> None
+            | [x] -> Some x
+            | _ :: rest -> tryLast rest
+
+    [<RequireQualifiedAccess>]
+    module Seq =
+
+        /// try fetching last element of a sequence
+        let tryLast (xs : seq<'T>) =
+            let mutable isAccessed = false
+            let mutable current = Unchecked.defaultof<'T>
+            for x in xs do isAccessed <- true; current <- x
+            if isAccessed then Some current else None
+
+        /// partition sequence according to predicate
+        let partition (predicate : 'T -> bool) (ts : seq<'T>) =
+            let l,r = new ResizeArray<'T>(), new ResizeArray<'T>()
+            for t in ts do
+                if predicate t then l.Add t else r.Add t
+
+            l.ToArray(), r.ToArray()
 
     [<AbstractClass>]
     type Existential internal () =
@@ -47,6 +84,23 @@ module internal Utils =
     and IFunc<'R> =
         abstract Invoke<'T> : unit -> 'R
 
+    [<AbstractClass>]
+    type ShapeArgumentTemplate() =
+        static let genTy = typedefof<ShapeArgumentTemplate<_>>
+        abstract Type : Type
+        abstract Accept : ITemplateFunc<'R> -> 'R
+        static member FromType(t : Type) =
+            let et = genTy.MakeGenericType [|t|]
+            Activator.CreateInstance et :?> ShapeArgumentTemplate
+
+    and ShapeArgumentTemplate<'Template when 'Template :> IArgParserTemplate>() =
+        inherit ShapeArgumentTemplate()
+        override __.Type = typeof<'Template>
+        override __.Accept func = func.Invoke<'Template>()
+
+    and ITemplateFunc<'R> =
+        abstract Invoke<'Template when 'Template :> IArgParserTemplate> : unit -> 'R
+
     /// reflected version of Unchecked.defaultof
     type Unchecked =
         static member UntypedDefaultOf(t : Type) =
@@ -55,120 +109,141 @@ module internal Utils =
                     member __.Invoke<'T> () = Unchecked.defaultof<'T> :> obj
                 }
 
-    type UnionCaseInfo with
-        member uci.GetAttrs<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
-            let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
+    type MemberInfo with
+        member m.ContainsAttribute<'T when 'T :> Attribute> () =
+            m.GetCustomAttributes(typeof<'T>, true) |> Array.isEmpty |> not
 
-            let attrs = uci.GetCustomAttributes(typeof<'T>) |> Seq.map (fun o -> o :?> 'T)
+        member m.TryGetAttribute<'T when 'T :> Attribute> () =
+            match m.GetCustomAttributes(typeof<'T>, true) with
+            | [||] -> None
+            | attrs -> attrs |> Array.last |> unbox<'T> |> Some
 
-            if includeDeclaringTypeAttrs then
-                let parentAttrs = uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)  |> Seq.map (fun o -> o :?> 'T)
-                Seq.append parentAttrs attrs |> Seq.toList
-            else
-                Seq.toList attrs
 
-        member uci.ContainsAttr<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs) =
-            let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
-
-            if includeDeclaringTypeAttrs then
-                uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not
-                    || uci.GetCustomAttributes(typeof<'T>) |> Seq.isEmpty |> not
-            else
-                uci.GetCustomAttributes(typeof<'T>) |> Seq.isEmpty |> not
-
-    [<RequireQualifiedAccess>]
-    module List =
-        /// fetch last element of a non-empty list
-        let rec last xs =
-            match xs with
-            | [] -> invalidArg "xs" "input list is empty."
-            | [x] -> x
-            | _ :: rest -> last rest
-
-        /// try fetching last element of a list
-        let rec tryLast xs =
-            match xs with
-            | [] -> None
-            | [x] -> Some x
-            | _ :: rest -> tryLast rest
-
-        /// <summary>
-        ///     returns `Some (map f ts)` iff `(forall t) ((f t).IsSome)`
-        /// </summary>
-        /// <param name="f"></param>
-        /// <param name="ts"></param>
-        let tryMap (f : 'T -> 'S option) (ts : 'T list) : 'S list option =
-            let rec gather acc rest =
-                match rest with
-                | [] -> Some <| List.rev acc
-                | h :: t ->
-                    match f h with
-                    | Some s -> gather (s :: acc) t
-                    | None -> None
-
-            gather [] ts
-
-        /// Map active pattern combinator
-        let (|Map|) f xs = List.map f xs
-
-        /// Nondeterministic Map active pattern combinator
-        let (|TryMap|_|) f xs = tryMap f xs
-
-    [<RequireQualifiedAccess>]
-    module Boolean =
-        let tryParse (inp : string) =
-            let ok, b = Boolean.TryParse inp
-            if ok then Some b
-            else None
-            
     type IDictionary<'K,'V> with
-        member d.TryFind(k : 'K) =
-            let mutable v = Unchecked.defaultof<'V>
-            if d.TryGetValue(k, &v) then Some v else None
+        member d.TryFind k =
+            let ok,found = d.TryGetValue k
+            if ok then Some found
+            else None
 
 
-    /// inherit this type for easy comparison semantics
-    type ProjectionComparison<'Id, 'Cmp when 'Cmp : comparison> (token : 'Cmp) =
-        member private __.ComparisonToken = token
-        interface IComparable with
-            member x.CompareTo y =
-                match y with
-                | :? ProjectionComparison<'Id, 'Cmp> as y -> compare token y.ComparisonToken
-                | _ -> invalidArg "y" "invalid comparand."
+    let currentProgramName = lazy(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName)
 
-        override x.Equals y =
-            match y with
-            | :? ProjectionComparison<'Id, 'Cmp> as y -> token = y.ComparisonToken
-            | _ -> false
+    type UnionCaseInfo with
+        member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
+            let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
-        override x.GetHashCode() = hash token
+            let caseAttrs = uci.GetCustomAttributes typeof<'T>
+            let attrs =
+                if includeDeclaringTypeAttrs then
+                    uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)
+                    |> Seq.append caseAttrs
+                else
+                    caseAttrs :> _
+
+            attrs |> Seq.map (fun o -> o :?> 'T)
+
+        member uci.TryGetAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
+            let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
+
+            match uci.GetCustomAttributes typeof<'T> with
+            | [||] when includeDeclaringTypeAttrs ->
+                match uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) with
+                | [||] -> None
+                | attrs -> Some (attrs.[0] :?> 'T)
+            | [||] -> None
+            | attrs -> Some (attrs.[0] :?> 'T)
+
+        member uci.ContainsAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
+            let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
+            if uci.GetCustomAttributes typeof<'T> |> Array.isEmpty |> not then true
+            elif includeDeclaringTypeAttrs then
+                uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Array.isEmpty |> not
+            else
+                false
+
+    /// recognize exprs that strictly contain DU constructors
+    /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
+    let expr2Uci (e : Expr) =
+        let (|Vars|_|) (exprs : Expr list) =
+            let vars = exprs |> List.choose (|Var|_|)
+            if vars.Length = exprs.Length then Some vars
+            else None
+
+        let rec aux (tupledArg : Var option) vars (e : Expr) =
+            match tupledArg, e with
+            | None, Lambda(arg, b) -> aux (Some arg) vars b
+            | Some arg, Let(x, TupleGet(Var varg, _), b) when arg = varg -> aux tupledArg (x :: vars) b
+            | None, NewUnionCase(u, []) -> u
+            | Some a, NewUnionCase(u, [Var x]) when a = x -> u
+            | Some _, NewUnionCase(u, Vars args) when vars.Length > 0 && List.rev vars = args -> u
+            | _ -> invalidArg "expr" "Only union constructors are permitted in expression based queries."
+
+        aux None [] e
+
+    let private whitespaceRegex = new Regex(@"\s", RegexOptions.Compiled)
+    let escapeCliString (value : string) =
+        if whitespaceRegex.IsMatch value then sprintf "'%s'" value
+        else value
+
+    let flattenCliTokens (tokens : seq<string>) =
+        tokens |> Seq.map escapeCliString |> String.concat " "
+
+    let private whitespaceAllRegex = new Regex(@"^\s*$", RegexOptions.Compiled)
+    /// Replacement of String.IsNullOrWhiteSpace for NET35
+    let isNullOrWhiteSpace (string:string) =
+#if NET35
+        if string = null then true
+        else whitespaceAllRegex.IsMatch string
+#else
+        String.IsNullOrWhiteSpace string
+#endif
+
+    let private assignRegex = new Regex(@"^([^=]*)=(.*)$", RegexOptions.Compiled)
+    /// parses the first part of a command line parameter
+    /// recognizes if parameter is of kind --param arg or --param=arg
+    let tryGetEqualsAssignment (name : string) (key:byref<string>) (value:byref<string>) : bool =
+        let m = assignRegex.Match name
+        if m.Success then
+            key <- m.Groups.[1].Value
+            value <- m.Groups.[2].Value
+            true
+        else
+            false
 
     // string builder compexpr
 
-    type StringExpr = StringBuilder -> unit
+    type StringExpr<'T> = StringBuilder -> 'T
 
     type StringExprBuilder () =
-        member __.Zero () : StringExpr = ignore
-        member __.Yield (txt : string) : StringExpr = fun b -> b.Append txt |> ignore
-        member __.Yield (c : char) : StringExpr = fun b -> b.Append c |> ignore
-        member __.YieldFrom f = f : StringExpr
+        member __.Zero () : StringExpr<unit> = ignore
+        member __.Bind(f : StringExpr<'T>, g : 'T -> StringExpr<'S>) : StringExpr<'S> =
+            fun sb -> g (f sb) sb
 
-        member __.Combine(f : StringExpr, g : StringExpr) : StringExpr = fun b -> f b; g b
-        member __.Delay (f : unit -> StringExpr) : StringExpr = fun b -> f () b
+        member __.Yield (txt : string) : StringExpr<unit> = fun b -> b.Append txt |> ignore
+        member __.Yield (c : char) : StringExpr<unit> = fun b -> b.Append c |> ignore
+        member __.YieldFrom (f : StringExpr<unit>) = f
+
+        member __.Combine(f : StringExpr<unit>, g : StringExpr<'T>) : StringExpr<'T> = fun b -> f b; g b
+        member __.Delay (f : unit -> StringExpr<'T>) : StringExpr<'T> = fun b -> f () b
         
-        member __.For (xs : 'a seq, f : 'a -> StringExpr) : StringExpr =
+        member __.For (xs : 'a seq, f : 'a -> StringExpr<unit>) : StringExpr<unit> =
             fun b ->
                 use e = xs.GetEnumerator ()
                 while e.MoveNext() do f e.Current b
 
-        member __.While (p : unit -> bool, f : StringExpr) : StringExpr =
+        member __.While (p : unit -> bool, f : StringExpr<unit>) : StringExpr<unit> =
             fun b -> while p () do f b
 
     let stringExpr = new StringExprBuilder ()
 
     [<RequireQualifiedAccess>]
-    module String =
-        let build (f : StringExpr) =
+    [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    module StringExpr =
+        let build (f : StringExpr<unit>) =
             let b = new StringBuilder ()
             do f b
             b.ToString ()
+
+        let currentLength : StringExpr<int> = fun sb -> sb.Length
+
+        let whiteSpace len : StringExpr<unit> = fun sb -> ignore(sb.Append(String(' ', len)))
