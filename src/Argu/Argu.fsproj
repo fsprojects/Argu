@@ -70,7 +70,9 @@
     <Compile Include="PreCompute.fs" />
     <Compile Include="UnParsers.fs" />
     <Compile Include="ParseResult.fs" />
-    <Compile Include="Parsers.fs" />
+    <Compile Include="Parsers\Common.fs" />
+    <Compile Include="Parsers\Cli.fs" />
+    <Compile Include="Parsers\KeyValue.fs" />
     <Compile Include="ArgumentParser.fs" />
     <None Include="paket.template" />
   </ItemGroup>
