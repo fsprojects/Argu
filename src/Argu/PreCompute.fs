@@ -43,12 +43,6 @@ let tryExtractUnionParameterLabel (p : PropertyInfo) =
     if defaultLabelRegex.IsMatch p.Name then None
     else Some(p.Name.Replace('_',' '))
 
-/// get CL arguments from environment
-let getEnvironmentCommandLineArgs () =
-    match System.Environment.GetCommandLineArgs() with
-    | [||] -> [||]
-    | args -> args.[1..]
-
 let (|NestedParseResult|Optional|List|Other|) (t : Type) =
     if t.IsGenericType then
         let gt = t.GetGenericTypeDefinition()
