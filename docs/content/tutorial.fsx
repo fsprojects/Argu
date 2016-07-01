@@ -112,7 +112,7 @@ To parse a command line input:
 *)
 
 let results = parser.Parse [| "--detach" ; "--listener" ; "localhost" ; "8080" |]
- 
+
 (** which gives *)
 
 let all = results.GetAllResults() // [ Detach ; Listener ("localhost", 8080) ]
@@ -129,7 +129,8 @@ it is more likely that you need to query the results for specific parameters:
 let detach = results.Contains <@ Detach @>
 let listener = results.GetResults <@ Listener @>
 
-// returns the last observed result of this parameter
+(** The following methods return the last observed result for given argument case *)
+
 let dataOpt = results.TryGetResult <@ Data @>
 let logLevel = results.GetResult (<@ Log_Level @>, defaultValue = 0)
 
@@ -156,34 +157,42 @@ type Argument =
 
 In this case,
 
-  * `Mandatory`: parser will fail if no configuration for this parameter is given.
+  * [`Mandatory`](reference/argu-arguattributes-mandatoryattribute.html): parser will fail if no configuration for this parameter is given.
 
-  * `NoCommandLine`: restricts this parameter to the AppSettings section.
+  * [`NoCommandLine`](reference/argu-arguattributes-nocommandlineattribute.html): restricts this parameter to the AppSettings section.
 
-  * `AltCommandLine`: specifies an alternative command line switch.
+  * [`AltCommandLine`](reference/argu-arguattributes-altcommandlineattribute.html): specifies an alternative command line switch.
 
-  * `EqualsAssignment` : enforces `--assignment=value` and `--assignment key=value` CLI syntax.
+  * [`EqualsAssignment`](reference/argu-arguattributes-equalsassignmentattribute.html) : enforces `--assignment=value` and `--assignment key=value` CLI syntax.
 
-  * `Unique` : parser will fail if CLI provides this argument more than once.
+  * [`Unique`](reference/argu-arguattributes-uniqueattribute.html) : parser will fail if CLI provides this argument more than once.
 
-The following attributes are also available:
+Many more attributes are also available, such as
 
-  * `NoAppSettings`: restricts argument to CLI parsing only.
+  * [`First`](reference/argu-arguattributes-firstattribute.html): Argument can only be placed at the beginning of the command line.
 
-  * `Hidden`: do not display in the help usage string.
+  * [`Hidden`](reference/argu-arguattributes-hiddenattribute.html): do not display in the help usage string.
 
-  * `GatherAllSources`: CLI arguments will not override AppSettings parameters.
+  * [`CustomAppSettings`](reference/argu-arguattributes-customappsettingsattribute.html): sets a custom key name for AppSettings.
 
-  * `CustomAppSettings`: sets a custom key name for AppSettings.
+Please see the [API Reference](http://fsprojects.github.io/Argu/reference/argu-arguattributes.html)
+for a complete list of all attributes provided by Argu.
 
-  * `First`: Argument can only be placed at the beginning of the command line.
+## Supported Primitives
 
-For a complete list of all attributes provided by Argu, 
-please see http://fsprojects.github.io/Argu/reference/argu-arguattributes.html.
+Arguments can specify the following primitives as parameters:
+
+  * `bool`, `byte` and `sbyte`.
+  * `int`, `int16` and `int64`.
+  * `uint`, `uint16` and `uint64`.
+  * `char`, `string` and `guid`.
+  * `float`, `double` and `decimal`.
+  * `System.Numerics.BigInt`.
+  * `byte[]`, which accepts base64 representations.
 
 ## Optional and List parameters
 
-It is possible to specify argument parameters that are either optional or lists:
+Additionally, it is possible to specify argument parameters that are either optional or lists:
 
 *)
 
@@ -204,7 +213,39 @@ which results in the following syntax:
         --tcp-ports [<port>...]    specify a list of TCP ports for the process.
         --help                     display this list of options.
 
-## SubCommand parsing
+Note that arguments that use optional or list must have precisely one parameter.
+
+## Enumeration parameters
+
+Argu can also accept enumerations as parameters:
+
+*)
+
+type MyEnum =
+    | First  = 1
+    | Second = 2
+    | Third  = 3
+
+type EnumArguments =
+    | Get_Enum of MyEnum
+
+(**
+
+which results in the syntax
+
+    [lang=console]
+    USAGE: gadget.exe [--help] [--get-enum <first|second|third>]
+
+    OPTIONS:
+
+        --get-enum <first|second|third>
+                              specify either of 'first', 'second' or 'third'.
+        --help                display this list of options.
+
+Note that it is possible to specify F# unions instead of enumerations in this context,
+provided that these do not specify any parameters in any of their cases.
+
+## SubCommands
 
 As of Argu 3.0, it is possible to provide nested, contextual parsing.
 For example, consider this mock git CLI syntax:
@@ -224,10 +265,12 @@ with
             | F -> "Git clean will refuse to delete files or directories unless given -f."
             | X -> "Remove only files ignored by Git."
 
+(** *)
+
 and CommitArgs =
     | Amend
-    | [<AltCommandLine("-p")>]Patch
-    | [<AltCommandLine("-m")>]Message of msg:string
+    | [<AltCommandLine("-p")>] Patch
+    | [<AltCommandLine("-m")>] Message of msg:string
 with
     interface IArgParserTemplate with
         member this.Usage =
@@ -236,9 +279,11 @@ with
             | Patch -> "Use the interactive patch selection interface to chose which changes to commit."
             | Message _ -> "Use the given <msg> as the commit message. "
 
+(** *)
+
 and GitArgs =
     | Version
-    | [<AltCommandLine("-v")>]Verbose
+    | [<AltCommandLine("-v")>] Verbose
     | [<CliPrefix(CliPrefix.None)>] Clean of ParseResult<CleanArgs>
     | [<CliPrefix(CliPrefix.None)>] Commit of ParseResult<CommitArgs>
 with
@@ -249,13 +294,6 @@ with
             | Verbose -> "Print a lot of output to stdout."
             | Clean _ -> "Remove untracked files from the working tree."
             | Commit _ -> "Record changes to the repository."
-
-
-let parser = ArgumentParser.Create<GitArgs>(programName = "git")
-
-parser.PrintUsage() |> Console.WriteLine
-
-parser.Parse [|"-f"|]
 
 (**
 
@@ -277,6 +315,17 @@ which generates the following syntax:
         --verbose, -v         Print a lot of output to stdout.
         --help                display this list of options.
 
+and for the subcommand:
+
+    [lang=console]
+    USAGE: git commit [--help] [--amend] [--patch] [--message <msg>]
+
+    OPTIONS:
+
+        --amend               Replace the tip of the current branch by creating a new commit.
+        --patch, -p           Use the interactive patch selection interface to chose which changes to commit.
+        --message, -m <msg>   Use the given <msg> as the commit message. 
+        --help                display this list of options.
 
 This allows specifying parameters that are particular to a subcommand context.
 For instance, `git clean -fdx` parses correctly to `[Clean [F; D; X]]`, however
@@ -321,7 +370,7 @@ let ports = results.PostProcessResults (<@ Port @>, parsePort)
 
 (**
 
-This construct is useful since exception handling is performed by the arg parser itself.
+This construct is useful since error handling is delegated to the mechanisms of Argu.
 
 ## Unparsing Support
 

@@ -24,6 +24,13 @@ Allows quick definition of argument parsing schema through F# union declarations
   <div class="span1"></div>
 </div>
 
+Argu is a mature library that comes with many features
+
+  * Declarative: easily model your syntax definitions using F# unions.
+  * Convenient: automatic derivation of CLI syntax and documentation.
+  * Customizable: control most aspects of your parser behaviour.
+  * Subcommands: use contextual syntax with nested argument schemata.
+
 ## Introduction
 
 The library is based on the simple observation that 
@@ -68,11 +75,11 @@ of an application's configuration file:
 
 ## Who uses Argu?
 
-* [MBrace](http://m-brace.net/)
-
-* [FAKE](http://fsharp.github.io/FAKE/)
-
-* [Paket](http://fsprojects.github.io/Paket/)
+  * [MBrace](http://m-brace.net/)
+  
+  * [FAKE](http://fsharp.github.io/FAKE/)
+  
+  * [Paket](http://fsprojects.github.io/Paket/)
 
 ## Documentation
 
