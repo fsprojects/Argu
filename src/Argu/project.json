@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0-*",
+    "version": "3.0.0-beta02",
     "buildOptions": {
         "debugType": "portable",
         "compilerName": "fsc",
