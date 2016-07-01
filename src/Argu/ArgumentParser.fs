@@ -153,7 +153,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
-        let configurationReader = match configurationReader with Some c -> c | None -> ConfigurationReader.FromAppSettings()
+        let configurationReader = match configurationReader with Some c -> c | None -> ConfigurationReader.DefaultReader()
 
         try
             let appSettingsResults = parseKeyValueConfig configurationReader argInfo
@@ -171,8 +171,13 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResults<'Template> =
         let configurationReader =
             match xmlConfigurationFile with
-            | None -> ConfigurationReader.FromAppSettings()
-            | Some f -> ConfigurationReader.FromAppSettingsFile(f)
+            | None -> ConfigurationReader.DefaultReader()
+            | Some f ->
+#if CORE_CLR
+                raise <| NotImplementedException "App.Config is not supported."
+#else
+                ConfigurationReader.FromAppSettingsFile(f)
+#endif
 
         __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
 
@@ -181,8 +186,12 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
     member __.ParseAppSettings(assembly : Assembly, ?ignoreMissing : bool) =
+#if CORE_CLR
+        raise <| NotImplementedException "App.Config is not supported."
+#else
         let configurationReader = ConfigurationReader.FromAppSettings(assembly)
         __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
+#endif
 
     /// <summary>
     ///     Converts a sequence of template argument inputs into a ParseResults instance

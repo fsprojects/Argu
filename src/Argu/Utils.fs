@@ -12,7 +12,11 @@ open FSharp.Reflection
 open FSharp.Quotations
 open FSharp.Quotations.Patterns
 
+#if NETSTANDARD1_6
+let allBindings = true
+#else
 let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
+#endif
 
 let inline arguExn fmt = Printf.ksprintf(fun msg -> raise <| new ArguException(msg)) fmt
 
@@ -115,14 +119,24 @@ type Unchecked =
             }
 
 type MemberInfo with
-    member m.ContainsAttribute<'T when 'T :> Attribute> () =
-        m.GetCustomAttributes(typeof<'T>, true) |> Array.isEmpty |> not
+    member m.ContainsAttribute<'T when 'T :> Attribute> () : bool=
+        m.GetCustomAttributes(typeof<'T>, true) |> Seq.isEmpty |> not
 
-    member m.TryGetAttribute<'T when 'T :> Attribute> () =
-        match m.GetCustomAttributes(typeof<'T>, true) with
+    member m.TryGetAttribute<'T when 'T :> Attribute> () : 'T option =
+        match m.GetCustomAttributes(typeof<'T>, true) |> Seq.toArray with
         | [||] -> None
-        | attrs -> attrs |> Array.last |> unbox<'T> |> Some
+        | attrs -> attrs |> Array.last :?> 'T |> Some
 
+#if CORE_CLR
+type Type with
+    member x.GetCustomAttributes(t, b : bool) = x.GetTypeInfo().GetCustomAttributes(t, b)
+    
+    member m.ContainsAttribute<'T when 'T :> Attribute> () : bool=
+        m.GetTypeInfo().ContainsAttribute<'T>()
+
+    member m.TryGetAttribute<'T when 'T :> Attribute> () : 'T option =
+        m.GetTypeInfo().TryGetAttribute<'T>()
+#endif
 
 type IDictionary<'K,'V> with
     member d.TryFind k =
@@ -131,20 +145,25 @@ type IDictionary<'K,'V> with
         else None
 
 
-
+#if !CORE_CLR
 let currentProgramName = lazy(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName)
+#else
+// error FS0039: The value, constructor, namespace or type 'Process' is not defined
+let currentProgramName = lazy("wtf")
+#endif
 
 type UnionCaseInfo with
     member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
         let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
 
-        let caseAttrs = uci.GetCustomAttributes typeof<'T>
+        let caseAttrs = uci.GetCustomAttributes typeof<'T> |> Seq.cast<Attribute>
         let attrs =
             if includeDeclaringTypeAttrs then
                 uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)
+                |> Seq.cast<Attribute>
                 |> Seq.append caseAttrs
             else
-                caseAttrs :> _
+                caseAttrs
 
         attrs |> Seq.map (fun o -> o :?> 'T)
 
@@ -153,7 +172,7 @@ type UnionCaseInfo with
 
         match uci.GetCustomAttributes typeof<'T> with
         | [||] when includeDeclaringTypeAttrs ->
-            match uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) with
+            match uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.toArray with
             | [||] -> None
             | attrs -> Some (attrs.[0] :?> 'T)
         | [||] -> None
@@ -163,7 +182,7 @@ type UnionCaseInfo with
         let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
         if uci.GetCustomAttributes typeof<'T> |> Array.isEmpty |> not then true
         elif includeDeclaringTypeAttrs then
-            uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Array.isEmpty |> not
+            uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not
         else
             false
 

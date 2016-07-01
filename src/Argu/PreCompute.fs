@@ -48,7 +48,11 @@ let tryExtractUnionParameterLabel (p : PropertyInfo) =
     else Some(p.Name.Replace('_',' '))
 
 let (|NestedParseResults|Optional|List|Other|) (t : Type) =
+#if CORE_CLR
+    if t.GetTypeInfo().IsGenericType then
+#else
     if t.IsGenericType then
+#endif
         let gt = t.GetGenericTypeDefinition()
         if typeof<IParseResult>.IsAssignableFrom t then NestedParseResults(t.GetGenericArguments().[0])
         elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
@@ -95,7 +99,11 @@ let primitiveParsers =
 
 /// Creates a primitive parser from an enumeration
 let tryGetEnumerationParser label (t : Type) =
+#if CORE_CLR
+    if not (t.GetTypeInfo().IsEnum) then None else
+#else
     if not t.IsEnum then None else
+#endif
     let names = Enum.GetNames(t) |> Seq.map generateEnumName
     let values = Enum.GetValues(t) |> Seq.cast<obj>
     let index = Seq.zip names values |> Seq.toArray
@@ -211,7 +219,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let fields = uci.GetFields()
     let types = fields |> Array.map (fun f -> f.PropertyType)
 
-    let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, bindingFlags = allBindings)
+    let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, allBindings)
 
     // create a dummy instance for given union case
     let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
@@ -386,7 +394,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             let tupleType = FSharpType.MakeTupleType types
             FSharpValue.PreComputeTupleConstructor tupleType)
 
-    let fieldReader = lazy(FSharpValue.PreComputeUnionReader(uci, bindingFlags = allBindings))
+    let fieldReader = lazy(FSharpValue.PreComputeUnionReader(uci, allBindings))
 
     let assignParser = lazy(
         match customAssignmentSeparator with
@@ -439,11 +447,15 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     uai
 
 and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpParam option) (tryGetParent : unit -> UnionCaseArgInfo option) (t : Type) : UnionArgInfo =
-    if not <| FSharpType.IsUnion(t, bindingFlags = allBindings) then
+    if not <| FSharpType.IsUnion(t, allBindings) then
         arguExn "template type '%O' is not an F# union." t
     elif stack |> List.exists ((=) t) then
         arguExn "template type '%O' implements unsupported recursive pattern." t
+#if CORE_CLR
+    elif t.GetTypeInfo().IsGenericType then
+#else
     elif t.IsGenericType then
+#endif
         arguExn "template type '%O' is generic; this is not supported." t
 
     let helpParam =
@@ -469,7 +481,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     let getCurrent = fun () -> !current
 
     let caseInfo =
-        FSharpType.GetUnionCases(t, bindingFlags = allBindings)
+        FSharpType.GetUnionCases(t, allBindings)
         |> Seq.map (preComputeUnionCaseArgInfo (t :: stack) (Some helpParam) getCurrent)
         |> Seq.sortBy (fun a -> a.Tag)
         |> Seq.toArray
@@ -511,7 +523,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
             if not <| regex.IsMatch arg then [||] 
             else Array.init (arg.Length - 1) (fun i -> sprintf "-%c" arg.[i + 1]))
 
-    let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, bindingFlags = allBindings))
+    let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, allBindings))
 
     let cliIndex = lazy(
         caseInfo

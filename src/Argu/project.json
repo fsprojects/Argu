@@ -9,11 +9,16 @@
         "compile": {
           "includeFiles": [
               "AssemblyInfo.fs",
-              "Utils.fs",
               "Types.fs",
-              "ArgInfo.fs",
-              "Parsers.fs",
+              "Utils.fs",
+              "ConfigReaders.fs",
+              "UnionArgInfo.fs",
+              "PreCompute.fs",
               "UnParsers.fs",
+              "ParseResult.fs",
+              "Parsers/Common.fs",
+              "Parsers/Cli.fs",
+              "Parsers/KeyValue.fs",
               "ArgumentParser.fs"
           ]
         }
@@ -32,7 +37,8 @@
         "netstandard1.6": {
             "buildOptions": {
               "define": [
-                "NETSTANDARD1_5"
+                "NETSTANDARD1_5",
+                "NETSTANDARD1_6"
               ]
             },
             "dependencies": {
