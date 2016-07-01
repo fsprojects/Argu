@@ -120,7 +120,8 @@ with
         match __.CustomAssignmentSeparator with
         | Some sep -> sep = separator
         | None -> false
-        
+    member inline x.IsMandatorySpecialFirst =
+      x.IsFirst && x.CommandLineNames |> Seq.exists ((=) "") && x.IsMandatory
 
 and ParameterInfo =
     | Primitives of FieldParserInfo []

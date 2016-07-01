@@ -616,17 +616,16 @@ module ``Argu Tests`` =
         raises<ArgumentException> <@ result.Contains <@ wrapper @> @>
 
 
-[<TestFixture>]
 module ``SubCommand Tests`` =
 
     type RunArgs =
-     | [<First>][<Mandatory>][<CliPrefix(CliPrefix.Empty)>][<AltCommandLine("")>] Script of string
+     | [<First>][<Mandatory>][<CliPrefix(CliPrefix.None)>][<AltCommandLine("")>] Script of string
+     | [<AltCommandLine("-t")>] Target of string
      | [<AltCommandLine("-e")>] EnvironmentVariable of string * string
-     | [<Rest>] FsiArgs of string
      | [<AltCommandLine("-d")>] Debug
      | [<AltCommandLine("-s")>] SingleTarget
      | [<AltCommandLine("-n")>] NoCache
-     | [<AltCommandLine("-t")>] Target of string
+     | [<Rest>] FsiArgs of string
     with
      interface IArgParserTemplate with
        member s.Usage =
@@ -642,7 +641,7 @@ module ``SubCommand Tests`` =
     type FakeArgs =
      | Version
      | (*[<Inherit>]*) [<AltCommandLine("-v")>] Verbose
-     | [<CliPrefix(CliPrefix.Empty)>] Run of ParseResults<RunArgs>
+     | [<CliPrefix(CliPrefix.None)>] Run of Argu.ParseResult<RunArgs>
     with
      interface IArgParserTemplate with
        member s.Usage =
@@ -650,12 +649,20 @@ module ``SubCommand Tests`` =
          | Version _ -> "Prints the version."
          | Verbose _ -> "More verbose output."
          | Run _ -> "Runs a build script."
-
-
-    [<Test>]
+         
+    [<Fact>]
     let ``Test if we can parse Fake Arguments`` () =
-        let parser = ArgumentParser.Create<FakeArgs> "usage string"
+        let parser = ArgumentParser.Create<FakeArgs> "fake"
         let args = [| "run"; "test.fsx" |]
         let results = parser.ParseCommandLine (args, raiseOnUsage = false)
         ignore results
-        //results.GetAllResults() |> should equal [ FakeArgs.Run ] 
+        let res = results.GetAllResults()
+        let runArgs = results.GetResult <@ Run @>
+        test <@ runArgs.GetAllResults() = [ Script "test.fsx" ] @>
+        
+    [<Fact>]
+    let ``Test if we can printf help for Fake Arguments`` () =
+        let parser = ArgumentParser.Create<FakeArgs> "fake"
+        let usage = parser.GetSubCommandParser(<@ Run @>).PrintUsage()
+        test <@ usage.Contains "fake run [--help] [script] <string> [--target <string>]" @>
+        test <@ usage.Contains "[script] <string>     Specify the script to run." @>

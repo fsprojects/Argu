@@ -310,7 +310,10 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
             let cliNames = defaultName :: altNames
 
-            for name in cliNames do validateCliParam name
+            let toValidate =
+              if uci.ContainsAttribute<FirstAttribute> () 
+                 && uci.ContainsAttribute<MandatoryAttribute> () then cliNames |> List.filter ((<>) "") else cliNames
+            for name in toValidate do validateCliParam name
 
             cliNames
 
