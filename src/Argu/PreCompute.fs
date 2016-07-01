@@ -30,6 +30,9 @@ let generateOptionName (uci : UnionCaseInfo) =
 
     prefixString + uci.Name.ToLower().Replace('_','-')
 
+/// Generate a CLI Param for enumeration cases
+let generateEnumName (name : string) = name.ToLower().Replace('_','-')
+
 /// construct an App.Config param from UCI name
 let generateAppSettingsName (uci : UnionCaseInfo) =
     uci.Name.ToLower().Replace('_',' ')
@@ -83,7 +86,7 @@ let primitiveParsers =
         mkParser "string" id id
 
         mkParser "float" Single.Parse string
-        mkParser "float" Double.Parse string
+        mkParser "double" Double.Parse string
         mkParser "decimal" Decimal.Parse string
 #if !NET35
         mkParser "bigint" System.Numerics.BigInteger.Parse string
@@ -92,9 +95,35 @@ let primitiveParsers =
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
 
+/// Creates a primitive parser from an enumeration
+let tryGetEnumerationParser label (t : Type) =
+    if not t.IsEnum then None else
+    let names = Enum.GetNames(t) |> Seq.map generateEnumName
+    let values = Enum.GetValues(t) |> Seq.cast<obj>
+    let index = Seq.zip names values |> Seq.toArray
+    let name = names |> String.concat "|"
+
+    let parser (text : string) =
+        let text = text.Trim()
+        let _,value = index |> Array.find (fun (id,_) -> text = id)
+        value
+
+    let unparser (value : obj) =
+        match Enum.GetName(t, value) with
+        | null -> failwith "invalid enum value!"
+        | name -> generateEnumName name
+
+    Some {
+        Name = name
+        Label = label
+        Type = t
+        Parser = parser
+        UnParser = unparser
+    }
+
 /// Creates a primitive parser from an F# DU enumeration 
 /// (i.e. one with no parameters in any of its union cases)
-let tryGetEnumerationParser label (t : Type) =
+let tryGetDuEnumerationParser label (t : Type) =
     if not <| FSharpType.IsUnion(t, allBindings) then None else
 
     let ucis = FSharpType.GetUnionCases(t, allBindings)
@@ -104,7 +133,7 @@ let tryGetEnumerationParser label (t : Type) =
     let extractUciInfo (uci : UnionCaseInfo) =
         let name =
             match uci.TryGetAttribute<CustomCommandLineAttribute>() with
-            | None -> uci.Name.ToLower()
+            | None -> generateEnumName uci.Name
             | Some attr -> attr.Name
 
         let value = FSharpValue.MakeUnion(uci, [||], allBindings)
@@ -138,6 +167,11 @@ let getPrimitiveParserByType label (t : Type) =
         match tryGetEnumerationParser label t with
         | Some p -> p
         | None ->
+
+        match tryGetDuEnumerationParser label t with
+        | Some p -> p
+        | None ->
+
 
         // refine error messaging depending on the input time
         match t with

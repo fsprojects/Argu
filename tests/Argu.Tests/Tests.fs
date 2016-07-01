@@ -16,6 +16,12 @@ module ``Argu Tests`` =
         member inline __.FirstLine = 
             __.Message.Split([|Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries).[0]
 
+    [<Flags>]
+    type Enum =
+        | First     = 1
+        | Second    = 2
+        | Third     = 3
+
     type Enumeration =
         | First
         | Second
@@ -61,7 +67,8 @@ module ``Argu Tests`` =
         | [<First>] First_Parameter of string
         | Optional of int option
         | List of int list
-        | [<EqualsAssignment>] Enum of Enumeration option
+        | Enum of Enum
+        | [<EqualsAssignment>] Enumeration of Enumeration option
         | [<CliPrefix(CliPrefix.Dash)>] A
         | [<CliPrefix(CliPrefix.Dash)>] B
         | [<CliPrefix(CliPrefix.Dash)>] C
@@ -83,6 +90,7 @@ module ``Argu Tests`` =
                 | Detach _ -> "detach daemon from console."
                 | Assignment _ -> "assign with equals operation."
                 | Enum _ -> "assign from three possible values."
+                | Enumeration _ -> "assign from three possible values."
                 | Env _ -> "assign environment variables."
                 | CustomAppConfig _ -> "parameter with custom AppConfig key."
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
@@ -327,12 +335,22 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Enumeration parameter parsing`` () =
-        let result = parser.Parse([|"--enum=second" ; "--mandatory-arg" ; "true"|])
-        test <@ result.GetResult <@ Enum @> = Some Second @>
+        let result = parser.Parse([|"--enum" ; "second" ; "--mandatory-arg" ; "true"|])
+        test <@ result.GetResult <@ Enum @> = Enum.Second @>
 
     [<Fact>]
     let ``Enumeration parameter should fail on unsupported values`` () =
-        raisesWith<ArguParseException> <@ parser.Parse([|"--enum=foobar" ; "--mandatory-arg" ; "true"|]) @>
+        raisesWith<ArguParseException> <@ parser.Parse([|"--enum" ; "first,second" ; "--mandatory-arg" ; "true"|]) @>
+                                        (fun e -> <@ e.FirstLine.Contains "first|second|third" @>)
+
+    [<Fact>]
+    let ``F# Enumeration parameter parsing`` () =
+        let result = parser.Parse([|"--enumeration=second" ; "--mandatory-arg" ; "true"|])
+        test <@ result.GetResult <@ Enumeration @> = Some Second @>
+
+    [<Fact>]
+    let ``F# Enumeration parameter should fail on unsupported values`` () =
+        raisesWith<ArguParseException> <@ parser.Parse([|"--enumeration=foobar" ; "--mandatory-arg" ; "true"|]) @>
                                         (fun e -> <@ e.FirstLine.Contains "first|second|third" @>)
 
     [<Fact>]

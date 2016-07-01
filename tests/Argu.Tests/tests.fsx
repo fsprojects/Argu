@@ -7,9 +7,9 @@ open Argu
 open Argu.Tests
 
 type Enum =
-    | First
-    | Second
-    | Third
+    | First = 1
+    | Second = 2
+    | Third = 3
 
 type PushArgs =
     | All
@@ -68,7 +68,7 @@ with
 
 let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMessage = "Gadget -- my awesome CLI tool")
 
-parser.PrintCommandLineArgumentsFlat [Options(Some First) ; Push(toParseResults [Remote "origin" ; Branch "master"])]
+parser.PrintCommandLineArgumentsFlat [Options(Some Enum.First) ; Push(toParseResults [Remote "origin" ; Branch "master"])]
 
 let result = parser.Parse [| "--options=second" ; "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
 let cresult = result.GetResult <@ Clean @>
