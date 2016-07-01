@@ -202,20 +202,6 @@ let isNullOrWhiteSpace (string:string) =
     String.IsNullOrWhiteSpace string
 #endif
 
-let private assignRegex = new Regex(@"^([^=]*)=(.*)$", RegexOptions.Compiled)
-/// parses the first part of a command line parameter
-/// recognizes if parameter is of kind --param arg or --param=arg
-let tryGetEqualsAssignment (name : string) (key:byref<string>) (value:byref<string>) : bool =
-    let m = assignRegex.Match name
-    if m.Success then
-        key <- m.Groups.[1].Value
-        value <- m.Groups.[2].Value
-        true
-    else
-        false
-
-// string builder compexpr
-
 type StringExpr<'T> = StringBuilder -> 'T
 
 type StringExprBuilder () =

@@ -54,23 +54,22 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
 
             match aI.ParameterInfo with
             | Primitives parsers ->
-                if aI.IsEquals1Assignment then
-                    assert(parsers.Length = 1)
-                    yield sprintf "=<%s>" parsers.[0].Description
-                elif aI.IsEquals2Assignment then
+                match aI.CustomAssignmentSeparator with
+                | Some sep when parsers.Length = 1 ->
+                    yield sprintf "%s<%s>" sep parsers.[0].Description
+                | Some sep ->
                     assert(parsers.Length = 2)
-                    yield sprintf " <%s>=<%s>" parsers.[0].Description parsers.[1].Description
-                else
+                    yield sprintf " <%s>%s<%s>" parsers.[0].Description sep parsers.[1].Description
+                | None ->
                     for p in parsers do
                         yield sprintf " <%s>" p.Description
 
                 if aI.IsRest then yield "..."
 
             | OptionalParam (_,parser) ->
-                if aI.IsEquals1Assignment then
-                    yield sprintf "[=<%s>]" parser.Description
-                else
-                    yield sprintf " [<%s>]" parser.Description
+                match aI.CustomAssignmentSeparator with
+                | Some sep -> yield sprintf "[%s<%s>]" sep parser.Description
+                | None -> yield sprintf " [<%s>]" parser.Description
 
             | SubCommand (label = None) -> yield " <options>"
             | SubCommand (label = Some label) -> yield sprintf " <%s>" label
@@ -101,24 +100,23 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
         yield String.concat ", " flags
 
         match aI.ParameterInfo with
-        | Primitives fieldParsers ->
-            if aI.IsEquals1Assignment then
-                assert (fieldParsers.Length = 1)
-                yield sprintf "=<%s>" fieldParsers.[0].Description
-            elif aI.IsEquals2Assignment then
-                assert (fieldParsers.Length = 2)
-                yield sprintf " <%s>=<%s>" fieldParsers.[0].Description fieldParsers.[1].Description
-            else
-                for p in fieldParsers do
+        | Primitives parsers ->
+            match aI.CustomAssignmentSeparator with
+            | Some sep when parsers.Length = 1 ->
+                yield sprintf "%s<%s>" sep parsers.[0].Description
+            | Some sep ->
+                assert (parsers.Length = 2)
+                yield sprintf " <%s>%s<%s>" parsers.[0].Description sep parsers.[1].Description
+            | None ->
+                for p in parsers do
                     yield sprintf " <%s>" p.Description
 
             if aI.IsRest then yield "..."
 
         | OptionalParam (_,parser) ->
-            if aI.IsEquals1Assignment then
-                yield sprintf "[=<%s>]" parser.Description
-            else
-                yield sprintf " [<%s>]" parser.Description
+            match aI.CustomAssignmentSeparator with
+            | Some sep -> yield sprintf "[%s<%s>]" sep parser.Description
+            | None -> yield sprintf " [<%s>]" parser.Description
 
         | ListParam (_,parser) ->
             yield sprintf " [<%s>...]" parser.Description
@@ -215,13 +213,15 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
             match aI.ParameterInfo with
             | Primitives parsers ->  
                 let inline unpars i = parsers.[i].UnParser fields.[i]
-                if aI.IsEquals1Assignment then
-                    yield sprintf "%s=%s" clname (unpars 0)
-
-                elif aI.IsEquals2Assignment then
+                match aI.CustomAssignmentSeparator with
+                | Some sep when parsers.Length = 1 ->
+                    yield sprintf "%s%s%s" clname sep (unpars 0)
+                | Some sep ->
+                    assert(parsers.Length = 2)
                     yield clname
-                    yield sprintf "%s=%s" (unpars 0) (unpars 1)
-                else
+                    yield sprintf "%s%s%s" (unpars 0) sep (unpars 1)
+
+                | None ->
                     yield clname
 
                     for i = 0 to fields.Length - 1 do
@@ -234,8 +234,10 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 
                 match optional with
                 | None -> yield clname
-                | Some v when aI.IsEquals1Assignment -> yield sprintf "%s=%s" clname (parser.UnParser v)
-                | Some v -> yield clname ; yield parser.UnParser v
+                | Some v ->
+                    match aI.CustomAssignmentSeparator with
+                    | Some sep -> yield sprintf "%s%s%s" clname sep (parser.UnParser v)
+                    | None -> yield clname ; yield parser.UnParser v
 
             | ListParam(_, parser) ->
                 yield clname

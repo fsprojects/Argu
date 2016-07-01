@@ -174,10 +174,15 @@ let getPrimitiveParserByType label (t : Type) =
         | List _ -> arguExn "F# List parameters can only occur as standalone parameters in union constructors."
         | _ -> arguExn "template contains unsupported field of type '%O'." t
 
-let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled ||| RegexOptions.IgnoreCase)
+let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled)
 let validateCliParam (name : string) =
     if name = null || not <| validCliParamRegex.IsMatch name then
         arguExn "CLI parameter '%s' contains invalid characters." name
+
+let private validSeparatorRegex = new Regex(@"\W+", RegexOptions.Compiled)
+let validateSeparator (uci : UnionCaseInfo) (sep : string) =   
+    if sep = null || not <| validCliParamRegex.IsMatch sep then
+        arguExn "parameter '%O' specifies an invalid separator '%s' in its CustomAssignment attribute." uci sep
 
 /// extracts the subcommand argument hierarchy for given UnionArgInfo
 let getHierarchy (uai : UnionArgInfo) =
@@ -219,16 +224,18 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isGatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
     let isRest = uci.ContainsAttribute<RestAttribute> ()
     let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
-    let isEquals1Assignment, isEquals2Assignment = 
-        if uci.ContainsAttribute<EqualsAssignmentAttribute> (true) then
+    let customAssignmentSeparator = 
+        match uci.TryGetAttribute<CustomAssignmentAttribute> (true) with
+        | Some attr ->
             if types.Length <> 1 && types.Length <> 2 then
-                arguExn "parameter '%O' has EqualsAssignment attribute but specifies %d parameters." uci types.Length
+                arguExn "parameter '%O' has CustomAssignment attribute but specifies %d parameters. Should be 1 or 2." uci types.Length
             elif isRest then
-                arguExn "parameter '%O' contains incompatible attributes 'EqualsAssignment' and 'Rest'." uci
+                arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'Rest'." uci
 
-            types.Length = 1, types.Length = 2
-        else
-            false, false
+            validateSeparator uci attr.Separator
+            Some attr.Separator
+
+        | None -> None
 
     let appSettingsSeparators, appSettingsSplitOptions =
         match uci.TryGetAttribute<AppSettingsSeparatorAttribute> (true) with
@@ -246,8 +253,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let parsers =
         match types with
         | [|NestedParseResult prt|] -> 
-            if isEquals1Assignment then
-                arguExn "EqualsAssignment in '%O' not supported in subcommands." uci
+            if Option.isSome customAssignmentSeparator then
+                arguExn "CustomAssignment in '%O' not supported in subcommands." uci
             if isRest then
                 arguExn "Rest attribute in '%O' not supported in subcommands." uci
             if isMandatory then
@@ -261,18 +268,18 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         | [|Optional t|] ->
             if isRest then
-                arguExn "Rest attribute in '%O' not supported for optional cases." uci
+                arguExn "Rest attribute in '%O' not supported for optional parameters." uci
 
             let label = tryExtractUnionParameterLabel fields.[0]
 
             OptionalParam(Existential.FromType t, getPrimitiveParserByType label t)
 
         | [|List t|] ->
-            if isEquals1Assignment then
-                arguExn "EqualsAssignment in '%O' not supported for variadic list cases." uci
+            if Option.isSome customAssignmentSeparator then
+                arguExn "CustomAssignment in '%O' not supported for list parameters." uci
 
             if isRest then
-                arguExn "Rest attribute in '%O' not supported for variadic list cases." uci
+                arguExn "Rest attribute in '%O' not supported for list parameters." uci
 
             let label = tryExtractUnionParameterLabel fields.[0]
 
@@ -325,12 +332,11 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let fieldCtor = lazy(
         match types.Length with
-        | 0 -> None
-        | 1 -> Some(fun (o:obj[]) -> o.[0])
+        | 0 -> fun _ -> arguExn "internal error: attempting to call tuple constructor on nullary case."
+        | 1 -> fun (o:obj[]) -> o.[0]
         | _ ->
             let tupleType = FSharpType.MakeTupleType types
-            let ctor = FSharpValue.PreComputeTupleConstructor tupleType
-            Some ctor)
+            FSharpValue.PreComputeTupleConstructor tupleType)
 
     let fieldReader = lazy(FSharpValue.PreComputeUnionReader(uci, bindingFlags = allBindings))
 
@@ -339,6 +345,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let uai = {
         UnionCaseInfo = uci
+        Arity = fields.Length
         Depth = List.length stack - 1
         CaseCtor = caseCtor
         FieldReader = fieldReader
@@ -358,8 +365,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         GatherAllSources = isGatherAll
         IsRest = isRest
         IsFirst = isFirst
-        IsEquals1Assignment = isEquals1Assignment
-        IsEquals2Assignment = isEquals2Assignment
+        CustomAssignmentSeparator = customAssignmentSeparator
         IsHidden = isHidden
     }
 
@@ -452,6 +458,23 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         |> Seq.choose (fun cs -> match cs.AppSettingsName with Some name -> Some(name, cs) | None -> None)
         |> dict)
 
+    let assignmentRecognizer = lazy(
+        let separators =
+            caseInfo
+            |> Seq.append inheritedParams.Value
+            |> Seq.choose (fun cI -> cI.CustomAssignmentSeparator)
+            |> Seq.distinct
+            |> String.concat "|"
+
+        let regex = new Regex(sprintf @"^(.+)(%s)(.+)$" separators, RegexOptions.Compiled)
+        fun (arg : string) ->
+            let m = regex.Match arg
+            if m.Success then
+                Assignment(m.Groups.[1].Value, m.Groups.[2].Value, m.Groups.[3].Value)
+            else
+                NoAssignment)
+
+
     let result = {
         Type = t
         Depth = List.length stack
@@ -464,6 +487,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         GroupedSwitchExtractor = groupedSwitchExtractor
         AppSettingsParamIndex = appSettingsIndex
         InheritedParams = inheritedParams
+        AssignmentRecognizer = assignmentRecognizer
         CliParamIndex = cliIndex
     }
 

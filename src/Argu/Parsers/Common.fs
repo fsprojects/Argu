@@ -12,13 +12,8 @@ let inline error argInfo code fmt =
 /// construct a parse result from untyped collection of parsed arguments
 let mkUnionCase (info : UnionCaseArgInfo) index parseSource parsecontext (fields : obj []) =
     {
-        Value = info.CaseCtor fields
+        Fields = fields
         Index = index
-        FieldContents =
-            match info.FieldCtor.Value with
-            | None -> null
-            | Some ctor -> ctor fields
-
         CaseInfo = info
         Source = parseSource
         ParseContext = parsecontext
@@ -30,13 +25,15 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : in
                             (values : seq<'Template>) =
 
     let agg = info.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult>())
-    values |> Seq.iteri (fun i value ->
+    let mutable i = 0
+    for value in values do
         let value = value :> obj
         let tag = info.TagReader.Value value
         let case = info.Cases.[tag]
         let fields = case.FieldReader.Value value
         let result = mkUnionCase case i ParseSource.None case.Name fields
-        agg.[tag].Add result)
+        agg.[tag].Add result
+        i <- i + 1
 
     let results = 
         { 

@@ -62,7 +62,7 @@ module ``Argu Tests`` =
         | Log_Level of int
         | [<AltCommandLine("/D", "-D", "-z")>] Detach
         | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
-        | [<EqualsAssignment>] Assignment of string
+        | [<ColonAssignment>] Assignment of string
         | [<EqualsAssignment>] Env of key:string * value:string
         | [<First>] First_Parameter of string
         | Optional of int option
@@ -88,7 +88,7 @@ module ``Argu Tests`` =
                 | Data _ -> "pass raw data in base64 format."
                 | Log_Level _ -> "set the log level."
                 | Detach _ -> "detach daemon from console."
-                | Assignment _ -> "assign with equals operation."
+                | Assignment _ -> "assign with colon operation."
                 | Enum _ -> "assign from three possible values."
                 | Enumeration _ -> "assign from three possible values."
                 | Env _ -> "assign environment variables."
@@ -224,7 +224,13 @@ module ``Argu Tests`` =
         test <@ let _,bytes' = results.GetResult <@ Data @> in bytes' = bytes @>
 
     [<Fact>]
-    let ``Parse equals assignment`` () =
+    let ``Parse colon assignment 1`` () =
+        let args = [| "--assignment:foobar" |]
+        let result = parser.Parse(args, ignoreMissing = true)
+        test <@ result.GetResult <@ Assignment @> = "foobar" @>
+
+    [<Fact>]
+    let ``Parse colon assignment 2`` () =
         let arg = [ Assignment "foo bar" ]
         let clp = parser.PrintCommandLineArguments arg
         let result = parser.Parse(clp, ignoreMissing = true)

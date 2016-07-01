@@ -6,14 +6,18 @@ open System.IO
 open System.Configuration
 open System.Collections.Generic
 open System.Reflection
-open System.Text.RegularExpressions
 
 open FSharp.Reflection
 open FSharp.Quotations
 open FSharp.Quotations.Patterns
 
 type IParseResult =
-    abstract GetAllResults : unit -> seq<obj>    
+    abstract GetAllResults : unit -> seq<obj> 
+
+[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
+type CustomAssignmentResult =
+    | NoAssignment
+    | Assignment of parameter:string * separator:string * value:string
 
 /// Union Case Field info
 [<NoEquality; NoComparison>]
@@ -58,6 +62,8 @@ type UnionCaseArgInfo =
         Name : string
         /// Contextual depth of current argument w.r.t subcommands
         Depth : int
+        /// Numbers of parameters in the given union case
+        Arity : int
         /// UCI identifier
         UnionCaseInfo : UnionCaseInfo
         /// Field parser definitions or nested union argument
@@ -68,8 +74,8 @@ type UnionCaseArgInfo =
 
         /// Builds a union case out of its field parameters
         CaseCtor : obj [] -> obj
-        /// Composes case fields into a tuple, if not nullary
-        FieldCtor : Lazy<(obj [] -> obj) option>
+        /// Composes case fields into a parametric tuple, if not nullary
+        FieldCtor : Lazy<obj [] -> obj>
         /// Decomposes a case instance into an array of fields
         FieldReader : Lazy<obj -> obj[]>
 
@@ -90,10 +96,8 @@ type UnionCaseArgInfo =
         IsRest : bool
         /// If specified, parameter can only be at start of CLI parameters
         IsFirst : bool
-        /// If specified, use '--param=arg' CLI parsing syntax
-        IsEquals1Assignment : bool
-        /// If specified, use '--param key=value' CLI parsing syntax
-        IsEquals2Assignment : bool
+        /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
+        CustomAssignmentSeparator : string option
         /// If specified, multiple parameters can be added in Configuration in CSV form.
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
@@ -111,6 +115,12 @@ with
     member inline __.Tag = __.UnionCaseInfo.Tag
     member inline __.NoCommandLine = __.CommandLineNames.Length = 0
     member inline __.Type = __.ParameterInfo.Type
+    member inline __.IsCustomAssignment = Option.isSome __.CustomAssignmentSeparator
+    member inline __.IsMatchingAssignmentSeparator (separator : string) =
+        match __.CustomAssignmentSeparator with
+        | Some sep -> sep = separator
+        | None -> false
+        
 
 and ParameterInfo =
     | Primitives of FieldParserInfo []
@@ -146,6 +156,8 @@ and [<NoEquality; NoComparison>]
         TagReader : Lazy<obj -> int>
         /// Arguments inherited by parent commands
         InheritedParams : Lazy<UnionCaseArgInfo []>
+        /// Assignment recognizer
+        AssignmentRecognizer : Lazy<string -> CustomAssignmentResult>
         /// Single character switches
         GroupedSwitchExtractor : Lazy<string -> string []>
         /// Union cases indexed by appsettings parameter names
@@ -160,10 +172,8 @@ with
 [<NoEquality; NoComparison>]
 type UnionCaseParseResult =
     {
-        /// union case value
-        Value : obj
-        /// untyped version of tuple of branch contents
-        FieldContents : obj
+        /// Parsed field parameters
+        Fields : obj[]
         /// Index denoting order of parse result
         Index : int
         /// ArgInfo used to parse parameter
@@ -175,6 +185,8 @@ type UnionCaseParseResult =
     }
 with
     member inline __.Tag = __.CaseInfo.Tag
+    member inline __.Value = __.CaseInfo.CaseCtor __.Fields
+    member inline __.FieldContents = __.CaseInfo.FieldCtor.Value __.Fields
 
 [<NoEquality; NoComparison>]
 type UnionParseResults =
@@ -202,8 +214,7 @@ type UnionCaseArgInfo with
             AppSettingsSplitOptions = ucai.AppSettingsSplitOptions
             IsRest = ucai.IsRest
             IsFirst = ucai.IsFirst
-            IsEquals1Assignment = ucai.IsEquals1Assignment
-            IsEquals2Assignment = ucai.IsEquals2Assignment
+            CustomAssignmentSeparator = ucai.CustomAssignmentSeparator
             AppSettingsCSV = ucai.AppSettingsCSV
             IsMandatory = ucai.IsMandatory
             IsUnique = ucai.IsUnique

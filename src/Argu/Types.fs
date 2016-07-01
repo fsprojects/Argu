@@ -84,8 +84,23 @@ module ArguAttributes =
 
     /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
     /// Requires that the argument should have parameters of arity 1 or 2 only.
+    /// Can be used to specify any assignment separator.
     [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-    type EqualsAssignmentAttribute () = inherit Attribute ()
+    type CustomAssignmentAttribute (separator : string) = 
+        inherit Attribute ()
+        member __.Separator = separator
+
+    /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
+    /// Requires that the argument should have parameters of arity 1 or 2 only.
+    [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+    type EqualsAssignmentAttribute () = 
+        inherit CustomAssignmentAttribute("=")
+
+    /// Use '--param:arg' or '--param key:value' assignment syntax in CLI.
+    /// Requires that the argument should have parameters of arity 1 or 2 only.
+    [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+    type ColonAssignmentAttribute () = 
+        inherit CustomAssignmentAttribute(":")
 
     /// Declares a custom default CLI identifier for the current parameter.
     /// Replaces the auto-generated identifier name.
@@ -233,10 +248,8 @@ type ArgumentCaseInfo =
         IsRest : bool
         /// If specified, parameter can only be at start of CLI parameters
         IsFirst : bool
-        /// If specified, use '--param=arg' CLI parsing syntax
-        IsEquals1Assignment : bool
-        /// If specified, use '--param key=value' CLI parsing syntax
-        IsEquals2Assignment : bool
+        /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
+        CustomAssignmentSeparator : string option
         /// If specified, multiple parameters can be added in AppSettings in CSV form.
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
