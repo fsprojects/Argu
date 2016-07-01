@@ -198,16 +198,17 @@ OPTIONS:
 it is more likely that you need to query the results for specific parameters:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 49)" onmouseover="showTip(event, 'fs30', 49)" class="i">detach</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 50)" onmouseover="showTip(event, 'fs26', 50)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 51)" onmouseover="showTip(event, 'fs31', 51)" class="f">Contains</span> &lt;@ <span onmouseout="hideTip(event, 'fs17', 52)" onmouseover="showTip(event, 'fs17', 52)" class="p">Detach</span> @&gt;
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs32', 53)" onmouseover="showTip(event, 'fs32', 53)" class="i">listener</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 54)" onmouseover="showTip(event, 'fs26', 54)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 55)" onmouseover="showTip(event, 'fs33', 55)" class="f">GetResults</span> &lt;@ <span onmouseout="hideTip(event, 'fs12', 56)" onmouseover="showTip(event, 'fs12', 56)" class="p">Listener</span> @&gt;
-
-<span class="c">// returns the last observed result of this parameter</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 57)" onmouseover="showTip(event, 'fs34', 57)" class="i">dataOpt</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 58)" onmouseover="showTip(event, 'fs26', 58)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 59)" onmouseover="showTip(event, 'fs35', 59)" class="f">TryGetResult</span> &lt;@ <span onmouseout="hideTip(event, 'fs13', 60)" onmouseover="showTip(event, 'fs13', 60)" class="p">Data</span> @&gt;
+</code></pre></td>
+</tr>
+</table>
+<p>The following methods return the last observed result for given argument case</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 57)" onmouseover="showTip(event, 'fs34', 57)" class="i">dataOpt</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 58)" onmouseover="showTip(event, 'fs26', 58)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 59)" onmouseover="showTip(event, 'fs35', 59)" class="f">TryGetResult</span> &lt;@ <span onmouseout="hideTip(event, 'fs13', 60)" onmouseover="showTip(event, 'fs13', 60)" class="p">Data</span> @&gt;
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 61)" onmouseover="showTip(event, 'fs36', 61)" class="i">logLevel</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 62)" onmouseover="showTip(event, 'fs26', 62)" class="i">results</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs37', 63)" onmouseover="showTip(event, 'fs37', 63)" class="f">GetResult</span> (&lt;@ <span onmouseout="hideTip(event, 'fs16', 64)" onmouseover="showTip(event, 'fs16', 64)" class="p">Log_Level</span> @&gt;, <span class="i">defaultValue</span> <span class="o">=</span> <span class="n">0</span>)
 </code></pre></td>
 </tr>
@@ -249,7 +250,7 @@ can be customized by fixing attributes to the union cases:</p>
 </ul>
 <p>Please see the <a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">API Reference</a>
 for a complete list of all attributes provided by Argu.</p>
-<h2><a name="Supported-Parameter-Types" class="anchor" href="#Supported-Parameter-Types">Supported Parameter Types</a></h2>
+<h2><a name="Supported-Primitives" class="anchor" href="#Supported-Primitives">Supported Primitives</a></h2>
 <p>Arguments can specify the following primitives as parameters:</p>
 <ul>
 <li><code>bool</code>, <code>byte</code> and <code>sbyte</code>.</li>
@@ -291,7 +292,7 @@ OPTIONS:
 </code></pre></td></tr></table>
 <p>Note that arguments that use optional or list must have precisely one parameter.</p>
 <h2><a name="Enumeration-parameters" class="anchor" href="#Enumeration-parameters">Enumeration parameters</a></h2>
-<p>Argu accepts enumerations as parameters:</p>
+<p>Argu can also accept enumerations as parameters:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
