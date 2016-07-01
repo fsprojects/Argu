@@ -12,10 +12,10 @@ open FSharp.Quotations
 open FSharp.Quotations.Patterns
 
 type IParseResult =
-    abstract GetAllResults : unit -> seq<obj> 
+    abstract GetAllResults : unit -> seq<obj>
 
 [<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
-type CustomAssignmentResult =
+type Assignment =
     | NoAssignment
     | Assignment of parameter:string * separator:string * value:string
 
@@ -92,12 +92,15 @@ type UnionCaseArgInfo =
         /// Configuration parsing split options
         AppSettingsSplitOptions : StringSplitOptions
 
+        /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
+        CustomAssignmentSeparator : string option
+        /// Reads assignment for that specific value
+        AssignmentParser : Lazy<string -> Assignment>
+
         /// If specified, should consume remaining tokens from the CLI
         IsRest : bool
         /// If specified, parameter can only be at start of CLI parameters
         IsFirst : bool
-        /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
-        CustomAssignmentSeparator : string option
         /// If specified, multiple parameters can be added in Configuration in CSV form.
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
@@ -156,14 +159,12 @@ and [<NoEquality; NoComparison>]
         TagReader : Lazy<obj -> int>
         /// Arguments inherited by parent commands
         InheritedParams : Lazy<UnionCaseArgInfo []>
-        /// Assignment recognizer
-        AssignmentRecognizer : Lazy<string -> CustomAssignmentResult>
         /// Single character switches
         GroupedSwitchExtractor : Lazy<string -> string []>
         /// Union cases indexed by appsettings parameter names
         AppSettingsParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
         /// Union cases indexed by cli parameter names
-        CliParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
+        CliParamIndex : Lazy<PrefixDictionary<UnionCaseArgInfo>>
     }
 with
     member inline uai.UsesHelpParam = List.isEmpty uai.HelpParam.Flags |> not

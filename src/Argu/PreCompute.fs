@@ -340,6 +340,16 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let fieldReader = lazy(FSharpValue.PreComputeUnionReader(uci, bindingFlags = allBindings))
 
+    let assignParser = lazy(
+        match customAssignmentSeparator with
+        | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
+        | Some sep ->
+            let regex = new Regex(sprintf @"^(.+)%s(.+)$" (Regex.Escape sep), RegexOptions.Compiled)
+            fun token ->
+                let m = regex.Match token
+                if m.Success then Assignment(m.Groups.[1].Value, sep, m.Groups.[2].Value)
+                else NoAssignment)
+
     if isAppSettingsCSV && fields.Length <> 1 then 
         arguExn "CSV attribute is only compatible with branches of unary fields." 
 
@@ -366,6 +376,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         IsRest = isRest
         IsFirst = isFirst
         CustomAssignmentSeparator = customAssignmentSeparator
+        AssignmentParser = assignParser
         IsHidden = isHidden
     }
 
@@ -451,29 +462,12 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         caseInfo
         |> Seq.append inheritedParams.Value
         |> Seq.collect (fun cs -> cs.CommandLineNames |> Seq.map (fun name -> name, cs))
-        |> dict)
+        |> PrefixDictionary)
 
     let appSettingsIndex = lazy(
         caseInfo
         |> Seq.choose (fun cs -> match cs.AppSettingsName with Some name -> Some(name, cs) | None -> None)
         |> dict)
-
-    let assignmentRecognizer = lazy(
-        let separators =
-            caseInfo
-            |> Seq.append inheritedParams.Value
-            |> Seq.choose (fun cI -> cI.CustomAssignmentSeparator)
-            |> Seq.distinct
-            |> String.concat "|"
-
-        let regex = new Regex(sprintf @"^(.+)(%s)(.+)$" separators, RegexOptions.Compiled)
-        fun (arg : string) ->
-            let m = regex.Match arg
-            if m.Success then
-                Assignment(m.Groups.[1].Value, m.Groups.[2].Value, m.Groups.[3].Value)
-            else
-                NoAssignment)
-
 
     let result = {
         Type = t
@@ -487,7 +481,6 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         GroupedSwitchExtractor = groupedSwitchExtractor
         AppSettingsParamIndex = appSettingsIndex
         InheritedParams = inheritedParams
-        AssignmentRecognizer = assignmentRecognizer
         CliParamIndex = cliIndex
     }
 

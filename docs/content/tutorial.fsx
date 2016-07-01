@@ -175,6 +175,8 @@ Many more attributes are also available, such as
 
   * [`CustomAppSettings`](reference/argu-arguattributes-customappsettingsattribute.html): sets a custom key name for AppSettings.
 
+  * [`CustomAssignment`](reference/argu-arguattributes-customassignmentattribute.html): works like EqualsAssignment but with a custom separator string.
+
 Please see the [API Reference](http://fsprojects.github.io/Argu/reference/argu-arguattributes.html)
 for a complete list of all attributes provided by Argu.
 

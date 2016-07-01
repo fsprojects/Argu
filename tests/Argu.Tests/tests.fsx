@@ -70,7 +70,7 @@ let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMess
 
 parser.PrintCommandLineArgumentsFlat [Options(Some Enum.First) ; Push(toParseResults [Remote "origin" ; Branch "master"])]
 
-let result = parser.Parse [| "--options=second" ; "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
+let result = parser.Parse [| "--options=second" ; "--ports-2" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
 let cresult = result.GetResult <@ Clean @>
 
 let pparser = parser.GetSubCommandParser <@ Push @>

@@ -237,3 +237,46 @@ module StringExpr =
     let currentLength : StringExpr<int> = fun sb -> sb.Length
 
     let whiteSpace len : StringExpr<unit> = fun sb -> ignore(sb.Append(String(' ', len)))
+
+/// Dictionary enabling lookups by string prefix
+/// e.g. the string '--foo=bar' can be used to look up the key '--foo'
+type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
+    /// arrays sorted by key to perform binary searches
+    let keys, values = 
+        keyVals
+        |> Seq.sortBy fst
+        |> Seq.toArray
+        |> Array.unzip
+
+    /// Gets the value corresponding to supplied key
+    member __.Item(key : string) =
+        let mutable kr = null
+        let mutable vr = Unchecked.defaultof<_>
+        if __.TryGetPrefix(key, &kr, &vr) && kr = key then vr
+        else
+            raise <| new KeyNotFoundException(key)
+
+    /// Look up best matching key entry by prefix
+    member __.TryGetPrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =
+        if values.Length = 0 then false else
+        let rec aux s e =
+            match e - s with
+            | 0 ->
+                if value.StartsWith keys.[e] then e
+                else -1
+
+            | 1 ->
+                if value.StartsWith keys.[e] then e
+                elif value.StartsWith keys.[s] then s
+                else -1
+
+            | _ ->
+                let m = (s + e) / 2
+                match String.CompareOrdinal(value, keys.[m]) with
+                | n when n < 0 -> aux s m
+                | 0 -> m
+                | _ -> aux m e
+
+        match aux 0 (keys.Length - 1) with
+        | -1 -> false
+        | i -> kresult <- keys.[i] ; vresult <- values.[i] ; true

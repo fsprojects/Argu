@@ -101,7 +101,7 @@ module ``Argu Tests`` =
                 | Optional _ -> "optional params"
                 | A | B | C -> "misc arguments"
 
-    let parser = ArgumentParser.Create<Argument> ()
+    let parser = ArgumentParser.Create<Argument> (programName = "gadget")
     let parseFunc ignoreMissing f = parser.ParseConfiguration(ConfigurationReader.FromFunction f, ignoreMissing)
 
     [<Fact>]
@@ -520,7 +520,7 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Use no prefix as default`` () =
-        let parser = ArgumentParser.Create<ArgumentNoDash>("usage string")
+        let parser = ArgumentParser.Create<ArgumentNoDash>(programName = "gadget")
         let args = [| "argument" ; "bar" ; "levels-deep" ; "3" |]
 
         let expected_outcome = set [ Argument "bar" ; Levels_Deep 3 ]
