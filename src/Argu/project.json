@@ -1,29 +1,48 @@
 {
     "version": "1.0.0-*",
-    "compilationOptions": {
+    "buildOptions": {
+        "debugType": "portable",
+        "compilerName": "fsc",
+        "define": [
+          "CORE_CLR"
+        ],
+        "compile": {
+          "includeFiles": [
+              "AssemblyInfo.fs",
+              "Utils.fs",
+              "Types.fs",
+              "ArgInfo.fs",
+              "Parsers.fs",
+              "UnParsers.fs",
+              "ArgumentParser.fs"
+          ]
+        }
     },
-
-    "compilerName": "fsc",
-    "compileFiles": [
-        "AssemblyInfo.fs",
-        "Utils.fs",
-        "Types.fs",
-        "ArgInfo.fs",
-        "Parsers.fs",
-        "UnParsers.fs",
-        "ArgumentParser.fs"
-    ],
-
+    "tools": {
+      "dotnet-compile-fsc": {
+        "version": "1.0.0-preview1-*",
+        "imports": [
+          "dnxcore50",
+          "portable-net45+win81",
+          "netstandard1.3"
+        ]
+      }
+    },
     "frameworks": {
-        "netstandard1.5": {
+        "netstandard1.6": {
+            "buildOptions": {
+              "define": [
+                "NETSTANDARD1_5"
+              ]
+            },
             "dependencies": {
-                "System.Xml.XDocument": "4.0.11-rc2-23925",
-                "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-160316",
-                "NETStandard.Library": "1.5.0-rc2-23925"
+                "System.Xml.XDocument": "4.0.11",
+                "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-160509",
+                "NETStandard.Library": "1.6.0"
             },
             "imports": [
-                "portable-net45+win8",
-                "dnxcore50"
+              "portable-net45+win8",
+              "dnxcore50"
             ]
         },
         "net46": { 
