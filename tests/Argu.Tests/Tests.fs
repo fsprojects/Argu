@@ -614,3 +614,48 @@ module ``Argu Tests`` =
         raises<ArgumentException> <@ result.Contains <@ fun x -> () ; Log_Level x @> @>
         raises<ArgumentException> <@ result.Contains <@ let wrapper = List in wrapper @> @>
         raises<ArgumentException> <@ result.Contains <@ wrapper @> @>
+
+
+[<TestFixture>]
+module ``SubCommand Tests`` =
+
+    type RunArgs =
+     | [<First>][<Mandatory>][<CliPrefix(CliPrefix.Empty)>][<AltCommandLine("")>] Script of string
+     | [<AltCommandLine("-e")>] EnvironmentVariable of string * string
+     | [<Rest>] FsiArgs of string
+     | [<AltCommandLine("-d")>] Debug
+     | [<AltCommandLine("-s")>] SingleTarget
+     | [<AltCommandLine("-n")>] NoCache
+     | [<AltCommandLine("-t")>] Target of string
+    with
+     interface IArgParserTemplate with
+       member s.Usage =
+         match s with
+         | Script _ -> "Specify the script to run."
+         | EnvironmentVariable _ -> "Set an environment variable."
+         | FsiArgs _ -> "Arguments passed to the f# interactive."
+         | Debug _ -> "Debug the script (set a breakpoint at the start)."
+         | SingleTarget _ -> "Run only the specified target."
+         | Target _ -> "The target to run."
+         | NoCache _ -> "Disable caching of the compiled script."
+
+    type FakeArgs =
+     | Version
+     | (*[<Inherit>]*) [<AltCommandLine("-v")>] Verbose
+     | [<CliPrefix(CliPrefix.Empty)>] Run of ParseResults<RunArgs>
+    with
+     interface IArgParserTemplate with
+       member s.Usage =
+         match s with
+         | Version _ -> "Prints the version."
+         | Verbose _ -> "More verbose output."
+         | Run _ -> "Runs a build script."
+
+
+    [<Test>]
+    let ``Test if we can parse Fake Arguments`` () =
+        let parser = ArgumentParser.Create<FakeArgs> "usage string"
+        let args = [| "run"; "test.fsx" |]
+        let results = parser.ParseCommandLine (args, raiseOnUsage = false)
+        ignore results
+        //results.GetAllResults() |> should equal [ FakeArgs.Run ] 
