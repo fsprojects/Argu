@@ -1,18 +1,28 @@
 {
     "version": "1.0.0-*",
-    "compilationOptions": {
-        "emitEntryPoint": true
+    "buildOptions": {
+        "debugType": "portable",
+        "emitEntryPoint": true,
+        "compilerName": "fsc",
+        "define": [
+            "CORE_CLR"
+        ],
+        "compile": {
+            "includeFiles": [
+                "Program.fs"
+            ]
+        }
     },
-
-    "compilerName": "fsc",
-    "compileFiles": [
-        "Program.fs"
-    ],
-
+    "tools": {
+        "dotnet-compile-fsc": {
+            "version": "1.0.0-preview2-*",
+            "imports": "dnxcore50"
+        }
+    },
     "frameworks": {
-        "netstandard1.5" : { 
+        "netstandard1.6" : { 
             "dependencies": {
-                "Argu":  { "version": "1.0.0", "type": "build" }
+                "Argu":  { "version": "3.0.0-beta02", "type": "build" }
             },
             "imports": [
                 "portable-net45+win8",
@@ -21,7 +31,7 @@
         },
         "net46" : { 
             "dependencies": {
-                "Argu":  { "version": "1.0.0", "type": "build" }
+                "Argu":  { "version": "3.0.0-beta02", "type": "build" }
             },
             "frameworkAssemblies": {
                 "System": "",
