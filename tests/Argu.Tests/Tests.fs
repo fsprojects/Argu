@@ -661,6 +661,14 @@ module ``SubCommand Tests`` =
         test <@ runArgs.GetAllResults() = [ Script "test.fsx" ] @>
         
     [<Fact>]
+    let ``Test if we can parse zero arguments`` () =
+        let parser = ArgumentParser.Create<FakeArgs> "fake"
+        let args = [| |]
+        let results = parser.ParseCommandLine (args, raiseOnUsage = false)
+        ignore results
+        test <@ results.GetAllResults() = [] @>
+
+    [<Fact>]
     let ``Test if we can printf help for Fake Arguments`` () =
         let parser = ArgumentParser.Create<FakeArgs> "fake"
         let usage = parser.GetSubCommandParser(<@ Run @>).PrintUsage()
