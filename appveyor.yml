@@ -5,10 +5,11 @@ test:
 
 install:
   - ps: $env:CLI_VERSION = "1.0.0-preview2-003121"
+  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetcli"
   # Download install script to install .NET cli in .dotnet dir
   - ps: mkdir -Force ".\scripts\obtain\" | Out-Null
+  - ps: mkdir -Force "$env:DOTNET_INSTALL_DIR" | Out-Null
   - ps: Invoke-WebRequest "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/dotnet-install.ps1" -OutFile ".\scripts\obtain\dotnet-install.ps1"
-  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetcli"
   - ps: '. .\scripts\obtain\dotnet-install.ps1 -Channel "preview" -version "$env:CLI_VERSION" -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath -DryRun'
   - ps: Invoke-WebRequest "https://go.microsoft.com/fwlink/?LinkID=809126" -OutFile "$env:DOTNET_INSTALL_DIR\dotnet-$env:CLI_VERSION.zip"
   - ps: Extract-Dotnet-Package -ZipPath "$env:DOTNET_INSTALL_DIR\dotnet-$env:CLI_VERSION.zip" -OutPath "$env:DOTNET_INSTALL_DIR"
