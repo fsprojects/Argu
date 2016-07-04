@@ -2,14 +2,11 @@
 module internal Argu.Utils
 
 open System
-open System.IO
 open System.Collections.Generic
+open System.IO
+open System.Reflection
 open System.Text
 open System.Text.RegularExpressions
-open System.Reflection
-
-open System.Xml
-open System.Xml.Linq
 
 open FSharp.Reflection
 open FSharp.Quotations
@@ -255,6 +252,11 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
         if __.TryGetPrefix(key, &kr, &vr) && kr = key then vr
         else
             raise <| new KeyNotFoundException(key)
+
+    member __.Get x =
+        let mutable kr = null
+        let mutable vr = Unchecked.defaultof<_>
+        if __.TryGetPrefix(x, &kr, &vr) then Some(kr,vr) else None
 
     /// Look up best matching key entry by prefix
     member __.TryGetPrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =

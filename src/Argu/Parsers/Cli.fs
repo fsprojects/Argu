@@ -15,7 +15,9 @@ type CliParseToken =
 type CliTokenReader(inputs : string[]) =
     let mutable position = 0
     let mutable segmentStartPos = 0
-    static let assignmentRegex = new Regex("^(\W+)(.*)$", RegexOptions.Compiled)
+    static let assignmentRegex = 
+        let escapedChars = new String(validSeparatorChars) |> Regex.Escape
+        new Regex(sprintf "^([%s]+)(.*)$" escapedChars, RegexOptions.Compiled)
 
     member __.BeginCliSegment() =
         segmentStartPos <- position
@@ -31,7 +33,7 @@ type CliTokenReader(inputs : string[]) =
         let token = inputs.[position]
         if not peekOnly then position <- position + 1
 
-        let inline extractGroupedSwitches token =
+        let inline tryExtractGroupedSwitches token =
             match argInfo.GroupedSwitchExtractor.Value token with
             | [||] -> UnrecognizedOrArgument token
             | args -> GroupedParams(token, args)
@@ -45,14 +47,14 @@ type CliTokenReader(inputs : string[]) =
                 if token = prefix then CliParam(token, prefix, case, NoAssignment)
                 else
                     let m = assignmentRegex.Match token.[prefix.Length ..]
-                    if not m.Success then extractGroupedSwitches token
+                    if not m.Success then tryExtractGroupedSwitches token
                     else
                         let sep = m.Groups.[1].Value
                         let value = m.Groups.[2].Value
                         let assignment = Assignment(prefix, sep, value)
                         CliParam(token, prefix, case, assignment)
             else
-                extractGroupedSwitches token
+                tryExtractGroupedSwitches token
 
     member __.MoveNext() =
         if position < inputs.Length then position <- position + 1

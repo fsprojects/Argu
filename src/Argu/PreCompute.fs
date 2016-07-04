@@ -179,10 +179,16 @@ let validateCliParam (name : string) =
     if name = null || not <| validCliParamRegex.IsMatch name then
         arguExn "CLI parameter '%s' contains invalid characters." name
 
-let private validSeparatorRegex = new Regex(@"\W+", RegexOptions.Compiled)
+let validSeparatorChars = [|'=' ; ':' ; '.' ; '#' ; '+' ; '^' ; '&' ; '?' ; '%' ; '$' ; '~' ; '@'|]
+let private validSeparatorRegex = 
+    let escapedChars = new String(validSeparatorChars) |> Regex.Escape
+    new Regex(sprintf @"[%s]+" escapedChars, RegexOptions.Compiled)
+
 let validateSeparator (uci : UnionCaseInfo) (sep : string) =   
-    if sep = null || not <| validCliParamRegex.IsMatch sep then
-        arguExn "parameter '%O' specifies an invalid separator '%s' in its CustomAssignment attribute." uci sep
+    if sep = null || not <| validSeparatorRegex.IsMatch sep then
+        let allowedchars = validSeparatorChars |> Seq.map (fun c -> sprintf "'%c'" c) |> String.concat ", "
+        arguExn "parameter '%O' specifies invalid separator '%s' in CustomAssignment attribute.%sAllowed characters: %s" 
+            uci sep Environment.NewLine allowedchars
 
 /// extracts the subcommand argument hierarchy for given UnionArgInfo
 let getHierarchy (uai : UnionArgInfo) =
