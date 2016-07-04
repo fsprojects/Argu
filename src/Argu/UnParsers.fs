@@ -49,8 +49,11 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
         | [] -> ()
         | name :: _ ->
             yield ' '
+            let isMandatorySpecialFirst = aI.IsMandatorySpecialFirst
+            if isMandatorySpecialFirst then yield '['
             if not aI.IsMandatory then yield '['
             yield name
+            if isMandatorySpecialFirst then yield ']'
 
             match aI.ParameterInfo with
             | Primitives parsers ->
@@ -97,7 +100,10 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
     | flags ->
         let! start = StringExpr.currentLength
         yield! StringExpr.whiteSpace switchOffset
-        yield String.concat ", " flags
+        yield String.concat ", " 
+          (if aI.IsFirst && flags |> Seq.exists ((=) "") then 
+              flags |> List.filter ((<>) "") |> List.map (sprintf "[%s]") 
+           else flags)
 
         match aI.ParameterInfo with
         | Primitives parsers ->

@@ -14,8 +14,10 @@ type CliParseToken =
 type CliTokenReader(inputs : string[]) =
     let mutable position = 0
     let mutable segmentStartPos = 0
+    let mutable skipFirst = false
 
     member __.BeginCliSegment() =
+        skipFirst <- false
         segmentStartPos <- position
 
     /// returns the substring that corresponds to the current argument being parsed
@@ -27,11 +29,21 @@ type CliTokenReader(inputs : string[]) =
         if position = inputs.Length then EndOfStream else
 
         let token = inputs.[position]
+        let specialFirst =
+          if not skipFirst && position = segmentStartPos then
+            argInfo.Cases |> Seq.tryFind (fun c -> c.IsMandatorySpecialFirst)
+          else None
         if not peekOnly then position <- position + 1
 
         let inline extractGroupedSwitches token assignment =
             match argInfo.GroupedSwitchExtractor.Value token with
-            | [||] -> UnrecognizedOrArgument (token, assignment)
+            | [||] -> 
+              match specialFirst with
+              | Some case ->
+                skipFirst <- true
+                if not peekOnly then position <- position - 1
+                CliParam(token, token, case, None)
+              | _ -> UnrecognizedOrArgument (token, assignment)
             | args -> GroupedParams(token, args)
 
         match token with
