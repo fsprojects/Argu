@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>ExceptionExiter - Argu</title>
+    <title>CustomAssignmentAttribute - Argu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content=""/>
     <meta name="author" content="Eirik Tsarpalis"/>
@@ -35,12 +35,15 @@
 
 
 
-<h1>ExceptionExiter</h1>
+<h1>CustomAssignmentAttribute</h1>
 <p>
   <span>Namespace: Argu</span><br />
+  <span>Parent Module: <a href="argu-arguattributes.html">ArguAttributes</a></span>
 </p>
 <div class="xmldoc">
-<p>Handles argument parser errors by raising an exception</p>
+<p>Use '--param=arg' or '--param key=value' assignment syntax in CLI.
+Requires that the argument should have parameters of arity 1 or 2 only.
+Can be used to specify any assignment separator.</p>
 
 </div>
   <h3>Constructors</h3>
@@ -52,20 +55,47 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '98', 98)" onmouseover="showTip(event, '98', 98)">
-            new()
+          <code onmouseout="hideTip(event, '19', 19)" onmouseover="showTip(event, '19', 19)">
+            new(separator)
           </code>
-          <div class="tip" id="98">
-            <strong>Signature:</strong> unit -&gt; ExceptionExiter<br />
+          <div class="tip" id="19">
+            <strong>Signature:</strong> separator:string -&gt; CustomAssignmentAttribute<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L52-52" class="github-link">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Attributes.fs#L85-85" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
               <p>CompiledName: <code>.ctor</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '20', 20)" onmouseover="showTip(event, '20', 20)">
+            Separator
+          </code>
+          <div class="tip" id="20">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Attributes.fs#L87-87" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>get_Separator</code></p>
         </td>
       </tr>
     </tbody>

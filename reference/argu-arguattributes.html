@@ -40,6 +40,8 @@
   <span>Namespace: Argu</span><br />
 </p>
 <div class="xmldoc">
+<p>Argu Attribute declaration module</p>
+
 </div>
 
 <!-- Render nested types and modules, if there are any -->
@@ -80,10 +82,29 @@ This defaults to double dash ('--').</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="argu-arguattributes-colonassignmentattribute.html">ColonAssignmentAttribute</a>
+          </td>
+          <td class="xmldoc"><p>Use '--param:arg' or '--param key:value' assignment syntax in CLI.
+Requires that the argument should have parameters of arity 1 or 2 only.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="argu-arguattributes-customappsettingsattribute.html">CustomAppSettingsAttribute</a>
           </td>
           <td class="xmldoc"><p>Declares a custom key identifier for the current parameter in AppSettings parsing.
 Replaces the auto-generated identifier name.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="argu-arguattributes-customassignmentattribute.html">CustomAssignmentAttribute</a>
+          </td>
+          <td class="xmldoc"><p>Use '--param=arg' or '--param key=value' assignment syntax in CLI.
+Requires that the argument should have parameters of arity 1 or 2 only.
+Can be used to specify any assignment separator.</p>
 
 </td>
         </tr>

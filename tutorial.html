@@ -247,6 +247,7 @@ can be customized by fixing attributes to the union cases:</p>
 <li><p><a href="reference/argu-arguattributes-firstattribute.html"><code>First</code></a>: Argument can only be placed at the beginning of the command line.</p></li>
 <li><p><a href="reference/argu-arguattributes-hiddenattribute.html"><code>Hidden</code></a>: do not display in the help usage string.</p></li>
 <li><p><a href="reference/argu-arguattributes-customappsettingsattribute.html"><code>CustomAppSettings</code></a>: sets a custom key name for AppSettings.</p></li>
+<li><p><a href="reference/argu-arguattributes-customassignmentattribute.html"><code>CustomAssignment</code></a>: works like EqualsAssignment but with a custom separator string.</p></li>
 </ul>
 <p>Please see the <a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">API Reference</a>
 for a complete list of all attributes provided by Argu.</p>
@@ -605,7 +606,7 @@ a post-process facility is provided.</p>
 <div class="tip" id="fs42">union case Argument.Connection_String: conn: string -&gt; Argument</div>
 <div class="tip" id="fs43">Multiple items<br />type UniqueAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; UniqueAttribute<br /><br />Full name: Argu.ArguAttributes.UniqueAttribute<br /><br />--------------------<br />new : unit -&gt; UniqueAttribute</div>
 <div class="tip" id="fs44">union case Argument.Listener: host: string * port: int -&gt; Argument</div>
-<div class="tip" id="fs45">Multiple items<br />type EqualsAssignmentAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; EqualsAssignmentAttribute<br /><br />Full name: Argu.ArguAttributes.EqualsAssignmentAttribute<br /><br />--------------------<br />new : unit -&gt; EqualsAssignmentAttribute</div>
+<div class="tip" id="fs45">Multiple items<br />type EqualsAssignmentAttribute =<br />&#160;&#160;inherit CustomAssignmentAttribute<br />&#160;&#160;new : unit -&gt; EqualsAssignmentAttribute<br /><br />Full name: Argu.ArguAttributes.EqualsAssignmentAttribute<br /><br />--------------------<br />new : unit -&gt; EqualsAssignmentAttribute</div>
 <div class="tip" id="fs46">union case Argument.Assignment: value: string -&gt; Argument</div>
 <div class="tip" id="fs47">Multiple items<br />type AltCommandLineAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : [&lt;ParamArray&gt;] names:string [] -&gt; AltCommandLineAttribute<br />&#160;&#160;member Names : string []<br /><br />Full name: Argu.ArguAttributes.AltCommandLineAttribute<br /><br />--------------------<br />new : [&lt;ParamArray&gt;] names:string [] -&gt; AltCommandLineAttribute</div>
 <div class="tip" id="fs48">union case Argument.Primary_Port: tcp_port: int -&gt; Argument</div>
