@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="Attributes.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="ConfigReaders.fs" />
     <Compile Include="UnionArgInfo.fs" />
