@@ -111,6 +111,8 @@ type UnionCaseArgInfo =
         IsUnique : bool
         /// Hide from Usage
         IsHidden : bool
+        /// Declares that the parameter should gather any unrecognized CLI params
+        IsGatherUnrecognized : bool
         /// Combine AppSettings with CLI inputs
         GatherAllSources : bool
     }
@@ -165,6 +167,8 @@ and [<NoEquality; NoComparison>]
         AppSettingsParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
         /// Union cases indexed by cli parameter names
         CliParamIndex : Lazy<PrefixDictionary<UnionCaseArgInfo>>
+        /// Union case parameter used to gather unrecognized CLI params
+        UnrecognizedGatherParam : UnionCaseArgInfo option
     }
 with
     member inline uai.UsesHelpParam = List.isEmpty uai.HelpParam.Flags |> not
@@ -220,5 +224,6 @@ type UnionCaseArgInfo with
             IsMandatory = ucai.IsMandatory
             IsUnique = ucai.IsUnique
             IsHidden = ucai.IsHidden
+            IsGatherUnrecognized = ucai.IsGatherUnrecognized
             GatherAllSources = ucai.GatherAllSources
         }

@@ -121,6 +121,8 @@ type ArgumentCaseInfo =
         IsUnique : bool
         /// Hide from Usage
         IsHidden : bool
+        /// Declares that the parameter should gather any unrecognized CLI params
+        IsGatherUnrecognized : bool
         /// Combine AppSettings with CLI inputs
         GatherAllSources : bool
     }

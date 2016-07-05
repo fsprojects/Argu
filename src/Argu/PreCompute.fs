@@ -243,6 +243,14 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         | None -> None
 
+    let isGatherUnrecognized =
+        if uci.ContainsAttribute<GatherUnrecognized>() then
+            match types with
+            | [|t|] when t = typeof<string> -> true
+            | _ -> arguExn "parameter '%O' has GatherUnrecognized attribute but specifies invalid parameters. Must contain single parameter of type string." uci
+        else
+            false
+
     let appSettingsSeparators, appSettingsSplitOptions =
         match uci.TryGetAttribute<AppSettingsSeparatorAttribute> (true) with
         | None -> [|","|], StringSplitOptions.None
@@ -383,6 +391,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         IsFirst = isFirst
         CustomAssignmentSeparator = customAssignmentSeparator
         AssignmentParser = assignParser
+        IsGatherUnrecognized = isGatherUnrecognized
         IsHidden = isHidden
     }
 
@@ -475,6 +484,12 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         |> Seq.choose (fun cs -> match cs.AppSettingsName with Some name -> Some(name, cs) | None -> None)
         |> dict)
 
+    let unrecognizedParam =
+        match caseInfo |> Array.filter (fun cI -> cI.IsGatherUnrecognized) with
+        | [||] -> None
+        | [|ur|] -> Some ur
+        | _ -> arguExn "template type '%O' has specified the GatherUnrecognized attribute in more than one union cases." t
+
     let result = {
         Type = t
         Depth = List.length stack
@@ -488,6 +503,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         AppSettingsParamIndex = appSettingsIndex
         InheritedParams = inheritedParams
         CliParamIndex = cliIndex
+        UnrecognizedGatherParam = unrecognizedParam
     }
 
     current := result // assign result to children

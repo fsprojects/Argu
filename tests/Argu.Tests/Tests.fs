@@ -51,6 +51,14 @@ module ``Argu Tests`` =
         interface IArgParserTemplate with
             member this.Usage = "required"
 
+    type GatherUnrecognizedSubcommand =
+        | Switch1
+        | Switch2
+        | [<GatherUnrecognized; Hidden>] Unrec of values:string
+    with
+        interface IArgParserTemplate with
+            member this.Usage = "gus"
+
     type Argument =
         | [<AltCommandLine("-v"); Inherit>] Verbose
         | Working_Directory of string
@@ -75,6 +83,7 @@ module ``Argu Tests`` =
         | [<CliPrefix(CliPrefix.None)>] Push of ParseResult<PushArgs>
         | [<CliPrefix(CliPrefix.None)>] Clean of ParseResult<CleanArgs>
         | [<CliPrefix(CliPrefix.None)>] Required of ParseResult<RequiredSubcommand>
+        | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResult<GatherUnrecognizedSubcommand>
     with
         interface IArgParserTemplate with
             member a.Usage =
@@ -97,6 +106,7 @@ module ``Argu Tests`` =
                 | Push _ -> "push changes"
                 | Clean _ -> "clean state"
                 | Required _ -> "required subcommand"
+                | Unrecognized _ -> "unrecognized subcommand"
                 | List _ -> "variadic params"
                 | Optional _ -> "optional params"
                 | A | B | C -> "misc arguments"
@@ -303,6 +313,15 @@ module ``Argu Tests`` =
                                         (fun e -> <@ e.FirstLine.Contains "subcommand" @>)
 
     [<Fact>]
+    let ``GatherUnrecognized attribute`` () =
+        let args = [|"--mandatory-arg" ; "true" ; "unrecognized" ; "uarg1" ; "--switch1" ; "uarg2"|]
+        let results = parser.ParseCommandLine(args)
+        let sub = results.GetResult <@ Unrecognized @>
+        test <@ sub.UnrecognizedCliParams = [] @>
+        test <@ sub.Contains <@ Switch1 @> @>
+        test <@ sub.GetResults <@ Unrec @> = [ "uarg1" ; "uarg2" ] @>
+
+    [<Fact>]
     let ``Unrecognized CLI params`` () =
         let args = [| "--mandatory-arg" ; "true" ; "foobar" ; "-z" |]
         let results = parser.ParseCommandLine(args, ignoreUnrecognized = true)
@@ -377,7 +396,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Get all subcommand parsers`` () =
         let subcommands = parser.GetSubCommandParsers()
-        test <@ subcommands.Length = 3 @>
+        test <@ subcommands.Length = 4 @>
         test <@ subcommands |> List.forall (fun sc -> sc.IsSubCommandParser) @>
 
     [<Fact>]

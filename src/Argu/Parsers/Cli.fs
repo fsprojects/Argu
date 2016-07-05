@@ -155,8 +155,15 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | EndOfStream -> ()
     | HelpArgument _ when state.RaiseOnUsage -> raise <| HelpText argInfo
     | HelpArgument _ -> aggregator.IsUsageRequested <- true
-    | UnrecognizedOrArgument token when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
-    | UnrecognizedOrArgument token -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
+    | UnrecognizedOrArgument token ->
+        match argInfo.UnrecognizedGatherParam with
+        | Some ugp ->
+            let result = mkUnionCase ugp aggregator.ResultCount ParseSource.CommandLine null [|token|]
+            aggregator.AppendResult result
+
+        | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
+        | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
+
     | GroupedParams(_, switches) ->
         for sw in switches do
             let caseInfo = argInfo.CliParamIndex.Value.[sw]
