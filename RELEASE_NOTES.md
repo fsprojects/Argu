@@ -1,4 +1,4 @@
-### 3.0.0-beta01
+### 3.0.0-beta02
 * Add subcommand support.
 * Add support for list and option parameters.
 * Add support for grouped switches.
