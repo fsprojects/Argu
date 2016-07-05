@@ -1,10 +1,11 @@
-### 3.0.0-beta02
+### 3.0.0-beta03
 * Add subcommand support.
 * Add support for list and option parameters.
 * Add support for grouped switches.
 * Extend EqualsAssignment attribute for parameters of arity 2.
 * Implement UniqueAttribute and ExactlyOnceAttribute.
 * Implement HelpFlagsAttribute, HelpDescriptionAttribute and DisableHelpAttribute.
+* Implement GatherUnrecognizedAttribute.
 * Add ParseResult.UnrecognizedCliParams property.
 * Add support for F# unions used as enumeration parameters.
 
