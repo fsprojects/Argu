@@ -4,7 +4,6 @@ module internal Argu.CliParser
 open System
 open System.Text.RegularExpressions
 
-[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
 type CliParseToken =
     | EndOfStream
     | CliParam of token:string * switch:string * caseInfo:UnionCaseArgInfo * assignment:Assignment
@@ -15,6 +14,9 @@ type CliParseToken =
 type CliTokenReader(inputs : string[]) =
     let mutable position = 0
     let mutable segmentStartPos = 0
+    let mutable isPeekedValue = false
+    let mutable peekedValue = Unchecked.defaultof<CliParseToken>
+
     static let assignmentRegex = 
         let escapedChars = new String(validSeparatorChars) |> Regex.Escape
         new Regex(sprintf "^([%s]+)(.*)$" escapedChars, RegexOptions.Compiled)
@@ -28,36 +30,51 @@ type CliTokenReader(inputs : string[]) =
         inputs.[segmentStartPos .. position - 1] |> flattenCliTokens
 
     member __.GetNextToken (peekOnly : bool) (argInfo : UnionArgInfo) =
-        if position = inputs.Length then EndOfStream else
+        // continuation which decides how to consume parsed token
+        let inline kont result =
+            if peekOnly then 
+                peekedValue <- result 
+                isPeekedValue <- true
+            else 
+                position <- position + 1 
+                isPeekedValue <- false
+                peekedValue <- Unchecked.defaultof<_>
 
-        let token = inputs.[position]
-        if not peekOnly then position <- position + 1
+            result
 
         let inline tryExtractGroupedSwitches token =
             match argInfo.GroupedSwitchExtractor.Value token with
             | [||] -> UnrecognizedOrArgument token
             | args -> GroupedParams(token, args)
 
+        if isPeekedValue then kont peekedValue
+        elif position = inputs.Length then kont EndOfStream else
+
+        let token = inputs.[position]
+        
         match token with
-        | token when argInfo.HelpParam.IsHelpFlag token -> HelpArgument token
+        | token when argInfo.HelpParam.IsHelpFlag token -> HelpArgument token |> kont
         | token ->
             let mutable prefix = null
             let mutable case = Unchecked.defaultof<_>
             if argInfo.CliParamIndex.Value.TryGetPrefix(token, &prefix, &case) then
-                if token = prefix then CliParam(token, prefix, case, NoAssignment)
+                if token = prefix then CliParam(token, prefix, case, NoAssignment) |> kont
                 else
                     let m = assignmentRegex.Match token.[prefix.Length ..]
-                    if not m.Success then tryExtractGroupedSwitches token
+                    if not m.Success then tryExtractGroupedSwitches token |> kont
                     else
                         let sep = m.Groups.[1].Value
                         let value = m.Groups.[2].Value
                         let assignment = Assignment(prefix, sep, value)
-                        CliParam(token, prefix, case, assignment)
+                        CliParam(token, prefix, case, assignment) |> kont
             else
-                tryExtractGroupedSwitches token
+                tryExtractGroupedSwitches token |> kont
 
     member __.MoveNext() =
-        if position < inputs.Length then position <- position + 1
+        if position < inputs.Length then 
+            position <- position + 1 
+            isPeekedValue <- false
+            peekedValue <- Unchecked.defaultof<_>
 
     member __.IsCompleted = position = inputs.Length
 

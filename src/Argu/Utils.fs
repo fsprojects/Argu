@@ -238,10 +238,10 @@ module StringExpr =
 /// Dictionary enabling lookups by string prefix
 /// e.g. the string '--foo=bar' can be used to look up the key '--foo'
 type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
-    /// arrays sorted by key to perform binary searches
+    // could probably use a trie here, but cli arg names are relatively few
+    // with relatively flat structure to get any real perf benefits
     let keys, values = 
         keyVals
-        |> Seq.sortBy fst
         |> Seq.toArray
         |> Array.unzip
 
@@ -253,32 +253,21 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
         else
             raise <| new KeyNotFoundException(key)
 
-    member __.Get x =
-        let mutable kr = null
-        let mutable vr = Unchecked.defaultof<_>
-        if __.TryGetPrefix(x, &kr, &vr) then Some(kr,vr) else None
-
     /// Look up best matching key entry by prefix
     member __.TryGetPrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =
-        if values.Length = 0 then false else
-        let rec aux s e =
-            match e - s with
-            | 0 ->
-                if value.StartsWith keys.[e] then e
+        // Just iterate through all the keys, picking the matching prefix
+        // with the maximal length
+        let mutable maxPos = -1
+        let mutable maxLen = -1
+        for i = 0 to keys.Length - 1 do
+            let key = keys.[i]
+            let pLength =
+                if value.StartsWith(key, StringComparison.Ordinal) then key.Length
                 else -1
 
-            | 1 ->
-                if value.StartsWith keys.[e] then e
-                elif value.StartsWith keys.[s] then s
-                else -1
+            if pLength > maxLen then
+                maxPos <- i
+                maxLen <- pLength
 
-            | _ ->
-                let m = (s + e) / 2
-                match String.CompareOrdinal(value, keys.[m]) with
-                | n when n < 0 -> aux s m
-                | 0 -> m
-                | _ -> aux m e
-
-        match aux 0 (keys.Length - 1) with
-        | -1 -> false
-        | i -> kresult <- keys.[i] ; vresult <- values.[i] ; true
+        if maxPos < 0 then false
+        else kresult <- keys.[maxPos] ; vresult <- values.[maxPos] ; true
