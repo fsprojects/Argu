@@ -158,7 +158,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | UnrecognizedOrArgument token ->
         match argInfo.UnrecognizedGatherParam with
         | Some ugp ->
-            let result = mkUnionCase ugp aggregator.ResultCount ParseSource.CommandLine null [|token|]
+            let result = mkUnionCase ugp aggregator.ResultCount ParseSource.CommandLine token [|token|]
             aggregator.AppendResult result
 
         | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
