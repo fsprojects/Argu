@@ -306,7 +306,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             let result = 
                 existential.Accept { new ITemplateFunc<obj> with
                     member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
-                        new ParseResult<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
+                        new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
 
             let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [|result|]
             aggregator.AppendResult result

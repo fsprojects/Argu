@@ -4,7 +4,7 @@ open FSharp.Quotations
 
 /// Argument parsing result holder.
 [<Sealed; AutoSerializable(false); StructuredFormatDisplay("{StructuredFormatDisplay}")>]
-type ParseResult<'Template when 'Template :> IArgParserTemplate> 
+type ParseResults<'Template when 'Template :> IArgParserTemplate> 
     internal (argInfo : UnionArgInfo, results : UnionParseResults, programName : string, description : string option, usageStringCharWidth : int, exiter : IExiter) =
 
     let mkUsageString message = mkUsageString argInfo programName usageStringCharWidth message |> StringExpr.build

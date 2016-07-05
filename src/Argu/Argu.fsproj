@@ -70,7 +70,7 @@
     <Compile Include="UnionArgInfo.fs" />
     <Compile Include="PreCompute.fs" />
     <Compile Include="UnParsers.fs" />
-    <Compile Include="ParseResult.fs" />
+    <Compile Include="ParseResults.fs" />
     <Compile Include="Parsers\Common.fs" />
     <Compile Include="Parsers\Cli.fs" />
     <Compile Include="Parsers\KeyValue.fs" />

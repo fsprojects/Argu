@@ -112,7 +112,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
-    member __.ParseCommandLine (?inputs : string [], ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+    member __.ParseCommandLine (?inputs : string [], ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
@@ -123,21 +123,21 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
             let ignoreMissing = (cliResults.IsUsageRequested && not raiseOnUsage) || ignoreMissing
             let results = postProcessResults argInfo ignoreMissing None (Some cliResults)
 
-            new ParseResult<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
+            new ParseResults<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
     /// <summary>Parse arguments using specified configuration reader only. This defaults to the AppSettings configuration of the current process.</summary>
     /// <param name="configurationReader">Configuration reader used to source the arguments. Defaults to the AppSettings configuration of the current process.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member __.ParseConfiguration (configurationReader : IConfigurationReader, ?ignoreMissing : bool) : ParseResult<'Template> =
+    member __.ParseConfiguration (configurationReader : IConfigurationReader, ?ignoreMissing : bool) : ParseResults<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
 
         try
             let appSettingsResults = parseKeyValueConfig configurationReader argInfo
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) None
 
-            new ParseResult<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
+            new ParseResults<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)    
 
@@ -148,7 +148,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
-    member __.Parse (?inputs : string [], ?configurationReader : IConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResult<'Template> =
+    member __.Parse (?inputs : string [], ?configurationReader : IConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
@@ -160,7 +160,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
             let cliResults = parseCommandLine argInfo _programName helpTextMessage _usageStringCharacterWidth errorHandler raiseOnUsage ignoreUnrecognized inputs
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
-            new ParseResult<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
+            new ParseResults<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
@@ -168,7 +168,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
-    member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResult<'Template> =
+    member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResults<'Template> =
         let configurationReader =
             match xmlConfigurationFile with
             | None -> ConfigurationReader.FromAppSettings()
@@ -185,17 +185,17 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
 
     /// <summary>
-    ///     Converts a sequence of template argument inputs into a ParseResult instance
+    ///     Converts a sequence of template argument inputs into a ParseResults instance
     /// </summary>
     /// <param name="inputs">Argument input sequence.</param>
-    member __.ToParseResult (inputs : seq<'Template>) : ParseResult<'Template> =
+    member __.ToParseResults (inputs : seq<'Template>) : ParseResults<'Template> =
         mkParseResultFromValues argInfo errorHandler _usageStringCharacterWidth _programName helpTextMessage inputs
 
     /// <summary>
     ///     Gets a subparser associated with specific subcommand instance
     /// </summary>
     /// <param name="expr">Expression providing the subcommand union constructor.</param>
-    member __.GetSubCommandParser (expr : Expr<ParseResult<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
+    member __.GetSubCommandParser (expr : Expr<ParseResults<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
         let uci = expr2Uci expr
         let case = argInfo.Cases.[uci.Tag]
         match case.ParameterInfo with
@@ -276,15 +276,15 @@ type ArgumentParser with
 [<AutoOpen>]
 module ArgumentParserUtils =
 
-    type ParseResult<'Template when 'Template :> IArgParserTemplate> with
+    type ParseResults<'Template when 'Template :> IArgParserTemplate> with
         /// Gets the parser instance corresponding to the parse result
         member r.Parser =
             new ArgumentParser<'Template>(r.ArgInfo, r.ProgramName, r.Description, 
                                                 r.CharacterWidth, r.ErrorHandler)
 
-    /// converts a sequence of inputs to a ParseResult instance
-    let toParseResults (inputs : seq<'Template>) : ParseResult<'Template> =
-        ArgumentParser.Create<'Template>().ToParseResult(inputs)
+    /// converts a sequence of inputs to a ParseResults instance
+    let toParseResults (inputs : seq<'Template>) : ParseResults<'Template> =
+        ArgumentParser.Create<'Template>().ToParseResults(inputs)
 
     /// gets the F# union tag representation of given argument instance
     let tagOf (input : 'Template) : int =

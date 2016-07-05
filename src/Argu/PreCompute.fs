@@ -43,10 +43,10 @@ let tryExtractUnionParameterLabel (p : PropertyInfo) =
     if defaultLabelRegex.IsMatch p.Name then None
     else Some(p.Name.Replace('_',' '))
 
-let (|NestedParseResult|Optional|List|Other|) (t : Type) =
+let (|NestedParseResults|Optional|List|Other|) (t : Type) =
     if t.IsGenericType then
         let gt = t.GetGenericTypeDefinition()
-        if typeof<IParseResult>.IsAssignableFrom t then NestedParseResult(t.GetGenericArguments().[0])
+        if typeof<IParseResult>.IsAssignableFrom t then NestedParseResults(t.GetGenericArguments().[0])
         elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
         elif gt = typedefof<_ list> then List(t.GetGenericArguments().[0])
         else Other
@@ -169,7 +169,7 @@ let getPrimitiveParserByType label (t : Type) =
 
         // refine error messaging depending on the input time
         match t with
-        | NestedParseResult _ -> arguExn "Nested ParseResult<'T> parameters can only occur as standalone parameters in union constructors."
+        | NestedParseResults _ -> arguExn "Nested ParseResult<'T> parameters can only occur as standalone parameters in union constructors."
         | Optional _ -> arguExn "F# Option parameters can only occur as standalone parameters in union constructors."
         | List _ -> arguExn "F# List parameters can only occur as standalone parameters in union constructors."
         | _ -> arguExn "template contains unsupported field of type '%O'." t
@@ -266,7 +266,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let parsers =
         match types with
-        | [|NestedParseResult prt|] -> 
+        | [|NestedParseResults prt|] -> 
             if Option.isSome customAssignmentSeparator then
                 arguExn "CustomAssignment in '%O' not supported in subcommands." uci
             if isRest then

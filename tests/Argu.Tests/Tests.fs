@@ -46,7 +46,7 @@ module ``Argu Tests`` =
     [<RequireSubcommand>]
     type RequiredSubcommand =
         | Foo
-        | [<CliPrefix(CliPrefix.None)>] Sub of ParseResult<CleanArgs>
+        | [<CliPrefix(CliPrefix.None)>] Sub of ParseResults<CleanArgs>
     with
         interface IArgParserTemplate with
             member this.Usage = "required"
@@ -80,10 +80,10 @@ module ``Argu Tests`` =
         | [<CliPrefix(CliPrefix.Dash)>] A
         | [<CliPrefix(CliPrefix.Dash)>] B
         | [<CliPrefix(CliPrefix.Dash)>] C
-        | [<CliPrefix(CliPrefix.None)>] Push of ParseResult<PushArgs>
-        | [<CliPrefix(CliPrefix.None)>] Clean of ParseResult<CleanArgs>
-        | [<CliPrefix(CliPrefix.None)>] Required of ParseResult<RequiredSubcommand>
-        | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResult<GatherUnrecognizedSubcommand>
+        | [<CliPrefix(CliPrefix.None)>] Push of ParseResults<PushArgs>
+        | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
+        | [<CliPrefix(CliPrefix.None)>] Required of ParseResults<RequiredSubcommand>
+        | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResults<GatherUnrecognizedSubcommand>
     with
         interface IArgParserTemplate with
             member a.Usage =
@@ -449,25 +449,25 @@ module ``Argu Tests`` =
 
     type ConflictingInheritedCliName =
         | [<AltCommandLine("-f"); Inherit>] Force
-        | Nested of ParseResult<CleanArgs>
+        | Nested of ParseResults<CleanArgs>
     with
         interface IArgParserTemplate with
             member __.Usage = "not tested"
 
     type RecursiveArgument1 =
-        | Rec1 of ParseResult<RecursiveArgument2>
+        | Rec1 of ParseResults<RecursiveArgument2>
     with
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
     and RecursiveArgument2 =
-        | Rec2 of ParseResult<RecursiveArgument3>
+        | Rec2 of ParseResults<RecursiveArgument3>
     with
         interface IArgParserTemplate with
             member a.Usage = "bar"
 
     and RecursiveArgument3 =
-        | Rec3 of ParseResult<RecursiveArgument1>
+        | Rec3 of ParseResults<RecursiveArgument1>
     with
         interface IArgParserTemplate with
             member a.Usage = "baz"
@@ -614,7 +614,7 @@ module ``Argu Tests`` =
 
     [<DisableHelpFlags>]
     type NestedInherited =
-        | [<Inherit>] Nested of ParseResult<NoHelp>
+        | [<Inherit>] Nested of ParseResults<NoHelp>
     with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
@@ -626,7 +626,7 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Fail on malformed case constructors`` () =
-        let result = parser.ToParseResult []
+        let result = parser.ToParseResults []
         let wrapper = List
         raises<ArgumentException> <@ result.Contains <@ fun (y : string) -> Log_Level 42 @> @>
         raises<ArgumentException> <@ result.Contains <@ fun (y, x) -> Data(x,y) @> @>

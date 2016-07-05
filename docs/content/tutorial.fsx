@@ -286,8 +286,8 @@ with
 and GitArgs =
     | Version
     | [<AltCommandLine("-v")>] Verbose
-    | [<CliPrefix(CliPrefix.None)>] Clean of ParseResult<CleanArgs>
-    | [<CliPrefix(CliPrefix.None)>] Commit of ParseResult<CommitArgs>
+    | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
+    | [<CliPrefix(CliPrefix.None)>] Commit of ParseResults<CommitArgs>
 with
     interface IArgParserTemplate with
         member this.Usage = 

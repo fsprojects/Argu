@@ -45,8 +45,8 @@ with
 type GitArgs =
     | [<Unique>] Listener of address:string * number:int
     | Log_Level of level:int
-    | [<CliPrefix(CliPrefix.None)>]Push of options:ParseResult<PushArgs>
-    | [<CliPrefix(CliPrefix.None)>]Clean of suboptions:ParseResult<CleanArgs>
+    | [<CliPrefix(CliPrefix.None)>]Push of options:ParseResults<PushArgs>
+    | [<CliPrefix(CliPrefix.None)>]Clean of suboptions:ParseResults<CleanArgs>
     | [<AltCommandLine("-E")>][<EqualsAssignment>]Environment_Variable of key:string * value:string
     | Ports of tcp_port:int list
     | Optional of num:int option

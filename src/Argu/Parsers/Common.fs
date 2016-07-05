@@ -19,7 +19,7 @@ let mkUnionCase (info : UnionCaseArgInfo) index parseSource parsecontext (fields
         ParseContext = parsecontext
     }
 
-/// Create a ParseResult<_> instance from a set of template parameters
+/// Create a ParseResults<_> instance from a set of template parameters
 let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : int)
                             (programName : string) (description : string option) 
                             (values : seq<'Template>) =
@@ -43,7 +43,7 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : in
             Cases = agg |> Array.map (fun rs -> rs.ToArray())
         }
 
-    new ParseResult<'Template>(info, results, programName, description, width, exiter)
+    new ParseResults<'Template>(info, results, programName, description, width, exiter)
 
 /// <summary>
 ///     Combines two parse results, AppSettings and CLI, overriding where appropriate.
