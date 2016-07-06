@@ -73,7 +73,6 @@ Global
 		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}.Release-NET35|Any CPU.ActiveCfg = Release|Any CPU
-		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}.Release-NET35|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -404,4 +404,10 @@ which would yield the following:
         <add key="working directory" value="/tmp" />
       </appSettings>
     </configuration>
+
+## More Examples
+
+Check out the [samples](https://github.com/fsprojects/Argu/tree/master/samples) 
+folder for CLI implementations that use Argu.
+
 *)

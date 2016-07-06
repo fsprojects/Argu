@@ -1,3 +1,6 @@
+### 3.0.1
+* Bugfix usage string rendering issue where description might span multiple lines.
+
 ### 3.0.0
 * Add subcommand support.
 * Add support for list and option parameters.
