@@ -209,17 +209,13 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let caseCtor = FSharpValue.PreComputeUnionConstructor(uci, bindingFlags = allBindings)
 
+    // create a dummy instance for given union case
+    let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
+    let dummy = caseCtor dummyFields :?> IArgParserTemplate
+
     // use ref cell for late binding of parent argInfo
     let current = ref None
     let tryGetCurrent = fun () -> !current
-
-    /// create a dummy instance for the current union case
-    let usageString = 
-        let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
-        let dummy = caseCtor dummyFields :?> IArgParserTemplate
-        try dummy.Usage
-        with _ -> 
-            arguExn "Error generating usage string from IArgParserTemplate for case %O." uci
 
     let isFirst = uci.ContainsAttribute<FirstAttribute> ()
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
@@ -367,6 +363,15 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     if isAppSettingsCSV && fields.Length <> 1 then 
         arguExn "CSV attribute is only compatible with branches of unary fields." 
 
+    // extract the description string for given union case
+    let description = 
+        try dummy.Usage.Split([|'\n'|], StringSplitOptions.RemoveEmptyEntries) |> Array.toList
+        with _ -> 
+            arguExn "Error generating usage string from IArgParserTemplate for case %O." uci
+
+    if List.isEmpty description then
+        arguExn "Usage string for case '%O' was empty." uci
+
     let uai = {
         UnionCaseInfo = uci
         Arity = fields.Length
@@ -380,7 +385,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         AppSettingsName = appSettingsName
         AppSettingsSeparators = appSettingsSeparators
         AppSettingsSplitOptions = appSettingsSplitOptions
-        Description = usageString
+        Description = description
         ParameterInfo = parsers
         AppSettingsCSV = isAppSettingsCSV
         IsMandatory = isMandatory

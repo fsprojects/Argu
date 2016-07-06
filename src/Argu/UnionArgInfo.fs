@@ -85,7 +85,7 @@ type UnionCaseArgInfo =
         AppSettingsName : string option
 
         /// Description of the parameter
-        Description : string
+        Description : string list
 
         /// Configuration parsing parameter separator
         AppSettingsSeparators : string []
@@ -215,7 +215,7 @@ type UnionCaseArgInfo with
             CommandLineNames = ucai.CommandLineNames
             AppSettingsName = ucai.AppSettingsName
             Description = ucai.Description
-            AppSettingsSeparators = ucai.AppSettingsSeparators
+            AppSettingsSeparators = Array.toList ucai.AppSettingsSeparators
             AppSettingsSplitOptions = ucai.AppSettingsSplitOptions
             IsRest = ucai.IsRest
             IsFirst = ucai.IsFirst

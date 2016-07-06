@@ -100,10 +100,10 @@ type ArgumentCaseInfo =
         AppSettingsName : string option
 
         /// Description of the parameter
-        Description : string
+        Description : string list
 
         /// AppSettings parameter separator
-        AppSettingsSeparators : string []
+        AppSettingsSeparators : string list
         /// AppSettings parameter split options
         AppSettingsSplitOptions : StringSplitOptions
 

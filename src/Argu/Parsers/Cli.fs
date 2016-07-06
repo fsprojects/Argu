@@ -171,6 +171,10 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             | Primitives [||] ->
                 let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine sw [||]
                 aggregator.AppendResult result
+            | OptionalParam _ ->
+                let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine sw [|None|]
+                aggregator.AppendResult result
+
             | _ -> error argInfo ErrorCode.CommandLine "argument '%s' cannot be grouped with other switches." sw
 
     | CliParam(_, _, caseInfo, Assignment(name,sep,_)) when caseInfo.Arity <> 1 || not <| caseInfo.IsMatchingAssignmentSeparator sep ->
