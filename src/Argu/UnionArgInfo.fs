@@ -44,7 +44,7 @@ with
 type HelpParam =
     {
         Flags : string list
-        Description : string
+        Description : string list
     }
 with
     member inline hp.IsHelpFlag(flag : string) =

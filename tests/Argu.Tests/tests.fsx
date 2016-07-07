@@ -50,7 +50,7 @@ type GitArgs =
     | [<AltCommandLine("-E")>][<EqualsAssignment>]Environment_Variable of key:string * value:string
     | Ports of tcp_port:int list
     | Optional of num:int option
-    | [<CustomAssignment("::")>] Options of MyEnum option
+    | [<CustomAssignment("?")>] Options of MyEnum option
     | [<Inherit>] Silent
 with 
     interface IArgParserTemplate with 
@@ -70,7 +70,7 @@ let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMess
 
 parser.PrintCommandLineArgumentsFlat [Options(Some MyEnum.First) ; Push(toParseResults [Remote "origin" ; Branch "master"])]
 
-let result = parser.Parse [| "--options::second" ; "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
+let result = parser.Parse [| "--options?second" ; "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
 let cresult = result.GetResult <@ Clean @>
 
 let pparser = parser.GetSubCommandParser <@ Push @>

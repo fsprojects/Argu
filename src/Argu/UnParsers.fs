@@ -160,8 +160,15 @@ let mkHelpParamUsage (hp : HelpParam) = stringExpr {
         else
             yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-        yield hp.Description
-        yield Environment.NewLine
+        match hp.Description with
+        | [] -> ()
+        | h :: tail ->
+            yield h
+            yield Environment.NewLine
+            for t in tail do
+                yield! StringExpr.whiteSpace descriptionOffset
+                yield t
+                yield Environment.NewLine
 }
 
 /// <summary>

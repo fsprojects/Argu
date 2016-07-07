@@ -424,8 +424,11 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
 
             let description = 
                 match t.TryGetAttribute<HelpDescriptionAttribute> () with
-                | None -> defaultHelpDescription
-                | Some attr -> attr.Description
+                | None -> [defaultHelpDescription]
+                | Some attr -> 
+                    match attr.Description.Split([|'\n'|], StringSplitOptions.RemoveEmptyEntries) with
+                    | [||] -> arguExn "Text defined in HelpDescriptionAttribute was empty."
+                    | descr -> Array.toList descr
 
             { Flags = helpSwitches ; Description = description }
 
