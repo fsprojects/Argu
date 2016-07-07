@@ -19,20 +19,23 @@
             "imports": "dnxcore50"
         }
     },
+    "dependencies": {
+        "Argu":  { "version": "3.0.0-beta02", "type": "build" }
+    },
     "frameworks": {
-        "netstandard1.6" : { 
+        "netstandard1.6" : {
             "dependencies": {
-                "Argu":  { "version": "3.0.0-beta02", "type": "build" }
+                "Microsoft.NETCore.App": {
+                "type": "platform",
+                "version": "1.0.0"
+                }
             },
             "imports": [
                 "portable-net45+win8",
                 "dnxcore50"
             ]
         },
-        "net46" : { 
-            "dependencies": {
-                "Argu":  { "version": "3.0.0-beta02", "type": "build" }
-            },
+        "net46" : {
             "frameworkAssemblies": {
                 "System": "",
                 "System.Core": ""
