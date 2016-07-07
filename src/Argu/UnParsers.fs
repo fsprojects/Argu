@@ -36,6 +36,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
         argInfo.Cases
         |> Seq.filter (fun aI -> not aI.IsHidden)
         |> Seq.filter (fun aI -> aI.Type <> ArgumentType.SubCommand)
+        |> Seq.sortBy (fun aI -> aI.CliPosition)
 
 
     match argInfo.HelpParam.Flags with

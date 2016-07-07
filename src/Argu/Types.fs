@@ -35,9 +35,9 @@ type ErrorCode =
 
 /// Cli Position required to place argument
 type CliPosition =
-    | Unspecified   = 0
     | First         = 1
-    | Last          = 2
+    | Unspecified   = 2
+    | Last          = 3
 
 /// Exception raised by Argu
 type ArguException internal (message : string) =
