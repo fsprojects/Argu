@@ -34,10 +34,9 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
 
     let printedCases =
         argInfo.Cases
-        |> Seq.filter (fun aI -> not aI.IsHidden)
+        |> Seq.filter (fun aI -> not aI.IsHidden && not aI.IsMainCommand)
         |> Seq.filter (fun aI -> aI.Type <> ArgumentType.SubCommand)
         |> Seq.sortBy (fun aI -> aI.CliPosition)
-
 
     match argInfo.HelpParam.Flags with
     | h :: _ -> yield sprintf " [%s]" h
@@ -84,6 +83,27 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
         if not argInfo.IsRequiredSubcommand then yield '['
         yield "<subcommand> [<options>]"
         if not argInfo.IsRequiredSubcommand then yield ']'
+
+    match argInfo.MainCommandParam with
+    | None -> ()
+    | Some mc ->
+        yield! insertCutoffLine()
+        yield ' '
+        if not mc.IsMandatory then yield '['
+        match mc.ParameterInfo with
+        | Primitives parsers ->
+            assert(parsers.Length > 0)
+            yield sprintf "<%s>" parsers.[0].Description
+            for i = 1 to parsers.Length - 1 do
+                yield sprintf " <%s>" parsers.[i].Description
+
+        | ListParam(_, parser) ->
+            yield sprintf "<%s>..." parser.Description
+
+        | _ -> arguExn "internal error: MainCommand param has invalid internal representation."
+
+        if not mc.IsMandatory then yield ']'
+
 }
 
 let [<Literal>] switchOffset = 4
@@ -217,55 +237,57 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message
 ///     print a command line argument for a set of parameters   
 /// </summary>
 let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
-    let mkEntry (t : obj) = seq {
-        let tag = argInfo.TagReader.Value t
-        let aI = argInfo.Cases.[tag]
+    let mkEntry (aI : UnionCaseArgInfo) (t : obj) = seq {
+        if aI.NoCommandLine then () else
+
         let fields = aI.FieldReader.Value t
-        
-        match aI.CommandLineNames with
-        | [] -> ()
-        | clname :: _ ->
-            match aI.ParameterInfo with
-            | Primitives parsers ->  
-                let inline unpars i = parsers.[i].UnParser fields.[i]
+
+        let clName() = List.head aI.CommandLineNames
+
+        match aI.ParameterInfo with
+        | Primitives parsers ->  
+            let inline unpars i = parsers.[i].UnParser fields.[i]
+            match aI.CustomAssignmentSeparator with
+            | Some sep when parsers.Length = 1 ->
+                yield sprintf "%s%s%s" (clName()) sep (unpars 0)
+            | Some sep ->
+                assert(parsers.Length = 2)
+                if not aI.IsMainCommand then yield clName()
+                yield sprintf "%s%s%s" (unpars 0) sep (unpars 1)
+
+            | None ->
+                if not aI.IsMainCommand then yield clName()
+
+                for i = 0 to fields.Length - 1 do
+                    yield unpars i
+
+        | OptionalParam(existential, parser) ->
+            let optional = 
+                existential.Accept { new IFunc<obj option> with
+                    member __.Invoke<'T> () = fields.[0] :?> 'T option |> Option.map box }
+
+            match optional with
+            | None -> yield clName()
+            | Some v ->
                 match aI.CustomAssignmentSeparator with
-                | Some sep when parsers.Length = 1 ->
-                    yield sprintf "%s%s%s" clname sep (unpars 0)
-                | Some sep ->
-                    assert(parsers.Length = 2)
-                    yield clname
-                    yield sprintf "%s%s%s" (unpars 0) sep (unpars 1)
+                | Some sep -> yield sprintf "%s%s%s" (clName()) sep (parser.UnParser v)
+                | None -> yield clName() ; yield parser.UnParser v
 
-                | None ->
-                    yield clname
+        | ListParam(_, parser) ->
+            if not aI.IsMainCommand then yield clName()
+            let objSeq = fields.[0] |> unbox<System.Collections.IEnumerable> |> Seq.cast<obj>
+            for obj in objSeq do yield parser.UnParser obj
 
-                    for i = 0 to fields.Length - 1 do
-                        yield unpars i
-
-            | OptionalParam(existential, parser) ->
-                let optional = 
-                    existential.Accept { new IFunc<obj option> with
-                        member __.Invoke<'T> () = fields.[0] :?> 'T option |> Option.map box }
-
-                match optional with
-                | None -> yield clname
-                | Some v ->
-                    match aI.CustomAssignmentSeparator with
-                    | Some sep -> yield sprintf "%s%s%s" clname sep (parser.UnParser v)
-                    | None -> yield clname ; yield parser.UnParser v
-
-            | ListParam(_, parser) ->
-                yield clname
-                let objSeq = fields.[0] |> unbox<System.Collections.IEnumerable> |> Seq.cast<obj>
-                for obj in objSeq do yield parser.UnParser obj
-
-            | SubCommand (_, nested, _) ->
-                yield clname
-                let nestedResult = fields.[0] :?> IParseResult
-                yield! mkCommandLineArgs nested (nestedResult.GetAllResults())
+        | SubCommand (_, nested, _) ->
+            if not aI.IsMainCommand then yield clName()
+            let nestedResult = fields.[0] :?> IParseResult
+            yield! mkCommandLineArgs nested (nestedResult.GetAllResults())
         }
 
-    args |> Seq.collect mkEntry
+    args
+    |> Seq.map (fun o -> let tag = argInfo.TagReader.Value o in argInfo.Cases.[tag], o)
+    |> Seq.sortBy (fun (aI,_) -> aI.CliPosition)
+    |> Seq.collect (fun (aI,o) -> mkEntry aI o)
 
 /// <summary>
 ///     returns an App.Config XDocument given a set of config parameters

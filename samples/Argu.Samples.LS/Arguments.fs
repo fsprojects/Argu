@@ -71,7 +71,7 @@ type LsArguments =
     | [<AltCommandLine("-Z")>] Context
     | [<CustomCommandLine("-1")>] List_One
     | Version
-    | [<Rest; GatherUnrecognized>] Files of path:string
+    | [<Unique; MainCommand("FILES")>] Files of paths:string list
 with
     interface IArgParserTemplate with
         member arg.Usage =

@@ -99,6 +99,8 @@ type UnionCaseArgInfo =
 
         /// Mandated Cli position for the argument
         CliPosition : CliPosition
+        /// Specifies that this argument is the main CLI command
+        IsMainCommand : bool
         /// If specified, should consume remaining tokens from the CLI
         IsRest : bool
         /// If specified, multiple parameters can be added in Configuration in CSV form.
@@ -118,7 +120,7 @@ type UnionCaseArgInfo =
     }
 with
     member inline __.Tag = __.UnionCaseInfo.Tag
-    member inline __.NoCommandLine = __.CommandLineNames.Length = 0
+    member inline __.NoCommandLine = List.isEmpty __.CommandLineNames && not __.IsMainCommand
     member inline __.Type = __.ParameterInfo.Type
     member inline __.IsCustomAssignment = Option.isSome __.CustomAssignmentSeparator
     member inline __.IsMatchingAssignmentSeparator (separator : string) =
@@ -169,6 +171,8 @@ and [<NoEquality; NoComparison>]
         CliParamIndex : Lazy<PrefixDictionary<UnionCaseArgInfo>>
         /// Union case parameter used to gather unrecognized CLI params
         UnrecognizedGatherParam : UnionCaseArgInfo option
+        /// Main command parameter used by the CLI syntax
+        MainCommandParam : UnionCaseArgInfo option
     }
 with
     member inline uai.UsesHelpParam = List.isEmpty uai.HelpParam.Flags |> not
@@ -220,6 +224,7 @@ type UnionCaseArgInfo with
             Description = ucai.Description
             AppSettingsSeparators = Array.toList ucai.AppSettingsSeparators
             AppSettingsSplitOptions = ucai.AppSettingsSplitOptions
+            IsMainCommand = ucai.IsMainCommand
             IsRest = ucai.IsRest
             CliPosition = ucai.CliPosition
             CustomAssignmentSeparator = ucai.CustomAssignmentSeparator

@@ -217,15 +217,12 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let current = ref None
     let tryGetCurrent = fun () -> !current
 
-    let cliPosition = 
-        match uci.TryGetAttribute<CliPositionAttribute> () with
-        | Some attr -> 
-            match attr.Position with
-            | CliPosition.Unspecified
-            | CliPosition.First 
-            | CliPosition.Last as p -> p
-            | _ -> arguExn "Invalid CliPosition setting '%O' for parameter '%O'" attr.Position uci
-        | None -> CliPosition.Unspecified
+    let mainCommandAttr = 
+        match uci.TryGetAttribute<MainCommandAttribute> () with
+        | Some _ when types.Length = 0 -> arguExn "parameters '%O' contains MainCommand attribute but has unsupported arity 0." uci
+        | attr -> attr
+
+    let isMainCommand = Option.isSome mainCommandAttr
 
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let isExactlyOnce = uci.ContainsAttribute<ExactlyOnceAttribute> (true)
@@ -235,9 +232,24 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isGatherAll = uci.ContainsAttribute<GatherAllSourcesAttribute> ()
     let isRest = uci.ContainsAttribute<RestAttribute> ()
     let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
+
+    let cliPosition = 
+        match uci.TryGetAttribute<CliPositionAttribute> () with
+        | Some _ when isMainCommand -> arguExn "cannot override CliPosition attribute in main command '%O'" uci
+        | None when isMainCommand -> CliPosition.Last
+        | Some attr -> 
+            match attr.Position with
+            | CliPosition.Unspecified
+            | CliPosition.First 
+            | CliPosition.Last as p -> p
+            | _ -> arguExn "Invalid CliPosition setting '%O' for parameter '%O'" attr.Position uci
+        | None -> CliPosition.Unspecified
+
     let customAssignmentSeparator = 
         match uci.TryGetAttribute<CustomAssignmentAttribute> (true) with
         | Some attr ->
+            if isMainCommand && types.Length = 1 then
+                arguExn "parameter '%O' of arity 1 contains incompatible attributes 'CustomAssignment' and 'MainCommand'." uci
             if types.Length <> 1 && types.Length <> 2 then
                 arguExn "parameter '%O' has CustomAssignment attribute but specifies %d parameters. Should be 1 or 2." uci types.Length
             elif isRest then
@@ -251,6 +263,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isGatherUnrecognized =
         if uci.ContainsAttribute<GatherUnrecognized>() then
             match types with
+            | _ when isMainCommand -> arguExn "parameter '%O' contains incompatible combination of attributes 'MainCommand' and 'GatherUnrecognized'." uci
             | [|t|] when t = typeof<string> -> true
             | _ -> arguExn "parameter '%O' has GatherUnrecognized attribute but specifies invalid parameters. Must contain single parameter of type string." uci
         else
@@ -278,6 +291,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
                 arguExn "Rest attribute in '%O' not supported in subcommands." uci
             if isMandatory then
                 arguExn "Mandatory attribute in '%O' not supported in subcommands." uci
+            if isMainCommand then
+                arguExn "MainCommand attribute in '%O' not supported in subcommands." uci
             if isInherited then
                 arguExn "Inherit attribute in '%O' not supported in subcommands." uci
 
@@ -287,7 +302,10 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         | [|Optional t|] ->
             if isRest then
-                arguExn "Rest attribute in '%O' not supported for optional parameters." uci
+                arguExn "Rest attribute in '%O' not supported in optional parameters." uci
+
+            if isMainCommand then
+                arguExn "MainCommand attribute in '%O' not supported in optional parameters." uci
 
             let label = tryExtractUnionParameterLabel fields.[0]
 
@@ -312,22 +330,21 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             Array.map getParser fields |> Primitives
 
     let commandLineArgs =
-        if uci.ContainsAttribute<NoCommandLineAttribute> (true) then
+        if isMainCommand then []
+        elif uci.ContainsAttribute<NoCommandLineAttribute> (true) then
             match parsers with
             | SubCommand _ -> arguExn "NoCommandLine attribute in '%O' not supported in subcommands." uci
             | _ -> []
         else
-            let defaultName =
-                match uci.TryGetAttribute<CustomCommandLineAttribute> () with 
-                | None -> generateOptionName uci
-                | Some attr -> attr.Name
+            let cliNames = [
+                match uci.TryGetAttribute<CustomCommandLineAttribute> () with
+                | None -> yield generateOptionName uci
+                | Some attr -> yield attr.Name ; yield! attr.AltNames 
 
-            let altNames =
-                uci.GetAttributes<AltCommandLineAttribute> ()
-                |> Seq.collect (fun attr -> attr.Names)
-                |> Seq.toList
-
-            let cliNames = defaultName :: altNames
+                yield! 
+                    uci.GetAttributes<AltCommandLineAttribute>()
+                    |> Seq.collect (fun attr -> attr.Names) 
+            ]
 
             for name in cliNames do validateCliParam name
 
@@ -346,6 +363,11 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let defaultName =
         match commandLineArgs with
         | h :: _ -> h
+        | _ when isMainCommand -> 
+            match Option.get(mainCommandAttr).ArgumentName with
+            | null -> generateAppSettingsName uci
+            | name -> name
+
         | _ when Option.isSome appSettingsName -> appSettingsName.Value
         | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci
 
@@ -397,6 +419,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         Description = description
         ParameterInfo = parsers
         AppSettingsCSV = isAppSettingsCSV
+        IsMainCommand = isMainCommand
         IsMandatory = isMandatory
         IsUnique = isUnique
         IsInherited = isInherited
@@ -507,6 +530,18 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         | [|ur|] -> Some ur
         | _ -> arguExn "template type '%O' has specified the GatherUnrecognized attribute in more than one union cases." t
 
+    let mainCommandParam =
+        match caseInfo |> Array.filter (fun cI -> cI.IsMainCommand) with
+        | [||] -> None
+        | [|ur|] ->
+            if Option.isSome unrecognizedParam then 
+                arguExn "template type '%O' has specified an incompatible combination of MainCommand and GatherUnrecognized attributes." t
+            Some ur
+
+        | _ -> arguExn "template type '%O' has specified the MainCommand attribute in more than one union cases." t
+
+            
+
     let result = {
         Type = t
         Depth = List.length stack
@@ -521,6 +556,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         InheritedParams = inheritedParams
         CliParamIndex = cliIndex
         UnrecognizedGatherParam = unrecognizedParam
+        MainCommandParam = mainCommandParam
     }
 
     current := result // assign result to children

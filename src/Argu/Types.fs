@@ -116,6 +116,8 @@ type ArgumentCaseInfo =
 
         /// Mandated Cli position for the argument
         CliPosition : CliPosition
+        /// Specifies that this argument is the main CLI command
+        IsMainCommand : bool
         /// If specified, should consume remaining tokens from the CLI
         IsRest : bool
         /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax

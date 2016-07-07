@@ -16,8 +16,7 @@ type PushArgs =
     | Prune
     | [<AltCommandLine("-f")>]Force
     | [<AltCommandLine("-v")>]Verbose
-    | Remote of repository:string
-    | Branch of branch:string
+    | [<ExactlyOnce; MainCommand>] Main of repository:string * branch:string
 with
     interface IArgParserTemplate with
         member this.Usage =
@@ -26,8 +25,7 @@ with
             | Prune -> "Remove remote branches that don't have a local counterpart."
             | Verbose -> "Run verbosely."
             | Force -> "Usually, the command refuses to update a remote ref that is not an ancestor of the local ref used to overwrite it."
-            | Remote _ -> "Specify a remote repository to push to."
-            | Branch _ -> "Specify a branch to push changes to."
+            | Main _ -> "Specify a remote repository to push to."
 
 [<CliPrefix(CliPrefix.Dash)>]
 type CleanArgs =
@@ -68,10 +66,10 @@ with
 
 let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMessage = "Gadget -- my awesome CLI tool")
 
-parser.PrintCommandLineArgumentsFlat [Options(Some MyEnum.First) ; Push(toParseResults [Remote "origin" ; Branch "master"])]
+parser.PrintCommandLineArgumentsFlat [Options(Some MyEnum.First) ; Push(toParseResults [Main ("origin", "master")])]
 
-let result = parser.Parse [| "--options?second" ; "--ports" ; "1" ; "2" ; "3" ; "clean" ; "-fdx" |]
-let cresult = result.GetResult <@ Clean @>
+let result = parser.Parse [| "--options?second" ; "--ports" ; "1" ; "2" ; "3" ; "push" ; "origin" ; "master" |]
+let cresult = result.GetResult <@ Push @>
 
 let pparser = parser.GetSubCommandParser <@ Push @>
 let cparser = parser.GetSubCommandParser <@ Clean @>

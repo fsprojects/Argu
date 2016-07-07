@@ -171,6 +171,68 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | HelpArgument _ when state.RaiseOnUsage -> raise <| HelpText argInfo
     | HelpArgument _ -> aggregator.IsUsageRequested <- true
     | UnrecognizedOrArgument token ->
+        match argInfo.MainCommandParam with
+        | Some mcp ->
+            match mcp.ParameterInfo with
+            | Primitives fields ->
+                let parseNextField isFirst index (p : FieldParserInfo) =
+                    let nextToken =
+                        if isFirst && index = 0 then UnrecognizedOrArgument token
+                        else state.Reader.GetNextToken false argInfo
+                        
+                    match nextToken with
+                    | UnrecognizedOrArgument tok ->
+                        try p.Parser tok
+                        with _ -> error argInfo ErrorCode.CommandLine "expected command parameter <%s>, but was '%s'." p.Description tok
+
+                    | CliParam(_, tok, _, _)
+                    | HelpArgument tok 
+                    | GroupedParams(tok,_) -> error argInfo ErrorCode.CommandLine "expected command parameter <%s>, but was '%s'." p.Description tok
+                    | _ -> error argInfo ErrorCode.CommandLine "expected command parameter <%s>." p.Description
+                        
+                let parseSingleParameter isFirst =
+                    let fields = fields |> Array.mapi (parseNextField isFirst)
+                    aggregator.AppendResult mcp mcp.Name fields
+
+                parseSingleParameter true
+                if mcp.IsRest then
+                    while not state.Reader.IsCompleted do
+                        parseSingleParameter false
+
+            | ListParam(existential, field) ->
+                let listArg = existential.Accept { new IFunc<obj> with
+                    member __.Invoke<'T>() =
+                        let args = new ResizeArray<'T> ()
+                        let rec gather isFirst =
+                            let nextToken =
+                                if isFirst then UnrecognizedOrArgument token
+                                else state.Reader.GetNextToken true argInfo
+
+                            match nextToken with
+                            | UnrecognizedOrArgument token ->
+                                let result = 
+                                    try Some (field.Parser token :?> 'T) 
+                                    with 
+                                    | _ when isFirst -> error argInfo ErrorCode.CommandLine "expected command parameter <%s>, but was '%s'." field.Description token
+                                    | _ -> None
+
+                                match result with
+                                | None -> ()
+                                | Some item ->
+                                    args.Add item
+                                    if not isFirst then state.Reader.MoveNext()
+                                    gather false
+                            | _ -> ()
+
+                        do gather true
+                        Seq.toList args :> obj }
+
+                aggregator.AppendResult mcp mcp.Name [| listArg |]
+
+            | paramInfo -> arguExn "internal error. MainCommand has param representation %A" paramInfo
+
+        | None ->
+
         match argInfo.UnrecognizedGatherParam with
         | Some ugp -> aggregator.AppendResult ugp token [|token|]
         | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
@@ -184,7 +246,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             | OptionalParam _ -> aggregator.AppendResult caseInfo sw [|None|]
             | _ -> error argInfo ErrorCode.CommandLine "argument '%s' cannot be grouped with other switches." sw
 
-    | CliParam(_, _, caseInfo, Assignment(name,sep,_)) when caseInfo.Arity <> 1 || not <| caseInfo.IsMatchingAssignmentSeparator sep ->
+    | CliParam(_, _, caseInfo, Assignment(name,sep,_)) when not (caseInfo.Arity = 1 && caseInfo.IsMatchingAssignmentSeparator sep) ->
         error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s%s<param>'." name sep
 
     | CliParam(token, name, caseInfo, assignment) ->
@@ -246,11 +308,10 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                 let fields = fields |> Array.map parseNextField
                 aggregator.AppendResult caseInfo name fields
 
+            parseSingleParameter ()
             if caseInfo.IsRest then
                 while not state.Reader.IsCompleted do
-                    parseSingleParameter()
-            else
-                parseSingleParameter()
+                    parseSingleParameter ()
 
         | OptionalParam(existential, field) when caseInfo.IsCustomAssignment ->
             let optArgument = existential.Accept { new IFunc<obj> with 
@@ -297,7 +358,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                                 gather()
                         | _ -> ()
 
-                    do gather()
+                    do gather ()
                     Seq.toList args :> obj
             }
 

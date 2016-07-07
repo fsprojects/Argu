@@ -89,6 +89,14 @@ type FirstAttribute () = inherit CliPositionAttribute (CliPosition.First)
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type LastAttribute () = inherit CliPositionAttribute (CliPosition.Last)
 
+/// Declares that argument is the main command of the CLI syntax.
+/// Arguments are specified without requiring a switch.
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type MainCommandAttribute (argumentName : string) = 
+    inherit Attribute()
+    new () = new MainCommandAttribute(null)
+    member __.ArgumentName = argumentName
+
 /// Print F# 3.1 field labels in usage string. OBSOLETE
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
 [<Obsolete("Argu 3.0 prints union labels by default. Please remove this attribute.")>]
@@ -117,15 +125,16 @@ type ColonAssignmentAttribute () =
 /// Declares a custom default CLI identifier for the current parameter.
 /// Replaces the auto-generated identifier name.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-type CustomCommandLineAttribute (name : string) =
+type CustomCommandLineAttribute (name : string, [<ParamArray>]altNames : string []) =
     inherit Attribute ()
     member __.Name = name
+    member __.AltNames = altNames
 
 /// Declares a set of secondary CLI identifiers for the current parameter.
 /// Does not replace the default identifier which is either auto-generated
 /// or specified by the CustomCommandLine attribute.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = true)>]
-type AltCommandLineAttribute ([<ParamArray>] names :string []) = 
+type AltCommandLineAttribute ([<ParamArray>] names : string []) = 
     inherit Attribute ()
     member __.Names = names
 
