@@ -81,6 +81,7 @@ type CliTokenReader(inputs : string[]) =
 type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParseResultAggregatorStack) =
     let mutable resultCount = 0
     let mutable isSubCommandDefined = false
+    let mutable lastResult : UnionCaseParseResult option = None
     let unrecognized = new ResizeArray<string>()
     let unrecognizedParseResults = new ResizeArray<obj>()
     let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
@@ -89,17 +90,31 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
     member __.ResultCount = resultCount
     member __.IsSubCommandDefined = isSubCommandDefined
 
-    member __.AppendResult(result : UnionCaseParseResult) =
+    member __.AppendResultInner(result : UnionCaseParseResult) =
+        if result.CaseInfo.IsFirst && resultCount > 0 then
+            error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." result.ParseContext
+
+        match lastResult with
+        | Some lr when not (lr.Tag = result.CaseInfo.Tag && lr.CaseInfo.IsRest) -> 
+            error argInfo ErrorCode.CommandLine "argument '%O' must be placed as final argument." lr.ParseContext
+        | _ -> ()
+
+        if result.CaseInfo.IsLast then lastResult <- Some result
+
+        resultCount <- resultCount + 1
+        let agg = results.[result.Tag]
+        if result.CaseInfo.IsUnique && agg.Count > 0 then
+            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name
+
+        if result.CaseInfo.Type = ArgumentType.SubCommand then
+            isSubCommandDefined <- true
+
+        agg.Add result
+
+    member __.AppendResult caseInfo context arguments =
+        let result = mkUnionCase caseInfo resultCount ParseSource.CommandLine context arguments
         if result.CaseInfo.Depth = argInfo.Depth then
-            resultCount <- resultCount + 1
-            let agg = results.[result.Tag]
-            if result.CaseInfo.IsUnique && agg.Count > 0 then
-                error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name
-
-            if result.CaseInfo.Type = ArgumentType.SubCommand then
-                isSubCommandDefined <- true
-
-            agg.Add result
+            __.AppendResultInner(result)
         else
             // this parse result corresponds to an inherited parameter
             // from a parent syntax. Use the ResultAggregator stack to
@@ -125,7 +140,7 @@ and CliParseResultAggregatorStack (context : UnionArgInfo) =
     member self.TryDispatchResult(result : UnionCaseParseResult) =
         if result.CaseInfo.Depth < offset then false
         else
-            stack.[result.CaseInfo.Depth - offset].AppendResult result
+            stack.[result.CaseInfo.Depth - offset].AppendResultInner result
             true
 
     member self.CreateNextAggregator(argInfo : UnionArgInfo) =
@@ -157,10 +172,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | HelpArgument _ -> aggregator.IsUsageRequested <- true
     | UnrecognizedOrArgument token ->
         match argInfo.UnrecognizedGatherParam with
-        | Some ugp ->
-            let result = mkUnionCase ugp aggregator.ResultCount ParseSource.CommandLine token [|token|]
-            aggregator.AppendResult result
-
+        | Some ugp -> aggregator.AppendResult ugp token [|token|]
         | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
         | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
 
@@ -168,20 +180,12 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         for sw in switches do
             let caseInfo = argInfo.CliParamIndex.Value.[sw]
             match caseInfo.ParameterInfo with
-            | Primitives [||] ->
-                let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine sw [||]
-                aggregator.AppendResult result
-            | OptionalParam _ ->
-                let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine sw [|None|]
-                aggregator.AppendResult result
-
+            | Primitives [||] -> aggregator.AppendResult caseInfo sw [||]
+            | OptionalParam _ -> aggregator.AppendResult caseInfo sw [|None|]
             | _ -> error argInfo ErrorCode.CommandLine "argument '%s' cannot be grouped with other switches." sw
 
     | CliParam(_, _, caseInfo, Assignment(name,sep,_)) when caseInfo.Arity <> 1 || not <| caseInfo.IsMatchingAssignmentSeparator sep ->
         error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s%s<param>'." name sep
-
-    | CliParam(_, name, caseInfo, _) when caseInfo.IsFirst && aggregator.ResultCount > 0 ->
-        error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." name
 
     | CliParam(token, name, caseInfo, assignment) ->
         match caseInfo.ParameterInfo with
@@ -193,8 +197,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     try field.Parser eqp
                     with _ -> error argInfo ErrorCode.CommandLine "argument '%s' is assigned invalid value, should be <%s>." token field.Description
 
-                let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [| argument |]
-                aggregator.AppendResult result
+                aggregator.AppendResult caseInfo name [| argument |]
 
         | Primitives [|kf;vf|] when caseInfo.IsCustomAssignment ->
             match state.Reader.GetNextToken true argInfo with
@@ -209,8 +212,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                         try vf.Parser value
                         with _ -> error argInfo ErrorCode.CommandLine "argument '%s' was given invalid value assignment '%s', should be <%s>." state.Reader.CurrentSegment token vf.Description
 
-                    let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [|k;v|]
-                    aggregator.AppendResult result
+                    aggregator.AppendResult caseInfo name [|k;v|]
                     state.Reader.MoveNext()
 
                 | NoAssignment ->
@@ -242,8 +244,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                         
             let parseSingleParameter () =
                 let fields = fields |> Array.map parseNextField
-                let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name fields
-                aggregator.AppendResult result
+                aggregator.AppendResult caseInfo name fields
 
             if caseInfo.IsRest then
                 while not state.Reader.IsCompleted do
@@ -265,8 +266,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
                         argument :?> 'T |> Some :> obj }
 
-            let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [| optArgument |]
-            aggregator.AppendResult result
+            aggregator.AppendResult caseInfo name [| optArgument |]
 
         | OptionalParam(existential, field) ->
             let optArgument = existential.Accept { new IFunc<obj> with
@@ -279,8 +279,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
                     | _ -> Option<'T>.None :> obj }
 
-            let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [| optArgument |]
-            aggregator.AppendResult result
+            aggregator.AppendResult caseInfo name [| optArgument |]
 
         | ListParam(existential, field) ->
             let listArg = existential.Accept { new IFunc<obj> with
@@ -302,8 +301,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     Seq.toList args :> obj
             }
 
-            let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [| listArg |]
-            aggregator.AppendResult result
+            aggregator.AppendResult caseInfo name [| listArg |]
 
         | SubCommand (existential, nestedUnion, _) ->
             let nestedResults = parseCommandLineInner state nestedUnion
@@ -312,8 +310,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
                         new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
 
-            let result = mkUnionCase caseInfo aggregator.ResultCount ParseSource.CommandLine name [|result|]
-            aggregator.AppendResult result
+            aggregator.AppendResult caseInfo name [|result|]
 
 and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInfo) =
     let results = state.ResultStack.CreateNextAggregator argInfo

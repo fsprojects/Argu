@@ -73,10 +73,21 @@ type HelpDescriptionAttribute (description : string) =
     inherit Attribute()
     member __.Description = description
 
+/// Declares that argument should be placed at specific position.
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type CliPositionAttribute(position : CliPosition) =
+    inherit Attribute()
+    member __.Position = position
+
 /// Declares that argument can only be placed at the beginning of the CLI syntax.
 /// A parse exception will be raised if that is not the case.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-type FirstAttribute () = inherit Attribute ()
+type FirstAttribute () = inherit CliPositionAttribute (CliPosition.First)
+
+/// Declares that argument can only be placed at the end of the CLI syntax.
+/// A parse exception will be raised if that is not the case.
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type LastAttribute () = inherit CliPositionAttribute (CliPosition.Last)
 
 /// Print F# 3.1 field labels in usage string. OBSOLETE
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]

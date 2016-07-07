@@ -26,11 +26,18 @@ type ParseSource =
     | CommandLine   = 2
     | All           = 3
 
+/// Error codes reported by Argu
 type ErrorCode =
     | HelpText = 0
     | AppSettings = 1
     | CommandLine = 2
     | PostProcess = 3
+
+/// Cli Position required to place argument
+type CliPosition =
+    | Unspecified   = 0
+    | First         = 1
+    | Last          = 2
 
 /// Exception raised by Argu
 type ArguException internal (message : string) =
@@ -107,10 +114,10 @@ type ArgumentCaseInfo =
         /// AppSettings parameter split options
         AppSettingsSplitOptions : StringSplitOptions
 
+        /// Mandated Cli position for the argument
+        CliPosition : CliPosition
         /// If specified, should consume remaining tokens from the CLI
         IsRest : bool
-        /// If specified, parameter can only be at start of CLI parameters
-        IsFirst : bool
         /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
         CustomAssignmentSeparator : string option
         /// If specified, multiple parameters can be added in AppSettings in CSV form.

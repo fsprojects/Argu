@@ -73,6 +73,7 @@ module ``Argu Tests`` =
         | [<ColonAssignment>] Assignment of string
         | [<EqualsAssignment>] Env of key:string * value:string
         | [<First>] First_Parameter of string
+        | [<Last>] Last_Parameter of string
         | Optional of int option
         | List of int list
         | Enum of Enum
@@ -103,6 +104,7 @@ module ``Argu Tests`` =
                 | Env _ -> "assign environment variables."
                 | CustomAppConfig _ -> "parameter with custom AppConfig key."
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
+                | Last_Parameter _ -> "parameter that has to appear at end of command line args."
                 | Push _ -> "push changes"
                 | Clean _ -> "clean state"
                 | Required _ -> "required subcommand"
@@ -269,6 +271,17 @@ module ``Argu Tests`` =
         test <@ results.GetResults <@ Log_Level @> = [2] @>
         test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
+    [<Fact>]
+    let ``Fail on misplaced First parameter`` () =
+        let args = [|"--mandatory-arg"; "true" ; "--first-parameter" ; "arg" |]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
+                                        (fun e -> <@ e.FirstLine.Contains "should precede" @>)
+
+    [<Fact>]
+    let ``Fail on misplaced Last parameter`` () =
+        let args = [|"--last-parameter" ; "arg" ; "--mandatory-arg"; "true"|]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
+                                        (fun e -> <@ e.FirstLine.Contains "final argument" @>)
 
     [<Fact>]
     let ``Should recognize grouped switches`` () =

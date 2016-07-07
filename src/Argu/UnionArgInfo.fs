@@ -97,10 +97,10 @@ type UnionCaseArgInfo =
         /// Reads assignment for that specific value
         AssignmentParser : Lazy<string -> Assignment>
 
+        /// Mandated Cli position for the argument
+        CliPosition : CliPosition
         /// If specified, should consume remaining tokens from the CLI
         IsRest : bool
-        /// If specified, parameter can only be at start of CLI parameters
-        IsFirst : bool
         /// If specified, multiple parameters can be added in Configuration in CSV form.
         AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
@@ -207,6 +207,9 @@ type UnionParseResults =
     }
 
 type UnionCaseArgInfo with
+    member inline ucai.IsFirst = ucai.CliPosition = CliPosition.First
+    member inline ucai.IsLast = ucai.CliPosition = CliPosition.Last
+
     member ucai.ToArgumentCaseInfo() : ArgumentCaseInfo =
         {
             Name = ucai.Name
@@ -218,7 +221,7 @@ type UnionCaseArgInfo with
             AppSettingsSeparators = Array.toList ucai.AppSettingsSeparators
             AppSettingsSplitOptions = ucai.AppSettingsSplitOptions
             IsRest = ucai.IsRest
-            IsFirst = ucai.IsFirst
+            CliPosition = ucai.CliPosition
             CustomAssignmentSeparator = ucai.CustomAssignmentSeparator
             AppSettingsCSV = ucai.AppSettingsCSV
             IsMandatory = ucai.IsMandatory

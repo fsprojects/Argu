@@ -217,7 +217,16 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let current = ref None
     let tryGetCurrent = fun () -> !current
 
-    let isFirst = uci.ContainsAttribute<FirstAttribute> ()
+    let cliPosition = 
+        match uci.TryGetAttribute<CliPositionAttribute> () with
+        | Some attr -> 
+            match attr.Position with
+            | CliPosition.Unspecified
+            | CliPosition.First 
+            | CliPosition.Last as p -> p
+            | _ -> arguExn "Invalid CliPosition setting '%O' for parameter '%O'" attr.Position uci
+        | None -> CliPosition.Unspecified
+
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let isExactlyOnce = uci.ContainsAttribute<ExactlyOnceAttribute> (true)
     let isMandatory = isExactlyOnce || uci.ContainsAttribute<MandatoryAttribute> (true)
@@ -393,7 +402,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         IsInherited = isInherited
         GatherAllSources = isGatherAll
         IsRest = isRest
-        IsFirst = isFirst
+        CliPosition = cliPosition
         CustomAssignmentSeparator = customAssignmentSeparator
         AssignmentParser = assignParser
         IsGatherUnrecognized = isGatherUnrecognized
