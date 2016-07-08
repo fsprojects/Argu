@@ -30,13 +30,13 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
         match Array.tryLast results with
         | None -> 
             let aI = argInfo.Cases.[id.Tag]
-            errorf aI.NoCommandLine ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name
+            errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name
         | Some r when restrictF rs r -> r
-        | Some r -> errorf r.CaseInfo.NoCommandLine ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name
+        | Some r -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name
 
     let parseResult (f : 'F -> 'S) (r : UnionCaseParseResult) =
         try f (r.FieldContents :?> 'F)
-        with e -> errorf r.CaseInfo.NoCommandLine ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
+        with e -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
 
     interface IParseResult with
         member __.GetAllResults () = __.GetAllResults() |> Seq.map box

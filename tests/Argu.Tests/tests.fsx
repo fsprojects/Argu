@@ -14,9 +14,9 @@ type MyEnum =
 type PushArgs =
     | All
     | Prune
-    | [<AltCommandLine("-f")>]Force
-    | [<AltCommandLine("-v")>]Verbose
-    | [<ExactlyOnce; MainCommand>] Main of repository:string * branch:string
+    | [<AltCommandLine("-f")>] Force
+    | [<AltCommandLine("-v")>] Verbose
+    | [<ExactlyOnce; MainCommand>] Remote of repository_name:string * branch_name:string
 with
     interface IArgParserTemplate with
         member this.Usage =
@@ -25,7 +25,7 @@ with
             | Prune -> "Remove remote branches that don't have a local counterpart."
             | Verbose -> "Run verbosely."
             | Force -> "Usually, the command refuses to update a remote ref that is not an ancestor of the local ref used to overwrite it."
-            | Main _ -> "Specify a remote repository to push to."
+            | Remote _ -> "Specify a remote repository and branch to push to."
 
 [<CliPrefix(CliPrefix.Dash)>]
 type CleanArgs =
@@ -43,9 +43,9 @@ with
 type GitArgs =
     | [<Unique>] Listener of address:string * number:int
     | Log_Level of level:int
-    | [<CliPrefix(CliPrefix.None)>]Push of options:ParseResults<PushArgs>
-    | [<CliPrefix(CliPrefix.None)>]Clean of suboptions:ParseResults<CleanArgs>
-    | [<AltCommandLine("-E")>][<EqualsAssignment>]Environment_Variable of key:string * value:string
+    | [<CliPrefix(CliPrefix.None)>] Push of options:ParseResults<PushArgs>
+    | [<CliPrefix(CliPrefix.None)>] Clean of suboptions:ParseResults<CleanArgs>
+    | [<AltCommandLine("-E")>][<EqualsAssignment>] Environment_Variable of key:string * value:string
     | Ports of tcp_port:int list
     | Optional of num:int option
     | [<CustomAssignment("?")>] Options of MyEnum option
@@ -66,7 +66,7 @@ with
 
 let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMessage = "Gadget -- my awesome CLI tool")
 
-parser.PrintCommandLineArgumentsFlat [Options(Some MyEnum.First) ; Push(toParseResults [Main ("origin", "master")])]
+parser.PrintCommandLineArgumentsFlat [Options(Some MyEnum.First) ; Push(toParseResults [Remote ("origin", "master")])]
 
 let result = parser.Parse [| "--options?second" ; "--ports" ; "1" ; "2" ; "3" ; "push" ; "origin" ; "master" |]
 let cresult = result.GetResult <@ Push @>

@@ -100,7 +100,7 @@ type UnionCaseArgInfo =
         /// Mandated Cli position for the argument
         CliPosition : CliPosition
         /// Specifies that this argument is the main CLI command
-        IsMainCommand : bool
+        MainCommandName : string option
         /// If specified, should consume remaining tokens from the CLI
         IsRest : bool
         /// If specified, multiple parameters can be added in Configuration in CSV form.
@@ -120,7 +120,8 @@ type UnionCaseArgInfo =
     }
 with
     member inline __.Tag = __.UnionCaseInfo.Tag
-    member inline __.NoCommandLine = List.isEmpty __.CommandLineNames && not __.IsMainCommand
+    member inline __.IsMainCommand = Option.isSome __.MainCommandName
+    member inline __.IsCommandLineArg = match __.CommandLineNames with [] -> __.IsMainCommand | _ -> true
     member inline __.Type = __.ParameterInfo.Type
     member inline __.IsCustomAssignment = Option.isSome __.CustomAssignmentSeparator
     member inline __.IsMatchingAssignmentSeparator (separator : string) =
@@ -142,7 +143,7 @@ with
         | ListParam _ -> ArgumentType.List
         | SubCommand _ -> ArgumentType.SubCommand
 
-and [<NoEquality; NoComparison>] 
+and [<NoEquality; NoComparison>]
   UnionArgInfo =
     {
         /// Union Case Argument Info
@@ -176,6 +177,7 @@ and [<NoEquality; NoComparison>]
     }
 with
     member inline uai.UsesHelpParam = List.isEmpty uai.HelpParam.Flags |> not
+    member inline uai.ContainsMainCommand = Option.isSome uai.MainCommandParam
 
 
 [<NoEquality; NoComparison>]

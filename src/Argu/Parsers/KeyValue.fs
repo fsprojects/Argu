@@ -77,7 +77,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
                 | OptionalParam (existential, fp) ->
                     let parsed = existential.Accept { new IFunc<obj> with
                         member __.Invoke<'T>() =
-                            try (fp.Parser entry :?> 'T) |> Some :> obj
+                            try fp.Parser entry :?> 'T |> Some :> obj
                             with _ -> error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' is not <%s>." name fp.Description }
 
                     let case = mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [|parsed|]

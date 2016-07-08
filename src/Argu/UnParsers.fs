@@ -113,54 +113,63 @@ let [<Literal>] descriptionOffset = 26
 ///     print usage string for given arg info
 /// </summary>
 let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
-    match aI.CommandLineNames with
-    | [] -> ()
-    | flags ->
-        let! start = StringExpr.currentLength
-        yield! StringExpr.whiteSpace switchOffset
-        yield String.concat ", " flags
+    if not aI.IsCommandLineArg then () else
+    let! start = StringExpr.currentLength
+    yield! StringExpr.whiteSpace switchOffset
+    yield String.concat ", " aI.CommandLineNames
 
-        match aI.ParameterInfo with
-        | Primitives parsers ->
-            match aI.CustomAssignmentSeparator with
-            | Some sep when parsers.Length = 1 ->
-                yield sprintf "%s<%s>" sep parsers.[0].Description
-            | Some sep ->
-                assert (parsers.Length = 2)
-                yield sprintf " <%s>%s<%s>" parsers.[0].Description sep parsers.[1].Description
-            | None ->
-                for p in parsers do
-                    yield sprintf " <%s>" p.Description
+    match aI.ParameterInfo with
+    | Primitives parsers when aI.IsMainCommand ->
+        assert(parsers.Length > 0)
+        yield sprintf "<%s>" parsers.[0].Description
+        for i = 1 to parsers.Length - 1 do
+            yield sprintf " <%s>" parsers.[i].Description
 
-            if aI.IsRest then yield "..."
+        if aI.IsRest then yield "..."
 
-        | OptionalParam (_,parser) ->
-            match aI.CustomAssignmentSeparator with
-            | Some sep -> yield sprintf "[%s<%s>]" sep parser.Description
-            | None -> yield sprintf " [<%s>]" parser.Description
+    | Primitives parsers ->
+        match aI.CustomAssignmentSeparator with
+        | Some sep when parsers.Length = 1 ->
+            yield sprintf "%s<%s>" sep parsers.[0].Description
+        | Some sep ->
+            assert (parsers.Length = 2)
+            yield sprintf " <%s>%s<%s>" parsers.[0].Description sep parsers.[1].Description
+        | None ->
+            for p in parsers do
+                yield sprintf " <%s>" p.Description
 
-        | ListParam (_,parser) ->
-            yield sprintf " [<%s>...]" parser.Description
+        if aI.IsRest then yield "..."
 
-        | SubCommand(_,_,Some label) -> yield sprintf " <%s>" label
-        | SubCommand(_,_,None) -> yield " <options>"
+    | OptionalParam (_,parser) ->
+        match aI.CustomAssignmentSeparator with
+        | Some sep -> yield sprintf "[%s<%s>]" sep parser.Description
+        | None -> yield sprintf " [<%s>]" parser.Description
 
-        let! finish = StringExpr.currentLength
-        if finish - start >= descriptionOffset then
-            yield Environment.NewLine
-            yield! StringExpr.whiteSpace descriptionOffset
-        else
-            yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
+    | ListParam (_,parser) when aI.IsMainCommand ->
+        yield sprintf "<%s>..." parser.Description
+
+    | ListParam (_,parser) ->
+        yield sprintf " [<%s>...]" parser.Description
+
+    | SubCommand(_,_,Some label) -> yield sprintf " <%s>" label
+    | SubCommand(_,_,None) -> yield " <options>"
+
+    let! finish = StringExpr.currentLength
+    if finish - start >= descriptionOffset then
+        yield Environment.NewLine
+        yield! StringExpr.whiteSpace descriptionOffset
+    else
+        yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
             
-        match aI.Description with
-        | [] -> ()
-        | h :: tail ->
-            yield h
+    match aI.Description with
+    | [] -> ()
+    | h :: tail ->
+        yield h
+        yield Environment.NewLine
+        for t in tail do
+            yield! StringExpr.whiteSpace descriptionOffset
+            yield t
             yield Environment.NewLine
-            for t in tail do
-                yield! StringExpr.whiteSpace descriptionOffset
-                yield t
-                yield Environment.NewLine
 }
 
 /// <summary>
@@ -201,14 +210,26 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message
     | None -> ()
 
     yield! mkCommandLineSyntax argInfo "USAGE: " width programName
+    yield Environment.NewLine
 
     let options, subcommands =
         argInfo.Cases
         |> Seq.filter (fun aI -> not aI.IsHidden)
+        |> Seq.filter (fun aI -> not aI.IsMainCommand)
         |> Seq.partition (fun aI -> aI.Type <> ArgumentType.SubCommand)
 
-    if subcommands.Length > 0 then
+
+    match argInfo.MainCommandParam with
+    | Some aI when not aI.IsHidden -> 
+        assert(Option.isSome aI.MainCommandName)
+        yield Environment.NewLine
+        yield sprintf "%s:" aI.MainCommandName.Value
         yield Environment.NewLine; yield Environment.NewLine
+        yield! mkArgUsage aI
+    | _ -> ()
+
+    if subcommands.Length > 0 then
+        yield Environment.NewLine
         yield "SUBCOMMANDS:"
         yield Environment.NewLine; yield Environment.NewLine
 
@@ -218,11 +239,10 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message
         | [] -> ()
         | helpflag :: _ -> 
             yield Environment.NewLine
-            yield sprintf "\tUse '%s <subcommand> %s' for additional information." programName helpflag
+            yield sprintf "%sUse '%s <subcommand> %s' for additional information." (String.mkWhiteSpace switchOffset) programName helpflag
             yield Environment.NewLine
 
     if options.Length > 0 || argInfo.UsesHelpParam then
-        if subcommands.Length = 0 then yield Environment.NewLine
         yield Environment.NewLine
         yield "OPTIONS:"
         yield Environment.NewLine; yield Environment.NewLine
@@ -238,7 +258,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message
 /// </summary>
 let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
     let mkEntry (aI : UnionCaseArgInfo) (t : obj) = seq {
-        if aI.NoCommandLine then () else
+        if not aI.IsCommandLineArg then () else
 
         let fields = aI.FieldReader.Value t
 

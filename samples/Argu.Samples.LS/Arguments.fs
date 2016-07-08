@@ -29,6 +29,7 @@ type QuotingStyle =
 [<CliPrefix(CliPrefix.DoubleDash)>]
 [<NoAppSettings>]
 type LsArguments =
+    | [<MainCommand>] Files of FILES:string list
     | [<AltCommandLine("-a")>] All
     | [<AltCommandLine("-A")>] Almost_All
     | Author
@@ -71,7 +72,6 @@ type LsArguments =
     | [<AltCommandLine("-Z")>] Context
     | [<CustomCommandLine("-1")>] List_One
     | Version
-    | [<Unique; MainCommand("FILES")>] Files of paths:string list
 with
     interface IArgParserTemplate with
         member arg.Usage =

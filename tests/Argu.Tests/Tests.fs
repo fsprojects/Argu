@@ -28,11 +28,14 @@ module ``Argu Tests`` =
         | Third
 
     type PushArgs =
-        | Remote of name:string
-        | Branch of name:string
+        | [<AltCommandLine("-f")>] Force
+        | [<MainCommand("COMMAND"); ExactlyOnce>] Remote of repo_name:string * branch_name:string
     with
         interface IArgParserTemplate with
-            member this.Usage = "push"
+            member this.Usage = 
+                match this with
+                | Force -> "force changes in remote repo"
+                | Remote _ -> "push changes to remote repository and branch"
 
     [<CliPrefix(CliPrefix.Dash)>]
     type CleanArgs =
@@ -66,6 +69,7 @@ module ``Argu Tests`` =
         | [<Mandatory>] Mandatory_Arg of bool
         | [<Unique>] Unique_Arg of bool
         | [<Rest; ParseCSV>] Rest_Arg of int
+        | [<MainCommand; Last; Unique>] Main of chars:char list
         | [<Inherit>] Data of int * byte []
         | Log_Level of int
         | [<AltCommandLine("/D", "-D", "-z")>] Detach
@@ -102,6 +106,7 @@ module ``Argu Tests`` =
                 | Enum _ -> "assign from three possible values."
                 | Enumeration _ -> "assign from three possible values."
                 | Env _ -> "assign environment variables."
+                | Main _ -> "main command."
                 | CustomAppConfig _ -> "parameter with custom AppConfig key."
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
                 | Last_Parameter _ -> "parameter that has to appear at end of command line args."
@@ -273,7 +278,7 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Fail on misplaced First parameter`` () =
-        let args = [|"--mandatory-arg"; "true" ; "--first-parameter" ; "arg" |]
+        let args = [|"--mandatory-arg" ; "true" ; "--first-parameter" ; "arg" |]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
                                         (fun e -> <@ e.FirstLine.Contains "should precede" @>)
 
@@ -281,21 +286,22 @@ module ``Argu Tests`` =
     let ``Fail on misplaced Last parameter`` () =
         let args = [|"--last-parameter" ; "arg" ; "--mandatory-arg"; "true"|]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                        (fun e -> <@ e.FirstLine.Contains "final argument" @>)
+                                        (fun e -> <@ e.FirstLine.Contains "should appear after" @>)
 
     [<Fact>]
     let ``Should recognize grouped switches`` () =
-        let args = [| "-cba"; "-cc" |]
+        let args = [|"-cba" ; "-cc"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         test <@ results.GetAllResults() = [C; B; A; C; C] @>
 
     [<Fact>]
     let ``Simple subcommand parsing 1`` () =
-        let args = [|"push"; "--remote" ; "origin" ; "--branch" ; "master"|]
+        let args = [|"push" ; "-f" ; "origin" ; "master"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested = results.GetResult <@ Push @>
         test <@ match results.TryGetSubCommand() with Some (Push _) -> true | _ -> false @>
-        test <@ nested.GetAllResults() = [Remote "origin" ; Branch "master"] @>
+        test <@ nested.GetResults <@ Remote @> = [("origin", "master")] @>
+        test <@ nested.Contains <@ Force @> @>
 
     [<Fact>]
     let ``Simple subcommand parsing 2`` () =
@@ -304,6 +310,38 @@ module ``Argu Tests`` =
         let nested = results.GetResult <@ Clean @>
         test <@ match results.TryGetSubCommand() with Some (Clean _) -> true | _ -> false @>
         test <@ nested.GetAllResults() = [F; D; X] @>
+
+    [<Fact>]
+    let ``Main command parsing should fail on missing parameters`` () =
+        let args = [|"push" ; "origin" |]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
+                                    (fun e -> <@ e.FirstLine.Contains "must be followed by <branch name>" @>)
+
+    [<Fact>]
+    let ``Main command parsing should allow trailing arguments`` () =
+        let args = [|"push" ; "origin" ; "master" ; "-f" |]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        let nested = results.GetResult <@ Push @>
+        test <@ nested.GetResults <@ Remote @> = [("origin", "master")] @>
+        test <@ nested.Contains <@ Force @> @>
+
+    [<Fact>]
+    let ``Main command parsing should not permit intermittent arguments`` () =
+        let args = [|"push" ; "origin" ; "-f" ; "master"|]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
+                                    (fun e -> <@ e.FirstLine.Contains "but was '-f'" @>)
+
+        let results = parser.ParseCommandLine(args, ignoreMissing = true, ignoreUnrecognized = true)
+        let nested = results.GetResult <@ Push @>
+        test <@ nested.Contains <@ Force @> @>
+        test <@ nested.Contains <@ Remote @> |> not @>
+        test <@ nested.UnrecognizedCliParams = ["origin" ; "master"] @>
+
+    [<Fact>]
+    let ``Main command taking list of arguments`` () =
+        let args = [|"--mandatory-arg" ; "true" ; "a" ; "b" ; "c" ; "ff" ; "d" |]
+        let results = parser.ParseCommandLine(args, ignoreUnrecognized = true)
+        test <@ results.GetResult <@ Main @> = ['a' ; 'b' ; 'c'] @>
 
     [<Fact>]
     let ``SubParsers should correctly handle inherited params`` () =
@@ -343,11 +381,11 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Nested unrecognized CLI params`` () =
-        let args = [| "push" ; "foobar" ; "--branch" ; "master" |]
+        let args = [| "clean" ; "foobar" ; "-fdx" |]
         let results = parser.ParseCommandLine(args, ignoreUnrecognized = true, ignoreMissing = true)
-        let nested = results.GetResult <@ Push @>
+        let nested = results.GetResult <@ Clean @>
         test <@ nested.UnrecognizedCliParams = ["foobar"] @>
-        test <@ nested.Contains <@ Branch @> @>
+        test <@ nested.Contains <@ D @> @>
         test <@ results.UnrecognizedCliParams = [] @>
 
     [<Fact>]

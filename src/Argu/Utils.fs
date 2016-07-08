@@ -68,6 +68,10 @@ module Seq =
 
         l.ToArray(), r.ToArray()
 
+[<RequireQualifiedAccess>]
+module String =
+    let inline mkWhiteSpace (length : int) = new String(' ', length)
+
 [<AbstractClass>]
 type Existential internal () =
     static let genTy = typedefof<Existential<_>>
@@ -233,7 +237,7 @@ module StringExpr =
 
     let currentLength : StringExpr<int> = fun sb -> sb.Length
 
-    let whiteSpace len : StringExpr<unit> = fun sb -> ignore(sb.Append(String(' ', len)))
+    let whiteSpace len : StringExpr<unit> = fun sb -> ignore(sb.Append(String.mkWhiteSpace len))
 
 /// Dictionary enabling lookups by string prefix
 /// e.g. the string '--foo=bar' can be used to look up the key '--foo'

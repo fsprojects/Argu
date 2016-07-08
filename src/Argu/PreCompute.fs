@@ -37,6 +37,10 @@ let generateEnumName (name : string) = name.ToLower().Replace('_','-')
 let generateAppSettingsName (uci : UnionCaseInfo) =
     uci.Name.ToLower().Replace('_',' ')
 
+/// construct a command identifier from UCI name
+let generateCommandName (uci : UnionCaseInfo) =
+    uci.Name.ToUpper().Replace('_', ' ')
+
 let private defaultLabelRegex = new Regex(@"^Item[0-9]*$", RegexOptions.Compiled)
 /// Generates an argument label name from given PropertyInfo
 let tryExtractUnionParameterLabel (p : PropertyInfo) =
@@ -217,13 +221,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let current = ref None
     let tryGetCurrent = fun () -> !current
 
-    let mainCommandAttr = 
-        match uci.TryGetAttribute<MainCommandAttribute> () with
-        | Some _ when types.Length = 0 -> arguExn "parameters '%O' contains MainCommand attribute but has unsupported arity 0." uci
-        | attr -> attr
-
-    let isMainCommand = Option.isSome mainCommandAttr
-
+    let isNoCommandLine = uci.ContainsAttribute<NoCommandLineAttribute> (true)
     let isAppSettingsCSV = uci.ContainsAttribute<ParseCSVAttribute> ()
     let isExactlyOnce = uci.ContainsAttribute<ExactlyOnceAttribute> (true)
     let isMandatory = isExactlyOnce || uci.ContainsAttribute<MandatoryAttribute> (true)
@@ -233,14 +231,25 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isRest = uci.ContainsAttribute<RestAttribute> ()
     let isHidden = uci.ContainsAttribute<HiddenAttribute> ()
 
+    let mainCommandName = 
+        match uci.TryGetAttribute<MainCommandAttribute> () with
+        | None -> None
+        | Some _ when isNoCommandLine -> arguExn "parameter '%O' contains conflicting attributes 'MainCommand' and 'NoCommandLine'." uci
+        | Some _ when types.Length = 0 -> arguExn "parameter '%O' contains MainCommand attribute but has unsupported arity 0." uci
+        | Some attr ->
+            match attr.ArgumentName with
+            | null -> generateCommandName uci
+            | name -> name
+            |> Some
+
+    let isMainCommand = Option.isSome mainCommandName
+
     let cliPosition = 
         match uci.TryGetAttribute<CliPositionAttribute> () with
-        | Some _ when isMainCommand -> arguExn "cannot override CliPosition attribute in main command '%O'" uci
-        | None when isMainCommand -> CliPosition.Last
         | Some attr -> 
             match attr.Position with
             | CliPosition.Unspecified
-            | CliPosition.First 
+            | CliPosition.First
             | CliPosition.Last as p -> p
             | _ -> arguExn "Invalid CliPosition setting '%O' for parameter '%O'" attr.Position uci
         | None -> CliPosition.Unspecified
@@ -330,11 +339,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             Array.map getParser fields |> Primitives
 
     let commandLineArgs =
-        if isMainCommand then []
-        elif uci.ContainsAttribute<NoCommandLineAttribute> (true) then
-            match parsers with
-            | SubCommand _ -> arguExn "NoCommandLine attribute in '%O' not supported in subcommands." uci
-            | _ -> []
+        if isMainCommand || isNoCommandLine then []
         else
             let cliNames = [
                 match uci.TryGetAttribute<CustomCommandLineAttribute> () with
@@ -363,11 +368,13 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let defaultName =
         match commandLineArgs with
         | h :: _ -> h
-        | _ when isMainCommand -> 
-            match Option.get(mainCommandAttr).ArgumentName with
-            | null -> generateAppSettingsName uci
-            | name -> name
-
+        | [] when isMainCommand ->
+            match parsers with
+            | Primitives ps ->
+                let name = ps |> Seq.map (fun p -> sprintf "<%s>" p.Description) |> String.concat " "
+                if isRest then name + "..." else name
+            | ListParam(_,p) -> sprintf "<%s>..." p.Description
+            | _ -> arguExn "internal error in argu parser representation %O." uci
         | _ when Option.isSome appSettingsName -> appSettingsName.Value
         | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci
 
@@ -419,7 +426,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         Description = description
         ParameterInfo = parsers
         AppSettingsCSV = isAppSettingsCSV
-        IsMainCommand = isMainCommand
+        MainCommandName = mainCommandName
         IsMandatory = isMandatory
         IsUnique = isUnique
         IsInherited = isInherited
@@ -533,14 +540,8 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     let mainCommandParam =
         match caseInfo |> Array.filter (fun cI -> cI.IsMainCommand) with
         | [||] -> None
-        | [|ur|] ->
-            if Option.isSome unrecognizedParam then 
-                arguExn "template type '%O' has specified an incompatible combination of MainCommand and GatherUnrecognized attributes." t
-            Some ur
-
+        | [|mcp|] -> Some mcp
         | _ -> arguExn "template type '%O' has specified the MainCommand attribute in more than one union cases." t
-
-            
 
     let result = {
         Type = t
