@@ -73,6 +73,14 @@ Used in CSV or list-based parameter parsing.</p>
         </tr>
         <tr>
           <td class="type-name">
+            <a href="argu-arguattributes-clipositionattribute.html">CliPositionAttribute</a>
+          </td>
+          <td class="xmldoc"><p>Declares that argument should be placed at specific position.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
             <a href="argu-arguattributes-cliprefixattribute.html">CliPrefixAttribute</a>
           </td>
           <td class="xmldoc"><p>Specifies a custom prefix for auto-generated CLI names.
@@ -199,6 +207,24 @@ Must contain a single field of type string</p>
             <a href="argu-arguattributes-inheritattribute.html">InheritAttribute</a>
           </td>
           <td class="xmldoc"><p>Denotes that the given argument should be inherited in the scope of any subcommands.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="argu-arguattributes-lastattribute.html">LastAttribute</a>
+          </td>
+          <td class="xmldoc"><p>Declares that argument can only be placed at the end of the CLI syntax.
+A parse exception will be raised if that is not the case.</p>
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="argu-arguattributes-maincommandattribute.html">MainCommandAttribute</a>
+          </td>
+          <td class="xmldoc"><p>Declares that argument is the main command of the CLI syntax.
+Arguments are specified without requiring a switch.</p>
 
 </td>
         </tr>
