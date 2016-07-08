@@ -1,3 +1,6 @@
+### 3.1.0
+* Add support for MainCommand attribute.
+
 ### 3.0.1
 * Bugfix usage string rendering issue where description might span multiple lines.
 

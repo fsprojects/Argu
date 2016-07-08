@@ -403,12 +403,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     // extract the description string for given union case
     let description = 
-        try dummy.Usage.Split([|'\n'|], StringSplitOptions.RemoveEmptyEntries) |> Array.toList
-        with _ -> 
-            arguExn "Error generating usage string from IArgParserTemplate for case %O." uci
-
-    if List.isEmpty description then
-        arguExn "Usage string for case '%O' was empty." uci
+        try dummy.Usage.Split('\n') |> Array.toList
+        with _ -> arguExn "Error generating usage string from IArgParserTemplate for case %O." uci
 
     let uai = {
         UnionCaseInfo = uci
@@ -464,10 +460,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
             let description = 
                 match t.TryGetAttribute<HelpDescriptionAttribute> () with
                 | None -> [defaultHelpDescription]
-                | Some attr -> 
-                    match attr.Description.Split([|'\n'|], StringSplitOptions.RemoveEmptyEntries) with
-                    | [||] -> arguExn "Text defined in HelpDescriptionAttribute was empty."
-                    | descr -> Array.toList descr
+                | Some attr -> attr.Description.Split('\n') |> Array.toList
 
             { Flags = helpSwitches ; Description = description }
 
