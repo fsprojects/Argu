@@ -210,7 +210,7 @@ type WGetArguments =
 which generates the syntax
 
     [lang=console]
-    USAGE: fsianycpu.exe [--help] [--quiet] [--no-check-certificate] <url>...
+    USAGE: wget [--help] [--quiet] [--no-check-certificate] <url>...
 
     URLS:
 
