@@ -23,7 +23,7 @@
         "Argu":  { "version": "3.0.0-beta02", "type": "build" }
     },
     "frameworks": {
-        "netstandard1.6" : {
+        "netcoreapp1.0" : {
             "dependencies": {
                 "Microsoft.NETCore.App": {
                 "type": "platform",
