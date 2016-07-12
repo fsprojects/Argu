@@ -192,37 +192,6 @@ Arguments can specify the following primitives as parameters:
   * `System.Numerics.BigInt`.
   * `byte[]`, which accepts base64 representations.
 
-## Main commands
-
-Arguments carrying the [MainCommand](reference/argu-arguattributes-maincommandattribute.html) 
-attribute can be used to specify the main set of arguments for the CLI.
-These arguments can be passed without the need to specify a switch identifier.
-
-*)
-
-type WGetArguments =
-    | Quiet
-    | No_Check_Certificate
-    | [<MainCommand; ExactlyOnce; Last>] Urls of url:string list
-
-(**
-
-which generates the syntax
-
-    [lang=console]
-    USAGE: wget [--help] [--quiet] [--no-check-certificate] <url>...
-
-    URLS:
-
-        <url>...              List of urls to download from.
-
-    OPTIONS:
-
-        --quiet               Turn off Wget's output.
-        --no-check-certificate
-                              Don't check the server certificate.
-        --help                display this list of options.
-
 ## Optional and List parameters
 
 Additionally, it is possible to specify argument parameters that are either optional or lists:
@@ -277,6 +246,37 @@ which results in the syntax
 
 Note that it is possible to specify F# unions instead of enumerations in this context,
 provided that these do not specify any parameters in any of their cases.
+
+## Main commands
+
+Arguments carrying the [MainCommand](reference/argu-arguattributes-maincommandattribute.html) 
+attribute can be used to specify the main set of arguments for the CLI.
+These arguments can be passed without the need to specify a switch identifier.
+
+*)
+
+type WGetArguments =
+    | Quiet
+    | No_Check_Certificate
+    | [<MainCommand; ExactlyOnce; Last>] Urls of url:string list
+
+(**
+
+which generates the syntax
+
+    [lang=console]
+    USAGE: wget [--help] [--quiet] [--no-check-certificate] <url>...
+
+    URLS:
+
+        <url>...              List of urls to download from.
+
+    OPTIONS:
+
+        --quiet               Turn off Wget's output.
+        --no-check-certificate
+                              Don't check the server certificate.
+        --help                display this list of options.
 
 ## SubCommands
 
