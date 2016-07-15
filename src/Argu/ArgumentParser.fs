@@ -48,7 +48,7 @@ type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, hel
     /// <summary>Formats a usage string for the argument parser.</summary>
     /// <param name="message">The message to be displayed on top of the usage string.</param>
     /// <param name="programName">Override the default program name settings.</param>
-    /// <param name="hideSyntax">Do not display 'USAGE: [syntax]' string at top of usage string. Defaults to false.</param>
+    /// <param name="hideSyntax">Do not display 'USAGE: [syntax]' at top of usage string. Defaults to false.</param>
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
     member __.PrintUsage (?message : string, ?programName : string, ?hideSyntax : bool, ?usageStringCharacterWidth : int) : string = 
         let programName = defaultArg programName _programName
