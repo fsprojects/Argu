@@ -48,11 +48,13 @@ type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, hel
     /// <summary>Formats a usage string for the argument parser.</summary>
     /// <param name="message">The message to be displayed on top of the usage string.</param>
     /// <param name="programName">Override the default program name settings.</param>
+    /// <param name="hideSyntax">Do not display 'USAGE: [syntax]' string at top of usage string. Defaults to false.</param>
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
-    member __.PrintUsage (?message : string, ?programName : string, ?usageStringCharacterWidth : int) : string = 
+    member __.PrintUsage (?message : string, ?programName : string, ?hideSyntax : bool, ?usageStringCharacterWidth : int) : string = 
         let programName = defaultArg programName _programName
+        let hideSyntax = defaultArg hideSyntax false 
         let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
-        mkUsageString argInfo programName usageStringCharacterWidth message |> StringExpr.build
+        mkUsageString argInfo programName hideSyntax usageStringCharacterWidth message |> StringExpr.build
 
     /// <summary>
     ///     Prints command line syntax. Useful for generating documentation.
@@ -84,7 +86,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     // memoize parser generation for given template type
     static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
 
-    let mkUsageString argInfo msgOpt = mkUsageString argInfo _programName _usageStringCharacterWidth msgOpt |> StringExpr.build
+    let mkUsageString argInfo msgOpt = mkUsageString argInfo _programName false _usageStringCharacterWidth msgOpt |> StringExpr.build
 
     let (|ParserExn|_|) (e : exn) =
         match e with

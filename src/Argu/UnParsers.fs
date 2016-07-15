@@ -204,13 +204,14 @@ let mkHelpParamUsage (hp : HelpParam) = stringExpr {
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
-let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message : string option) = stringExpr {
+let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax width (message : string option) = stringExpr {
     match message with
     | Some msg -> yield msg; yield Environment.NewLine
     | None -> ()
 
-    yield! mkCommandLineSyntax argInfo "USAGE: " width programName
-    yield Environment.NewLine
+    if not hideSyntax then
+        yield! mkCommandLineSyntax argInfo "USAGE: " width programName
+        yield Environment.NewLine
 
     let options, subcommands =
         argInfo.Cases
@@ -218,18 +219,19 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message
         |> Seq.filter (fun aI -> not aI.IsMainCommand)
         |> Seq.partition (fun aI -> aI.Type <> ArgumentType.SubCommand)
 
-
     match argInfo.MainCommandParam with
     | Some aI when not aI.IsHidden -> 
+        let! length = StringExpr.currentLength
+        if length > 0 then yield Environment.NewLine
         assert(Option.isSome aI.MainCommandName)
-        yield Environment.NewLine
         yield sprintf "%s:" aI.MainCommandName.Value
         yield Environment.NewLine; yield Environment.NewLine
         yield! mkArgUsage aI
     | _ -> ()
 
     if subcommands.Length > 0 then
-        yield Environment.NewLine
+        let! length = StringExpr.currentLength
+        if length > 0 then yield Environment.NewLine
         yield "SUBCOMMANDS:"
         yield Environment.NewLine; yield Environment.NewLine
 
@@ -243,7 +245,8 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) width (message
             yield Environment.NewLine
 
     if options.Length > 0 || argInfo.UsesHelpParam then
-        yield Environment.NewLine
+        let! length = StringExpr.currentLength
+        if length > 0 then yield Environment.NewLine
         yield "OPTIONS:"
         yield Environment.NewLine; yield Environment.NewLine
 
