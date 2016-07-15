@@ -1,3 +1,6 @@
+### 3.2.0
+* Add `hideSyntax` option in PrintUsage() method.
+
 ### 3.1.0
 * Add support for MainCommand attribute.
 
