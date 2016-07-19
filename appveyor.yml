@@ -10,4 +10,4 @@ after_build:
   - cmd: dotnet --info
   - cmd: dotnet restore
   - cmd: cd ".\src\Argu"
-  - cmd: dotnet build
+  - cmd: dotnet pack -c Release
