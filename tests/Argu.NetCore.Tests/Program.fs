@@ -30,7 +30,7 @@ let main argv =
     let parser = ArgumentParser.Create<CLIArguments>()
      
     // get usage text
-    let usage = parser.Usage()
+    let usage = parser.PrintUsage()
     // output:
     //    --working-directory <string>: specify a working directory.
     //    --listener <host:string> <port:int>: specify a listener (hostname : port).
