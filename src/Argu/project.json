@@ -1,5 +1,5 @@
 {
-    "version": "3.0.0-beta02",
+    "version": "3.1.0",
     "buildOptions": {
         "debugType": "portable",
         "compilerName": "fsc",
@@ -25,9 +25,10 @@
         }
     },
     "tools": {
+        "dotnet-mergenupkg": "1.0.*",
         "dotnet-compile-fsc": {
-        "version": "1.0.0-preview2-*",
-        "imports": "dnxcore50"
+            "version": "1.0.0-preview2-*",
+            "imports": "dnxcore50"
         }
     },
     "frameworks": {
@@ -42,23 +43,6 @@
                 "System.Xml.XDocument": "4.0.11",
                 "Microsoft.FSharp.Core.netcore": "1.0.0-alpha-160629",
                 "NETStandard.Library": "1.6.0"
-            },
-            "imports": [
-                "portable-net45+win8",
-                "dnxcore50"
-            ]
-        },
-        "net46": { 
-            "dependencies": {
-                "FSharp.Core": "4.0.0.1"
-            },
-            "frameworkAssemblies": {
-                "System": "",
-                "System.Configuration": "",
-                "System.Core": "",
-                "System.Xml": "",
-                "System.Xml.Linq": "",
-                "System.Numerics": ""
             }
         }
     }
