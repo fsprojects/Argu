@@ -171,6 +171,28 @@ Target "ReleaseGitHub" (fun _ ->
     |> Async.RunSynchronously
 )
 
+// .NET Core SDK and .NET Core
+
+let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
+
+Target "Build.NetCore" (fun _ ->
+    Shell.Exec("dotnet", "restore") |> assertExitCodeZero
+    Shell.Exec("dotnet", "--verbose pack --configuration Release", "src/Argu") |> assertExitCodeZero
+)
+
+Target "RunTests.NetCore" (fun _ ->
+    Shell.Exec("dotnet", "--verbose run --configuration Release", "tests/Argu.NetCore.Tests") |> assertExitCodeZero
+)
+
+let isDotnetSDKInstalled = try Shell.Exec("dotnet", "--version") = 0 with _ -> false
+
+Target "Nuget.AddNetCore" (fun _ ->
+    let nupkg = sprintf "../../bin/Argu.%s.nupkg" (release.NugetVersion)
+    let netcoreNupkg = sprintf "bin/Release/Argu.%s.nupkg" (release.NugetVersion)
+
+    Shell.Exec("dotnet", sprintf """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg, "src/Argu/") |> assertExitCodeZero
+)
+
 
 Target "Release" DoNothing
 
@@ -191,7 +213,10 @@ Target "Default" DoNothing
 "Default"
   ==> "PrepareRelease"
   ==> "Build.Net35"
+  =?> ("Build.NetCore", isDotnetSDKInstalled)
+  =?> ("RunTests.NetCore", isDotnetSDKInstalled)
   ==> "NuGet"
+  =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "NuGetPush"
