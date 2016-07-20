@@ -20,26 +20,19 @@
         }
     },
     "dependencies": {
-        "Argu":  { "version": "3.0.0-beta02", "type": "build" }
+        "Argu":  { "version": "*", "target": "project" }
     },
     "frameworks": {
         "netcoreapp1.0" : {
             "dependencies": {
                 "Microsoft.NETCore.App": {
-                "type": "platform",
-                "version": "1.0.0"
+                    "type": "platform",
+                    "version": "1.0.0"
                 }
             },
             "imports": [
-                "portable-net45+win8",
                 "dnxcore50"
             ]
-        },
-        "net46" : {
-            "frameworkAssemblies": {
-                "System": "",
-                "System.Core": ""
-            }
         }
     }
 }

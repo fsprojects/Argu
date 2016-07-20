@@ -1,30 +1,6 @@
+os: Visual Studio 2015
+
 configuration: Release
 test:
   assemblies:
     - Argu.Tests.dll
-
-environment:
-  global:
-    # disable telemetry to speedup build (cold cache)
-    DOTNET_CLI_TELEMETRY_OPTOUT: 1
-  matrix:
-    - CLI_VERSION: 1.0.0-preview2-003121 # released preview2
-
-install:
-  # .NET Core SDK binaries
-  - ps: $url = "https://dotnetcli.blob.core.windows.net/dotnet/preview/Binaries/$($env:CLI_VERSION)/dotnet-dev-win-x64.$($env:CLI_VERSION.ToLower()).zip"
-  # Download .NET Core SDK and add to PATH
-  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
-  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
-  - ps: $tempFile = [System.IO.Path]::GetTempFileName()
-  - ps: (New-Object System.Net.WebClient).DownloadFile($url, $tempFile)
-  - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFile, $env:DOTNET_INSTALL_DIR)
-  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
-  - ps: echo "Using dotnet '$((Get-Command dotnet).Path)'"
-  - ps: dotnet --info
-
-after_build:
-  # build it
-  - cmd: dotnet restore
-  - cmd: cd ".\src\Argu"
-  - cmd: dotnet build
