@@ -4,10 +4,3 @@ configuration: Release
 test:
   assemblies:
     - Argu.Tests.dll
-
-after_build:
-  # build it
-  - cmd: dotnet --info
-  - cmd: dotnet restore
-  - cmd: cd ".\src\Argu"
-  - cmd: dotnet pack -c Release
