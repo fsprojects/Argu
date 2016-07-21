@@ -4,6 +4,7 @@
 
 #I "packages/build/FAKE/tools"
 #r "packages/build/FAKE/tools/FakeLib.dll"
+#r @"packages/build/FAKE/tools/Newtonsoft.Json.dll"
 
 open System
 open System.IO
@@ -175,18 +176,29 @@ Target "ReleaseGitHub" (fun _ ->
 
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 
+Target "SetVersionInProjectJSON" (fun _ ->
+    !! "./**/project.json"
+    |> Seq.iter (DotNet.SetVersionInProjectJson release.NugetVersion)
+)
+
 Target "Build.NetCore" (fun _ ->
-    Shell.Exec("dotnet", "restore") |> assertExitCodeZero
-    Shell.Exec("dotnet", "--verbose pack --configuration Release", "src/Argu") |> assertExitCodeZero
+    DotNet.Restore id
+
+    !! "src/**/project.json"
+    |> DotNet.Build id
 )
 
 Target "RunTests.NetCore" (fun _ ->
-    Shell.Exec("dotnet", "--verbose run --configuration Release", "tests/Argu.NetCore.Tests") |> assertExitCodeZero
+    !! "tests/**/project.json"
+    |> DotNet.Test id
 )
 
-let isDotnetSDKInstalled = try Shell.Exec("dotnet", "--version") = 0 with _ -> false
+let isDotnetSDKInstalled = DotNet.isInstalled()
 
 Target "Nuget.AddNetCore" (fun _ ->
+    !! "src/**/project.json"
+    |> DotNet.Pack id
+
     let nupkg = sprintf "../../bin/Argu.%s.nupkg" (release.NugetVersion)
     let netcoreNupkg = sprintf "bin/Release/Argu.%s.nupkg" (release.NugetVersion)
 
@@ -205,6 +217,7 @@ Target "Default" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
+  ==> "SetVersionInProjectJSON"
   ==> "Prepare"
   ==> "Build.Net40"
   ==> "RunTests"
