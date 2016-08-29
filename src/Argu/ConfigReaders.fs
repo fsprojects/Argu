@@ -3,6 +3,8 @@
 open System
 open System.IO
 open System.Collections.Generic
+
+#if !CORE_CLR
 open System.Configuration
 open System.Reflection
 
@@ -69,3 +71,13 @@ type ConfigurationReader =
     /// Create a configuration reader instance using an F# function
     static member FromFunction(reader : string -> string option, ?name : string) =
         new FunctionConfigurationReader(reader, ?name = name) :> IConfigurationReader
+        
+    static member DefaultReader () = ConfigurationReader.FromAppSettings()
+#else
+/// Configuration reader implementations
+type ConfigurationReader =
+    static member DefaultReader () =
+        { new IConfigurationReader with
+            member x.Name = "Default - Empty Configuration Reader"
+            member x.GetValue k = null }
+#endif
