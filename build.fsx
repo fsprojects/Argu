@@ -101,7 +101,9 @@ FinalTarget "CloseTestRunner" (fun _ ->
 //// --------------------------------------------------------------------------------------
 //// Build a NuGet package
 
-Target "NuGet" (fun _ ->
+Target "NuGet" DoNothing
+
+Target "NuGet.Pack" (fun _ ->
     Paket.Pack(fun config ->
         { config with 
             Version = release.NugetVersion
@@ -195,7 +197,8 @@ Target "RunTests.NetCore" (fun _ ->
 
 let isDotnetSDKInstalled = DotNet.isInstalled()
 
-Target "Nuget.AddNetCore" (fun _ ->
+Target "NuGet.AddNetCore" (fun _ ->
+    if not isDotnetSDKInstalled then failwith "You need to install .NET core to publish NuGet packages"
     !! "src/**/project.json"
     |> DotNet.Pack id
 
@@ -228,8 +231,9 @@ Target "Default" DoNothing
   ==> "Build.Net35"
   =?> ("Build.NetCore", isDotnetSDKInstalled)
   =?> ("RunTests.NetCore", isDotnetSDKInstalled)
+  ==> "NuGet.Pack"
+  ==> "NuGet.AddNetCore"
   ==> "NuGet"
-  =?> ("Nuget.AddNetCore", isDotnetSDKInstalled)
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "NuGetPush"
