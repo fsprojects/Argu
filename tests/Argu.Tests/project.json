@@ -3,9 +3,13 @@
   "buildOptions": {
     "debugType": "portable",
     "compilerName": "fsc",
+    "define": [
+      "CORECLR",
+      "NO_UNQUOTE"
+    ],
     "compile": {
       "includeFiles": [
-        "Tests2.fs"
+        "Tests.fs"
       ]
     }
   },
