@@ -62,6 +62,8 @@ Target "Clean" (fun _ ->
 
 let configuration = environVarOrDefault "Configuration" "Release"
 
+let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
+
 Target "Build.Net35" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
@@ -228,7 +230,7 @@ Target "Default" DoNothing
 
 "Default"
   ==> "PrepareRelease"
-  ==> "Build.Net35"
+  =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
   =?> ("Build.NetCore", isDotnetSDKInstalled)
   =?> ("RunTests.NetCore", isDotnetSDKInstalled)
   ==> "NuGet.Pack"
