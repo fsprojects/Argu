@@ -34,4 +34,4 @@ install:
 
 script:
   - dotnet --info
-  - ./build.sh Nuget
+  - ./build.sh RunTests.NetCore
