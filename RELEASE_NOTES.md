@@ -1,3 +1,6 @@
+### 3.3.0
+* Support CoreCLR.
+
 ### 3.2.0
 * Add `hideSyntax` option in PrintUsage() method.
 
