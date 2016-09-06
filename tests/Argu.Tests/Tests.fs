@@ -5,8 +5,11 @@
 open System
 open System.IO
 open Xunit
+#if NO_UNQUOTE
+#else
 open FSharp.Quotations
 open Swensen.Unquote.Assertions
+#endif
 
 open Argu
 
@@ -119,7 +122,31 @@ module ``Argu Tests`` =
                 | A | B | C -> "misc arguments"
 
     let parser = ArgumentParser.Create<Argument> (programName = "gadget")
+#if CORECLR
+#else
     let parseFunc ignoreMissing f = parser.ParseConfiguration(ConfigurationReader.FromFunction f, ignoreMissing)
+#endif
+
+#if NO_UNQUOTE
+
+    let test actual expected = Assert.True((actual = expected), (sprintf "Expected '%A' but was '%A'" expected actual))
+
+    [<Fact>]
+    let ``Simple command line parsing`` () =
+        let args = 
+            [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ; 
+                "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
+
+        let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
+        let results = parser.ParseCommandLine args
+
+        test (results.GetAllResults()) expected_outcome
+        test (results.Contains <@ Detach @>) true
+        test (results.GetResult <@ Listener @>) ("localhost", 8080)
+        test (results.GetResults <@ Log_Level @>) [2]
+        test (results.PostProcessResult(<@ Log_Level @>, fun x -> x + 1)) 3
+
+#else
 
     [<Fact>]
     let ``Simple command line parsing`` () =
@@ -684,3 +711,5 @@ module ``Argu Tests`` =
         raises<ArgumentException> <@ result.Contains <@ fun x -> () ; Log_Level x @> @>
         raises<ArgumentException> <@ result.Contains <@ let wrapper = List in wrapper @> @>
         raises<ArgumentException> <@ result.Contains <@ wrapper @> @>
+
+#endif

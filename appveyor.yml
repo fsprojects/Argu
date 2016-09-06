@@ -1,6 +1,9 @@
 os: Visual Studio 2015
 
-configuration: Release
-test:
-  assemblies:
-    - Argu.Tests.dll
+build_script:
+  - cmd: build.cmd NuGet
+
+test: off
+artifacts:
+  - path: bin
+    name: bin
