@@ -19,7 +19,7 @@ type CliTokenReader(inputs : string[]) =
 
     static let assignmentRegex = 
         let escapedChars = new String(validSeparatorChars) |> Regex.Escape
-        new Regex(sprintf "^([%s]+)(.*)$" escapedChars, RegexOptions.Compiled)
+        new Regex(sprintf "^([%s])(.*)$" escapedChars, RegexOptions.Compiled)
 
     member __.BeginCliSegment() =
         segmentStartPos <- position
