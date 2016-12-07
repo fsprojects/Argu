@@ -194,7 +194,7 @@ let validateCliParam (name : string) =
 let validSeparatorChars = [|'=' ; ':' ; '.' ; '#' ; '+' ; '^' ; '&' ; '?' ; '%' ; '$' ; '~' ; '@'|]
 let private validSeparatorRegex = 
     let escapedChars = new String(validSeparatorChars) |> Regex.Escape
-    new Regex(sprintf @"[%s]+" escapedChars, RegexOptions.Compiled)
+    new Regex(sprintf @"[%s]" escapedChars, RegexOptions.Compiled)
 
 let validateSeparator (uci : UnionCaseInfo) (sep : string) =   
     if sep = null || not <| validSeparatorRegex.IsMatch sep then
