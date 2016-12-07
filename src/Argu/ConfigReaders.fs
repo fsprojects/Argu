@@ -4,6 +4,13 @@ open System
 open System.IO
 open System.Collections.Generic
 
+type private EnvironmentConfigurationReader() =
+    interface IConfigurationReader with
+        member __.Name = "Environment variables configuration reader"
+        member __.GetValue(key:string) =
+            // https://msdn.microsoft.com/en-us/library/77zkk0b6(v=vs.110).aspx
+            Environment.GetEnvironmentVariable key
+
 #if !CORE_CLR
 open System.Configuration
 open System.Reflection
@@ -48,13 +55,14 @@ type private FunctionConfigurationReader (configFunc : string -> string option, 
             | None -> null
             | Some v -> v
 
-
-/// Configuration reader implementations
+/// Configuration reader implementations.
 type ConfigurationReader =
-    /// Create a configuration reader instance using the application's resident AppSettings configuration
+    /// Create a configuration reader instance using the application's resident AppSettings configuration.
     static member FromAppSettings() = new AppSettingsConfigurationReader() :> IConfigurationReader
+
     /// Create a configuration reader instance using a local xml App.Config file
     static member FromAppSettingsFile(path : string) = AppSettingsConfigurationFileReader.Create(path) :> IConfigurationReader
+
     /// Create a configuration reader instance using the location of an assembly file
     static member FromAppSettings(assembly : Assembly) =
         let path = assembly.Location
@@ -71,13 +79,21 @@ type ConfigurationReader =
     /// Create a configuration reader instance using an F# function
     static member FromFunction(reader : string -> string option, ?name : string) =
         new FunctionConfigurationReader(reader, ?name = name) :> IConfigurationReader
-        
-    static member DefaultReader () = ConfigurationReader.FromAppSettings()
+
+    /// Read configuration variables from the environment.
+    static member FromEnvironment() =
+        new EnvironmentConfigurationReader() :> IConfigurationReader
+
+    /// The default reader reads from AppSettings.
+    static member DefaultReader() = ConfigurationReader.FromAppSettings()
 #else
-/// Configuration reader implementations
+/// Configuration reader implementations available on this platform.
 type ConfigurationReader =
-    static member DefaultReader () =
-        { new IConfigurationReader with
-            member x.Name = "Default - Empty Configuration Reader"
-            member x.GetValue k = null }
+    /// Read configuration variables from the environment.
+    static member FromEnvironment() =
+        new EnvironmentConfigurationReader() :> IConfigurationReader
+
+    /// On the CoreCLR the default reader only reads from the environment.
+    static member DefaultReader() =
+        ConfigurationReader.FromEnvironment()
 #endif
