@@ -126,10 +126,6 @@ with
     member inline __.IsCommandLineArg = match __.CommandLineNames with [] -> __.IsMainCommand | _ -> true
     member inline __.Type = __.ParameterInfo.Type
     member inline __.IsCustomAssignment = Option.isSome __.CustomAssignmentSeparator
-    member inline __.IsMatchingAssignmentSeparator (separator : string) =
-        match __.CustomAssignmentSeparator with
-        | Some sep -> sep = separator
-        | None -> false
         
 
 and ParameterInfo =
