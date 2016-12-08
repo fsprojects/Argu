@@ -6,11 +6,11 @@ matrix:
       dist: trusty
       sudo: required
       mono: latest
-      dotnet: latest
+      dotnet: 1.0.0-preview2-003131
     - os: osx # OSX 10.11
       osx_image: latest
       mono: latest
-      dotnet: latest
+      dotnet: 1.0.0-preview2-003131
 
 script:
   - dotnet --info
