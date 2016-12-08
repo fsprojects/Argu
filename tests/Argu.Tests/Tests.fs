@@ -79,6 +79,7 @@ module ``Argu Tests`` =
         | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
         | [<ColonAssignment>] Assignment of string
         | [<EqualsAssignment>] Env of key:string * value:string
+        | [<EqualsAssignment>] Dir of path:string
         | [<First>] First_Parameter of string
         | [<Last>] Last_Parameter of string
         | Optional of int option
@@ -103,6 +104,7 @@ module ``Argu Tests`` =
                 | Unique_Arg _ -> "a unique argument."
                 | Rest_Arg _ -> "an argument that consumes all remaining command line tokens."
                 | Data _ -> "pass raw data in base64 format."
+                | Dir _ -> "Project directory to place the config & database in."
                 | Log_Level _ -> "set the log level."
                 | Detach _ -> "detach daemon from console."
                 | Assignment _ -> "assign with colon operation."
@@ -286,6 +288,20 @@ module ``Argu Tests`` =
         let clp = parser.PrintCommandLineArguments arg
         let result = parser.Parse(clp, ignoreMissing = true)
         test <@ result.GetResult <@ Env @> = ("foo", "bar") @>
+
+    [<Fact>]
+    let ``Parse equals assignment`` () =
+        let result = parser.Parse([|"--dir=../../my-relative-path"|], ignoreMissing = true)
+        test <@ result.GetResult <@ Dir @> = "../../my-relative-path" @>
+
+    [<Fact>]
+    let ``Parse equals assignment 2`` () =
+        let result = parser.Parse([|"--dir==foo"|], ignoreMissing = true)
+        test <@ result.GetResult <@ Dir @> = "=foo" @>
+
+    [<Fact>]
+    let ``Should fail on incorrect assignment 1`` () =
+        raises<ArguParseException> <@ parser.Parse([|"--dir:foo"|], ignoreMissing = true) @>
 
 
     [<Fact>]
