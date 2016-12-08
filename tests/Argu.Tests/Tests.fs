@@ -290,6 +290,11 @@ module ``Argu Tests`` =
         test <@ result.GetResult <@ Env @> = ("foo", "bar") @>
 
     [<Fact>]
+    let ``Parse key-value equals assignment 2`` () =
+        let result = parser.Parse([|"--env"; "foo==bar"|], ignoreMissing = true)
+        test <@ result.GetResult <@ Env @> = ("foo", "=bar") @>
+
+    [<Fact>]
     let ``Parse equals assignment`` () =
         let result = parser.Parse([|"--dir=../../my-relative-path"|], ignoreMissing = true)
         test <@ result.GetResult <@ Dir @> = "../../my-relative-path" @>

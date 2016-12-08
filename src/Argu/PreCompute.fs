@@ -400,7 +400,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         match customAssignmentSeparator with
         | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
         | Some sep ->
-            let regex = new Regex(sprintf @"^(.+)%s(.+)$" (Regex.Escape sep), RegexOptions.Compiled)
+            let pattern = sprintf @"^(.+)%s(.+)$" (Regex.Escape sep)
+            let regex = new Regex(pattern, RegexOptions.RightToLeft ||| RegexOptions.Compiled)
             fun token ->
                 let m = regex.Match token
                 if m.Success then Assignment(m.Groups.[1].Value, sep, m.Groups.[2].Value)
