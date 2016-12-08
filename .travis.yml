@@ -13,5 +13,4 @@ matrix:
       dotnet: 1.0.0-preview2-003131
 
 script:
-  - dotnet --info
   - ./build.sh RunTests.NetCore
