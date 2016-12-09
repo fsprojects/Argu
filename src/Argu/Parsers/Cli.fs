@@ -17,10 +17,6 @@ type CliTokenReader(inputs : string[]) =
     let mutable isPeekedValue = false
     let mutable peekedValue = Unchecked.defaultof<CliParseToken>
 
-    static let assignmentRegex = 
-        let escapedChars = new String(validSeparatorChars) |> Regex.Escape
-        new Regex(sprintf "^([%s]+)(.*)$" escapedChars, RegexOptions.Compiled)
-
     member __.BeginCliSegment() =
         segmentStartPos <- position
 
@@ -59,14 +55,13 @@ type CliTokenReader(inputs : string[]) =
             let mutable case = Unchecked.defaultof<_>
             if argInfo.CliParamIndex.Value.TryGetPrefix(token, &prefix, &case) then
                 if token = prefix then CliParam(token, prefix, case, NoAssignment) |> kont
+                elif case.IsCustomAssignment then
+                    match case.AssignmentParser.Value token with
+                    | NoAssignment -> tryExtractGroupedSwitches token
+                    | assignment -> CliParam(token, prefix, case, assignment)
+                    |> kont
                 else
-                    let m = assignmentRegex.Match token.[prefix.Length ..]
-                    if not m.Success then tryExtractGroupedSwitches token |> kont
-                    else
-                        let sep = m.Groups.[1].Value
-                        let value = m.Groups.[2].Value
-                        let assignment = Assignment(prefix, sep, value)
-                        CliParam(token, prefix, case, assignment) |> kont
+                    tryExtractGroupedSwitches token |> kont
             else
                 tryExtractGroupedSwitches token |> kont
 
@@ -285,7 +280,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             | OptionalParam _ -> aggregator.AppendResult caseInfo sw [|None|]
             | _ -> error argInfo ErrorCode.CommandLine "argument '%s' cannot be grouped with other switches." sw
 
-    | CliParam(_, _, caseInfo, Assignment(name,sep,_)) when not (caseInfo.Arity = 1 && caseInfo.IsMatchingAssignmentSeparator sep) ->
+    | CliParam(_, _, caseInfo, Assignment(name,sep,_)) when caseInfo.Arity <> 1 ->
         error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s%s<param>'." name sep
 
     | CliParam(token, name, caseInfo, assignment) ->
