@@ -1,3 +1,6 @@
+### 3.4.0
+* Assignment separator parsing bugfix.
+
 ### 3.3.0
 * Support CoreCLR.
 
