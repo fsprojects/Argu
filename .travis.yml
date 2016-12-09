@@ -1,16 +1,10 @@
 language: csharp
 
-matrix:
-  include:
-    - os: linux # Ubuntu 14.04
-      dist: trusty
-      sudo: required
-      mono: latest
-      dotnet: 1.0.0-preview2-003131
-    - os: osx # OSX 10.11
-      osx_image: latest
-      mono: latest
-      dotnet: 1.0.0-preview2-003131
+sudo: false
+dist: trusty # Ubuntu 14.04
+mono: latest
+dotnet: 1.0.0-preview2-003121
 
 script:
+  - dotnet --info
   - ./build.sh RunTests.NetCore
