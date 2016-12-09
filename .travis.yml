@@ -1,6 +1,6 @@
 language: csharp
 
-sudo: false
+sudo: required
 dist: trusty # Ubuntu 14.04
 mono: latest
 dotnet: 1.0.0-preview2-003121
