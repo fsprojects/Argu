@@ -26,6 +26,9 @@ let gitHome = "https://github.com/" + gitOwner
 
 let testAssemblies = !! "bin/net40/Argu.Tests.dll"
 
+let netcoreSrcFiles = !! "src/**/project.json" |> Seq.toList
+let netcoreTestFiles = !! "tests/**/project.json" |> Seq.toList
+
 //
 //// --------------------------------------------------------------------------------------
 //// The rest of the code is standard F# build script 
@@ -181,28 +184,29 @@ Target "ReleaseGitHub" (fun _ ->
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
 
 Target "SetVersionInProjectJSON" (fun _ ->
-    !! "./**/project.json"
-    |> Seq.iter (DotNet.SetVersionInProjectJson release.NugetVersion)
+    for proj in netcoreSrcFiles @ netcoreTestFiles do
+        DotNetCli.SetVersionInProjectJson release.NugetVersion proj
 )
 
 Target "Build.NetCore" (fun _ ->
-    DotNet.Restore id
+    for proj in netcoreSrcFiles @ netcoreTestFiles do
+        DotNetCli.Restore (fun c -> { c with Project = proj })
 
-    !! "src/**/project.json"
-    |> DotNet.Build id
+    for proj in netcoreSrcFiles @ netcoreTestFiles do
+        DotNetCli.Build (fun c -> { c with Project = proj })
 )
 
 Target "RunTests.NetCore" (fun _ ->
-    !! "tests/**/project.json"
-    |> DotNet.Test id
+    for proj in netcoreTestFiles do
+        DotNetCli.Test (fun c -> { c with Project = proj })
 )
 
-let isDotnetSDKInstalled = DotNet.isInstalled()
+let isDotnetSDKInstalled = DotNetCli.isInstalled()
 
 Target "NuGet.AddNetCore" (fun _ ->
     if not isDotnetSDKInstalled then failwith "You need to install .NET core to publish NuGet packages"
-    !! "src/**/project.json"
-    |> DotNet.Pack id
+    for proj in netcoreSrcFiles do
+        DotNetCli.Pack (fun c -> { c with Project = proj })
 
     let nupkg = sprintf "../../bin/Argu.%s.nupkg" (release.NugetVersion)
     let netcoreNupkg = sprintf "bin/Release/Argu.%s.nupkg" (release.NugetVersion)
