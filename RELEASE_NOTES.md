@@ -1,3 +1,6 @@
+### 3.5.0
+* Add SourceLink Support.
+
 ### 3.4.0
 * Assignment separator parsing bugfix.
 
