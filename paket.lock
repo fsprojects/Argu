@@ -183,6 +183,7 @@ NUGET
     NuGet.CommandLine (3.4.3)
     Octokit (0.23)
       Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
+    SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
     modules/Octokit/Octokit.fsx (ab0bacd2f21ee486879a3ea2a765f15b536181fb)

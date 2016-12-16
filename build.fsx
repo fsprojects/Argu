@@ -4,7 +4,7 @@
 
 #I "packages/build/FAKE/tools"
 #r "packages/build/FAKE/tools/FakeLib.dll"
-#r @"packages/build/FAKE/tools/Newtonsoft.Json.dll"
+#load "packages/build/SourceLink.Fake/tools/SourceLink.fsx"
 
 open System
 open System.IO
@@ -23,6 +23,7 @@ let project = "Argu"
 let gitOwner = "fsprojects"
 let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
+let gitRaw = "https://raw.github.com/" + gitOwner
 
 let testAssemblies = !! "bin/net40/Argu.Tests.dll"
 
@@ -138,6 +139,20 @@ Target "ReleaseDocs" (fun _ ->
     Branches.push tempDocsDir
 )
 
+//----------------------------
+// SourceLink
+
+open SourceLink
+
+Target "SourceLink" (fun _ ->
+    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw project
+    [ yield! !! "src/**/*.??proj" ; yield! !! "tests/MBrace.Core.Tests/*.??proj" ]
+    |> Seq.iter (fun projFile ->
+        let proj = VsProj.LoadRelease projFile
+        SourceLink.Index proj.CompilesNotLinked proj.OutputFilePdb __SOURCE_DIRECTORY__ baseUrl
+    )
+)
+
 // Github Releases
 
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
@@ -234,6 +249,7 @@ Target "Default" DoNothing
 
 "Default"
   ==> "PrepareRelease"
+  ==> "SourceLink"
   =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
   =?> ("Build.NetCore", isDotnetSDKInstalled)
   =?> ("RunTests.NetCore", isDotnetSDKInstalled)
