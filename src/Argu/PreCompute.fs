@@ -412,7 +412,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     // extract the description string for given union case
     let description = 
-        try dummy.Usage.Split('\n') |> Array.toList
+        try dummy.Usage
         with _ -> arguExn "Error generating usage string from IArgParserTemplate for case %O." uci
 
     let uai = {
@@ -472,8 +472,8 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
 
             let description = 
                 match t.TryGetAttribute<HelpDescriptionAttribute> () with
-                | None -> [defaultHelpDescription]
-                | Some attr -> attr.Description.Split('\n') |> Array.toList
+                | None -> defaultHelpDescription
+                | Some attr -> attr.Description
 
             { Flags = helpSwitches ; Description = description }
 

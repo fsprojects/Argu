@@ -46,7 +46,7 @@ with
 type HelpParam =
     {
         Flags : string list
-        Description : string list
+        Description : string
     }
 with
     member inline hp.IsHelpFlag(flag : string) =
@@ -87,7 +87,7 @@ type UnionCaseArgInfo =
         AppSettingsName : string option
 
         /// Description of the parameter
-        Description : string list
+        Description : string
 
         /// Configuration parsing parameter separator
         AppSettingsSeparators : string []

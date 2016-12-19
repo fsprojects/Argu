@@ -7,9 +7,14 @@ open Argu
 open Argu.Tests
 
 type MyEnum =
-    | First = 1
-    | Second = 2
-    | Third = 3
+    | First
+    | Second
+    | Third
+
+type LogLevel =
+    | Info
+    | Warning
+    | Error
 
 type PushArgs =
     | All
@@ -42,13 +47,13 @@ with
 
 type GitArgs =
     | [<Unique>] Listener of address:string * number:int
-    | Log_Level of level:int
+    | Log_Level of LogLevel
     | [<CliPrefix(CliPrefix.None)>] Push of options:ParseResults<PushArgs>
     | [<CliPrefix(CliPrefix.None)>] Clean of suboptions:ParseResults<CleanArgs>
     | [<AltCommandLine("-E")>][<EqualsAssignment>] Environment_Variable of key:string * value:string
     | Ports of tcp_port:int list
     | Optional of num:int option
-    | [<CustomAssignment("?")>] Options of MyEnum option
+    | Options of MyEnum option
     | [<Inherit>] Silent
 with 
     interface IArgParserTemplate with 
@@ -64,7 +69,7 @@ with
             | Options _ -> "enumeration of options."
             | Silent -> "just be silent."
 
-let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMessage = "Gadget -- my awesome CLI tool")
+let parser = ArgumentParser.Create<GitArgs>(programName = "gadget", helpTextMessage = "Gadget -- my awesome CLI tool", errorHandler = ProcessExiter(fun _ -> ConsoleColor.))
 
 parser.PrintCommandLineArgumentsFlat [Options(Some MyEnum.First) ; Push(toParseResults [Remote ("origin", "master")])]
 
@@ -78,6 +83,14 @@ parser.PrintUsage() |> Console.WriteLine
 pparser.PrintUsage() |> Console.WriteLine
 cparser.PrintUsage() |> Console.WriteLine
 
-parser.PrintCommandLineSyntax(usageStringCharacterWidth = 1000) |> Console.WriteLine
-pparser.PrintCommandLineSyntax() |> Console.WriteLine
+parser.PrintCommandLineSyntax(usageStringCharacterWidth = 10) |> Console.WriteLine
+parser.PrintCommandLineSyntax(usageStringCharacterWidth = 100) |> Console.WriteLine
 cparser.PrintCommandLineSyntax() |> Console.WriteLine
+
+open System
+open System.Text
+
+
+let text = "Sed \nut perspiciatis, unde\n omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo. Nemo enim ipsam voluptatem, quia voluptas sit, aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum, quia dolor sit amet consectetur adipisci[ng] velit, sed quia non numquam [do] eius modi tempora inci[di]dunt, ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit, qui in ea voluptate velit esse, quam nihil molestiae consequatur, vel illum, qui dolorem eum fugiat, quo voluptas nulla pariatur?"
+
+wordwrap text 60 "\n"

@@ -5,7 +5,8 @@ open Argu
 
 [<EntryPoint>]
 let main argv = 
-    let parser = ArgumentParser.Create<LsArguments>(programName = "ls", errorHandler = ProcessExiter())
+    let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
+    let parser = ArgumentParser.Create<LsArguments>(programName = "ls", errorHandler = errorHandler)
 
     let results = parser.ParseCommandLine argv
 

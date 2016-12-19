@@ -8,11 +8,16 @@ open System.Xml.Linq
 
 open FSharp.Reflection
 
+/// Number of spaces to be inserted before a cli switch name in the usage string
+let [<Literal>] switchOffset = 4
+/// Number of spaces to be inserted before a cli switch description text
+let [<Literal>] descriptionOffset = 26
+
 /// <summary>
 ///     print the command line syntax
 /// </summary>
-let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int) (programName : string) = stringExpr {
-    do if width < 1 then raise <| new ArgumentOutOfRangeException("width", "must be positive number")
+let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : int) (programName : string) = stringExpr {
+    do if maxWidth < 1 then raise <| new ArgumentOutOfRangeException("maxWidth", "must be positive value.")
     let! length0 = StringExpr.currentLength
     yield prefix
     yield programName
@@ -23,14 +28,20 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
 
     let! length1 = StringExpr.currentLength
     let offset = length1 - length0
-    let length = ref length1
-    let insertCutoffLine() = stringExpr {
-        let! length1 = StringExpr.currentLength
-        if length1 - !length > width then
-            yield Environment.NewLine
-            yield! StringExpr.whiteSpace offset
-            length := length1 + offset + 1
-    }
+
+    let insertToken =
+        let startOfCurrentLine = ref length0
+        let isFirstToken = ref true
+        fun (token:string) -> stringExpr {
+            let! currLength = StringExpr.currentLength
+            let currLineLength = currLength - !startOfCurrentLine
+            if not !isFirstToken && currLineLength + token.Length > maxWidth then
+                yield Environment.NewLine
+                yield! StringExpr.whiteSpace offset
+                startOfCurrentLine := currLength + Environment.NewLine.Length
+            yield token
+            isFirstToken := false
+        }
 
     let printedCases =
         argInfo.Cases
@@ -39,15 +50,15 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
         |> Seq.sortBy (fun aI -> aI.CliPosition)
 
     match argInfo.HelpParam.Flags with
-    | h :: _ -> yield sprintf " [%s]" h
+    | h :: _ -> yield! insertToken (sprintf " [%s]" h)
     | _ -> ()
     
     for aI in printedCases do
-        yield! insertCutoffLine()
-
         match aI.CommandLineNames with
         | [] -> ()
         | name :: _ ->
+
+        let format() = stringExpr {
             yield ' '
             if not aI.IsMandatory then yield '['
             yield name
@@ -76,43 +87,50 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (width : int)
             | ListParam (_,parser) -> yield sprintf " [<%s>...]" parser.Description
 
             if not aI.IsMandatory then yield ']'
+        }
+
+        let formatCase = format() |> StringExpr.build
+        yield! insertToken formatCase
 
     if argInfo.ContainsSubcommands then
-        yield! insertCutoffLine()
-        yield ' '
-        if not argInfo.IsRequiredSubcommand then yield '['
-        yield "<subcommand> [<options>]"
-        if not argInfo.IsRequiredSubcommand then yield ']'
+        let subCommandString =
+            stringExpr {
+                yield ' '
+                if not argInfo.IsRequiredSubcommand then yield '['
+                yield "<subcommand> [<options>]"
+                if not argInfo.IsRequiredSubcommand then yield ']'
+            } |> StringExpr.build
+
+        yield! insertToken subCommandString
 
     match argInfo.MainCommandParam with
     | None -> ()
     | Some mc ->
-        yield! insertCutoffLine()
-        yield ' '
-        if not mc.IsMandatory then yield '['
-        match mc.ParameterInfo with
-        | Primitives parsers ->
-            assert(parsers.Length > 0)
-            yield sprintf "<%s>" parsers.[0].Description
-            for i = 1 to parsers.Length - 1 do
-                yield sprintf " <%s>" parsers.[i].Description
+        let formatMainCommand() = stringExpr {
+            yield ' '
+            if not mc.IsMandatory then yield '['
+            match mc.ParameterInfo with
+            | Primitives parsers ->
+                assert(parsers.Length > 0)
+                yield sprintf "<%s>" parsers.[0].Description
+                for i = 1 to parsers.Length - 1 do
+                    yield sprintf " <%s>" parsers.[i].Description
 
-        | ListParam(_, parser) ->
-            yield sprintf "<%s>..." parser.Description
+            | ListParam(_, parser) ->
+                yield sprintf "<%s>..." parser.Description
 
-        | _ -> arguExn "internal error: MainCommand param has invalid internal representation."
+            | _ -> arguExn "internal error: MainCommand param has invalid internal representation."
+            if not mc.IsMandatory then yield ']'
+        }
 
-        if not mc.IsMandatory then yield ']'
-
+        let mainCommand = formatMainCommand() |> StringExpr.build
+        yield! insertToken mainCommand
 }
-
-let [<Literal>] switchOffset = 4
-let [<Literal>] descriptionOffset = 26
  
 /// <summary>
 ///     print usage string for given arg info
 /// </summary>
-let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
+let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     if not aI.IsCommandLineArg then () else
     let! start = StringExpr.currentLength
     yield! StringExpr.whiteSpace switchOffset
@@ -161,7 +179,9 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
     else
         yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
             
-    match aI.Description with
+    let lines = wordwrap (max (width - descriptionOffset) 1) aI.Description
+
+    match lines with
     | [] -> ()
     | h :: tail ->
         yield h
@@ -175,7 +195,7 @@ let mkArgUsage (aI : UnionCaseArgInfo) = stringExpr {
 /// <summary>
 ///     print usage string for given help param
 /// </summary>
-let mkHelpParamUsage (hp : HelpParam) = stringExpr {
+let mkHelpParamUsage width (hp : HelpParam) = stringExpr {
     match hp.Flags with
     | [] -> ()
     | flags ->
@@ -190,7 +210,8 @@ let mkHelpParamUsage (hp : HelpParam) = stringExpr {
         else
             yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-        match hp.Description with
+        let lines = wordwrap (max (width - descriptionOffset) 1) hp.Description
+        match lines with
         | [] -> ()
         | h :: tail ->
             yield h
@@ -226,7 +247,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
         assert(Option.isSome aI.MainCommandName)
         yield sprintf "%s:" aI.MainCommandName.Value
         yield Environment.NewLine; yield Environment.NewLine
-        yield! mkArgUsage aI
+        yield! mkArgUsage width aI
     | _ -> ()
 
     if subcommands.Length > 0 then
@@ -235,14 +256,20 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
         yield "SUBCOMMANDS:"
         yield Environment.NewLine; yield Environment.NewLine
 
-        for aI in subcommands do yield! mkArgUsage aI
+        for aI in subcommands do yield! mkArgUsage width aI
 
         match argInfo.HelpParam.Flags with
         | [] -> ()
         | helpflag :: _ -> 
             yield Environment.NewLine
-            yield sprintf "%sUse '%s <subcommand> %s' for additional information." (String.mkWhiteSpace switchOffset) programName helpflag
-            yield Environment.NewLine
+            let wrappedList = 
+                sprintf "Use '%s <subcommand> %s' for additional information." programName helpflag
+                |> wordwrap (max (width - switchOffset) 1)
+
+            for line in wrappedList do 
+                yield String.mkWhiteSpace switchOffset 
+                yield line
+                yield Environment.NewLine
 
     if options.Length > 0 || argInfo.UsesHelpParam then
         let! length = StringExpr.currentLength
@@ -250,10 +277,10 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
         yield "OPTIONS:"
         yield Environment.NewLine; yield Environment.NewLine
 
-        for aI in options do yield! mkArgUsage aI
-        for aI in argInfo.InheritedParams.Value do yield! mkArgUsage aI
+        for aI in options do yield! mkArgUsage width aI
+        for aI in argInfo.InheritedParams.Value do yield! mkArgUsage width aI
 
-        yield! mkHelpParamUsage argInfo.HelpParam
+        yield! mkHelpParamUsage width argInfo.HelpParam
 }
 
 /// <summary>
@@ -374,7 +401,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
                             |> Seq.map (fun t -> fp.UnParser (t :> _))
                             |> String.concat aI.AppSettingsSeparators.[0]
 
-                        let mkComment () = sprintf " %s : %s ..." aI.Description.[0] fp.Description
+                        let mkComment () = sprintf " %s : %s ..." aI.Description fp.Description
 
                         mkElem mkComment key values }
 
@@ -386,7 +413,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
                             | None -> ""
                             | Some t -> fp.UnParser (t :> _)
 
-                        let mkComment () = sprintf " %s : ?%s" aI.Description.[0] fp.Description
+                        let mkComment () = sprintf " %s : ?%s" aI.Description fp.Description
 
                         mkElem mkComment key value }
 

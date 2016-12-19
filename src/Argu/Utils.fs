@@ -295,3 +295,59 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
 
         if maxPos < 0 then false
         else kresult <- keys.[maxPos] ; vresult <- values.[maxPos] ; true
+
+
+// Wordwrap implementation kindly provided by @forki
+let wordwrap (width:int) (inputText:string) =
+    let breakLine (text:string) (pos:int) (max:int) =
+        // Find last whitespace in line
+        let mutable i = max - 1
+        while i >= 0 && not (Char.IsWhiteSpace text.[pos + i]) do
+            i <- i - 1
+
+        if i < 0 then
+            max // No whitespace found; break at maximum length
+        else 
+            // Find start of whitespace
+            while i >= 0 && Char.IsWhiteSpace text.[pos + i] do
+                i <- i - 1
+            // Return length of text before whitespace
+            i + 1
+
+    if width < 1 then invalidArg "width" "Must be positive number."
+
+    let inputText = inputText.Replace("\r\n","\n").Replace("\r","\n")
+    let lines = new ResizeArray<string>()
+    // Parse each line of text
+    let mutable pos = 0
+    let mutable next = 0
+
+    while pos < inputText.Length do
+        // Find end of line
+        let mutable eol = inputText.IndexOf('\n', pos)
+
+        if eol = -1 then
+            next <- inputText.Length
+            eol <- inputText.Length
+        else
+            next <- eol + 1
+
+        // Copy this line of text, breaking into smaller lines as needed
+        if eol > pos then
+            while eol > pos do 
+                let mutable len = eol - pos
+
+                if len > width then
+                    len <- breakLine inputText pos width
+
+                inputText.[pos .. pos + len - 1] |> lines.Add
+
+                // Trim whitespace following break
+                pos <- pos + len
+
+                while pos < eol && Char.IsWhiteSpace inputText.[pos] do
+                    pos <- pos + 1
+
+        pos <- next
+
+    lines.ToArray() |> Array.toList

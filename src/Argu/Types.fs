@@ -63,13 +63,24 @@ type ExceptionExiter() =
 
 /// Handles argument parser errors by exiting the process
 /// after printing a parse error.
-type ProcessExiter() =
+type ProcessExiter(?colorizer : ErrorCode -> ConsoleColor option) =
+    let colorize errorCode =
+        match colorizer |> Option.bind (fun clr -> clr errorCode) with
+        | None -> null
+        | Some color ->
+            let previous = Console.ForegroundColor
+            Console.ForegroundColor <- color
+            { new IDisposable with member __.Dispose() = Console.ForegroundColor <- previous }
+
     interface IExiter with
         member __.Name = "Process Exiter"
         member __.Exit(msg : string, errorCode : ErrorCode) =
             let writer = if errorCode = ErrorCode.HelpText then Console.Out else Console.Error
-            writer.WriteLine msg
-            writer.Flush()
+            do
+                use _d = colorize errorCode
+                writer.WriteLine msg
+                writer.Flush()
+
             exit (int errorCode)
 
 /// Abstract key/value configuration reader
@@ -107,7 +118,7 @@ type ArgumentCaseInfo =
         AppSettingsName : string option
 
         /// Description of the parameter
-        Description : string list
+        Description : string
 
         /// AppSettings parameter separator
         AppSettingsSeparators : string list

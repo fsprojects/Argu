@@ -14,6 +14,9 @@ open FSharp.Reflection
 type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, helpTextMessage : string option,
                                 _usageStringCharacterWidth : int, errorHandler : IExiter) =
 
+    do 
+        if _usageStringCharacterWidth < 1 then invalidArg "usageStringCharacterWidth" "Must be positive value."
+
     /// Gets the help flags specified for the CLI parser
     member __.HelpFlags = argInfo.HelpParam.Flags
     /// Gets the help description specified for the CLI parser
@@ -86,6 +89,8 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     // memoize parser generation for given template type
     static let argInfoLazy = lazy(preComputeUnionArgInfo<'Template> ())
 
+    static let getUsageWidth() = try min Console.WindowWidth 80 with _ -> 80
+
     let mkUsageString argInfo msgOpt = mkUsageString argInfo _programName false _usageStringCharacterWidth msgOpt |> StringExpr.build
 
     let (|ParserExn|_|) (e : exn) =
@@ -104,7 +109,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
     new (?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter) =
-        let usageStringCharacterWidth = defaultArg usageStringCharacterWidth 80
+        let usageStringCharacterWidth = match usageStringCharacterWidth with None -> getUsageWidth() | Some w -> w
         let programName = match programName with Some pn -> pn | None -> currentProgramName.Value
         let errorHandler = match errorHandler with Some e -> e  | None -> new ExceptionExiter() :> _
         new ArgumentParser<'Template>(argInfoLazy.Value, programName, helpTextMessage, usageStringCharacterWidth, errorHandler)
