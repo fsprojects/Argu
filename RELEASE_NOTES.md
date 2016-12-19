@@ -1,3 +1,6 @@
+### 3.6.0
+* Fix wordwrapping issue in usage strings.
+
 ### 3.5.0
 * Add SourceLink Support.
 
