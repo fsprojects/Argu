@@ -297,6 +297,11 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
         else kresult <- keys.[maxPos] ; vresult <- values.[maxPos] ; true
 
 
+/// Gets the default width of the current console window,
+/// if available.
+let getDefaultCharacterWidth() =
+    max (try Console.WindowWidth - 1 with _ -> 80) 80
+
 // Wordwrap implementation kindly provided by @forki
 let wordwrap (width:int) (inputText:string) =
     let breakLine (text:string) (pos:int) (max:int) =

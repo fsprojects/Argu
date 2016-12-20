@@ -1,3 +1,6 @@
+### 3.6.1
+* Fix default character width issue in console apps.
+
 ### 3.6.0
 * Fix wordwrapping issue in usage strings.
 
