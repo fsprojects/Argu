@@ -5,12 +5,12 @@ description
 authors
     Eirik Tsarpalis
 copyright
-	Copyright 2015
+	Copyright 2017
 summary
     A declarative command line and XML configuration parser for F# applications.
 licenseurl https://github.com/fsprojects/Argu/blob/master/License.md
 projecturl http://fsprojects.github.io/Argu/
-iconurl https://avatars0.githubusercontent.com/u/6001315
+iconurl https://raw.githubusercontent.com/fsprojects/Argu/master/docs/files/img/logo.png
 include-pdbs true
 tags
     F#, argument, parser
