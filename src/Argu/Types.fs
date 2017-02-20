@@ -1,4 +1,4 @@
-﻿namespace Argu
+namespace Argu
 
 open System
 open FSharp.Reflection
@@ -71,6 +71,9 @@ type ProcessExiter(?colorizer : ErrorCode -> ConsoleColor option) =
             let previous = Console.ForegroundColor
             Console.ForegroundColor <- color
             { new IDisposable with member __.Dispose() = Console.ForegroundColor <- previous }
+
+    // Note: this ctor is required to preserve binary compatibility with <= 3.5
+    new () = ProcessExiter()
 
     interface IExiter with
         member __.Name = "Process Exiter"
