@@ -72,8 +72,8 @@ type ProcessExiter(?colorizer : ErrorCode -> ConsoleColor option) =
             Console.ForegroundColor <- color
             { new IDisposable with member __.Dispose() = Console.ForegroundColor <- previous }
 
-    // Note: this ctor is required to preserve binary compatibility with <= 3.5
-    new () = ProcessExiter()
+    // Note: this ctor is required to preserve binary compatibility with < 3.7
+    new () = ProcessExiter(?colorizer=None)
 
     interface IExiter with
         member __.Name = "Process Exiter"
