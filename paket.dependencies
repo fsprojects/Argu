@@ -1,9 +1,11 @@
 redirects: on
 source https://www.nuget.org/api/v2
 
-nuget FsCheck
+nuget FSharp.Core 
+nuget System.Threading.ThreadPool
+nuget FsCheck content:None
 nuget Unquote
-nuget xunit ~> 2.0
+nuget xunit
 nuget xunit.extensions
 nuget xunit.runner.console
 nuget xunit.runner.visualstudio version_in_path: true

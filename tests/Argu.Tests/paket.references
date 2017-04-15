@@ -3,3 +3,4 @@ xunit.extensions
 xunit.runner.visualstudio
 Unquote
 FsCheck
+FSharp.Core
