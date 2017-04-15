@@ -1,3 +1,8 @@
 ﻿FSharp.Core
 System.Threading.ThreadPool
-System.Xml.XDocument
+FSharp.NET.Sdk
+System.Numerics.Vectors
+System.Reflection
+System.Reflection.Extensions
+System.Reflection.TypeExtensions
+NETStandard.Library

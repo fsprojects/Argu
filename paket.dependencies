@@ -9,12 +9,16 @@ nuget xunit
 nuget xunit.extensions
 nuget xunit.runner.console
 nuget xunit.runner.visualstudio version_in_path: true
-nuget System.Xml.XDocument
 nuget dotnet-test-xunit
 nuget System.Numerics.Vectors
-nuget System.Linq
 nuget System.Runtime.Serialization.Primitives
 nuget Microsoft.NETCore.App
+nuget Microsoft.NET.Test.Sdk
+nuget FSharp.NET.Sdk  content:None
+nuget NETStandard.Library
+nuget System.Reflection.Extensions 
+nuget System.Reflection.TypeExtensions 
+
 
 group Build
   source https://www.nuget.org/api/v2

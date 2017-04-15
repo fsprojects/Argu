@@ -1,5 +1,5 @@
 System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
-// --------------------------------------------------------------------------------------
+
 // FAKE build script 
 // --------------------------------------------------------------------------------------
 
@@ -16,32 +16,22 @@ open Fake.ReleaseNotesHelper
 open Fake.AssemblyInfoFile
 open Fake.Testing
 
-// --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
 // --------------------------------------------------------------------------------------
 
 let project = "Argu"
-
 let gitOwner = "fsprojects"
 let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
 let buildDir = "bin"
-let tempDir = "temp"
+let pkgDir= "nupkg"
 
-let testAssemblies = !! "bin/v4.6.1/Argu.Tests.dll"
+// The rest of the code is standard F# build script 
+// --------------------------------------------------------------------------------------
 
-let netcoreSrcFiles = !! "src/**/project.json" |> Seq.toList
-let netcoreTestFiles = !! "tests/**/project.json" |> Seq.toList
-
-//
-//// --------------------------------------------------------------------------------------
-//// The rest of the code is standard F# build script 
-//// --------------------------------------------------------------------------------------
-
-//// Read release notes & version info from RELEASE_NOTES.md
-Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+// Read release notes & version info from RELEASE_NOTES.md
 let release = parseReleaseNotes (IO.File.ReadAllLines "RELEASE_NOTES.md")
 let nugetVersion = release.NugetVersion
 
@@ -58,37 +48,43 @@ Target "AssemblyInfo" (fun _ ->
 )
 
 
-// --------------------------------------------------------------------------------------
 // Clean build results & restore NuGet packages
+// --------------------------------------------------------------------------------------
 
 Target "Clean" (fun _ ->
-    CleanDirs ["./bin/"]
+    !! "src/**/obj/"
+    ++ "tests/**/obj/"
+    ++ "./bin/"
+    ++ "./nupkg/"
+    |> CleanDirs 
 )
 
-//
-//// --------------------------------------------------------------------------------------
-//// Build library & test project
+
+// Build library & test project
+// --------------------------------------------------------------------------------------
 
 let configuration = environVarOrDefault "Configuration" "Release"
 
 let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
 
+
 Target "Build.Net35" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration", "Release-NET35" ]
+    |> MSBuild "bin/net35" "Build" ["Configuration", "Release-NET35" ]
     |> Log "AppBuild-Output: "
 )
 
+
 Target "Build.Net40" (fun _ ->
-    // Build the rest of the project
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration","Release-NET40"]
+    |> MSBuild "bin/net40" "Build" ["Configuration","Release-NET40"]
     |> Log "AppBuild-Output: "
 )
+
 
 Target "Build.Net461" (fun _ ->
     // Build the rest of the project
@@ -102,21 +98,20 @@ Target "Build.Net461" (fun _ ->
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
+
+let testAssemblies = !! "bin/v4.6.1/Argu.Tests.dll"
+
 open XUnit2
 Target "RunTests" (fun _ ->
     ActivateFinalTarget "CloseTestRunner"
-    testAssemblies
-    |> xUnit2 (fun p ->
-        { p with
-            
-            ToolPath = "./packages/xunit.runner.console/tools/xunit.console.exe"
-            Parallel = ParallelMode.Collections
-            TimeOut = TimeSpan.FromMinutes 20. 
-        })
-)
+    testAssemblies |> xUnit2 (fun p ->
+    { p with
+        ToolPath = "./packages/xunit.runner.console/tools/xunit.console.exe"
+        Parallel = ParallelMode.Collections
+        TimeOut = TimeSpan.FromMinutes 20. }
+))
 
 FinalTarget "CloseTestRunner" (fun _ ->  
-    //ProcessHelper.killProcess "nunit-agent.exe"
     ProcessHelper.killProcess  "xunit.console.exe"
 )
 
@@ -156,15 +151,14 @@ Target "SourceLink" (fun _ ->
 )
 
 // Github Releases
-
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
 Target "ReleaseGitHub" (fun _ ->
     let remote =
         Git.CommandHelper.getGitResult "" "remote -v"
-        |> Seq.filter (fun (s: string) -> s.EndsWith("(push)"))
-        |> Seq.tryFind (fun (s: string) -> s.Contains(gitOwner + "/" + gitName))
+        |> Seq.filter (fun (s: string) -> s.EndsWith "(push)")
+        |> Seq.tryFind (fun (s: string) -> s.Contains (gitOwner + "/" + gitName))
         |> function None -> gitHome + "/" + gitName | Some (s: string) -> s.Split().[0]
 
     //StageAll ""
@@ -185,10 +179,8 @@ Target "ReleaseGitHub" (fun _ ->
                 match getBuildParam "github-pw" with
                 | s when not (String.IsNullOrWhiteSpace s) -> s
                 | _ -> getUserPassword "Password: "
-
             createClient user pw
         | token -> createClientWithToken token
-
     // release on github
     client
     |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
@@ -197,16 +189,13 @@ Target "ReleaseGitHub" (fun _ ->
 )
 
 
-
 let dotnetcliVersion = "2.0.0-alpha-005165"
 
-let dotnetSDKPath = System.Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) </> "dotnetcore" |> FullName
+let dotnetSDKPath = System.Environment.GetFolderPath Environment.SpecialFolder.LocalApplicationData </> "dotnetcore" |> FullName
 
-let dotnetExePath =
-    dotnetSDKPath </> (if isWindows then "dotnet.exe" else "dotnet")
-    |> FullName
+let dotnetExePath = dotnetSDKPath </> (if isWindows then "dotnet.exe" else "dotnet") |> FullName
 
-let netcoreFiles = !! "src/**.preview?/*.fsproj" |> Seq.toList
+
 // .NET Core SDK and .NET Core
 
 let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
@@ -214,7 +203,7 @@ let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with 
 let runCmdIn workDir exe = 
     Printf.ksprintf (fun args -> 
         tracefn "%s %s" exe args
-        Shell.Exec(exe, args, workDir) |> assertExitCodeZero)
+        Shell.Exec (exe, args, workDir) |> assertExitCodeZero)
 
 /// Execute a dotnet cli command
 let dotnet workDir = runCmdIn workDir "dotnet"
@@ -226,9 +215,8 @@ Target "InstallDotNetCore" (fun _ ->
                 let processResult = 
                     ExecProcessAndReturnMessages (fun info ->  
                     info.FileName <- dotnetExePath
-                    info.WorkingDirectory <- Environment.CurrentDirectory
+                    info.WorkingDirectory <- __SOURCE_DIRECTORY__
                     info.Arguments <- "--version") (TimeSpan.FromMinutes 30.)
-
                 processResult.Messages |> separated "" = dotnetcliVersion
             else false
         with  _ -> false
@@ -238,27 +226,23 @@ Target "InstallDotNetCore" (fun _ ->
     else
         CleanDir dotnetSDKPath
         let archiveFileName = 
-            if isLinux then
-                sprintf "dotnet-dev-ubuntu-x64.%s.tar.gz" dotnetcliVersion
-            elif Fake.EnvironmentHelper.isMacOS then
-                sprintf "dotnet-dev-osx-x64.%s.tar.gz" dotnetcliVersion
-            else
-                sprintf "dotnet-dev-win-x64.%s.zip" dotnetcliVersion
-        let downloadPath = 
-                sprintf "https://dotnetcli.azureedge.net/dotnet/Sdk/%s/%s" dotnetcliVersion archiveFileName
+            if isLinux then sprintf "dotnet-dev-ubuntu-x64.%s.tar.gz" dotnetcliVersion
+            elif Fake.EnvironmentHelper.isMacOS then sprintf "dotnet-dev-osx-x64.%s.tar.gz" dotnetcliVersion
+            else sprintf "dotnet-dev-win-x64.%s.zip" dotnetcliVersion
+        let downloadPath = sprintf "https://dotnetcli.azureedge.net/dotnet/Sdk/%s/%s" dotnetcliVersion archiveFileName
         let localPath = Path.Combine(dotnetSDKPath, archiveFileName)
 
         tracefn "Installing '%s' to '%s'" downloadPath localPath
         
-        use webclient = new Net.WebClient()
-        webclient.DownloadFile(downloadPath, localPath)
+        use webclient = new Net.WebClient ()
+        webclient.DownloadFile (downloadPath, localPath)
 
         if isLinux || isMacOS then
             let assertExitCodeZero x =
                 if x = 0 then () else
                 failwithf "Command failed with exit code %i" x
 
-            Shell.Exec("tar", sprintf """-xvf "%s" -C "%s" """ localPath dotnetSDKPath)
+            Shell.Exec ("tar", sprintf """-xvf "%s" -C "%s" """ localPath dotnetSDKPath)
             |> assertExitCodeZero
         else  
             System.IO.Compression.ZipFile.ExtractToDirectory(localPath, dotnetSDKPath)
@@ -269,109 +253,86 @@ Target "InstallDotNetCore" (fun _ ->
         System.IO.Directory.EnumerateDirectories dotnetSDKPath
         |> Seq.iter (fun path -> tracefn " - %s%c" path System.IO.Path.DirectorySeparatorChar)
 
-    let oldPath = System.Environment.GetEnvironmentVariable("PATH")
+    let oldPath = System.Environment.GetEnvironmentVariable "PATH"
     System.Environment.SetEnvironmentVariable("PATH", sprintf "%s%s%s" dotnetSDKPath (System.IO.Path.PathSeparator.ToString()) oldPath)
 )
 
 
+let netcoreSrcFiles =  [ __SOURCE_DIRECTORY__  </> "src/Argu.netcore/Argu.netcore.fsproj"]
+let netcoreTestFiles = [ __SOURCE_DIRECTORY__  </> "tests/Argu.Tests.netcore/Argu.Tests.netcore.fsproj"]
 
-Target "DotnetRestore" (fun _ ->
-    netcoreFiles
-    |> Seq.iter (fun proj ->
-        DotNetCli.Restore (fun c ->
-            { c with
-                Project = proj
-                ToolPath = dotnetExePath
-            })
-    )
-)
+Target "DotnetRestoreTools" (fun _ ->
+    DotNetCli.Restore (fun c ->
+    { c with
+        Project = __SOURCE_DIRECTORY__ </> "tools" </> "tools.fsproj"
+        ToolPath = dotnetExePath }
+))
 
-Target "DotnetBuild" (fun _ ->
-    netcoreFiles
-    |> Seq.iter (fun proj ->
-        DotNetCli.Build (fun c ->
-            { c with
-                Project = proj
-                ToolPath = dotnetExePath
-            })
-    )
-)
+
+let dotnetRestore files =
+    files |> Seq.iter (fun proj ->
+    DotNetCli.Restore (fun c ->
+    { c with
+        Project = proj
+        ToolPath = dotnetExePath }
+))
+
+let dotnetBuild files =
+    files |> Seq.iter (fun proj ->
+    DotNetCli.Build (fun c ->
+    { c with
+        Project = proj
+        ToolPath = dotnetExePath }
+))
+
+Target "DotnetRestore" (fun _ -> dotnetRestore netcoreSrcFiles)
+Target "DotnetBuild" (fun _ -> dotnetBuild netcoreSrcFiles)
+Target "DotnetRestoreTests" (fun _ -> dotnetRestore netcoreTestFiles)
+Target "DotnetBuildTests" (fun _ -> dotnetBuild netcoreTestFiles)
 
 Target "DotnetPackage" (fun _ ->
-    netcoreFiles
-    |> Seq.iter (fun proj ->
-        DotNetCli.Pack (fun c ->
-            { c with
-                Project = proj
-                ToolPath = dotnetExePath
-                AdditionalArgs = [(sprintf "-o %s" currentDirectory </> tempDir </> "dotnetcore"); (sprintf "/p:Version=%s" release.NugetVersion)]
-            })
-    )
-)
+    netcoreSrcFiles |> Seq.iter (fun proj ->
+    DotNetCli.Pack (fun c ->
+    { c with
+        Project = proj
+        ToolPath = dotnetExePath
+        AdditionalArgs = 
+        [   sprintf "-o %s" __SOURCE_DIRECTORY__ </> pkgDir
+            sprintf "/p:Version=%s" release.NugetVersion
+        ]}
+)))
+
 
 Target "RunTests.NetCore" (fun _ ->
     for proj in netcoreTestFiles do
-        DotNetCli.Test (fun c -> { c with Project = proj })
-)
-
-let isDotnetSDKInstalled = DotNetCli.isInstalled()
-
-Target "NuGet.AddNetCore" (fun _ ->
-    if not isDotnetSDKInstalled then failwith "You need to install .NET core to publish NuGet packages"
-    for proj in netcoreSrcFiles do
-        DotNetCli.Pack (fun c -> { c with Project = proj })
-
-    let nupkg = sprintf "../../bin/Argu.%s.nupkg" (release.NugetVersion)
-    let netcoreNupkg = sprintf "bin/Release/Argu.%s.nupkg" (release.NugetVersion)
-
-    Shell.Exec("dotnet", sprintf """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg, "src/Argu/") |> assertExitCodeZero
+        dotnet (Path.GetDirectoryName proj) "test"
 )
 
 
-//
-//// --------------------------------------------------------------------------------------
-//// Build a NuGet package
+// Build a NuGet package
+// --------------------------------------------------------------------------------------
 
-Target "NuGet" (fun _ ->    
-    !! "integrationtests/**/paket.template" |> Seq.iter DeleteFile
-    
-    let files = !! "src/**/*.preview*" |> Seq.toList
-    for file in files do
-        File.Move(file,file + ".temp")
-
+Target "NuGetPackage" (fun _ ->    
     Paket.Pack (fun p -> 
-        { p with 
-            ToolPath = "bin/merged/paket.exe" 
-            Version = release.NugetVersion
-            ReleaseNotes = toLines release.Notes })
-
-    for file in files do
-        File.Move(file + ".temp",file)
+    { p with 
+        WorkingDir = __SOURCE_DIRECTORY__ </>"src"</>"Argu"
+        OutputPath = __SOURCE_DIRECTORY__ </> pkgDir
+        ToolPath = "./.paket/paket.exe" 
+        Version = release.NugetVersion
+        ReleaseNotes = toLines release.Notes })
 )
 
 Target "MergeDotnetCoreIntoNuget" (fun _ ->
-
-    let nupkg = tempDir </> sprintf "Paket.Core.%s.nupkg" (release.NugetVersion) |> Path.GetFullPath
-    let netcoreNupkg = tempDir </> "dotnetcore" </> sprintf "Paket.Core.%s.nupkg" (release.NugetVersion) |> Path.GetFullPath
-
+    ensureDirectory pkgDir
+    let nupkg = sprintf "nupkg/Argu.%s.nupkg" release.NugetVersion |> Path.GetFullPath
+    let netcoreNupkg = sprintf "nupkg/Argu.netcore.%s.nupkg" release.NugetVersion |> Path.GetFullPath
     let runTool = runCmdIn "tools" dotnetExePath
-
     runTool """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg
+    DeleteFile netcoreNupkg // delete temporary netcore nupkg after merge
 )
 
 
-// Target "NuGet" DoNothing
-
-// Target "NuGet.Pack" (fun _ ->
-//     Paket.Pack(fun config ->
-//         { config with 
-//             Version = release.NugetVersion
-//             ReleaseNotes = String.concat "\n" release.Notes
-//             OutputPath = "bin"
-//         }))
-
-Target "NuGetPush" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = "bin/" }))
-
+Target "NuGetPush" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = pkgDir }))
 
 Target "Release" DoNothing
 
@@ -380,24 +341,37 @@ Target "Release" DoNothing
 
 Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
+Target "NetFramework" DoNothing
+Target "DotNetCore" DoNothing
 Target "Default" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  ==> "SetVersionInProjectJSON"
   ==> "Prepare"
+  =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
   ==> "Build.Net40"
   ==> "Build.Net461"
   ==> "RunTests"
+  ==> "NetFramework"
   ==> "Default"
 
-"Default"
-  =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
-  =?> ("Build.NetCore", isDotnetSDKInstalled)
-  =?> ("RunTests.NetCore", isDotnetSDKInstalled)
-  ==> "NuGet.Pack"
-  ==> "NuGet.AddNetCore"
-  ==> "NuGet"
+"Clean"
+  ==> "Default"
+  ==> "InstallDotNetCore"
+  ==> "DotnetRestoreTools"
+  ==> "DotnetRestore"
+  ==> "DotnetBuild"
+  ==> "DotnetRestoreTests"
+  ==> "DotnetBuildTests"
+  ==> "DotNetCore"
+
+"NetFramework"
+  ==> "DotnetCore"
+  ==> "NugetPackage"
+  ==> "DotnetPackage"
+  ==> "MergeDotnetCoreIntoNuget"
+
+"MergeDotnetCoreIntoNuget"
   ==> "PrepareRelease"
   ==> "SourceLink"
   ==> "GenerateDocs"

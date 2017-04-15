@@ -734,3 +734,8 @@ module ``Argu Tests`` =
         raises<ArgumentException> <@ result.Contains <@ wrapper @> @>
 
 #endif
+
+#if CORECLR
+    [<EntryPoint>]
+    let main _argv = 0
+#endif

@@ -1,7 +1,14 @@
 <Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
+    <DefineConstants>$(DefineConstants);CORE_CLR;DOTNETCORE;NETSTANDARD1_5;NETSTANDARD1_6</DefineConstants>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Argu\AssemblyInfo.fs" />
@@ -21,8 +28,6 @@
   <ItemGroup>
     <None Include="..\Argu\paket.template" />
   </ItemGroup>
-  <PropertyGroup>
-    <DefineConstants>$(DefineConstants);CORE_CLR;DOTNETCORE;NETSTANDARD1_5;NETSTANDARD1_6</DefineConstants>
-  </PropertyGroup>
+    
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
