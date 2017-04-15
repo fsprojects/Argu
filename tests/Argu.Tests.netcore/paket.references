@@ -8,8 +8,7 @@ FsCheck
 FSharp.Core
 Microsoft.NETCore.App
 System.Runtime.Serialization.Primitives
-System.Data
-System.Data.Linq
+System.Linq
 xunit
-System.Numerics
+System.Numerics.Vectors
 dotnet-test-xunit

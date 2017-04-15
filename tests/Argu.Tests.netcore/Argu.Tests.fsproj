@@ -1,23 +1,18 @@
-﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
-
+<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Argu.Tests\Tests.fs" />
-    <None Include=   "..\Argu.Tests\tests.fsx" />
+    <None Include="..\Argu.Tests\tests.fsx" />
     <Content Include="..\Argu.Tests\App.config" />
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
+    <ProjectReference Include="..\..\src\Argu\Argu.fsproj" />
   </ItemGroup>
-
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);CORECLR;DOTNETCORE;NO_UNQUOTE</DefineConstants>
   </PropertyGroup>
-
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
