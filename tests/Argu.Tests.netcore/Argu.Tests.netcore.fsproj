@@ -1,11 +1,9 @@
 <Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <DefineConstants>$(DefineConstants);CORECLR;DOTNETCORE;NO_UNQUOTE</DefineConstants>
     <DebugType>portable</DebugType>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Argu.Tests\Tests.fs" />
@@ -15,8 +13,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Argu.netcore\Argu.netcore.fsproj" />
   </ItemGroup>
-  <PropertyGroup>
-    
-  </PropertyGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

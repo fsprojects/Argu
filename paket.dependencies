@@ -2,22 +2,25 @@ redirects: on
 source https://www.nuget.org/api/v2
 
 nuget FSharp.Core content:None
-nuget System.Threading.ThreadPool
+nuget FSharp.NET.Sdk  content:None
+
 nuget FsCheck content:None
 nuget Unquote
-nuget xunit
-nuget xunit.extensions
-nuget xunit.runner.console
-nuget xunit.runner.visualstudio version_in_path: true
-nuget dotnet-test-xunit
-nuget System.Numerics.Vectors
-nuget System.Runtime.Serialization.Primitives
+
+nuget xunit import_targets: false
+nuget xunit.extensions  import_targets: false
+nuget xunit.runner.console  import_targets: false
+nuget xunit.runner.visualstudio version_in_path: true, import_targets: false
+
+
 nuget Microsoft.NETCore.App
 nuget Microsoft.NET.Test.Sdk
-nuget FSharp.NET.Sdk  content:None
-nuget NETStandard.Library
+
+nuget System.Numerics.Vectors
 nuget System.Reflection.Extensions 
 nuget System.Reflection.TypeExtensions 
+nuget System.Threading.ThreadPool
+nuget System.Runtime.Serialization.Primitives
 
 
 group Build
@@ -25,6 +28,5 @@ group Build
 
   nuget FAKE
   nuget FSharp.Formatting
-  nuget Nuget.CommandLine
   nuget SourceLink.Fake
   github fsharp/FAKE modules/Octokit/Octokit.fsx

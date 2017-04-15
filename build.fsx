@@ -91,7 +91,7 @@ Target "Build.Net461" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration", configuration]
+    |> MSBuild "bin/net461" "Build" ["Configuration", configuration]
     |> Log "AppBuild-Output: "
 )
 
@@ -99,7 +99,7 @@ Target "Build.Net461" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
-let testAssemblies = !! "bin/v4.6.1/Argu.Tests.dll"
+let testAssemblies = !! "bin/net461/Argu.Tests.dll"
 
 open XUnit2
 Target "RunTests" (fun _ ->

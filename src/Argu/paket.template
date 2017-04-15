@@ -13,13 +13,13 @@ projecturl http://fsprojects.github.io/Argu/
 iconurl https://raw.githubusercontent.com/fsprojects/Argu/master/docs/files/img/logo.png
 include-pdbs true
 tags
-    F#, argument, parser
+    F#, argument, parser, cli, commandline
 references
     Argu.dll
 files
-    ../../bin/v4.6.1/Argu.dll ==> lib/net461
-    ../../bin/v4.6.1/Argu.pdb ==> lib/net461
-    ../../bin/v4.6.1/Argu.xml ==> lib/net461
+    ../../bin/net461/Argu.dll ==> lib/net461
+    ../../bin/net461/Argu.pdb ==> lib/net461
+    ../../bin/net461/Argu.xml ==> lib/net461
     ../../bin/net40/Argu.dll ==> lib/net40
     ../../bin/net40/Argu.pdb ==> lib/net40
     ../../bin/net40/Argu.xml ==> lib/net40
