@@ -12,16 +12,16 @@ nuget xunit.extensions  import_targets: false
 nuget xunit.runner.console  import_targets: false
 nuget xunit.runner.visualstudio version_in_path: true, import_targets: false
 
-
-nuget Microsoft.NETCore.App
 nuget Microsoft.NET.Test.Sdk
 
 nuget System.Numerics.Vectors
 nuget System.Reflection.Extensions 
 nuget System.Reflection.TypeExtensions 
 nuget System.Threading.ThreadPool
-nuget System.Runtime.Serialization.Primitives
 
+nuget Microsoft.DotNet.PlatformAbstractions
+nuget Microsoft.Extensions.DependencyModel
+nuget Microsoft.TestPlatform.ObjectModel
 
 group Build
   source https://www.nuget.org/api/v2

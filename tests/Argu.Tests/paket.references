@@ -4,3 +4,8 @@ xunit.runner.visualstudio
 Unquote
 FsCheck
 FSharp.Core
+
+Microsoft.DotNet.PlatformAbstractions
+Microsoft.Extensions.DependencyModel
+Microsoft.TestPlatform.ObjectModel
+NETStandard.Library

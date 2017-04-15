@@ -54,11 +54,11 @@ Target "AssemblyInfo" (fun _ ->
 Target "Clean" (fun _ ->
     !! "src/**/obj/"
     ++ "tests/**/obj/"
+    ++ "/**/obj/"
     ++ "./bin/"
     ++ "./nupkg/"
     |> CleanDirs 
 )
-
 
 // Build library & test project
 // --------------------------------------------------------------------------------------
