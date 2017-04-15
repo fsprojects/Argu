@@ -340,7 +340,7 @@ which generates the following syntax:
         clean <options>       Remove untracked files from the working tree.
         commit <options>      Record changes to the repository.
 
-	    Use 'git <subcommand> --help' for additional information.
+        Use 'git <subcommand> --help' for additional information.
 
     OPTIONS:
 

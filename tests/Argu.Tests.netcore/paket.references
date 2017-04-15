@@ -1,0 +1,15 @@
+﻿Microsoft.DotNet.PlatformAbstractions
+Microsoft.Extensions.DependencyModel
+Microsoft.TestPlatform.ObjectModel
+NETStandard.Library
+System.Threading.ThreadPool
+xunit.runner.visualstudio
+FsCheck
+FSharp.Core
+Microsoft.NETCore.App
+System.Runtime.Serialization.Primitives
+System.Data
+System.Data.Linq
+xunit
+System.Numerics
+dotnet-test-xunit

@@ -17,6 +17,9 @@ tags
 references
     Argu.dll
 files
+    ../../bin/v4.6.1/Argu.dll ==> lib/net461
+    ../../bin/v4.6.1/Argu.pdb ==> lib/net461
+    ../../bin/v4.6.1/Argu.xml ==> lib/net461
     ../../bin/net40/Argu.dll ==> lib/net40
     ../../bin/net40/Argu.pdb ==> lib/net40
     ../../bin/net40/Argu.xml ==> lib/net40
