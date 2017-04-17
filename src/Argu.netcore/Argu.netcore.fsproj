@@ -3,14 +3,17 @@
     <AssemblyName>Argu</AssemblyName>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DefineConstants>$(DefineConstants);CORE_CLR;DOTNETCORE;NETSTANDARD1_5;NETSTANDARD1_6</DefineConstants>
-    <Debug>portable</Debug>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DocumentationFile>..\..\bin\netstandard1.6\$(AssemblyName).XML</DocumentationFile>
+    <GenerateDocumentation>true</GenerateDocumentation>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutDir>..\..\bin\netstandard16</OutDir>
+    <OutputPath>..\..\bin\netstandard1.6</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

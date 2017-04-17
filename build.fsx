@@ -52,16 +52,20 @@ Target "AssemblyInfo" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 Target "Clean" (fun _ ->
-    let dirs =
-        !! "src/**/obj/"
-        ++ "tests/**/obj/"
-        ++ "samples/obj/"
-        ++ "tools/obj/"
-        ++ "/**/obj/"
-        ++ "/bin/"
-        ++ "/nupkg/"
-    dirs |> Seq.iter ensureDirectory
-    dirs |> CleanDirs 
+    !! "src/**/obj/"
+    ++ "src/**/bin/"
+    ++ "tests/**/obj/"
+    ++ "tests/**/bin/"
+    ++ "samples/obj/"
+    ++ "samples/bin/"
+    ++ "tools/obj/"
+    ++ "tools/bin/"
+    ++ "/**/obj/"
+    ++ "/**/bin/"
+    ++ "/bin/"
+    ++ "/nupkg/"
+    |> CleanDirs 
+    ["/bin/";"/nupkg/"] |> Seq.iter ensureDirectory
 )
 
 // Build library & test project
@@ -103,8 +107,8 @@ Target "Build.Net461" (fun _ ->
 )
 
 
-// --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
+// --------------------------------------------------------------------------------------
 
 let testAssemblies = !! "bin/net461/Argu.Tests.dll"
 
@@ -265,7 +269,6 @@ Target "InstallDotNetCore" (fun _ ->
     System.Environment.SetEnvironmentVariable("PATH", sprintf "%s%s%s" dotnetSDKPath (System.IO.Path.PathSeparator.ToString()) oldPath)
 )
 
-
 let netcoreSrcFiles =  [ __SOURCE_DIRECTORY__  </> "src/Argu.netcore/Argu.netcore.fsproj"]
 let netcoreTestFiles = [ __SOURCE_DIRECTORY__  </> "tests/Argu.Tests.netcore/Argu.Tests.netcore.fsproj"]
 
@@ -273,26 +276,20 @@ Target "DotnetRestoreTools" (fun _ ->
     DotNetCli.Restore (fun c ->
     { c with
         Project = __SOURCE_DIRECTORY__ </> "tools" </> "tools.fsproj"
-        ToolPath = dotnetExePath }
-))
-
+        ToolPath = dotnetExePath }))
 
 let dotnetRestore files =
-    files |> Seq.iter (fun proj ->
-    DotNetCli.Restore (fun c ->
+    files |> Seq.iter (fun proj -> DotNetCli.Restore (fun c ->
     { c with
         Project = proj
-        ToolPath = dotnetExePath }
-))
+        ToolPath = dotnetExePath }))
 
 let dotnetBuild files =
-    files |> Seq.iter (fun proj ->
-    DotNetCli.Build (fun c ->
+    files |> Seq.iter (fun proj -> DotNetCli.Build (fun c ->
     { c with
         Project = proj
         Output =  buildDir
-        ToolPath = dotnetExePath }
-))
+        ToolPath = dotnetExePath }))
 
 Target "DotnetRestore" (fun _ -> dotnetRestore netcoreSrcFiles)
 Target "DotnetBuild" (fun _ -> dotnetBuild netcoreSrcFiles)
@@ -300,7 +297,7 @@ Target "DotnetRestoreTests" (fun _ -> dotnetRestore netcoreTestFiles)
 Target "DotnetBuildTests" (fun _ -> dotnetBuild netcoreTestFiles)
 
 
-let netcoreNupkgDir =  __SOURCE_DIRECTORY__ </> pkgDir </> "Argu" 
+let netcoreNupkgDir =  __SOURCE_DIRECTORY__ </> pkgDir </> "netcore" 
 let netcoreNupkg = netcoreNupkgDir </> (sprintf "Argu.%s.nupkg" release.NugetVersion)
 
 
@@ -312,10 +309,7 @@ Target "DotnetPackage" (fun _ ->
         OutputPath =  netcoreNupkgDir 
         Project = proj
         ToolPath = dotnetExePath
-        AdditionalArgs = 
-        [   //sprintf "-o %s"
-            sprintf "/p:Version=%s" release.NugetVersion
-        ]}
+        AdditionalArgs = [ sprintf "/p:Version=%s" release.NugetVersion ]}
 )))
 
 
@@ -332,9 +326,8 @@ Target "NuGetPackage" (fun _ ->
     if isTravisCI then traceImportant "skipping packaging on TravisCI" else // travis can't package properly, makes mdbs instead of pdbs
     Paket.Pack (fun p -> 
     { p with 
-        
         TemplateFile = __SOURCE_DIRECTORY__ </> "src" </> "Argu" </> "paket.template"
-        WorkingDir = __SOURCE_DIRECTORY__ </> "src" </> "Argu"
+        WorkingDir = __SOURCE_DIRECTORY__ 
         OutputPath = __SOURCE_DIRECTORY__ </> pkgDir 
         ToolPath = __SOURCE_DIRECTORY__ </> ".paket/paket.exe" 
         Version = release.NugetVersion
@@ -345,10 +338,8 @@ Target "MergeDotnetCoreIntoNuget" (fun _ ->
     if isTravisCI then traceImportant "skipping packaging on TravisCI" else // travis can't package properly, makes mdbs instead of pdbs
     ensureDirectory pkgDir
     let nupkg = sprintf "nupkg/Argu.%s.nupkg" release.NugetVersion |> FullName
-    //let netcoreNupkg = sprintf "nupkg/Argu.netcore.%s.nupkg" release.NugetVersion |> FullName
     let runTool = runCmdIn "tools" dotnetExePath
     runTool """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg
-    //DeleteFile netcoreNupkg // delete temporary netcore nupkg after merge
 )
 
 

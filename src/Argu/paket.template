@@ -26,3 +26,5 @@ files
     ./../../bin/net35/Argu.dll  ==> lib/net35
     ./../../bin/net35/Argu.pdb  ==> lib/net35
     ./../../bin/net35/Argu.xml  ==> lib/net35
+excludeddependencies
+    FSharp.NET.Sdk
