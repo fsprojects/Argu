@@ -1,5 +1,6 @@
 redirects: on
 source https://www.nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
 
 nuget FSharp.Core content:None
 nuget FSharp.NET.Sdk  content:None
@@ -24,6 +25,7 @@ nuget Microsoft.Extensions.DependencyModel
 nuget Microsoft.TestPlatform.ObjectModel
 
 group Build
+  source https://api.nuget.org/v3/index.json
   source https://www.nuget.org/api/v2
 
   nuget FAKE

@@ -25,8 +25,8 @@ let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
-let buildDir = "bin"
-let pkgDir= "nupkg"
+let buildDir = __SOURCE_DIRECTORY__ </> "bin"
+let pkgDir= __SOURCE_DIRECTORY__ </> "nupkg"
 
 // The rest of the code is standard F# build script 
 // --------------------------------------------------------------------------------------
@@ -52,12 +52,14 @@ Target "AssemblyInfo" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 Target "Clean" (fun _ ->
-    !! "src/**/obj/"
-    ++ "tests/**/obj/"
-    ++ "/**/obj/"
-    ++ "./bin/"
-    ++ "./nupkg/"
-    |> CleanDirs 
+    let dirs =
+        !! "src/**/obj/"
+        ++ "tests/**/obj/"
+        ++ "/**/obj/"
+        ++ "/bin/"
+        ++ "/nupkg/"
+    dirs |> Seq.iter ensureDirectory
+    dirs |> CleanDirs 
 )
 
 // Build library & test project
@@ -67,12 +69,15 @@ let configuration = environVarOrDefault "Configuration" "Release"
 
 let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
 
+let net35bin  = buildDir </> "net35"
+let net40bin  = buildDir </> "net40"
+let net461bin = buildDir </> "net461"
 
 Target "Build.Net35" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
-    |> MSBuild "bin/net35" "Build" ["Configuration", "Release-NET35" ]
+    |> MSBuild net35bin "Build" ["Configuration", "Release-NET35" ]
     |> Log "AppBuild-Output: "
 )
 
@@ -81,7 +86,7 @@ Target "Build.Net40" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
-    |> MSBuild "bin/net40" "Build" ["Configuration","Release-NET40"]
+    |> MSBuild net40bin "Build" ["Configuration","Release-NET40"]
     |> Log "AppBuild-Output: "
 )
 
@@ -91,7 +96,7 @@ Target "Build.Net461" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
-    |> MSBuild "bin/net461" "Build" ["Configuration", configuration]
+    |> MSBuild net461bin "Build" ["Configuration", configuration]
     |> Log "AppBuild-Output: "
 )
 
@@ -211,7 +216,7 @@ let dotnet workDir = runCmdIn workDir "dotnet"
 
 Target "InstallDotNetCore" (fun _ ->
     let correctVersionInstalled = 
-        try if FileInfo(dotnetExePath |> Path.GetFullPath).Exists then
+        try if FileInfo(dotnetExePath |> FullName).Exists then
                 let processResult = 
                     ExecProcessAndReturnMessages (fun info ->  
                     info.FileName <- dotnetExePath
@@ -282,6 +287,7 @@ let dotnetBuild files =
     DotNetCli.Build (fun c ->
     { c with
         Project = proj
+        Output =  buildDir
         ToolPath = dotnetExePath }
 ))
 
@@ -297,7 +303,7 @@ Target "DotnetPackage" (fun _ ->
         Project = proj
         ToolPath = dotnetExePath
         AdditionalArgs = 
-        [   sprintf "-o %s" __SOURCE_DIRECTORY__ </> pkgDir
+        [   sprintf "-o %s" (__SOURCE_DIRECTORY__ </> pkgDir)
             sprintf "/p:Version=%s" release.NugetVersion
         ]}
 )))
@@ -315,17 +321,17 @@ Target "RunTests.NetCore" (fun _ ->
 Target "NuGetPackage" (fun _ ->    
     Paket.Pack (fun p -> 
     { p with 
-        WorkingDir = __SOURCE_DIRECTORY__ </>"src"</>"Argu"
-        OutputPath = __SOURCE_DIRECTORY__ </> pkgDir
-        ToolPath = "./.paket/paket.exe" 
+        WorkingDir = __SOURCE_DIRECTORY__ </>"src"</>"Argu" 
+        OutputPath = __SOURCE_DIRECTORY__ </> pkgDir 
+        ToolPath = __SOURCE_DIRECTORY__ </> ".paket/paket.exe" 
         Version = release.NugetVersion
         ReleaseNotes = toLines release.Notes })
 )
 
 Target "MergeDotnetCoreIntoNuget" (fun _ ->
     ensureDirectory pkgDir
-    let nupkg = sprintf "nupkg/Argu.%s.nupkg" release.NugetVersion |> Path.GetFullPath
-    let netcoreNupkg = sprintf "nupkg/Argu.netcore.%s.nupkg" release.NugetVersion |> Path.GetFullPath
+    let nupkg = sprintf "nupkg/Argu.%s.nupkg" release.NugetVersion |> FullName
+    let netcoreNupkg = sprintf "nupkg/Argu.netcore.%s.nupkg" release.NugetVersion |> FullName
     let runTool = runCmdIn "tools" dotnetExePath
     runTool """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg
     DeleteFile netcoreNupkg // delete temporary netcore nupkg after merge
@@ -380,4 +386,5 @@ Target "Default" DoNothing
   ==> "ReleaseGitHub"
   ==> "Release"
 
-RunTargetOrDefault "Default"
+RunTargetOrDefault "MergeDotnetCoreIntoNuget"
+
