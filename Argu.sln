@@ -49,6 +49,12 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu.Samples.LS", "samples\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{AF8469CE-9BA8-4EDD-BFFA-FF67EA8FFD86}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{A3C46085-B3E4-4214-8ED3-3043F9DD9565}"
+	ProjectSection(SolutionItems) = preProject
+		tools\paket.references = tools\paket.references
+		tools\tools.fsproj = tools\tools.fsproj
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

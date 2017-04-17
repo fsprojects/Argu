@@ -4,6 +4,7 @@ source https://api.nuget.org/v3/index.json
 
 nuget FSharp.Core content:None
 nuget FSharp.NET.Sdk  content:None
+nuget FSharp.Compiler.Tools
 
 nuget FsCheck content:None
 nuget Unquote
@@ -23,6 +24,7 @@ nuget System.Threading.ThreadPool
 nuget Microsoft.DotNet.PlatformAbstractions
 nuget Microsoft.Extensions.DependencyModel
 nuget Microsoft.TestPlatform.ObjectModel
+
 
 group Build
   source https://api.nuget.org/v3/index.json

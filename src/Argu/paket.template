@@ -5,7 +5,7 @@ description
 authors
     Eirik Tsarpalis
 copyright
-	Copyright 2017
+    Copyright 2017
 summary
     A declarative command line and XML configuration parser for F# applications.
 licenseurl https://github.com/fsprojects/Argu/blob/master/License.md
@@ -17,12 +17,12 @@ tags
 references
     Argu.dll
 files
-    ../../bin/net461/Argu.dll ==> lib/net461
-    ../../bin/net461/Argu.pdb ==> lib/net461
-    ../../bin/net461/Argu.xml ==> lib/net461
-    ../../bin/net40/Argu.dll ==> lib/net40
-    ../../bin/net40/Argu.pdb ==> lib/net40
-    ../../bin/net40/Argu.xml ==> lib/net40
-    ../../bin/net35/Argu.dll ==> lib/net35
-    ../../bin/net35/Argu.pdb ==> lib/net35
-    ../../bin/net35/Argu.xml ==> lib/net35
+    ./../../bin/net461/Argu.dll ==> lib/net461
+    ./../../bin/net461/Argu.pdb ==> lib/net461
+    ./../../bin/net461/Argu.xml ==> lib/net461
+    ./../../bin/net40/Argu.dll  ==> lib/net40
+    ./../../bin/net40/Argu.pdb  ==> lib/net40
+    ./../../bin/net40/Argu.xml  ==> lib/net40
+    ./../../bin/net35/Argu.dll  ==> lib/net35
+    ./../../bin/net35/Argu.pdb  ==> lib/net35
+    ./../../bin/net35/Argu.xml  ==> lib/net35

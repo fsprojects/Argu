@@ -1,13 +1,16 @@
 <Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyName>Argu</AssemblyName>
     <TargetFramework>netstandard1.6</TargetFramework>
     <DefineConstants>$(DefineConstants);CORE_CLR;DOTNETCORE;NETSTANDARD1_5;NETSTANDARD1_6</DefineConstants>
     <Debug>portable</Debug>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
+    <OutDir>..\..\bin\netstandard16</OutDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,9 +29,6 @@
     <Compile Include="..\Argu\Parsers\KeyValue.fs" />
     <Compile Include="..\Argu\ArgumentParser.fs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Argu\paket.template" />
-  </ItemGroup>
-    
+   
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

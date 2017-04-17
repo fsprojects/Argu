@@ -55,6 +55,8 @@ Target "Clean" (fun _ ->
     let dirs =
         !! "src/**/obj/"
         ++ "tests/**/obj/"
+        ++ "samples/obj/"
+        ++ "tools/obj/"
         ++ "/**/obj/"
         ++ "/bin/"
         ++ "/nupkg/"
@@ -158,6 +160,7 @@ Target "SourceLink" (fun _ ->
 // Github Releases
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
+
 
 Target "ReleaseGitHub" (fun _ ->
     let remote =
@@ -296,14 +299,20 @@ Target "DotnetBuild" (fun _ -> dotnetBuild netcoreSrcFiles)
 Target "DotnetRestoreTests" (fun _ -> dotnetRestore netcoreTestFiles)
 Target "DotnetBuildTests" (fun _ -> dotnetBuild netcoreTestFiles)
 
+
+let netcoreNupkgDir =  __SOURCE_DIRECTORY__ </> pkgDir </> "Argu" 
+let netcoreNupkg = netcoreNupkgDir </> (sprintf "Argu.%s.nupkg" release.NugetVersion)
+
+
 Target "DotnetPackage" (fun _ ->
     netcoreSrcFiles |> Seq.iter (fun proj ->
     DotNetCli.Pack (fun c ->
-    { c with
+    { c with        
+        OutputPath =  netcoreNupkgDir 
         Project = proj
         ToolPath = dotnetExePath
         AdditionalArgs = 
-        [   sprintf "-o %s" (__SOURCE_DIRECTORY__ </> pkgDir)
+        [   //sprintf "-o %s"
             sprintf "/p:Version=%s" release.NugetVersion
         ]}
 )))
@@ -321,7 +330,9 @@ Target "RunTests.NetCore" (fun _ ->
 Target "NuGetPackage" (fun _ ->    
     Paket.Pack (fun p -> 
     { p with 
-        WorkingDir = __SOURCE_DIRECTORY__ </>"src"</>"Argu" 
+        
+        TemplateFile = __SOURCE_DIRECTORY__ </> "src" </> "Argu" </> "paket.template"
+        WorkingDir = __SOURCE_DIRECTORY__ </> "src" </> "Argu"
         OutputPath = __SOURCE_DIRECTORY__ </> pkgDir 
         ToolPath = __SOURCE_DIRECTORY__ </> ".paket/paket.exe" 
         Version = release.NugetVersion
@@ -331,10 +342,10 @@ Target "NuGetPackage" (fun _ ->
 Target "MergeDotnetCoreIntoNuget" (fun _ ->
     ensureDirectory pkgDir
     let nupkg = sprintf "nupkg/Argu.%s.nupkg" release.NugetVersion |> FullName
-    let netcoreNupkg = sprintf "nupkg/Argu.netcore.%s.nupkg" release.NugetVersion |> FullName
+    //let netcoreNupkg = sprintf "nupkg/Argu.netcore.%s.nupkg" release.NugetVersion |> FullName
     let runTool = runCmdIn "tools" dotnetExePath
     runTool """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg
-    DeleteFile netcoreNupkg // delete temporary netcore nupkg after merge
+    //DeleteFile netcoreNupkg // delete temporary netcore nupkg after merge
 )
 
 
@@ -358,11 +369,9 @@ Target "Default" DoNothing
   ==> "Build.Net40"
   ==> "Build.Net461"
   ==> "RunTests"
-  ==> "NetFramework"
-  ==> "Default"
-
-"Clean"
-  ==> "Default"
+  ==> "NetFramework"  
+  
+"Clean"  
   ==> "InstallDotNetCore"
   ==> "DotnetRestoreTools"
   ==> "DotnetRestore"
@@ -370,12 +379,13 @@ Target "Default" DoNothing
   ==> "DotnetRestoreTests"
   ==> "DotnetBuildTests"
   ==> "DotNetCore"
-
+  
 "NetFramework"
-  ==> "DotnetCore"
-  ==> "NugetPackage"
-  ==> "DotnetPackage"
-  ==> "MergeDotnetCoreIntoNuget"
+  =?> ("NugetPackage", not isTravisCI) // travis can't package properly, makes mdbs instead of pdbs
+  ==> "DotNetCore"
+  =?> ("DotnetPackage", not isTravisCI) // travis can't package properly, makes mdbs instead of pdbs
+  =?> ("MergeDotnetCoreIntoNuget", not isTravisCI) // travis can't package properly, makes mdbs instead of pdbs
+  ==> "Default"
 
 "MergeDotnetCoreIntoNuget"
   ==> "PrepareRelease"
@@ -386,5 +396,5 @@ Target "Default" DoNothing
   ==> "ReleaseGitHub"
   ==> "Release"
 
-RunTargetOrDefault "MergeDotnetCoreIntoNuget"
+RunTargetOrDefault "Default"
 
