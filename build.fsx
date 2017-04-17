@@ -69,7 +69,7 @@ Target "Clean" (fun _ ->
 
 let configuration = environVarOrDefault "Configuration" "Release"
 
-let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
+let isTravisCI = environVarOrDefault "TRAVIS" "false" = "true"
 
 let net35bin  = buildDir </> "net35"
 let net40bin  = buildDir </> "net40"
@@ -305,6 +305,7 @@ let netcoreNupkg = netcoreNupkgDir </> (sprintf "Argu.%s.nupkg" release.NugetVer
 
 
 Target "DotnetPackage" (fun _ ->
+    if isTravisCI then traceImportant "skipping packaging on TravisCI" else // travis can't package properly, makes mdbs instead of pdbs
     netcoreSrcFiles |> Seq.iter (fun proj ->
     DotNetCli.Pack (fun c ->
     { c with        
@@ -328,6 +329,7 @@ Target "RunTests.NetCore" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 Target "NuGetPackage" (fun _ ->    
+    if isTravisCI then traceImportant "skipping packaging on TravisCI" else // travis can't package properly, makes mdbs instead of pdbs
     Paket.Pack (fun p -> 
     { p with 
         
@@ -340,6 +342,7 @@ Target "NuGetPackage" (fun _ ->
 )
 
 Target "MergeDotnetCoreIntoNuget" (fun _ ->
+    if isTravisCI then traceImportant "skipping packaging on TravisCI" else // travis can't package properly, makes mdbs instead of pdbs
     ensureDirectory pkgDir
     let nupkg = sprintf "nupkg/Argu.%s.nupkg" release.NugetVersion |> FullName
     //let netcoreNupkg = sprintf "nupkg/Argu.netcore.%s.nupkg" release.NugetVersion |> FullName
@@ -381,13 +384,13 @@ Target "Default" DoNothing
   ==> "DotNetCore"
   
 "NetFramework"
-  =?> ("NugetPackage", not isTravisCI) // travis can't package properly, makes mdbs instead of pdbs
+  ==> "NugetPackage" 
   ==> "DotNetCore"
-  =?> ("DotnetPackage", not isTravisCI) // travis can't package properly, makes mdbs instead of pdbs
-  =?> ("MergeDotnetCoreIntoNuget", not isTravisCI) // travis can't package properly, makes mdbs instead of pdbs
+  ==> "DotnetPackage" 
+  ==> "MergeDotnetCoreIntoNuget"
   ==> "Default"
 
-"MergeDotnetCoreIntoNuget"
+"Default"
   ==> "PrepareRelease"
   ==> "SourceLink"
   ==> "GenerateDocs"
