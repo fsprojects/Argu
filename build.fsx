@@ -3,7 +3,6 @@ System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
 // FAKE build script 
 // --------------------------------------------------------------------------------------
 
-#I "packages/build/FAKE/tools"
 #r "packages/build/FAKE/tools/FakeLib.dll"
 #r "System.IO.Compression.FileSystem"
 #load "packages/build/SourceLink.Fake/tools/SourceLink.fsx"
@@ -68,64 +67,29 @@ Target "Clean" (fun _ ->
     ["/bin/";"/nupkg/"] |> Seq.iter ensureDirectory
 )
 
+
 // Build library & test project
 // --------------------------------------------------------------------------------------
 
 let configuration = environVarOrDefault "Configuration" "Release"
-
 let isTravisCI = environVarOrDefault "TRAVIS" "false" = "true"
 
-let net35bin  = buildDir </> "net35"
-let net40bin  = buildDir </> "net40"
-let net461bin = buildDir </> "net461"
-
-Target "Build.Net35" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [ project + ".sln" ]
-      Excludes = [] } 
-    |> MSBuild net35bin "Build" ["Configuration", "Release-NET35" ]
+Target "BuildNetFramework" (fun _ ->
+    [ project + ".sln" ]
+    |> MSBuild "" "Build" ["Configuration", configuration]
     |> Log "AppBuild-Output: "
 )
-
-
-Target "Build.Net40" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [ project + ".sln" ]
-      Excludes = [] } 
-    |> MSBuild net40bin "Build" ["Configuration","Release-NET40"]
-    |> Log "AppBuild-Output: "
-)
-
-
-Target "Build.Net461" (fun _ ->
-    // Build the rest of the project
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [ project + ".sln" ]
-      Excludes = [] } 
-    |> MSBuild net461bin "Build" ["Configuration", configuration]
-    |> Log "AppBuild-Output: "
-)
-
 
 // Run the unit tests using test runner & kill test runner when complete
 // --------------------------------------------------------------------------------------
 
-let testAssemblies = !! "bin/net461/Argu.Tests.dll"
+let testAssemblies = !! "bin/tests/Argu.Tests.dll"
 
-open XUnit2
 Target "RunTests" (fun _ ->
-    ActivateFinalTarget "CloseTestRunner"
-    testAssemblies |> xUnit2 (fun p ->
+    testAssemblies |> NUnit3  (fun p ->
     { p with
-        ToolPath = "./packages/xunit.runner.console/tools/xunit.console.exe"
-        Parallel = ParallelMode.Collections
-        TimeOut = TimeSpan.FromMinutes 20. }
-))
-
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess  "xunit.console.exe"
-)
-
+        ShadowCopy = false
+        TimeOut = TimeSpan.FromMinutes 20. }))
 
 // Doc generation
 
@@ -147,8 +111,9 @@ Target "ReleaseDocs" (fun _ ->
     Branches.push tempDocsDir
 )
 
-//----------------------------
+
 // SourceLink
+//----------------------------
 
 open SourceLink
 
@@ -201,12 +166,9 @@ Target "ReleaseGitHub" (fun _ ->
 )
 
 
-let dotnetcliVersion = "2.0.0-alpha-005165"
-
+let dotnetcliVersion = "1.0.1"
 let dotnetSDKPath = System.Environment.GetFolderPath Environment.SpecialFolder.LocalApplicationData </> "dotnetcore" |> FullName
-
 let dotnetExePath = dotnetSDKPath </> (if isWindows then "dotnet.exe" else "dotnet") |> FullName
-
 
 // .NET Core SDK and .NET Core
 
@@ -272,51 +234,24 @@ Target "InstallDotNetCore" (fun _ ->
 let netcoreSrcFiles =  [ __SOURCE_DIRECTORY__  </> "src/Argu.netcore/Argu.netcore.fsproj"]
 let netcoreTestFiles = [ __SOURCE_DIRECTORY__  </> "tests/Argu.Tests.netcore/Argu.Tests.netcore.fsproj"]
 
-Target "DotnetRestoreTools" (fun _ ->
-    DotNetCli.Restore (fun c ->
-    { c with
-        Project = __SOURCE_DIRECTORY__ </> "tools" </> "tools.fsproj"
-        ToolPath = dotnetExePath }))
-
 let dotnetRestore files =
     files |> Seq.iter (fun proj -> DotNetCli.Restore (fun c ->
     { c with
         Project = proj
         ToolPath = dotnetExePath }))
 
-let dotnetBuild files =
-    files |> Seq.iter (fun proj -> DotNetCli.Build (fun c ->
-    { c with
+let dotnetBuild proj =
+    DotNetCli.Build (fun c ->
+    { c with        
         Project = proj
-        Output =  buildDir
-        ToolPath = dotnetExePath }))
+        Output =  buildDir</>"netstandard1.6"
+        ToolPath = dotnetExePath })
+
+
+let netstandard16proj = __SOURCE_DIRECTORY__</>"src/Argu.netcore/Argu.netcore.fsproj" |> FullName
 
 Target "DotnetRestore" (fun _ -> dotnetRestore netcoreSrcFiles)
-Target "DotnetBuild" (fun _ -> dotnetBuild netcoreSrcFiles)
-Target "DotnetRestoreTests" (fun _ -> dotnetRestore netcoreTestFiles)
-Target "DotnetBuildTests" (fun _ -> dotnetBuild netcoreTestFiles)
-
-
-let netcoreNupkgDir =  __SOURCE_DIRECTORY__ </> pkgDir </> "netcore" 
-let netcoreNupkg = netcoreNupkgDir </> (sprintf "Argu.%s.nupkg" release.NugetVersion)
-
-
-Target "DotnetPackage" (fun _ ->
-    if isTravisCI then traceImportant "skipping packaging on TravisCI" else // travis can't package properly, makes mdbs instead of pdbs
-    netcoreSrcFiles |> Seq.iter (fun proj ->
-    DotNetCli.Pack (fun c ->
-    { c with        
-        OutputPath =  netcoreNupkgDir 
-        Project = proj
-        ToolPath = dotnetExePath
-        AdditionalArgs = [ sprintf "/p:Version=%s" release.NugetVersion ]}
-)))
-
-
-Target "RunTests.NetCore" (fun _ ->
-    for proj in netcoreTestFiles do
-        dotnet (Path.GetDirectoryName proj) "test"
-)
+Target "DotnetBuild" (fun _ -> dotnetBuild netstandard16proj)
 
 
 // Build a NuGet package
@@ -334,15 +269,6 @@ Target "NuGetPackage" (fun _ ->
         ReleaseNotes = toLines release.Notes })
 )
 
-Target "MergeDotnetCoreIntoNuget" (fun _ ->
-    if isTravisCI then traceImportant "skipping packaging on TravisCI" else // travis can't package properly, makes mdbs instead of pdbs
-    ensureDirectory pkgDir
-    let nupkg = sprintf "nupkg/Argu.%s.nupkg" release.NugetVersion |> FullName
-    let runTool = runCmdIn "tools" dotnetExePath
-    runTool """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg
-)
-
-
 Target "NuGetPush" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = pkgDir }))
 
 Target "Release" DoNothing
@@ -350,35 +276,28 @@ Target "Release" DoNothing
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
-Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "NetFramework" DoNothing
 Target "DotNetCore" DoNothing
 Target "Default" DoNothing
 
+
 "Clean"
   ==> "AssemblyInfo"
-  ==> "Prepare"
-  =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
-  ==> "Build.Net40"
-  ==> "Build.Net461"
+  ==> "BuildNetFramework"
   ==> "RunTests"
   ==> "NetFramework"  
   
-"Clean"  
+
+"Clean"
   ==> "InstallDotNetCore"
-  ==> "DotnetRestoreTools"
   ==> "DotnetRestore"
   ==> "DotnetBuild"
-  ==> "DotnetRestoreTests"
-  ==> "DotnetBuildTests"
-  ==> "DotNetCore"
+  ==> "DotNetCore"  
   
 "NetFramework"
-  ==> "NugetPackage" 
   ==> "DotNetCore"
-  ==> "DotnetPackage" 
-  ==> "MergeDotnetCoreIntoNuget"
+  ==> "NuGetPackage" 
   ==> "Default"
 
 "Default"
