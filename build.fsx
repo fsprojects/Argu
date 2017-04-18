@@ -47,10 +47,14 @@ Target "AssemblyInfo" (fun _ ->
 )
 
 
+let configuration = environVarOrDefault "Configuration" "Release"
+let isTravisCI = environVarOrDefault "TRAVIS" "false" = "true"
+
 // Clean build results & restore NuGet packages
 // --------------------------------------------------------------------------------------
 
 Target "Clean" (fun _ ->
+    if isTravisCI then traceImportant "Skip cleaning on Travis to avoid access violation errors" else
     !! "src/**/obj/"
     ++ "src/**/bin/"
     ++ "tests/**/obj/"
@@ -70,9 +74,6 @@ Target "Clean" (fun _ ->
 
 // Build library & test project
 // --------------------------------------------------------------------------------------
-
-let configuration = environVarOrDefault "Configuration" "Release"
-let isTravisCI = environVarOrDefault "TRAVIS" "false" = "true"
 
 Target "BuildNetFramework" (fun _ ->
     [ project + ".sln" ]
