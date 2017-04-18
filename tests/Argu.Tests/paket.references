@@ -1,11 +1,4 @@
-﻿xunit
-xunit.extensions
-xunit.runner.visualstudio
+﻿NUnit
 Unquote
 FsCheck
-FSharp.Core
-
-Microsoft.DotNet.PlatformAbstractions
-Microsoft.Extensions.DependencyModel
-Microsoft.TestPlatform.ObjectModel
-NETStandard.Library
+FSharp.Core 

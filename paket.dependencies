@@ -2,35 +2,24 @@ redirects: on
 source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
 
-nuget FSharp.Core content:None
-nuget FSharp.NET.Sdk  content:None
-nuget FSharp.Compiler.Tools
+nuget FSharp.Core ~> 4.1.12 redirects:force, content:None
+nuget FSharp.NET.Sdk ~> 1.0.2  content:None
 
 nuget FsCheck content:None
-nuget Unquote
+nuget Unquote 
 
-nuget xunit import_targets: false
-nuget xunit.extensions  import_targets: false
-nuget xunit.runner.console  import_targets: false
-nuget xunit.runner.visualstudio version_in_path: true, import_targets: false
-
-nuget Microsoft.NET.Test.Sdk
+nuget NUnit  
+nuget NUnit.ConsoleRunner
 
 nuget System.Numerics.Vectors
 nuget System.Reflection.Extensions 
 nuget System.Reflection.TypeExtensions 
-nuget System.Threading.ThreadPool
-
-nuget Microsoft.DotNet.PlatformAbstractions
-nuget Microsoft.Extensions.DependencyModel
-nuget Microsoft.TestPlatform.ObjectModel
-
 
 group Build
-  source https://api.nuget.org/v3/index.json
-  source https://www.nuget.org/api/v2
-
-  nuget FAKE
-  nuget FSharp.Formatting
-  nuget SourceLink.Fake
-  github fsharp/FAKE modules/Octokit/Octokit.fsx
+    source https://api.nuget.org/v3/index.json
+    source https://www.nuget.org/api/v2
+    
+    nuget FAKE
+    nuget FSharp.Formatting
+    nuget SourceLink.Fake
+    github fsharp/FAKE modules/Octokit/Octokit.fsx

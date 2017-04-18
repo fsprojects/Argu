@@ -2,18 +2,24 @@
   <PropertyGroup>
     <AssemblyName>Argu</AssemblyName>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <DefineConstants>$(DefineConstants);CORE_CLR;DOTNETCORE;NETSTANDARD1_5;NETSTANDARD1_6</DefineConstants>
+    <OutputType>Library</OutputType>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <DocumentationFile>..\..\bin\netstandard1.6\$(AssemblyName).XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\netstandard1.6\$(AssemblyName).xml</DocumentationFile>
+    <PdbFile>..\..\bin\netstandard1.6\$(AssemblyName).pdb</PdbFile>
+    <OutputPath>..\..\bin\netstandard1.6</OutputPath>
     <GenerateDocumentation>true</GenerateDocumentation>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6'">
+    <DefineConstants>$(DefineConstants);CORE_CLR;DOTNETCORE;NETSTANDARD1_5;NETSTANDARD1_6</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>..\..\bin\netstandard1.6</OutputPath>
+    
   </PropertyGroup>
 
   <ItemGroup>

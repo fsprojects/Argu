@@ -3,6 +3,7 @@ language: csharp
 sudo: off
 dist: trusty # Ubuntu 14.04
 mono: latest
+dotnet: 1.0.1
 
 script:  
   - ./build.sh Default
