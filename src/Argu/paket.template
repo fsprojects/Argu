@@ -14,8 +14,7 @@ iconurl https://raw.githubusercontent.com/fsprojects/Argu/master/docs/files/img/
 include-pdbs true
 tags
     F#, argument, parser, cli, commandline
-references
-    Argu.dll
+
 files
     ./../../bin/netstandard1.6/Argu.dll ==> lib/netstandard1.6
     ./../../bin/netstandard1.6/Argu.xml ==> lib/netstandard1.6
@@ -23,5 +22,18 @@ files
     ./../../bin/net45/Argu.pdb  ==> lib/net45
     ./../../bin/net45/Argu.xml  ==> lib/net45
 
-excludeddependencies
-    FSharp.NET.Sdk
+dependencies
+    FSharp.Core >= 4.1.0
+    System.Numerics.Vectors >= LOCKEDVERSION
+    System.Reflection >= LOCKEDVERSION
+    System.Reflection.Extensions >= LOCKEDVERSION
+    System.Reflection.TypeExtensions >= LOCKEDVERSION
+
+
+frameworkAsemblies
+    System.Numerics
+    System.Configuration
+    System.ComponentModel.Composition
+    System.Xml
+    System.Xml.Linq
+
