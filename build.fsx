@@ -81,6 +81,12 @@ Target "BuildNetFramework" (fun _ ->
     |> Log "AppBuild-Output: "
 )
 
+Target "BuildNet40" (fun _ ->
+    ["src/Argu/Argu.fsproj" ]
+    |> MSBuild "" "Build" ["Configuration", "Release-NET40" ]
+    |> Log "AppBuild-Output: "
+)
+
 // Run the unit tests using test runner & kill test runner when complete
 // --------------------------------------------------------------------------------------
 
@@ -168,7 +174,7 @@ Target "ReleaseGitHub" (fun _ ->
 
 
 let dotnetcliVersion = "1.0.1"
-let dotnetSDKPath = System.Environment.GetFolderPath Environment.SpecialFolder.LocalApplicationData </> "dotnetcore" |> FullName
+let dotnetSDKPath = System.Environment.GetFolderPath Environment.SpecialFolder.LocalApplicationData </> "dotnetcore" </> dotnetcliVersion |> FullName
 let dotnetExePath = dotnetSDKPath </> (if isWindows then "dotnet.exe" else "dotnet") |> FullName
 
 // .NET Core SDK and .NET Core
@@ -287,6 +293,7 @@ Target "Default" DoNothing
   ==> "AssemblyInfo"
   ==> "BuildNetFramework"
   ==> "RunTests"
+  ==> "BuildNet40"
   ==> "NetFramework"  
   
 

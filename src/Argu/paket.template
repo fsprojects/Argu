@@ -18,12 +18,12 @@ tags
 files
     ./../../bin/netstandard1.6/Argu.dll ==> lib/netstandard1.6
     ./../../bin/netstandard1.6/Argu.xml ==> lib/netstandard1.6
-    ./../../bin/net45/Argu.dll  ==> lib/net45
-    ./../../bin/net45/Argu.pdb  ==> lib/net45
-    ./../../bin/net45/Argu.xml  ==> lib/net45
+    ./../../bin/net40/Argu.dll  ==> lib/net40
+    ./../../bin/net40/Argu.pdb  ==> lib/net40
+    ./../../bin/net40/Argu.xml  ==> lib/net40
 
 dependencies
-    FSharp.Core >= 4.1.0
+    FSharp.Core >= 4.0.0
     System.Numerics.Vectors >= LOCKEDVERSION
     System.Reflection >= LOCKEDVERSION
     System.Reflection.Extensions >= LOCKEDVERSION

@@ -32,6 +32,16 @@
     <OutputPath>..\..\bin\net45</OutputPath>
     <DocumentationFile>..\..\bin\net45\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-NET40|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OutputPath>..\..\bin\net40</OutputPath>
+    <DocumentationFile>..\..\bin\net40\$(AssemblyName).XML</DocumentationFile>
+    <DefineConstants>TRACE;NET40</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">14.0</VisualStudioVersion>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
