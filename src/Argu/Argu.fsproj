@@ -29,8 +29,8 @@
     <Tailcalls>true</Tailcalls>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <OutputPath>..\..\bin\net45</OutputPath>
-    <DocumentationFile>..\..\bin\net45\$(AssemblyName).xml</DocumentationFile>
+    <OutputPath>bin\net45</OutputPath>
+    <DocumentationFile>bin\net45\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-NET40|AnyCPU' ">
     <DebugType>pdbonly</DebugType>

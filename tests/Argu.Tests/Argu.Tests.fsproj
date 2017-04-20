@@ -13,7 +13,7 @@
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
     <Name>Argu.Tests</Name>
     <TargetFrameworkProfile />
-    <OutputPath>..\..\bin\tests</OutputPath>
+    <OutputPath>bin</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

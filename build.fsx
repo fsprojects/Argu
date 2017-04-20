@@ -55,20 +55,16 @@ let isTravisCI = environVarOrDefault "TRAVIS" "false" = "true"
 
 Target "Clean" (fun _ ->
     if isTravisCI then traceImportant "Skip cleaning on Travis to avoid access violation errors" else
+    ["/bin/";"/nupkg/"] |> Seq.iter ensureDirectory
     !! "src/**/obj/"
     ++ "src/**/bin/"
     ++ "tests/**/obj/"
     ++ "tests/**/bin/"
-    ++ "samples/obj/"
-    ++ "samples/bin/"
-    ++ "tools/obj/"
-    ++ "tools/bin/"
     ++ "/**/obj/"
     ++ "/**/bin/"
     ++ "/bin/"
     ++ "/nupkg/"
     |> CleanDirs 
-    ["/bin/";"/nupkg/"] |> Seq.iter ensureDirectory
 )
 
 
@@ -90,7 +86,7 @@ Target "BuildNet40" (fun _ ->
 // Run the unit tests using test runner & kill test runner when complete
 // --------------------------------------------------------------------------------------
 
-let testAssemblies = !! "bin/tests/Argu.Tests.dll"
+let testAssemblies = !! "tests/Argu.Tests/bin/Argu.Tests.dll"
 
 Target "RunTests" (fun _ ->
     testAssemblies |> NUnit3  (fun p ->
