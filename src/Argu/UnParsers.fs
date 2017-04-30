@@ -85,6 +85,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
             | SubCommand (label = None) -> yield " <options>"
             | SubCommand (label = Some label) -> yield sprintf " <%s>" label
             | ListParam (_,parser) -> yield sprintf " [<%s>...]" parser.Description
+            | NullarySubCommand -> ()
 
             if not aI.IsMandatory.Value then yield ']'
         }
@@ -171,6 +172,7 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
 
     | SubCommand(_,_,Some label) -> yield sprintf " <%s>" label
     | SubCommand(_,_,None) -> yield " <options>"
+    | NullarySubCommand -> ()
 
     let! finish = StringExpr.currentLength
     if finish - start >= descriptionOffset then
@@ -332,6 +334,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
             if not aI.IsMainCommand then yield clName()
             let nestedResult = fields.[0] :?> IParseResult
             yield! mkCommandLineArgs nested (nestedResult.GetAllResults())
+        | NullarySubCommand -> yield clName()
         }
 
     args
@@ -363,6 +366,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
         | None -> [||]
         | Some key ->
             match aI.ParameterInfo.Value with
+            | NullarySubCommand
             | SubCommand _ -> [||]
             | Primitives parsers ->
                 let values =

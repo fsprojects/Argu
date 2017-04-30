@@ -89,6 +89,13 @@ type FirstAttribute () = inherit CliPositionAttribute (CliPosition.First)
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type LastAttribute () = inherit CliPositionAttribute (CliPosition.Last)
 
+/// Declares that argument is a subcommand.
+/// A parse exception will be raised if the argument has parameters
+/// and their type is not ParseResults<_>.
+/// Implicit if the argument does have a parameter of type ParseResults<_>.
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type SubCommandAttribute () = inherit Attribute()
+
 /// Declares that argument is the main command of the CLI syntax.
 /// Arguments are specified without requiring a switch.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]

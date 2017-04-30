@@ -127,12 +127,14 @@ and ParameterInfo =
     | OptionalParam of Existential * FieldParserInfo
     | ListParam of Existential * FieldParserInfo
     | SubCommand of ShapeArgumentTemplate * argInfo:UnionArgInfo * label:string option
+    | NullarySubCommand
 with
     member pI.Type =
         match pI with
         | Primitives _ -> ArgumentType.Primitive
         | OptionalParam _ -> ArgumentType.Optional
         | ListParam _ -> ArgumentType.List
+        | NullarySubCommand
         | SubCommand _ -> ArgumentType.SubCommand
 
 and [<NoEquality; NoComparison>]

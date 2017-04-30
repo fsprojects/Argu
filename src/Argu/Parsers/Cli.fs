@@ -103,6 +103,8 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
             error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name.Value
 
         if result.CaseInfo.ArgumentType = ArgumentType.SubCommand then
+            if isSubCommandDefined then
+                error argInfo ErrorCode.CommandLine "cannot run multiple subcommands."
             isSubCommandDefined <- true
 
         agg.Add result
@@ -402,6 +404,9 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                         new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
 
             aggregator.AppendResult caseInfo name [|result|]
+
+        | NullarySubCommand ->
+            aggregator.AppendResult caseInfo name [||]
 
 and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInfo) =
     let results = state.ResultStack.CreateNextAggregator argInfo
