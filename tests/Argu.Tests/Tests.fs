@@ -418,7 +418,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Nullary subcommand`` () =
         let args = [|"nullary-sub"|]
-        let results = parser.ParseCommandLine(args)
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
         test <@ results.TryGetSubCommand() = Some Nullary_Sub @>
 
     [<Fact>]
