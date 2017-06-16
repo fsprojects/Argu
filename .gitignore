@@ -22,6 +22,7 @@ x64/
 build/
 [Bb]in/
 [Oo]bj/
+nupkg/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -190,3 +191,5 @@ docs/content/license.md
 docs/content/release-notes.md
 .fake
 docs/tools/FSharp.Formatting.svclog
+
+TestResult.xml

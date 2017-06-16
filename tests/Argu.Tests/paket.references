@@ -1,5 +1,4 @@
-﻿xunit
-xunit.extensions
-xunit.runner.visualstudio
+﻿NUnit
 Unquote
 FsCheck
+FSharp.Core 

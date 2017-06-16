@@ -5,7 +5,7 @@ description
 authors
     Eirik Tsarpalis
 copyright
-	Copyright 2017
+    Copyright 2017
 summary
     A declarative command line and XML configuration parser for F# applications.
 licenseurl https://github.com/fsprojects/Argu/blob/master/License.md
@@ -13,13 +13,27 @@ projecturl http://fsprojects.github.io/Argu/
 iconurl https://raw.githubusercontent.com/fsprojects/Argu/master/docs/files/img/logo.png
 include-pdbs true
 tags
-    F#, argument, parser
-references
-    Argu.dll
+    F#, argument, parser, cli, commandline
+
 files
-    ../../bin/net40/Argu.dll ==> lib/net40
-    ../../bin/net40/Argu.pdb ==> lib/net40
-    ../../bin/net40/Argu.xml ==> lib/net40
-    ../../bin/net35/Argu.dll ==> lib/net35
-    ../../bin/net35/Argu.pdb ==> lib/net35
-    ../../bin/net35/Argu.xml ==> lib/net35
+    ./../../bin/netstandard1.6/Argu.dll ==> lib/netstandard1.6
+    ./../../bin/netstandard1.6/Argu.xml ==> lib/netstandard1.6
+    ./../../bin/net40/Argu.dll  ==> lib/net40
+    ./../../bin/net40/Argu.pdb  ==> lib/net40
+    ./../../bin/net40/Argu.xml  ==> lib/net40
+
+dependencies
+    FSharp.Core >= 4.0.0
+    System.Numerics.Vectors >= LOCKEDVERSION
+    System.Reflection >= LOCKEDVERSION
+    System.Reflection.Extensions >= LOCKEDVERSION
+    System.Reflection.TypeExtensions >= LOCKEDVERSION
+
+
+frameworkAsemblies
+    System.Numerics
+    System.Configuration
+    System.ComponentModel.Composition
+    System.Xml
+    System.Xml.Linq
+
