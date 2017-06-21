@@ -200,7 +200,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
 
     /// <summary>
     ///     Attempts to recover the subcommand parameter from the results,
-    ///     if once has been specified.
+    ///     if one has been specified.
     /// </summary>
     member r.TryGetSubCommand() : 'Template option =
         results.Cases 
@@ -212,7 +212,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
 
     /// <summary>
     ///     Attempts to recover the subcommand parameter from the results,
-    ///     if once has been specified.
+    ///     if one has been specified.
     /// </summary>
     member r.GetSubCommand() : 'Template =
         match r.TryGetSubCommand() with
