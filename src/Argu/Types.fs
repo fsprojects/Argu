@@ -63,7 +63,7 @@ type ExceptionExiter() =
 
 /// Handles argument parser errors by exiting the process
 /// after printing a parse error.
-type ProcessExiter(?colorizer : ErrorCode -> ConsoleColor option) =
+type ProcessExiter(colorizer : (ErrorCode -> ConsoleColor option) option) =
     let colorize errorCode =
         match colorizer |> Option.bind (fun clr -> clr errorCode) with
         | None -> null
@@ -73,7 +73,7 @@ type ProcessExiter(?colorizer : ErrorCode -> ConsoleColor option) =
             { new IDisposable with member __.Dispose() = Console.ForegroundColor <- previous }
 
     // Note: this ctor is required to preserve binary compatibility with < 3.7
-    new () = ProcessExiter(?colorizer=None)
+    new () = ProcessExiter(None)
 
     interface IExiter with
         member __.Name = "Process Exiter"
