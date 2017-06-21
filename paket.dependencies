@@ -7,6 +7,7 @@ nuget xunit ~> 2.0
 nuget xunit.extensions
 nuget xunit.runner.console
 nuget xunit.runner.visualstudio version_in_path: true
+nuget FSharp.Compiler.Tools
 
 group Build
   source https://www.nuget.org/api/v2

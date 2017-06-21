@@ -5,6 +5,7 @@ NUGET
       FSharp.Core (>= 4.1) - restriction: < netstandard1.6
       FSharp.Core (>= 4.1.17) - restriction: >= netstandard1.6
       NETStandard.Library (>= 1.6.1) - restriction: >= netstandard1.6
+    FSharp.Compiler.Tools (4.1.17)
     FSharp.Core (4.2.1)
       System.Collections (>= 4.0.11) - restriction: >= netstandard1.6
       System.Console (>= 4.0) - restriction: >= netstandard1.6
