@@ -733,4 +733,37 @@ module ``Argu Tests`` =
         raises<ArgumentException> <@ result.Contains <@ let wrapper = List in wrapper @> @>
         raises<ArgumentException> <@ result.Contains <@ wrapper @> @>
 
+    type SubCommand =
+        | SubParameter
+    with
+        interface IArgParserTemplate with
+            member this.Usage =
+                match this with
+                | SubParameter -> "will be shown"
+
+    type BaseCommand =
+        | [<Inherit;Hidden>] BaseParameter
+        | [<CustomCommandLine("sub")>] Sub of ParseResults<SubCommand>
+    with
+        interface IArgParserTemplate with
+            member this.Usage =
+                match this with
+                | BaseParameter -> "will be hidden"
+                | Sub(_) -> "subcommand"
+
+    [<Fact>]
+    let ``Hidden parameters are not printed in help text`` () =
+        let parser = ArgumentParser.Create<SubCommand>()
+        test <@ parser.PrintUsage().Contains "will be hidden" |> not @>
+
+    [<Fact>]
+    let ``Hidden inherited parameters are not printed in help text with subcommand`` () =
+        let parser = ArgumentParser.Create<BaseCommand>()
+        let results = parser.ParseCommandLine([|"sub"|])
+        match results.GetSubCommand() with
+        | Sub r ->
+            test <@ r.Parser.PrintUsage().Contains "will be shown" @>
+            test <@ r.Parser.PrintUsage().Contains "will be hidden" |> not @>
+        | _ -> failwithf "never should get here"
+
 #endif
