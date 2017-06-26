@@ -1,4 +1,4 @@
-﻿namespace Argu
+namespace Argu
 
 open System
 open FSharp.Reflection
@@ -63,15 +63,19 @@ type ExceptionExiter() =
 
 /// Handles argument parser errors by exiting the process
 /// after printing a parse error.
-type ProcessExiter(?colorizer : ErrorCode -> ConsoleColor option) =
+type ProcessExiter(colorizerOption : (ErrorCode -> ConsoleColor option) option) =
     let colorize errorCode =
-        match colorizer |> Option.bind (fun clr -> clr errorCode) with
+        match colorizerOption |> Option.bind (fun clr -> clr errorCode) with
         | None -> null
         | Some color ->
             let previous = Console.ForegroundColor
             Console.ForegroundColor <- color
             { new IDisposable with member __.Dispose() = Console.ForegroundColor <- previous }
 
+    // Note: this ctor is required to preserve binary compatibility with < 3.7
+    new () = ProcessExiter(None)
+    new (colorizer : (ErrorCode -> ConsoleColor option)) = ProcessExiter(Some colorizer)
+    
     interface IExiter with
         member __.Name = "Process Exiter"
         member __.Exit(msg : string, errorCode : ErrorCode) =
