@@ -4,161 +4,161 @@ NUGET
     FsCheck (2.6.2)
       FSharp.Core (>= 3.1.2.5)
     FSharp.Core (4.0.0.1)
-    Microsoft.NETCore.Platforms (1.1) - framework: dnxcore50
-    Microsoft.NETCore.Targets (1.1) - framework: dnxcore50
-    System.Collections (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
-    System.Diagnostics.Contracts (4.3) - framework: dnxcore50
-      System.Runtime (>= 4.3) - framework: dnxcore50, >= netstandard10
-    System.Diagnostics.Debug (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
-    System.Globalization (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
-    System.IO (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      System.Text.Encoding (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      System.Threading.Tasks (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-    System.Linq (4.3) - framework: dnxcore50
-      System.Collections (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard16
-      System.Diagnostics.Debug (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Resources.ResourceManager (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard16
-      System.Runtime.Extensions (>= 4.3) - framework: dnxcore50, >= netstandard16
-    System.Linq.Expressions (4.3) - framework: dnxcore50
-      System.Collections (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Diagnostics.Debug (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Globalization (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.IO (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Linq (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Reflection (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard16
-      System.Reflection.Emit.ILGeneration (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Reflection.Emit.Lightweight (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Reflection.Extensions (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Reflection.Primitives (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Reflection.TypeExtensions (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Resources.ResourceManager (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard16
-      System.Runtime.Extensions (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Threading (>= 4.3) - framework: dnxcore50, >= netstandard16
-    System.ObjectModel (4.3) - framework: dnxcore50
-      System.Collections (>= 4.3) - framework: dnxcore50, >= netstandard13
-      System.Diagnostics.Debug (>= 4.3) - framework: dnxcore50, >= netstandard13
-      System.Resources.ResourceManager (>= 4.3) - framework: dnxcore50, >= netstandard13
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
-      System.Threading (>= 4.3) - framework: dnxcore50, >= netstandard13
-    System.Reflection (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      System.IO (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      System.Reflection.Primitives (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-    System.Reflection.Emit.ILGeneration (4.3) - framework: dnxcore50
-    System.Reflection.Emit.Lightweight (4.3) - framework: dnxcore50
-    System.Reflection.Extensions (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, >= netstandard10
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, >= netstandard10
-      System.Reflection (>= 4.3) - framework: dnxcore50, >= netstandard10
-      System.Runtime (>= 4.3) - framework: dnxcore50, >= netstandard10
-    System.Reflection.Primitives (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, >= netstandard10
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, >= netstandard10
-      System.Runtime (>= 4.3) - framework: dnxcore50, >= netstandard10
-    System.Reflection.TypeExtensions (4.3) - framework: dnxcore50
-      System.Diagnostics.Contracts (>= 4.3) - framework: dnxcore50
-      System.Diagnostics.Debug (>= 4.3) - framework: dnxcore50
-      System.Linq (>= 4.3) - framework: dnxcore50
-      System.Reflection (>= 4.3) - framework: >= net462, dnxcore50, netstandard13, >= netstandard15
-      System.Reflection.Primitives (>= 4.3) - framework: dnxcore50
-      System.Resources.ResourceManager (>= 4.3) - framework: dnxcore50
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard13, >= netstandard15
-      System.Runtime.Extensions (>= 4.3) - framework: dnxcore50
-    System.Resources.ResourceManager (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, >= netstandard10
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, >= netstandard10
-      System.Globalization (>= 4.3) - framework: dnxcore50, >= netstandard10
-      System.Reflection (>= 4.3) - framework: dnxcore50, >= netstandard10
-      System.Runtime (>= 4.3) - framework: dnxcore50, >= netstandard10
-    System.Runtime (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, netstandard12, netstandard13, >= netstandard15
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, netstandard12, netstandard13, >= netstandard15
-    System.Runtime.Extensions (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard15
-    System.Text.Encoding (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
-    System.Text.RegularExpressions (4.3) - framework: dnxcore50
-      System.Collections (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Globalization (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Resources.ResourceManager (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, netstandard13, >= netstandard16
-      System.Runtime.Extensions (>= 4.3) - framework: dnxcore50, >= netstandard16
-      System.Threading (>= 4.3) - framework: dnxcore50, >= netstandard16
-    System.Threading (4.3) - framework: dnxcore50
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
-      System.Threading.Tasks (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
-    System.Threading.Tasks (4.3) - framework: dnxcore50
-      Microsoft.NETCore.Platforms (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
-      System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
+    Microsoft.NETCore.Platforms (1.1) - restriction: == dnxcore50
+    Microsoft.NETCore.Targets (1.1) - restriction: == dnxcore50
+    System.Collections (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+    System.Diagnostics.Contracts (4.3) - restriction: == dnxcore50
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.0)
+    System.Diagnostics.Debug (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+    System.Globalization (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+    System.IO (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      System.Text.Encoding (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      System.Threading.Tasks (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+    System.Linq (4.3) - restriction: == dnxcore50
+      System.Collections (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.6)
+      System.Diagnostics.Debug (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Resources.ResourceManager (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.6)
+      System.Runtime.Extensions (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+    System.Linq.Expressions (4.3) - restriction: == dnxcore50
+      System.Collections (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Diagnostics.Debug (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Globalization (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.IO (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Linq (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Reflection (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.6)
+      System.Reflection.Emit.ILGeneration (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Reflection.Emit.Lightweight (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Reflection.Extensions (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Reflection.Primitives (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Reflection.TypeExtensions (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Resources.ResourceManager (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.6)
+      System.Runtime.Extensions (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Threading (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+    System.ObjectModel (4.3) - restriction: == dnxcore50
+      System.Collections (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.3)
+      System.Diagnostics.Debug (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.3)
+      System.Resources.ResourceManager (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.3)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      System.Threading (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.3)
+    System.Reflection (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      System.IO (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      System.Reflection.Primitives (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+    System.Reflection.Emit.ILGeneration (4.3) - restriction: == dnxcore50
+    System.Reflection.Emit.Lightweight (4.3) - restriction: == dnxcore50
+    System.Reflection.Extensions (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      System.Reflection (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.0)
+    System.Reflection.Primitives (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.0)
+    System.Reflection.TypeExtensions (4.3) - restriction: == dnxcore50
+      System.Diagnostics.Contracts (>= 4.3) - restriction: == dnxcore50
+      System.Diagnostics.Debug (>= 4.3) - restriction: == dnxcore50
+      System.Linq (>= 4.3) - restriction: == dnxcore50
+      System.Reflection (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.3) (>= netstandard1.5)
+      System.Reflection.Primitives (>= 4.3) - restriction: == dnxcore50
+      System.Resources.ResourceManager (>= 4.3) - restriction: == dnxcore50
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.3) (>= netstandard1.5)
+      System.Runtime.Extensions (>= 4.3) - restriction: == dnxcore50
+    System.Resources.ResourceManager (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      System.Globalization (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      System.Reflection (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.0)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.0)
+    System.Runtime (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.2) (== netstandard1.3) (>= netstandard1.5)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.2) (== netstandard1.3) (>= netstandard1.5)
+    System.Runtime.Extensions (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.5)
+    System.Text.Encoding (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+    System.Text.RegularExpressions (4.3) - restriction: == dnxcore50
+      System.Collections (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Globalization (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Resources.ResourceManager (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (== netstandard1.3) (>= netstandard1.6)
+      System.Runtime.Extensions (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+      System.Threading (>= 4.3) - restriction: || (== dnxcore50) (>= netstandard1.6)
+    System.Threading (4.3) - restriction: == dnxcore50
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      System.Threading.Tasks (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+    System.Threading.Tasks (4.3) - restriction: == dnxcore50
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
+      System.Runtime (>= 4.3) - restriction: || (== dnxcore50) (== netstandard1.0) (>= netstandard1.3)
     Unquote (3.1.2)
     xunit (2.1)
       xunit.assert (2.1)
       xunit.core (2.1)
-    xunit.abstractions (2.0) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, portable-net45+win80+wp80+wpa81, xamarinios, winv4.5, wpv8.0, wpav8.1
+    xunit.abstractions (2.0) - restriction: || (== dnx451) (== dnxcore50) (>= portable-net45+win8+wp8+wpa81)
     xunit.assert (2.1)
-      System.Collections (>= 4.0) - framework: dnxcore50
-      System.Diagnostics.Debug (>= 4.0) - framework: dnxcore50
-      System.Globalization (>= 4.0) - framework: dnxcore50
-      System.Linq (>= 4.0) - framework: dnxcore50
-      System.ObjectModel (>= 4.0) - framework: dnxcore50
-      System.Reflection (>= 4.0) - framework: dnxcore50
-      System.Reflection.Extensions (>= 4.0) - framework: dnxcore50
-      System.Runtime (>= 4.0) - framework: dnxcore50
-      System.Runtime.Extensions (>= 4.0) - framework: dnxcore50
-      System.Text.RegularExpressions (>= 4.0) - framework: dnxcore50
-      System.Threading.Tasks (>= 4.0) - framework: dnxcore50
+      System.Collections (>= 4.0) - restriction: == dnxcore50
+      System.Diagnostics.Debug (>= 4.0) - restriction: == dnxcore50
+      System.Globalization (>= 4.0) - restriction: == dnxcore50
+      System.Linq (>= 4.0) - restriction: == dnxcore50
+      System.ObjectModel (>= 4.0) - restriction: == dnxcore50
+      System.Reflection (>= 4.0) - restriction: == dnxcore50
+      System.Reflection.Extensions (>= 4.0) - restriction: == dnxcore50
+      System.Runtime (>= 4.0) - restriction: == dnxcore50
+      System.Runtime.Extensions (>= 4.0) - restriction: == dnxcore50
+      System.Text.RegularExpressions (>= 4.0) - restriction: == dnxcore50
+      System.Threading.Tasks (>= 4.0) - restriction: == dnxcore50
     xunit.core (2.1)
-      System.Collections (>= 4.0) - framework: dnxcore50
-      System.Diagnostics.Debug (>= 4.0) - framework: dnxcore50
-      System.Globalization (>= 4.0) - framework: dnxcore50
-      System.Linq (>= 4.0) - framework: dnxcore50
-      System.Reflection (>= 4.0) - framework: dnxcore50
-      System.Reflection.Extensions (>= 4.0) - framework: dnxcore50
-      System.Runtime (>= 4.0) - framework: dnxcore50
-      System.Runtime.Extensions (>= 4.0) - framework: dnxcore50
-      System.Threading.Tasks (>= 4.0) - framework: dnxcore50
-      xunit.abstractions (>= 2.0) - framework: dnxcore50
-      xunit.extensibility.core (2.1) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, portable-net45+win80+wp80+wpa81, xamarinios, winv4.5, wpv8.0, wpav8.1
-      xunit.extensibility.execution (2.1) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, portable-net45+win80+wp80+wpa81, xamarinios, winv4.5, wpv8.0, wpav8.1
-    xunit.extensibility.core (2.1) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, portable-net45+win80+wp80+wpa81, xamarinios, winv4.5, wpv8.0, wpav8.1
+      System.Collections (>= 4.0) - restriction: == dnxcore50
+      System.Diagnostics.Debug (>= 4.0) - restriction: == dnxcore50
+      System.Globalization (>= 4.0) - restriction: == dnxcore50
+      System.Linq (>= 4.0) - restriction: == dnxcore50
+      System.Reflection (>= 4.0) - restriction: == dnxcore50
+      System.Reflection.Extensions (>= 4.0) - restriction: == dnxcore50
+      System.Runtime (>= 4.0) - restriction: == dnxcore50
+      System.Runtime.Extensions (>= 4.0) - restriction: == dnxcore50
+      System.Threading.Tasks (>= 4.0) - restriction: == dnxcore50
+      xunit.abstractions (>= 2.0) - restriction: == dnxcore50
+      xunit.extensibility.core (2.1) - restriction: || (== dnx451) (== dnxcore50) (>= portable-net45+win8+wp8+wpa81)
+      xunit.extensibility.execution (2.1) - restriction: || (== dnx451) (== dnxcore50) (>= portable-net45+win8+wp8+wpa81)
+    xunit.extensibility.core (2.1) - restriction: || (== dnx451) (== dnxcore50) (>= portable-net45+win8+wp8+wpa81)
       xunit.abstractions (2.0)
-    xunit.extensibility.execution (2.1) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, portable-net45+win80+wp80+wpa81, xamarinios, winv4.5, wpv8.0, wpav8.1
-      System.Collections (>= 4.0) - framework: dnxcore50
-      System.Diagnostics.Debug (>= 4.0) - framework: dnxcore50
-      System.Globalization (>= 4.0) - framework: dnxcore50
-      System.IO (>= 4.0) - framework: dnxcore50
-      System.Linq (>= 4.0) - framework: dnxcore50
-      System.Linq.Expressions (>= 4.0) - framework: dnxcore50
-      System.Reflection (>= 4.0) - framework: dnxcore50
-      System.Reflection.Extensions (>= 4.0) - framework: dnxcore50
-      System.Runtime (>= 4.0) - framework: dnxcore50
-      System.Runtime.Extensions (>= 4.0) - framework: dnxcore50
-      System.Text.Encoding (>= 4.0) - framework: dnxcore50
-      System.Threading (>= 4.0) - framework: dnxcore50
-      System.Threading.Tasks (>= 4.0) - framework: dnxcore50
-      xunit.abstractions (>= 2.0) - framework: dnxcore50
-      xunit.extensibility.core (2.1) - framework: >= net45, dnx451, dnxcore50, monoandroid, monotouch, xamarinios, winv4.5, wpv8.0, wpav8.1
+    xunit.extensibility.execution (2.1) - restriction: || (== dnx451) (== dnxcore50) (>= portable-net45+win8+wp8+wpa81)
+      System.Collections (>= 4.0) - restriction: == dnxcore50
+      System.Diagnostics.Debug (>= 4.0) - restriction: == dnxcore50
+      System.Globalization (>= 4.0) - restriction: == dnxcore50
+      System.IO (>= 4.0) - restriction: == dnxcore50
+      System.Linq (>= 4.0) - restriction: == dnxcore50
+      System.Linq.Expressions (>= 4.0) - restriction: == dnxcore50
+      System.Reflection (>= 4.0) - restriction: == dnxcore50
+      System.Reflection.Extensions (>= 4.0) - restriction: == dnxcore50
+      System.Runtime (>= 4.0) - restriction: == dnxcore50
+      System.Runtime.Extensions (>= 4.0) - restriction: == dnxcore50
+      System.Text.Encoding (>= 4.0) - restriction: == dnxcore50
+      System.Threading (>= 4.0) - restriction: == dnxcore50
+      System.Threading.Tasks (>= 4.0) - restriction: == dnxcore50
+      xunit.abstractions (>= 2.0) - restriction: == dnxcore50
+      xunit.extensibility.core (2.1) - restriction: || (== dnx451) (== dnxcore50) (== monoandroid) (== monotouch) (== xamarinios) (== win8) (== wp8) (== wpa81) (>= net45)
     xunit.extensions (1.9.0.1566)
       xunit (>= 1.9.0.1566)
     xunit.runner.console (2.1)
@@ -167,24 +167,24 @@ NUGET
 GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.46.1)
+    FAKE (4.61.3)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
       FSharpVSPowerTools.Core (>= 2.3 < 2.4)
     FSharpVSPowerTools.Core (2.3)
       FSharp.Compiler.Service (>= 2.0.0.3)
-    Microsoft.Bcl (1.1.10) - framework: net10, net11, net20, net30, net35, net40, net40-full
+    Microsoft.Bcl (1.1.10) - restriction: && (< net45) (< win8) (< portable-win81+wpa81)
       Microsoft.Bcl.Build (>= 1.0.14)
-    Microsoft.Bcl.Build (1.0.21) - import_targets: false, framework: net10, net11, net20, net30, net35, net40, net40-full
-    Microsoft.Net.Http (2.2.29) - framework: net10, net11, net20, net30, net35, net40, net40-full
+    Microsoft.Bcl.Build (1.0.21) - import_targets: false, restriction: && (< net45) (< win8) (< portable-win81+wpa81)
+    Microsoft.Net.Http (2.2.29) - restriction: && (< net45) (< win8) (< portable-win81+wpa81)
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
-    NuGet.CommandLine (3.4.3)
-    Octokit (0.23)
-      Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
+    NuGet.CommandLine (4.1)
+    Octokit (0.24)
+      Microsoft.Net.Http  - restriction: && (< net45) (< win8) (< portable-win81+wpa81)
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (ab0bacd2f21ee486879a3ea2a765f15b536181fb)
+    modules/Octokit/Octokit.fsx (15e1b741f4ae9fbaad640a65231dfcec28ce6ddd)
       Octokit (>= 0.20)
