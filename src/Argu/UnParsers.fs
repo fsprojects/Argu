@@ -278,7 +278,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
         yield Environment.NewLine; yield Environment.NewLine
 
         for aI in options do yield! mkArgUsage width aI
-        for aI in argInfo.InheritedParams.Value do yield! mkArgUsage width aI
+        for aI in argInfo.InheritedParams.Value |> Seq.filter (fun a -> not a.IsHidden) do yield! mkArgUsage width aI
 
         yield! mkHelpParamUsage width argInfo.HelpParam
 }
