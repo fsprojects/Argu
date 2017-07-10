@@ -38,7 +38,7 @@ type InheritAttribute() = inherit Attribute()
 /// Denotes that the given argument should accummulate any unrecognized arguments it encounters.
 /// Must contain a single field of type string
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-type GatherUnrecognized() = inherit Attribute()
+type GatherUnrecognizedAttribute() = inherit Attribute()
 
 /// Demands that at least one subcommand is specified in the CLI; a parse exception is raised otherwise.
 [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]

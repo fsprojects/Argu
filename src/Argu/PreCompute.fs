@@ -278,7 +278,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None -> None
 
     let isGatherUnrecognized =
-        if uci.ContainsAttribute<GatherUnrecognized>() then
+        if uci.ContainsAttribute<GatherUnrecognizedAttribute>() then
             match types with
             | _ when isMainCommand -> arguExn "parameter '%O' contains incompatible combination of attributes 'MainCommand' and 'GatherUnrecognized'." uci
             | [|t|] when t = typeof<string> -> true
