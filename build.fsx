@@ -169,7 +169,7 @@ Target "ReleaseGitHub" (fun _ ->
 )
 
 
-let dotnetcliVersion = "1.0.1"
+let dotnetcliVersion = "2.1.0-preview1-007002"
 let dotnetSDKPath = System.Environment.GetFolderPath Environment.SpecialFolder.LocalApplicationData </> "dotnetcore" </> dotnetcliVersion |> FullName
 let dotnetExePath = dotnetSDKPath </> (if isWindows then "dotnet.exe" else "dotnet") |> FullName
 
