@@ -1,19 +1,43 @@
-redirects: on
-source https://www.nuget.org/api/v2
-source https://api.nuget.org/v3/index.json
 
-nuget FSharp.Core ~> 4.1.12 redirects:force, content:None
-nuget FSharp.NET.Sdk ~> 1.0.2  content:None
 
-nuget FsCheck content:None
-nuget Unquote 
 
-nuget NUnit  
-nuget NUnit.ConsoleRunner
+group NetFx
 
-nuget System.Numerics.Vectors
-nuget System.Reflection.Extensions 
-nuget System.Reflection.TypeExtensions 
+	redirects: on
+	source https://api.nuget.org/v3/index.json
+
+	nuget FSharp.Core <= 3.1 redirects:force, content:None, CONDITION: NETFX
+
+group NetStandard
+
+	redirects: on
+	source https://api.nuget.org/v3/index.json
+
+	nuget FSharp.Core 4.2.2 redirects:force, content:None, Condition: NETSTANDARD
+	
+	nuget System.Numerics.Vectors Condition: NETSTANDARD
+	nuget System.Reflection Condition: NETSTANDARD
+	nuget System.Reflection.Extensions Condition: NETSTANDARD
+	nuget System.Reflection.TypeExtensions Condition: NETSTANDARD
+
+group Sample
+
+	redirects: on
+	source https://api.nuget.org/v3/index.json
+
+	nuget FSharp.Core redirects:force, content:None
+
+group Tests
+
+	redirects: on
+	source https://api.nuget.org/v3/index.json
+
+	nuget FSharp.Core redirects:force, content:None
+	nuget FsCheck content:None
+	nuget Unquote 
+
+	nuget NUnit  
+	nuget NUnit.ConsoleRunner
 
 group Build
     source https://api.nuget.org/v3/index.json

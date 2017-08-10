@@ -1,1 +1,11 @@
-﻿FSharp.Core 
+﻿group NetStandard
+
+	FSharp.Core
+	System.Numerics.Vectors 
+	System.Reflection 
+	System.Reflection.Extensions 
+	System.Reflection.TypeExtensions
+
+group NetFx
+
+	FSharp.Core
