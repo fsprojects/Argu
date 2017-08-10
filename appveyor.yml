@@ -1,9 +1,9 @@
 os: Visual Studio 2015
 
 build_script:
-  - cmd: build.cmd NuGet
+  - cmd: build.cmd Default
 
 test: off
 artifacts:
-  - path: bin
-    name: bin
+  - path: nupkg
+    name: nupkg
