@@ -49,6 +49,7 @@ module ``Argu Tests`` =
     type RequiredSubcommand =
         | Foo
         | [<CliPrefix(CliPrefix.None)>] Sub of ParseResults<CleanArgs>
+        | [<SubCommand; CliPrefix(CliPrefix.None)>] Null_Sub
     with
         interface IArgParserTemplate with
             member this.Usage = "required"
@@ -420,6 +421,19 @@ module ``Argu Tests`` =
         let args = [|"nullary-sub"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         test <@ results.TryGetSubCommand() = Some Nullary_Sub @>
+
+    [<Fact>]
+    let ``Required subcommand should succeed on nullary subcommand`` () =
+        let args = [|"required"; "null-sub"|]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        let nested = results.GetResult <@ Required @>
+        test <@ nested.TryGetSubCommand() = Some Null_Sub @>
+
+    [<Fact>]
+    let ``Calling both a nullary subcommand a normal one should fail`` () =
+        let args = [|"required"; "null-sub"; "sub"; "-fdx"|]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
+                                        (fun e -> <@ e.FirstLine.Contains "subcommand" @>)
 
     [<Fact>]
     let ``GatherUnrecognized attribute`` () =
