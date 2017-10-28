@@ -752,12 +752,12 @@ module ``Argu Tests`` =
                 | BaseParameter -> "will be hidden"
                 | Sub(_) -> "subcommand"
 
-    [<Fact>]
+    [<Xunit.Fact>]
     let ``Hidden parameters are not printed in help text`` () =
         let parser = ArgumentParser.Create<SubCommand>()
         test <@ parser.PrintUsage().Contains "will be hidden" |> not @>
 
-    [<Fact>]
+    [<Xunit.Fact>]
     let ``Hidden inherited parameters are not printed in help text with subcommand`` () =
         let parser = ArgumentParser.Create<BaseCommand>()
         let results = parser.ParseCommandLine([|"sub"|])
