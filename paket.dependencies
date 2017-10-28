@@ -1,24 +1,9 @@
 
+group Main
 
-
-group NetFx
-
-	redirects: on
-	source https://api.nuget.org/v3/index.json
-
-	nuget FSharp.Core <= 3.1 redirects:force, content:None, CONDITION: NETFX
-
-group NetStandard
-
-	redirects: on
-	source https://api.nuget.org/v3/index.json
-
-	nuget FSharp.Core 4.2.2 redirects:force, content:None, Condition: NETSTANDARD
+	# Paket can't cleanly express the Logic for FSharp.Core,
+	# so use nuget for the main Argu project.
 	
-	nuget System.Numerics.Vectors Condition: NETSTANDARD
-	nuget System.Reflection Condition: NETSTANDARD
-	nuget System.Reflection.Extensions Condition: NETSTANDARD
-	nuget System.Reflection.TypeExtensions Condition: NETSTANDARD
 
 group Sample
 
@@ -43,6 +28,8 @@ group Build
     source https://api.nuget.org/v3/index.json
     source https://www.nuget.org/api/v2
     
+	framework: >=net45
+
     nuget FAKE
     nuget FSharp.Formatting
     nuget SourceLink.Fake

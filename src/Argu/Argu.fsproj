@@ -1,18 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;net40;net35</TargetFrameworks>
+    
+    <TargetFrameworks>netstandard1.6;net45;net35</TargetFrameworks>
     <OutputType>Library</OutputType>
     <OutputPath>..\..\bin\$(TargetFramework)</OutputPath>
 
-    <NetStandard Condition=" '$(TargetFramework)' == 'netstandard1.6' ">True</NetStandard>
-    <NetFx Condition=" '$(TargetFramework)' == 'netstandard1.6' ">True</NetFx>
-      <NetFx Condition=" '$(TargetFramework)' == 'netstandard1.6' ">True</NetFx>
-    
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+    <DisableImplicitSystemValueTupleReference>true</DisableImplicitSystemValueTupleReference>
+    <!-- https://github.com/Microsoft/msbuild/issues/1333#issuecomment-296346352 -->
+    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="paket.references" />
+    <PackageReference Include="FSharp.Core" Version="3.0.2" Condition=" '$(TargetFramework)' == 'net35' " />
+    <PackageReference Include="FSharp.Core" Version="3.0.2" Condition=" '$(TargetFramework)' == 'net45' " />
+    <PackageReference Include="FSharp.Core" Version="4.2.2" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+
+    <PackageReference Include="System.Numerics.Vectors" Version="4.3" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+    <PackageReference Include="System.Reflection" Version="4.3" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+    <PackageReference Include="System.Reflection.Extensions" Version="4.3" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+  </ItemGroup>
+  
+  <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Attributes.fs" />
@@ -28,5 +39,5 @@
     <Compile Include="ArgumentParser.fs" />
   </ItemGroup>
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <!--<Import Project="..\..\.paket\Paket.Restore.targets" />-->
 </Project>
