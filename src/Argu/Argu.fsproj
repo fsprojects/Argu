@@ -1,68 +1,36 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>49e38cf1-8b37-4a4f-83cf-eafe9577bcc6</ProjectGuid>
+    
+    <TargetFrameworks>netstandard1.6;net40;net35</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <RootNamespace>Argu</RootNamespace>
-    <AssemblyName>Argu</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>Argu</Name>
-    <ResolveNuGetPackages>false</ResolveNuGetPackages>
-    <TargetFrameworkProfile />
-    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <OutputPath>..\..\bin\$(TargetFramework)</OutputPath>
+
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+    <DisableImplicitSystemValueTupleReference>true</DisableImplicitSystemValueTupleReference>
+    <!-- https://github.com/Microsoft/msbuild/issues/1333#issuecomment-296346352 -->
+    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <Tailcalls>false</Tailcalls>
-    <OutputPath>..\..\bin\net40\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\net40\Argu.XML</DocumentationFile>
-    <OtherFlags>--warnon:1182</OtherFlags>
+  
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <DefineConstants>$(DefineConstants);CORE_CLR</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <Tailcalls>true</Tailcalls>
-    <OutputPath>..\..\bin\net40\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\net40\Argu.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-NET35|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <Tailcalls>true</Tailcalls>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>2.3.0.0</TargetFSharpCoreVersion>
-    <DefineConstants>TRACE;NET35</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\net35\Argu.XML</DocumentationFile>
-    <OutputPath>..\..\bin\net35\</OutputPath>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '11.0'">
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+
+  <ItemGroup>
+    
+    <Reference Include="System.Configuration" Condition=" '$(TargetFramework)' != 'netstandard1.6' " />
+    
+    <PackageReference Include="FSharp.Core" Version="3.0.2" Condition=" '$(TargetFramework)' == 'net35' " />
+    <PackageReference Include="FSharp.Core" Version="3.0.2" Condition=" '$(TargetFramework)' == 'net40' " />
+    <PackageReference Include="FSharp.Core" Version="4.2.2" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+
+    <PackageReference Include="System.Numerics.Vectors" Version="4.3" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+    <PackageReference Include="System.Reflection" Version="4.3" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+    <PackageReference Include="System.Reflection.Extensions" Version="4.3" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+    
+  </ItemGroup>
+  
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
@@ -77,27 +45,9 @@
     <Compile Include="Parsers\Cli.fs" />
     <Compile Include="Parsers\KeyValue.fs" />
     <Compile Include="ArgumentParser.fs" />
-    <None Include="paket.template" />
-    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Numerics" />
+    <None Include="paket.references" />
   </ItemGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <Import Project="..\..\.paket\paket.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

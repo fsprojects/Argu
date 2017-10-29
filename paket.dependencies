@@ -1,18 +1,36 @@
-redirects: on
-source https://www.nuget.org/api/v2
 
-nuget FsCheck
-nuget Unquote
-nuget xunit ~> 2.0
-nuget xunit.extensions
-nuget xunit.runner.console
-nuget xunit.runner.visualstudio version_in_path: true
+group Main
+
+	# Paket can't cleanly express the Logic for FSharp.Core,
+	# so use nuget for the main Argu project.
+	
+
+group Sample
+
+	redirects: on
+	source https://api.nuget.org/v3/index.json
+
+	nuget FSharp.Core redirects:force, content:None
+
+group Tests
+
+	redirects: on
+	source https://api.nuget.org/v3/index.json
+
+	nuget FSharp.Core redirects:force, content:None
+	nuget FsCheck content:None
+	nuget Unquote 
+
+	nuget NUnit  
+	nuget NUnit.ConsoleRunner
 
 group Build
-  source https://www.nuget.org/api/v2
+    source https://api.nuget.org/v3/index.json
+    source https://www.nuget.org/api/v2
+    
+	framework: >=net45
 
-  nuget FAKE
-  nuget FSharp.Formatting
-  nuget Nuget.CommandLine
-  nuget SourceLink.Fake
-  github fsharp/FAKE modules/Octokit/Octokit.fsx
+    nuget FAKE
+    nuget FSharp.Formatting
+    nuget SourceLink.Fake
+    github fsharp/FAKE modules/Octokit/Octokit.fsx

@@ -1,7 +1,7 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../bin/net40"
+#I "../../bin/net461"
 #r "Argu.dll"
 
 open System
@@ -340,7 +340,7 @@ which generates the following syntax:
         clean <options>       Remove untracked files from the working tree.
         commit <options>      Record changes to the repository.
 
-	    Use 'git <subcommand> --help' for additional information.
+        Use 'git <subcommand> --help' for additional information.
 
     OPTIONS:
 

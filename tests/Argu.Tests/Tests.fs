@@ -767,3 +767,8 @@ module ``Argu Tests`` =
         | _ -> failwithf "never should get here"
 
 #endif
+
+#if CORECLR
+    [<EntryPoint>]
+    let main _argv = 0
+#endif
