@@ -29,12 +29,15 @@
     <ProjectReference Include="../../src/Argu/Argu.fsproj" />
     <!--<Reference Include="FSharp.Data.TypeProviders" />-->
 
-    <PackageReference Include="NUnit" Version="3.8.1" />
+
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    
+    <!--<PackageReference Include="NUnit" Version="3.8.1" />-->
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="Unquote" Version="3.2" />
     <PackageReference Include="FsCheck" Version="2.10.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0" />
+    <!--<PackageReference Include="NUnit3TestAdapter" Version="3.8.0" />-->
     
     <!-- FSharp.Core is inherited from Argu -->
     <!--<PackageReference Include="FSharp.Core" Version="" />-->
