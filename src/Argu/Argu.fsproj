@@ -46,6 +46,8 @@
     <Compile Include="Parsers\KeyValue.fs" />
     <Compile Include="ArgumentParser.fs" />
   </ItemGroup>
-
-  <!--<Import Project="..\..\.paket\Paket.Restore.targets" />-->
+  <ItemGroup>
+    <None Include="paket.references" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
