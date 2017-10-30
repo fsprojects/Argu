@@ -25,7 +25,7 @@ let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
-let testAssemblies = !! "bin/net40/Argu.Tests.dll"
+let testAssemblies = !! "bin/Argu.Tests.dll"
 
 let netcoreSrcFiles = !! "src/**/project.json" |> Seq.toList
 let netcoreTestFiles = !! "tests/**/project.json" |> Seq.toList
@@ -68,14 +68,6 @@ let configuration = environVarOrDefault "Configuration" "Release"
 
 let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
 
-Target "Build.Net35" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [ project + ".sln" ]
-      Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration", "Release-NET35" ]
-    |> Log "AppBuild-Output: "
-)
-
 Target "Build.Net40" (fun _ ->
     // Build the rest of the project
     { BaseDirectory = __SOURCE_DIRECTORY__
@@ -90,17 +82,11 @@ Target "Build.Net40" (fun _ ->
 // Run the unit tests using test runner & kill test runner when complete
 
 Target "RunTests" (fun _ ->
-    ActivateFinalTarget "CloseTestRunner"
-
     testAssemblies
     |> xUnit2 (fun p ->
         { p with
             Parallel = ParallelMode.Collections
             TimeOut = TimeSpan.FromMinutes 20. })
-)
-
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
 )
 
 //
@@ -154,7 +140,7 @@ Target "SourceLink" (fun _ ->
 )
 
 // Github Releases
-
+#nowarn "85"
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
@@ -241,19 +227,18 @@ Target "Default" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  ==> "SetVersionInProjectJSON"
+  //==> "SetVersionInProjectJSON"
   ==> "Prepare"
   ==> "Build.Net40"
   ==> "RunTests"
   ==> "Default"
 
 "Default"
-  ==> "PrepareRelease"
-  =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
-  =?> ("Build.NetCore", isDotnetSDKInstalled)
-  =?> ("RunTests.NetCore", isDotnetSDKInstalled)
+  //==> "PrepareRelease"
+  //=?> ("Build.NetCore", isDotnetSDKInstalled)
+  //=?> ("RunTests.NetCore", isDotnetSDKInstalled)
   ==> "NuGet.Pack"
-  ==> "NuGet.AddNetCore"
+  //==> "NuGet.AddNetCore"
   ==> "NuGet"
   ==> "GenerateDocs"
   ==> "SourceLink"

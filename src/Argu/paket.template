@@ -17,9 +17,6 @@ tags
 references
     Argu.dll
 files
-    ../../bin/net40/Argu.dll ==> lib/net40
-    ../../bin/net40/Argu.pdb ==> lib/net40
-    ../../bin/net40/Argu.xml ==> lib/net40
-    ../../bin/net35/Argu.dll ==> lib/net35
-    ../../bin/net35/Argu.pdb ==> lib/net35
-    ../../bin/net35/Argu.xml ==> lib/net35
+    ../../bin/Argu.dll ==> lib/net40
+    ../../bin/Argu.pdb ==> lib/net40
+    ../../bin/Argu.xml ==> lib/net40

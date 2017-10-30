@@ -1,12 +1,18 @@
-redirects: on
+redirects: force
 source https://www.nuget.org/api/v2
 
+nuget FSharp.Core >= 3.1 lowest_matching:true
 nuget FsCheck
 nuget Unquote
-nuget xunit ~> 2.0
-nuget xunit.extensions
-nuget xunit.runner.console
-nuget xunit.runner.visualstudio version_in_path: true
+nuget xunit ~> 2.3.0
+nuget xunit.runner.console ~> 2.3.0
+nuget xunit.runner.visualstudio ~> 2.3.0 version_in_path: true
+
+group FSharpCore4
+  redirects: force
+  source https://www.nuget.org/api/v2
+
+  nuget FSharp.Core ~> 4.0.0
 
 group Build
   source https://www.nuget.org/api/v2

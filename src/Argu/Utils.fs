@@ -213,16 +213,6 @@ let escapeCliString (value : string) =
 let flattenCliTokens (tokens : seq<string>) =
     tokens |> Seq.map escapeCliString |> String.concat " "
 
-let private whitespaceAllRegex = new Regex(@"^\s*$", RegexOptions.Compiled)
-/// Replacement of String.IsNullOrWhiteSpace for NET35
-let isNullOrWhiteSpace (string:string) =
-#if NET35
-    if string = null then true
-    else whitespaceAllRegex.IsMatch string
-#else
-    String.IsNullOrWhiteSpace string
-#endif
-
 type StringExpr<'T> = StringBuilder -> 'T
 
 type StringExprBuilder () =

@@ -90,9 +90,7 @@ let primitiveParsers =
         mkParser "float" Single.Parse string
         mkParser "double" Double.Parse string
         mkParser "decimal" Decimal.Parse string
-#if !NET35
         mkParser "bigint" System.Numerics.BigInteger.Parse string
-#endif
         mkParser "guid" Guid string
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
@@ -369,7 +367,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
             | None -> Some <| generateAppSettingsName uci
             | Some _ when parsers.Type = ArgumentType.SubCommand -> arguExn "CustomAppSettings in %O not supported in subcommands." uci
-            | Some attr when not <| isNullOrWhiteSpace attr.Name -> Some attr.Name
+            | Some attr when not <| String.IsNullOrWhiteSpace attr.Name -> Some attr.Name
             | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name
 
     /// gets the default name of the argument
