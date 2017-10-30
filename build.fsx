@@ -249,7 +249,6 @@ Target "Default" DoNothing
 
 "Default"
   ==> "PrepareRelease"
-  ==> "SourceLink"
   =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
   =?> ("Build.NetCore", isDotnetSDKInstalled)
   =?> ("RunTests.NetCore", isDotnetSDKInstalled)
@@ -257,6 +256,7 @@ Target "Default" DoNothing
   ==> "NuGet.AddNetCore"
   ==> "NuGet"
   ==> "GenerateDocs"
+  ==> "SourceLink"
   ==> "ReleaseDocs"
   ==> "NuGetPush"
   ==> "ReleaseGitHub"
