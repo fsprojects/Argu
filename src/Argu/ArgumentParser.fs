@@ -158,45 +158,27 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
-        let configurationReader = match configurationReader with Some c -> c | None -> ConfigurationReader.DefaultReader()
+        let configurationReader = 
+            match configurationReader with 
+            | Some _ as c -> c 
+#if NETSTANDARD2_0
+            | None -> None
+#else
+            | None -> ConfigurationReader.FromAppSettings() |> Some
+#endif
 
         try
-            let appSettingsResults = parseKeyValueConfig configurationReader argInfo
+            let appSettingsResults = 
+                match configurationReader with
+                | Some r -> parseKeyValueConfig r argInfo
+                | None -> [||]
+
             let cliResults = parseCommandLine argInfo _programName helpTextMessage _usageStringCharacterWidth errorHandler raiseOnUsage ignoreUnrecognized inputs
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
             new ParseResults<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
-
-    /// <summary>Parse AppSettings section of XML configuration only.</summary>
-    /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
-    member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResults<'Template> =
-        let configurationReader =
-            match xmlConfigurationFile with
-            | None -> ConfigurationReader.DefaultReader()
-            | Some f ->
-#if CORE_CLR
-                raise <| NotImplementedException "App.Config is not supported."
-#else
-                ConfigurationReader.FromAppSettingsFile(f)
-#endif
-
-        __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
-
-    /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
-    /// <param name="assembly">assembly to get application configuration from.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
-    member __.ParseAppSettings(assembly : Assembly, ?ignoreMissing : bool) =
-#if CORE_CLR
-        raise <| NotImplementedException "App.Config is not supported."
-#else
-        let configurationReader = ConfigurationReader.FromAppSettings(assembly)
-        __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
-#endif
 
     /// <summary>
     ///     Converts a sequence of template argument inputs into a ParseResults instance

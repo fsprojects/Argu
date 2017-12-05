@@ -5,11 +5,8 @@
 open System
 open System.IO
 open Xunit
-#if NO_UNQUOTE
-#else
 open FSharp.Quotations
-open Swensen.Unquote.Assertions
-#endif
+open Swensen.Unquote
 
 open Argu
 
@@ -124,31 +121,7 @@ module ``Argu Tests`` =
                 | A | B | C -> "misc arguments"
 
     let parser = ArgumentParser.Create<Argument> (programName = "gadget")
-#if CORECLR
-#else
     let parseFunc ignoreMissing f = parser.ParseConfiguration(ConfigurationReader.FromFunction f, ignoreMissing)
-#endif
-
-#if NO_UNQUOTE
-
-    let test actual expected = Assert.True((actual = expected), (sprintf "Expected '%A' but was '%A'" expected actual))
-
-    [<Fact>]
-    let ``Simple command line parsing`` () =
-        let args = 
-            [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ; 
-                "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
-
-        let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
-        let results = parser.ParseCommandLine args
-
-        test (results.GetAllResults()) expected_outcome
-        test (results.Contains <@ Detach @>) true
-        test (results.GetResult <@ Listener @>) ("localhost", 8080)
-        test (results.GetResults <@ Log_Level @>) [2]
-        test (results.PostProcessResult(<@ Log_Level @>, fun x -> x + 1)) 3
-
-#else
 
     [<Fact>]
     let ``Simple command line parsing`` () =
@@ -165,6 +138,7 @@ module ``Argu Tests`` =
         test <@ results.GetResults <@ Log_Level @> = [2] @>
         test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
+#if !NETSTANDARD2_0
     [<Fact>]
     let ``Simple AppSettings parsing`` () =
         let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ] |> List.sortBy tagOf
@@ -180,6 +154,7 @@ module ``Argu Tests`` =
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
         test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+#endif
 
     [<Fact>]
     let ``AppSettings CSV parsing`` () =
@@ -765,5 +740,3 @@ module ``Argu Tests`` =
             test <@ r.Parser.PrintUsage().Contains "will be shown" @>
             test <@ r.Parser.PrintUsage().Contains "will be hidden" |> not @>
         | _ -> failwithf "never should get here"
-
-#endif

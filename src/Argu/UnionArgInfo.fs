@@ -3,9 +3,6 @@ module internal Argu.UnionArgInfo
 
 open System
 open System.IO
-#if !CORE_CLR
-open System.Configuration
-#endif
 open System.Collections.Generic
 open System.Reflection
 

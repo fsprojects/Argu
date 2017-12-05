@@ -87,13 +87,6 @@ type ProcessExiter(colorizerOption : (ErrorCode -> ConsoleColor option) option) 
 
             exit (int errorCode)
 
-/// Abstract key/value configuration reader
-type IConfigurationReader =
-    /// Configuration reader identifier
-    abstract Name : string
-    /// Gets value corresponding to supplied key
-    abstract GetValue : key:string -> string
-
 /// Argument parameter type identifier
 type ArgumentType =
     /// Argument specifies primitive parameters like strings or integers

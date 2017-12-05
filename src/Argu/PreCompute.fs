@@ -48,11 +48,7 @@ let tryExtractUnionParameterLabel (p : PropertyInfo) =
     else Some(p.Name.Replace('_',' '))
 
 let (|NestedParseResults|Optional|List|Other|) (t : Type) =
-#if CORE_CLR
-    if t.GetTypeInfo().IsGenericType then
-#else
     if t.IsGenericType then
-#endif
         let gt = t.GetGenericTypeDefinition()
         if typeof<IParseResult>.IsAssignableFrom t then NestedParseResults(t.GetGenericArguments().[0])
         elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
@@ -97,11 +93,7 @@ let primitiveParsers =
 
 /// Creates a primitive parser from an enumeration
 let tryGetEnumerationParser label (t : Type) =
-#if CORE_CLR
-    if not (t.GetTypeInfo().IsEnum) then None else
-#else
     if not t.IsEnum then None else
-#endif
     let names = Enum.GetNames(t) |> Seq.map generateEnumName
     let values = Enum.GetValues(t) |> Seq.cast<obj>
     let index = Seq.zip names values |> Seq.toArray
@@ -450,11 +442,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         arguExn "template type '%O' is not an F# union." t
     elif stack |> List.exists ((=) t) then
         arguExn "template type '%O' implements unsupported recursive pattern." t
-#if CORE_CLR
-    elif t.GetTypeInfo().IsGenericType then
-#else
     elif t.IsGenericType then
-#endif
         arguExn "template type '%O' is generic; this is not supported." t
 
     let helpParam =
