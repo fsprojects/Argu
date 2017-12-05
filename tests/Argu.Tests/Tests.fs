@@ -423,12 +423,12 @@ module ``Argu Tests`` =
 
 
     [<Fact>]
-    let ``Optional parameter: None`` () =
+    let ``Optional parameter - None`` () =
         let result = parser.Parse([|"--optional" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ Optional @> = None @>
 
     [<Fact>]
-    let ``Optional parameter: Some`` () =
+    let ``Optional parameter - Some`` () =
         let result = parser.Parse([|"--optional" ; "42" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ Optional @> = (Some 42) @>
 
@@ -453,17 +453,17 @@ module ``Argu Tests`` =
                                         (fun e -> <@ e.FirstLine.Contains "first|second|third" @>)
 
     [<Fact>]
-    let ``List parameter: empty`` () =
+    let ``List parameter - empty`` () =
         let result = parser.Parse([|"--list" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ List @> = [] @>
 
     [<Fact>]
-    let ``List parameter: singleton`` () =
+    let ``List parameter - singleton`` () =
         let result = parser.Parse([|"--list" ; "42" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ List @> = [42] @>
 
     [<Fact>]
-    let ``List parameter: multiple args`` () =
+    let ``List parameter - multiple args`` () =
         let result = parser.Parse([|"--mandatory-arg" ; "true"; "--list" ; "1" ; "2" ; "3" ; "4" ; "5" |])
         test <@ result.GetResult <@ List @> = [1 .. 5] @>
 
