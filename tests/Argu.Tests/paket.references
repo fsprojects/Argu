@@ -1,4 +1,4 @@
-﻿group Netstandard
+﻿group Testing
 FSharp.Core
 xunit
 xunit.runner.visualstudio

@@ -3,6 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Tailcalls>false</Tailcalls>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\Argu.Core.XML</DocumentationFile>
+    <DefineConstants>RELEASE;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Argu\AssemblyInfo.fs" Link="AssemblyInfo.fs" />
     <Compile Include="..\Argu\Types.fs" Link="Types.fs" />
@@ -19,10 +26,6 @@
     <Compile Include="..\Argu\ArgumentParser.fs" Link="ArgumentParser.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Parsers\" />
+    <PackageReference Include="FSharp.Core" Version="4.2.3" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="paket.references" />
-  </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

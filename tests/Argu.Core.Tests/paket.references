@@ -1,6 +1,0 @@
-﻿group Netstandard
-xunit
-xunit.runner.visualstudio
-FSharp.Core
-Unquote
-FsCheck
