@@ -25,12 +25,13 @@ let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
-let testAssemblies = !! "bin/net40/Argu.Tests.dll"
+let netCoreSrcFiles = !! "src/*Core*/*.fsproj"
+let netCoreTestFiles = !! "tests/*Core*/*.fsproj"
 
-let netcoreSrcFiles = !! "src/**/project.json" |> Seq.toList
-let netcoreTestFiles = !! "tests/**/project.json" |> Seq.toList
+let testAssemblies = !! "bin/Release/net40/*.Tests.dll"
 
-//
+let isDotnetSDKInstalled = DotNetCli.isInstalled()
+
 //// --------------------------------------------------------------------------------------
 //// The rest of the code is standard F# build script 
 //// --------------------------------------------------------------------------------------
@@ -68,15 +69,7 @@ let configuration = environVarOrDefault "Configuration" "Release"
 
 let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
 
-Target "Build.Net35" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [ project + ".sln" ]
-      Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration", "Release-NET35" ]
-    |> Log "AppBuild-Output: "
-)
-
-Target "Build.Net40" (fun _ ->
+Target "Build" (fun _ ->
     // Build the rest of the project
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
@@ -89,9 +82,9 @@ Target "Build.Net40" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
-Target "RunTests" (fun _ ->
-    ActivateFinalTarget "CloseTestRunner"
+Target "RunTests" DoNothing
 
+Target "RunTests.Net40" (fun _ ->
     testAssemblies
     |> xUnit2 (fun p ->
         { p with
@@ -99,15 +92,13 @@ Target "RunTests" (fun _ ->
             TimeOut = TimeSpan.FromMinutes 20. })
 )
 
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
-)
+Target "RunTests.NetCore" (fun _ ->
+    for proj in netCoreTestFiles do
+        DotNetCli.Test (fun c -> { c with Project = proj }))
 
 //
 //// --------------------------------------------------------------------------------------
 //// Build a NuGet package
-
-Target "NuGet" DoNothing
 
 Target "NuGet.Pack" (fun _ ->
     Paket.Pack(fun config ->
@@ -117,7 +108,7 @@ Target "NuGet.Pack" (fun _ ->
             OutputPath = "bin"
         }))
 
-Target "NuGetPush" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = "bin/" }))
+Target "NuGet.Push" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = "bin/" }))
 
 // Doc generation
 
@@ -146,7 +137,7 @@ open SourceLink
 
 Target "SourceLink" (fun _ ->
     let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw project
-    [ yield! !! "src/**/*.??proj" ]
+    [ yield! !! "src/**/Argu.fsproj" ]
     |> Seq.iter (fun projFile ->
         let proj = VsProj.LoadRelease projFile
         SourceLink.Index proj.CompilesNotLinked proj.OutputFilePdb __SOURCE_DIRECTORY__ baseUrl
@@ -154,7 +145,7 @@ Target "SourceLink" (fun _ ->
 )
 
 // Github Releases
-
+#nowarn "85"
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
@@ -194,43 +185,11 @@ Target "ReleaseGitHub" (fun _ ->
     |> Async.RunSynchronously
 )
 
-// .NET Core SDK and .NET Core
+let assertExitCodeZero x = if x <> 0 then failwithf "Command failed with exit code %i" x
 
-let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
-
-Target "SetVersionInProjectJSON" (fun _ ->
-    for proj in netcoreSrcFiles @ netcoreTestFiles do
-        DotNetCli.SetVersionInProjectJson release.NugetVersion proj
-)
-
-Target "Build.NetCore" (fun _ ->
-    for proj in netcoreSrcFiles @ netcoreTestFiles do
-        DotNetCli.Restore (fun c -> { c with Project = proj })
-
-    for proj in netcoreSrcFiles @ netcoreTestFiles do
-        DotNetCli.Build (fun c -> { c with Project = proj })
-)
-
-Target "RunTests.NetCore" (fun _ ->
-    for proj in netcoreTestFiles do
-        DotNetCli.Test (fun c -> { c with Project = proj })
-)
-
-let isDotnetSDKInstalled = DotNetCli.isInstalled()
-
-Target "NuGet.AddNetCore" (fun _ ->
-    if not isDotnetSDKInstalled then failwith "You need to install .NET core to publish NuGet packages"
-    for proj in netcoreSrcFiles do
-        DotNetCli.Pack (fun c -> { c with Project = proj })
-
-    let nupkg = sprintf "../../bin/Argu.%s.nupkg" (release.NugetVersion)
-    let netcoreNupkg = sprintf "bin/Release/Argu.%s.nupkg" (release.NugetVersion)
-
-    Shell.Exec("dotnet", sprintf """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg, "src/Argu/") |> assertExitCodeZero
-)
-
-
-Target "Release" DoNothing
+Target "NetCore.Restore" (fun _ ->
+    for proj in Seq.append netCoreSrcFiles netCoreTestFiles do
+        DotNetCli.Restore(fun c -> { c with Project = proj }))
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
@@ -238,28 +197,30 @@ Target "Release" DoNothing
 Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "Default" DoNothing
+Target "Bundle" DoNothing
+Target "Release" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  ==> "SetVersionInProjectJSON"
   ==> "Prepare"
-  ==> "Build.Net40"
+  ==> "NetCore.Restore"
+  ==> "Build"
+  ==> "RunTests.Net40"
+  ==> "RunTests.NetCore"
   ==> "RunTests"
   ==> "Default"
 
 "Default"
   ==> "PrepareRelease"
-  =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
-  =?> ("Build.NetCore", isDotnetSDKInstalled)
-  =?> ("RunTests.NetCore", isDotnetSDKInstalled)
   ==> "NuGet.Pack"
-  ==> "NuGet.AddNetCore"
-  ==> "NuGet"
   ==> "GenerateDocs"
   ==> "SourceLink"
+  ==> "Bundle"
+
+"Bundle"
   ==> "ReleaseDocs"
-  ==> "NuGetPush"
   ==> "ReleaseGitHub"
+  ==> "NuGet.Push"
   ==> "Release"
 
 RunTargetOrDefault "Default"

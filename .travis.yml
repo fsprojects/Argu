@@ -1,10 +1,15 @@
 language: csharp
 
-sudo: required
+addons:
+  apt:
+    packages:
+       - msbuild
+
+sudo: false # use the new container-based Travis infrastructure
 dist: trusty # Ubuntu 14.04
 mono: latest
-dotnet: 1.0.0-preview2-003121
+dotnet: 2.0.0
 
 script:
   - dotnet --info
-  - ./build.sh RunTests.NetCore
+  - ./build.sh Default

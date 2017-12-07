@@ -1,14 +1,23 @@
-redirects: on
+framework: net40
 source https://www.nuget.org/api/v2
+redirects: force
 
-nuget FsCheck
-nuget Unquote
-nuget xunit ~> 2.0
-nuget xunit.extensions
-nuget xunit.runner.console
-nuget xunit.runner.visualstudio version_in_path: true
+nuget FSharp.Core >= 3.1 lowest_matching:true
+
+group Testing
+  framework: net461
+  source https://www.nuget.org/api/v2
+  redirects: force
+
+  nuget FSharp.Core >= 4.2
+  nuget Unquote ~> 4.0
+  nuget FsCheck ~> 3.0 prerelease
+  nuget xunit ~> 2.3
+  nuget xunit.runner.console ~> 2.3
+  nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
 
 group Build
+  framework: net461
   source https://www.nuget.org/api/v2
 
   nuget FAKE

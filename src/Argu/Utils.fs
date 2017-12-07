@@ -12,11 +12,7 @@ open FSharp.Reflection
 open FSharp.Quotations
 open FSharp.Quotations.Patterns
 
-#if NETSTANDARD1_6
-let allBindings = true
-#else
 let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
-#endif
 
 let inline arguExn fmt = Printf.ksprintf(fun msg -> raise <| new ArguException(msg)) fmt
 
@@ -127,30 +123,13 @@ type MemberInfo with
         | [||] -> None
         | attrs -> attrs |> Array.last :?> 'T |> Some
 
-#if CORE_CLR
-type Type with
-    member x.GetCustomAttributes(t, b : bool) = x.GetTypeInfo().GetCustomAttributes(t, b)
-    
-    member m.ContainsAttribute<'T when 'T :> Attribute> () : bool=
-        m.GetTypeInfo().ContainsAttribute<'T>()
-
-    member m.TryGetAttribute<'T when 'T :> Attribute> () : 'T option =
-        m.GetTypeInfo().TryGetAttribute<'T>()
-#endif
-
 type IDictionary<'K,'V> with
     member d.TryFind k =
         let ok,found = d.TryGetValue k
         if ok then Some found
         else None
 
-
-#if !CORE_CLR
 let currentProgramName = lazy(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName)
-#else
-// error FS0039: The value, constructor, namespace or type 'Process' is not defined
-let currentProgramName = lazy("wtf")
-#endif
 
 type UnionCaseInfo with
     member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
@@ -212,16 +191,6 @@ let escapeCliString (value : string) =
 
 let flattenCliTokens (tokens : seq<string>) =
     tokens |> Seq.map escapeCliString |> String.concat " "
-
-let private whitespaceAllRegex = new Regex(@"^\s*$", RegexOptions.Compiled)
-/// Replacement of String.IsNullOrWhiteSpace for NET35
-let isNullOrWhiteSpace (string:string) =
-#if NET35
-    if string = null then true
-    else whitespaceAllRegex.IsMatch string
-#else
-    String.IsNullOrWhiteSpace string
-#endif
 
 type StringExpr<'T> = StringBuilder -> 'T
 

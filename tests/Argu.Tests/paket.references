@@ -1,5 +1,6 @@
-﻿xunit
-xunit.extensions
+﻿group Testing
+FSharp.Core
+xunit
 xunit.runner.visualstudio
 Unquote
 FsCheck
