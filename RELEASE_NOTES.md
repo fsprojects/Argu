@@ -1,3 +1,7 @@
+### 4.0.0
+* Support NetStandard 2.0
+* Add Environment Variable configuration reader.
+
 ### 3.6.1
 * Fix default character width issue in console apps.
 
