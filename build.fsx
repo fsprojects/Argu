@@ -215,12 +215,12 @@ Target "Release" DoNothing
   ==> "NuGet.Pack"
   ==> "GenerateDocs"
   ==> "SourceLink"
-  ==> "ReleaseDocs"
   ==> "Bundle"
 
 "Bundle"
-  ==> "NuGet.Push"
+  ==> "ReleaseDocs"
   ==> "ReleaseGitHub"
+  ==> "NuGet.Push"
   ==> "Release"
 
 RunTargetOrDefault "Default"
