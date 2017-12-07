@@ -119,11 +119,8 @@ module ``Argu Tests`` =
                 | Optional _ -> "optional params"
                 | A | B | C -> "misc arguments"
 
-    let getParser =
-        let parser = lazy(ArgumentParser.Create<Argument> (programName = "gadget"))
-        fun () -> parser.Value
-
-    let parseFunc ignoreMissing f = getParser().ParseConfiguration(ConfigurationReader.FromFunction f, ignoreMissing)
+    let parser = ArgumentParser.Create<Argument> (programName = "gadget")
+    let parseFunc ignoreMissing f = parser.ParseConfiguration(ConfigurationReader.FromFunction f, ignoreMissing)
 
     [<Fact>]
     let ``Simple command line parsing`` () =
@@ -132,7 +129,7 @@ module ``Argu Tests`` =
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
         let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
-        let results = getParser().ParseCommandLine args
+        let results = parser.ParseCommandLine args
 
         test <@ results.GetAllResults() = expected_outcome @>
         test <@ results.Contains <@ Detach @> @>
@@ -144,11 +141,11 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Simple AppSettings parsing`` () =
         let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ] |> List.sortBy tagOf
-        let xmlSource = getParser().PrintAppSettingsArguments args
+        let xmlSource = parser.PrintAppSettingsArguments args
         let xmlFile = Path.GetTempFileName()
         do File.WriteAllText(xmlFile, xmlSource)
         let reader = ConfigurationReader.FromAppSettingsFile(xmlFile)
-        let results = getParser().ParseConfiguration(reader)
+        let results = parser.ParseConfiguration(reader)
 
         test <@ results.GetAllResults () = args @>
 
@@ -198,92 +195,92 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Help String`` () =
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine [| "--help" |] @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--help" |] @>
                                         (fun e -> <@ e.Message.Contains "USAGE:" @>)
 
     [<Fact>]
     let ``Missing Mandatory parameter`` () =
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine [| "-D" |] @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "-D" |] @>
                                         (fun e -> <@ e.FirstLine.Contains "missing parameter" @>)
 
     [<Fact>]
     let ``Unique parameter specified once`` () =
-        let result = getParser().ParseCommandLine([| "--unique-arg" ; "true" |], ignoreMissing = true)
+        let result = parser.ParseCommandLine([| "--unique-arg" ; "true" |], ignoreMissing = true)
         test <@ result.GetResult <@ Unique_Arg @> @>
 
     [<Fact>]
     let ``Unique parameter specified twice`` () =
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine([| "--unique-arg" ; "true" ; "--unique-arg" ; "false" |], ignoreMissing = true) @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine([| "--unique-arg" ; "true" ; "--unique-arg" ; "false" |], ignoreMissing = true) @>
                                         (fun e -> <@ e.Message.Contains "more than once" @>)
 
     [<Fact>]
     let ``First Parameter not placed at beggining`` () =
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
                                         (fun e -> <@ e.Message.Contains "should precede all other" @>)
                                         
 
     [<Fact>]
     let ``Rest Parameter`` () =
         let args = [|1..100|] |> Array.map string |> Array.append [| "--mandatory-arg" ; "true" ; "--rest-arg" |]
-        let result = getParser().ParseCommandLine args
+        let result = parser.ParseCommandLine args
         test <@ result.GetResults <@ Rest_Arg @> = [1..100] @>
 
     [<Fact>]
     let ``Multiple AltCommandLine`` () =
         let args = [| "--mandatory-arg" ; "true" ; "-z" |]
-        let results = getParser().ParseCommandLine args
+        let results = parser.ParseCommandLine args
         test <@ results.Contains <@ Detach @> @>
 
     [<Fact>]
     let ``Usage documents explicitly named argument union case values`` () =
-        let usage = getParser().PrintUsage()
+        let usage = parser.PrintUsage()
         test <@ usage.Contains "<host>" && usage.Contains "<port>" @>
 
     [<Fact>]
     let ``Parse byte[] parameters`` () =
         let bytes = [|1uy .. 255uy|]
-        let args = getParser().PrintCommandLineArguments [ Mandatory_Arg false ; Data(42, bytes) ]
-        let results = getParser().ParseCommandLine args
+        let args = parser.PrintCommandLineArguments [ Mandatory_Arg false ; Data(42, bytes) ]
+        let results = parser.ParseCommandLine args
         test <@ let _,bytes' = results.GetResult <@ Data @> in bytes' = bytes @>
 
     [<Fact>]
     let ``Parse colon assignment 1`` () =
         let args = [| "--assignment:foobar" |]
-        let result = getParser().Parse(args, ignoreMissing = true)
+        let result = parser.Parse(args, ignoreMissing = true)
         test <@ result.GetResult <@ Assignment @> = "foobar" @>
 
     [<Fact>]
     let ``Parse colon assignment 2`` () =
         let arg = [ Assignment "foo bar" ]
-        let clp = getParser().PrintCommandLineArguments arg
-        let result = getParser().Parse(clp, ignoreMissing = true)
+        let clp = parser.PrintCommandLineArguments arg
+        let result = parser.Parse(clp, ignoreMissing = true)
         test <@ result.GetResult <@ Assignment @> = "foo bar" @>
 
     [<Fact>]
     let ``Parse key-value equals assignment`` () =
         let arg = [ Env("foo", "bar") ]
-        let clp = getParser().PrintCommandLineArguments arg
-        let result = getParser().Parse(clp, ignoreMissing = true)
+        let clp = parser.PrintCommandLineArguments arg
+        let result = parser.Parse(clp, ignoreMissing = true)
         test <@ result.GetResult <@ Env @> = ("foo", "bar") @>
 
     [<Fact>]
     let ``Parse key-value equals assignment 2`` () =
-        let result = getParser().Parse([|"--env"; "foo==bar"|], ignoreMissing = true)
+        let result = parser.Parse([|"--env"; "foo==bar"|], ignoreMissing = true)
         test <@ result.GetResult <@ Env @> = ("foo", "=bar") @>
 
     [<Fact>]
     let ``Parse equals assignment`` () =
-        let result = getParser().Parse([|"--dir=../../my-relative-path"|], ignoreMissing = true)
+        let result = parser.Parse([|"--dir=../../my-relative-path"|], ignoreMissing = true)
         test <@ result.GetResult <@ Dir @> = "../../my-relative-path" @>
 
     [<Fact>]
     let ``Parse equals assignment 2`` () =
-        let result = getParser().Parse([|"--dir==foo"|], ignoreMissing = true)
+        let result = parser.Parse([|"--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult <@ Dir @> = "=foo" @>
 
     [<Fact>]
     let ``Should fail on incorrect assignment 1`` () =
-        raises<ArguParseException> <@ getParser().Parse([|"--dir:foo"|], ignoreMissing = true) @>
+        raises<ArguParseException> <@ parser.Parse([|"--dir:foo"|], ignoreMissing = true) @>
 
 
     [<Fact>]
@@ -293,7 +290,7 @@ module ``Argu Tests`` =
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
         let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
-        let results = getParser().ParseCommandLine (args, ignoreUnrecognized = true)
+        let results = parser.ParseCommandLine (args, ignoreUnrecognized = true)
         test <@ results.GetAllResults() = expected_outcome @>
 
         test <@ results.Contains <@ Detach @> @>
@@ -304,25 +301,25 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Fail on misplaced First parameter`` () =
         let args = [|"--mandatory-arg" ; "true" ; "--first-parameter" ; "arg" |]
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine args @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
                                         (fun e -> <@ e.FirstLine.Contains "should precede" @>)
 
     [<Fact>]
     let ``Fail on misplaced Last parameter`` () =
         let args = [|"--last-parameter" ; "arg" ; "--mandatory-arg"; "true"|]
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine args @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
                                         (fun e -> <@ e.FirstLine.Contains "should appear after" @>)
 
     [<Fact>]
     let ``Should recognize grouped switches`` () =
         let args = [|"-cba" ; "-cc"|]
-        let results = getParser().ParseCommandLine(args, ignoreMissing = true)
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
         test <@ results.GetAllResults() = [C; B; A; C; C] @>
 
     [<Fact>]
     let ``Simple subcommand parsing 1`` () =
         let args = [|"push" ; "-f" ; "origin" ; "master"|]
-        let results = getParser().ParseCommandLine(args, ignoreMissing = true)
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested = results.GetResult <@ Push @>
         test <@ match results.TryGetSubCommand() with Some (Push _) -> true | _ -> false @>
         test <@ nested.GetResults <@ Remote @> = [("origin", "master")] @>
@@ -331,7 +328,7 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Simple subcommand parsing 2`` () =
         let args = [|"clean"; "-fdx"|]
-        let results = getParser().ParseCommandLine(args, ignoreMissing = true)
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested = results.GetResult <@ Clean @>
         test <@ match results.TryGetSubCommand() with Some (Clean _) -> true | _ -> false @>
         test <@ nested.GetAllResults() = [F; D; X] @>
@@ -339,13 +336,13 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Main command parsing should fail on missing parameters`` () =
         let args = [|"push" ; "origin" |]
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine args @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
                                     (fun e -> <@ e.FirstLine.Contains "must be followed by <branch name>" @>)
 
     [<Fact>]
     let ``Main command parsing should allow trailing arguments`` () =
         let args = [|"push" ; "origin" ; "master" ; "-f" |]
-        let results = getParser().ParseCommandLine(args, ignoreMissing = true)
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested = results.GetResult <@ Push @>
         test <@ nested.GetResults <@ Remote @> = [("origin", "master")] @>
         test <@ nested.Contains <@ Force @> @>
@@ -353,10 +350,10 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Main command parsing should not permit intermittent arguments`` () =
         let args = [|"push" ; "origin" ; "-f" ; "master"|]
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine(args, ignoreMissing = true) @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
                                     (fun e -> <@ e.FirstLine.Contains "but was '-f'" @>)
 
-        let results = getParser().ParseCommandLine(args, ignoreMissing = true, ignoreUnrecognized = true)
+        let results = parser.ParseCommandLine(args, ignoreMissing = true, ignoreUnrecognized = true)
         let nested = results.GetResult <@ Push @>
         test <@ nested.Contains <@ Force @> @>
         test <@ nested.Contains <@ Remote @> |> not @>
@@ -365,19 +362,19 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Main command taking list of arguments`` () =
         let args = [|"--mandatory-arg" ; "true" ; "a" ; "b" ; "c" ; "ff" ; "d" |]
-        let results = getParser().ParseCommandLine(args, ignoreUnrecognized = true)
+        let results = parser.ParseCommandLine(args, ignoreUnrecognized = true)
         test <@ results.GetResult <@ Main @> = ['a' ; 'b' ; 'c'] @>
 
     [<Fact>]
     let ``SubParsers should correctly handle inherited params`` () =
-        let subParser = getParser().GetSubCommandParser <@ Clean @>
+        let subParser = parser.GetSubCommandParser <@ Clean @>
         let result = subParser.ParseCommandLine [|"-fdxv"|]
         test <@ match result.UnrecognizedCliParseResults with [:? Argument as c ] -> c = Verbose | _ -> false @>
 
     [<Fact>]
     let ``Doubly nested subcommand parsing`` () =
         let args = [|"required" ; "--foo" ; "sub" ; "-fdx" |]
-        let results = getParser().ParseCommandLine(args, ignoreMissing = true)
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested  = results.GetResult <@ Required @>
         let nested' = nested.GetResult <@ Sub @>
         test <@ nested'.Contains <@ F @> @>
@@ -385,13 +382,13 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Required subcommand attribute should fail on missing subcommand`` () =
         let args = [|"required" ; "--foo" |]
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine(args, ignoreMissing = true) @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
                                         (fun e -> <@ e.FirstLine.Contains "subcommand" @>)
 
     [<Fact>]
     let ``GatherUnrecognized attribute`` () =
         let args = [|"--mandatory-arg" ; "true" ; "unrecognized" ; "uarg1" ; "--switch1" ; "uarg2"|]
-        let results = getParser().ParseCommandLine(args)
+        let results = parser.ParseCommandLine(args)
         let sub = results.GetResult <@ Unrecognized @>
         test <@ sub.UnrecognizedCliParams = [] @>
         test <@ sub.Contains <@ Switch1 @> @>
@@ -400,14 +397,14 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Unrecognized CLI params`` () =
         let args = [| "--mandatory-arg" ; "true" ; "foobar" ; "-z" |]
-        let results = getParser().ParseCommandLine(args, ignoreUnrecognized = true)
+        let results = parser.ParseCommandLine(args, ignoreUnrecognized = true)
         test <@ results.UnrecognizedCliParams = ["foobar"] @>
         test <@ results.Contains <@ Detach @> @>
 
     [<Fact>]
     let ``Nested unrecognized CLI params`` () =
         let args = [| "clean" ; "foobar" ; "-fdx" |]
-        let results = getParser().ParseCommandLine(args, ignoreUnrecognized = true, ignoreMissing = true)
+        let results = parser.ParseCommandLine(args, ignoreUnrecognized = true, ignoreMissing = true)
         let nested = results.GetResult <@ Clean @>
         test <@ nested.UnrecognizedCliParams = ["foobar"] @>
         test <@ nested.Contains <@ D @> @>
@@ -415,75 +412,75 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Should allow '--help' before first args`` () =
-        let result = getParser().Parse([| "--help" ; "--first-parameter" ; "bar"|], raiseOnUsage = false, ignoreMissing = true)
+        let result = parser.Parse([| "--help" ; "--first-parameter" ; "bar"|], raiseOnUsage = false, ignoreMissing = true)
         test <@ result.IsUsageRequested @>
 
     [<Fact>]
     let ``Should allow '--help' before mandatory args`` () =
-        let result = getParser().Parse([| "--help" ; "--mandatory-arg" ; "true"|], raiseOnUsage = false)
+        let result = parser.Parse([| "--help" ; "--mandatory-arg" ; "true"|], raiseOnUsage = false)
         test <@ result.IsUsageRequested @>
 
 
     [<Fact>]
     let ``Optional parameter - None`` () =
-        let result = getParser().Parse([|"--optional" ; "--mandatory-arg" ; "true"|])
+        let result = parser.Parse([|"--optional" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ Optional @> = None @>
 
     [<Fact>]
     let ``Optional parameter - Some`` () =
-        let result = getParser().Parse([|"--optional" ; "42" ; "--mandatory-arg" ; "true"|])
+        let result = parser.Parse([|"--optional" ; "42" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ Optional @> = (Some 42) @>
 
     [<Fact>]
     let ``Enumeration parameter parsing`` () =
-        let result = getParser().Parse([|"--enum" ; "second" ; "--mandatory-arg" ; "true"|])
+        let result = parser.Parse([|"--enum" ; "second" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ Enum @> = Enum.Second @>
 
     [<Fact>]
     let ``Enumeration parameter should fail on unsupported values`` () =
-        raisesWith<ArguParseException> <@ getParser().Parse([|"--enum" ; "first,second" ; "--mandatory-arg" ; "true"|]) @>
+        raisesWith<ArguParseException> <@ parser.Parse([|"--enum" ; "first,second" ; "--mandatory-arg" ; "true"|]) @>
                                         (fun e -> <@ e.FirstLine.Contains "first|second|third" @>)
 
     [<Fact>]
     let ``F# Enumeration parameter parsing`` () =
-        let result = getParser().Parse([|"--enumeration=second" ; "--mandatory-arg" ; "true"|])
+        let result = parser.Parse([|"--enumeration=second" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ Enumeration @> = Some Second @>
 
     [<Fact>]
     let ``F# Enumeration parameter should fail on unsupported values`` () =
-        raisesWith<ArguParseException> <@ getParser().Parse([|"--enumeration=foobar" ; "--mandatory-arg" ; "true"|]) @>
+        raisesWith<ArguParseException> <@ parser.Parse([|"--enumeration=foobar" ; "--mandatory-arg" ; "true"|]) @>
                                         (fun e -> <@ e.FirstLine.Contains "first|second|third" @>)
 
     [<Fact>]
     let ``List parameter - empty`` () =
-        let result = getParser().Parse([|"--list" ; "--mandatory-arg" ; "true"|])
+        let result = parser.Parse([|"--list" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ List @> = [] @>
 
     [<Fact>]
     let ``List parameter - singleton`` () =
-        let result = getParser().Parse([|"--list" ; "42" ; "--mandatory-arg" ; "true"|])
+        let result = parser.Parse([|"--list" ; "42" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ List @> = [42] @>
 
     [<Fact>]
     let ``List parameter - multiple args`` () =
-        let result = getParser().Parse([|"--mandatory-arg" ; "true"; "--list" ; "1" ; "2" ; "3" ; "4" ; "5" |])
+        let result = parser.Parse([|"--mandatory-arg" ; "true"; "--list" ; "1" ; "2" ; "3" ; "4" ; "5" |])
         test <@ result.GetResult <@ List @> = [1 .. 5] @>
 
     [<Fact>]
     let ``Get all subcommand parsers`` () =
-        let subcommands = getParser().GetSubCommandParsers()
+        let subcommands = parser.GetSubCommandParsers()
         test <@ subcommands.Length = 4 @>
         test <@ subcommands |> List.forall (fun sc -> sc.IsSubCommandParser) @>
 
     [<Fact>]
     let ``Get specific subcommand parser`` () =
-        let subcommand = getParser().GetSubCommandParser <@ Push @>
+        let subcommand = parser.GetSubCommandParser <@ Push @>
         test <@ subcommand.IsSubCommandParser @>
 
     [<Fact>]
     let ``Inherited parameter simple`` () =
-        let result1 = getParser().Parse([|"-v"; "push"|], ignoreMissing = true)
-        let result2 = getParser().Parse([|"push"; "-v"|], ignoreMissing = true)
+        let result1 = parser.Parse([|"-v"; "push"|], ignoreMissing = true)
+        let result2 = parser.Parse([|"push"; "-v"|], ignoreMissing = true)
         test <@ result1.Contains <@ Verbose @> @>
         test <@ result1.Contains <@ Push @> @>
         test <@ result2.Contains <@ Verbose @> @>
@@ -491,8 +488,8 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Inherited parameter parametric`` () =
-        let result1 = getParser().Parse([|"--data" ; "42" ; "deadbeef" ; "push"|], ignoreMissing = true)
-        let result2 = getParser().Parse([|"push" ; "--data" ; "42" ; "deadbeef"|], ignoreMissing = true)
+        let result1 = parser.Parse([|"--data" ; "42" ; "deadbeef" ; "push"|], ignoreMissing = true)
+        let result2 = parser.Parse([|"push" ; "--data" ; "42" ; "deadbeef"|], ignoreMissing = true)
         test <@ result1.Contains <@ Data @> @>
         test <@ result1.Contains <@ Push @> @>
         test <@ result2.Contains <@ Data @> @>
@@ -500,8 +497,8 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Inherited parameter grouped`` () =
-        let result1 = getParser().Parse([|"-v" ; "clean" ; "-dx"|], ignoreMissing = true)
-        let result2 = getParser().Parse([|"clean" ; "-vdx"|], ignoreMissing = true)
+        let result1 = parser.Parse([|"-v" ; "clean" ; "-dx"|], ignoreMissing = true)
+        let result2 = parser.Parse([|"clean" ; "-vdx"|], ignoreMissing = true)
         let subResult1 = result1.GetResult <@ Clean @>
         let subResult2 = result2.GetResult <@ Clean @>
         test <@ result1.Contains <@ Verbose @> @>
@@ -627,24 +624,24 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Should fail if EqualsAssignment missing assignment.`` () =
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine([|"--assignment"; "value"|], ignoreMissing = true) @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine([|"--assignment"; "value"|], ignoreMissing = true) @>
                                         (fun e -> <@ e.FirstLine.Contains "missing an assignment" @>)
 
     [<Fact>]
     let ``Slash in Commandline`` () =
         let args = [| "--mandatory-arg" ; "true" ; "/D" |]
-        let results = getParser().ParseCommandLine args
+        let results = parser.ParseCommandLine args
         test <@ results.Contains <@ Detach @> @>
     
     [<Fact>]
     let ``Should fail when Usage, Mandatory and raiseOnUsage = true`` () =
-        raisesWith<ArguParseException> <@ getParser().ParseCommandLine ([|"--help"|], raiseOnUsage = true) @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true) @>
                                         (fun e -> <@ e.FirstLine.Contains "USAGE:" @>)
 
     [<Fact>]
     let ``Usage, Mandatory and raiseOnusage = false`` () =
         let args = [| "--help" |]
-        let results = getParser().ParseCommandLine (args, raiseOnUsage = false)
+        let results = parser.ParseCommandLine (args, raiseOnUsage = false)
         test <@ results.IsUsageRequested @>
 
 
@@ -702,7 +699,7 @@ module ``Argu Tests`` =
 
     [<Fact>]
     let ``Fail on malformed case constructors`` () =
-        let result = getParser().ToParseResults []
+        let result = parser.ToParseResults []
         let wrapper = List
         raises<ArgumentException> <@ result.Contains <@ fun (y : string) -> Log_Level 42 @> @>
         raises<ArgumentException> <@ result.Contains <@ fun (y, x) -> Data(x,y) @> @>

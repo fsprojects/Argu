@@ -160,19 +160,15 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
         let configurationReader = 
             match configurationReader with 
-            | Some _ as c -> c 
+            | Some c -> c
 #if NETSTANDARD2_0
-            | None -> None
+            | None -> ConfigurationReader.NullReader
 #else
-            | None -> ConfigurationReader.FromAppSettings() |> Some
+            | None -> ConfigurationReader.FromAppSettings()
 #endif
 
         try
-            let appSettingsResults = 
-                match configurationReader with
-                | Some r -> parseKeyValueConfig r argInfo
-                | None -> [||]
-
+            let appSettingsResults = parseKeyValueConfig configurationReader argInfo
             let cliResults = parseCommandLine argInfo _programName helpTextMessage _usageStringCharacterWidth errorHandler raiseOnUsage ignoreUnrecognized inputs
             let results = postProcessResults argInfo ignoreMissing (Some appSettingsResults) (Some cliResults)
 
