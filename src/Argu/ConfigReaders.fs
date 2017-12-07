@@ -19,6 +19,24 @@ type NullConfigurationReader() =
         member x.Name = "Null Configuration Reader"
         member x.GetValue _ = null
 
+/// Environment variable-based configuration reader
+type EnvironmentVariableConfigurationReader() =
+    // order of environment variable target lookup
+    let targets = 
+        [| EnvironmentVariableTarget.Process
+           EnvironmentVariableTarget.User
+           EnvironmentVariableTarget.Machine |]
+
+    interface IConfigurationReader with
+        member x.Name = "Environment Variables Configuration Reader"
+        member x.GetValue(key:string) =
+            let folder curr (target : EnvironmentVariableTarget) =
+                match curr with
+                | null -> Environment.GetEnvironmentVariable(key, target)
+                | value -> value
+
+            targets |> Array.fold folder null
+
 /// Configuration reader dictionary proxy
 type DictionaryConfigurationReader (keyValueDictionary : IDictionary<string, string>, ?name : string) =
     let name = defaultArg name "Dictionary configuration reader."
@@ -66,13 +84,20 @@ type AppSettingsConfigurationFileReader private (xmlPath : string, kv : KeyValue
 
 /// Configuration reader implementations
 type ConfigurationReader =
+    /// Create a configuration reader that always returns null
     static member NullReader = new NullConfigurationReader() :> IConfigurationReader
+
     /// Create a configuration reader instance using an IDictionary instance
     static member FromDictionary(keyValueDictionary : IDictionary<string,string>, ?name : string) =
         new DictionaryConfigurationReader(keyValueDictionary, ?name = name) :> IConfigurationReader
+
     /// Create a configuration reader instance using an F# function
     static member FromFunction(reader : string -> string option, ?name : string) =
         new FunctionConfigurationReader(reader, ?name = name) :> IConfigurationReader
+
+    /// Create a configuration reader instance using environment variables
+    static member FromEnvironmentVariables() =
+        new EnvironmentVariableConfigurationReader() :> IConfigurationReader
 
 #if !NETSTANDARD2_0
     /// Create a configuration reader instance using the application's resident AppSettings configuration
