@@ -24,7 +24,6 @@
     <PackageReference Include="FSharp.Core" Version="4.2.3" />
     <PackageReference Include="Unquote" Version="4.0.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.core" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿#I "../../bin/net40"
+﻿#I "../../bin/Debug/net40/"
 #r "Argu.dll"
 #r "Argu.Tests.dll"
 

@@ -30,6 +30,7 @@
     <Compile Include="..\Argu\ArgumentParser.fs" Link="ArgumentParser.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="4.2.3" />
+    <PackageReference Include="FSharp.Core" Version="4.2.0" />
+    <DotNetCliToolReference Include="dotnet-mergenupkg" Version="2.0.*" />
   </ItemGroup>
 </Project>

@@ -100,8 +100,6 @@ Target "RunTests.NetCore" (fun _ ->
 //// --------------------------------------------------------------------------------------
 //// Build a NuGet package
 
-Target "NuGet" DoNothing
-
 Target "NuGet.Pack" (fun _ ->
     Paket.Pack(fun config ->
         { config with 
@@ -110,7 +108,7 @@ Target "NuGet.Pack" (fun _ ->
             OutputPath = "bin"
         }))
 
-Target "NuGetPush" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = "bin/" }))
+Target "NuGet.Push" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = "bin/" }))
 
 // Doc generation
 
@@ -193,18 +191,6 @@ Target "NetCore.Restore" (fun _ ->
     for proj in Seq.append netCoreSrcFiles netCoreTestFiles do
         DotNetCli.Restore(fun c -> { c with Project = proj }))
 
-Target "NuGet.AddNetCore" (fun _ ->
-    if not isDotnetSDKInstalled then failwith "You need to install .NET core to publish NuGet packages"
-    for proj in netCoreSrcFiles do
-        DotNetCli.Pack (fun c -> { c with Project = proj })
-
-    let nupkg = sprintf "../../bin/Argu.%s.nupkg" release.NugetVersion
-    let netcoreNupkg = sprintf "bin/Release/Argu.%s.nupkg" release.NugetVersion
-
-    Shell.Exec("dotnet", sprintf """mergenupkg --source "%s" --other "%s" --framework netstandard2.0 """ nupkg netcoreNupkg, "src/Argu/") 
-    |> assertExitCodeZero
-)
-
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
@@ -227,15 +213,13 @@ Target "Release" DoNothing
 "Default"
   ==> "PrepareRelease"
   ==> "NuGet.Pack"
-  ==> "NuGet.AddNetCore"
-  ==> "NuGet"
   ==> "GenerateDocs"
   ==> "SourceLink"
   ==> "ReleaseDocs"
   ==> "Bundle"
 
 "Bundle"
-  ==> "NuGetPush"
+  ==> "NuGet.Push"
   ==> "ReleaseGitHub"
   ==> "Release"
 
