@@ -137,7 +137,6 @@ module ``Argu Tests`` =
         test <@ results.GetResults <@ Log_Level @> = [2] @>
         test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
-#if !NETCOREAPP2_0
     [<Fact>]
     let ``Simple AppSettings parsing`` () =
         let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ] |> List.sortBy tagOf
@@ -153,7 +152,6 @@ module ``Argu Tests`` =
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
         test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
-#endif
 
     [<Fact>]
     let ``AppSettings CSV parsing`` () =

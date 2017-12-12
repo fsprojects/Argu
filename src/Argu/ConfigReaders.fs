@@ -56,7 +56,6 @@ type FunctionConfigurationReader (configFunc : string -> string option, ?name : 
             | None -> null
             | Some v -> v
 
-#if !NETSTANDARD2_0
 /// AppSettings XML configuration reader
 type AppSettingsConfigurationReader () =
     interface IConfigurationReader with
@@ -80,7 +79,6 @@ type AppSettingsConfigurationFileReader private (xmlPath : string, kv : KeyValue
         fileMap.ExeConfigFilename <- path
         let config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None)
         new AppSettingsConfigurationFileReader(path, config.AppSettings.Settings)
-#endif
 
 /// Configuration reader implementations
 type ConfigurationReader =
@@ -99,7 +97,6 @@ type ConfigurationReader =
     static member FromEnvironmentVariables() =
         new EnvironmentVariableConfigurationReader() :> IConfigurationReader
 
-#if !NETSTANDARD2_0
     /// Create a configuration reader instance using the application's resident AppSettings configuration
     static member FromAppSettings() = new AppSettingsConfigurationReader() :> IConfigurationReader
     /// Create a configuration reader instance using a local xml App.Config file
@@ -112,4 +109,3 @@ type ConfigurationReader =
             |> invalidArg assembly.FullName
 
         AppSettingsConfigurationFileReader.Create(path + ".config") :> IConfigurationReader
-#endif
