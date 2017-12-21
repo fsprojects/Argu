@@ -13,7 +13,18 @@ group Testing
   nuget Unquote ~> 4.0
   nuget FsCheck ~> 3.0 prerelease
   nuget xunit ~> 2.3
-  nuget xunit.runner.console ~> 2.3
+  nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
+
+group NetStandard
+  framework: netstandard20
+  source https://www.nuget.org/api/v2
+  redirects: force
+
+  nuget FSharp.Core >= 4.2
+  nuget System.Configuration.ConfigurationManager >= 4.0
+  nuget Unquote ~> 4.0
+  nuget FsCheck ~> 3.0 prerelease
+  nuget xunit ~> 2.3
   nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
 
 group Build
@@ -24,4 +35,5 @@ group Build
   nuget FSharp.Formatting
   nuget Nuget.CommandLine
   nuget SourceLink.Fake
+  nuget xunit.runner.console ~> 2.3
   github fsharp/FAKE modules/Octokit/Octokit.fsx

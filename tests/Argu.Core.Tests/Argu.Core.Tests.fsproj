@@ -17,6 +17,7 @@
     <Compile Include="..\Argu.Tests\Tests.fs" Link="Tests.fs" />
     <Compile Include="Main.fs" />
     <None Include="App.config" />
+    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FsCheck" Version="2.10.4" />
@@ -29,4 +30,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Argu.Core\Argu.Core.fsproj" />
   </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

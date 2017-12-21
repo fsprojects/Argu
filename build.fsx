@@ -185,8 +185,6 @@ Target "ReleaseGitHub" (fun _ ->
     |> Async.RunSynchronously
 )
 
-let assertExitCodeZero x = if x <> 0 then failwithf "Command failed with exit code %i" x
-
 Target "NetCore.Restore" (fun _ ->
     for proj in Seq.append netCoreSrcFiles netCoreTestFiles do
         DotNetCli.Restore(fun c -> { c with Project = proj }))
