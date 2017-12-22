@@ -1,16 +1,19 @@
+framework: auto-detect
 source https://www.nuget.org/api/v2
 redirects: force
 
-nuget FSharp.Core >= 4.2 lowest_matching:true #NB remember to update paket.template as well if changing this
+# NB remember to update paket.template as well if changing this
+nuget FSharp.Core >= 4.2 lowest_matching:true
 nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 
 # Testing dependencies; NB intentionally keeping in Main group
 nuget Unquote ~> 4.0
 nuget FsCheck ~> 3.0 prerelease
 nuget xunit ~> 2.3
-nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
+nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true 
 
 group Net40
+  framework: net40
   source https://www.nuget.org/api/v2
   redirects: force
 
