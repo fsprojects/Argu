@@ -18,9 +18,9 @@ references
     Argu.dll
 dependencies
   framework: net40
-    FSharp.Core >= LOCKEDVERSION
+    FSharp.Core >= 3.1
   framework: netstandard2.0
-	FSharp.Core >= 4.2
+	FSharp.Core >= LOCKEDVERSION
 	System.Configuration.ConfigurationManager >= LOCKEDVERSION
 files
     ../../bin/Release/net40/Argu.dll ==> lib/net40

@@ -1,3 +1,2 @@
-﻿group NetStandard
+﻿FSharp.Core
 System.Configuration.ConfigurationManager
-FSharp.Core

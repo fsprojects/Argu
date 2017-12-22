@@ -1,5 +1,4 @@
-﻿group NetStandard
-FSharp.Core
+﻿FSharp.Core
 xunit
 xunit.runner.visualstudio
 Unquote
