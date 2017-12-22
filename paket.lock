@@ -104,7 +104,7 @@ NUGET
       System.Runtime.Extensions (>= 4.3)
       System.Threading (>= 4.3)
       System.Threading.Tasks (>= 4.3)
-    System.Configuration.ConfigurationManager (4.4.1)
+    System.Configuration.ConfigurationManager (4.4)
       System.Security.Cryptography.ProtectedData (>= 4.4)
     System.Console (4.3)
       Microsoft.NETCore.Platforms (>= 1.1)

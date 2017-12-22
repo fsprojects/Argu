@@ -25,12 +25,15 @@ let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
+let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
 let netCoreSrcFiles = !! "src/*Core*/*.fsproj"
 let netCoreTestFiles = !! "tests/*Core*/*.fsproj"
-
 let testAssemblies = !! "bin/Release/net40/*.Tests.dll"
 
+
 let isDotnetSDKInstalled = DotNetCli.isInstalled()
+let configuration = environVarOrDefault "Configuration" "Release"
+let isTravisCI = environVarOrDefault "TRAVIS" "false" |> Boolean.Parse
 
 //// --------------------------------------------------------------------------------------
 //// The rest of the code is standard F# build script 
@@ -50,7 +53,7 @@ Target "AssemblyInfo" (fun _ ->
   let fileName = "./src/Argu/AssemblyInfo.fs"
   CreateFSharpAssemblyInfo fileName
       [ Attribute.Version release.AssemblyVersion
-        Attribute.FileVersion release.AssemblyVersion] 
+        Attribute.FileVersion release.AssemblyVersion ] 
 )
 
 
@@ -58,16 +61,13 @@ Target "AssemblyInfo" (fun _ ->
 // Clean build results & restore NuGet packages
 
 Target "Clean" (fun _ ->
-    CleanDirs ["./bin/"]
+    CleanDirs [ "./bin" @@ configuration ; artifacts ]
 )
 
 //
 //// --------------------------------------------------------------------------------------
 //// Build library & test project
 
-let configuration = environVarOrDefault "Configuration" "Release"
-
-let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
 
 Target "Build" (fun _ ->
     // Build the rest of the project
@@ -105,10 +105,10 @@ Target "NuGet.Pack" (fun _ ->
         { config with 
             Version = release.NugetVersion
             ReleaseNotes = String.concat "\n" release.Notes
-            OutputPath = "bin"
+            OutputPath = artifacts
         }))
 
-Target "NuGet.Push" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = "bin/" }))
+Target "NuGet.Push" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = artifacts }))
 
 // Doc generation
 

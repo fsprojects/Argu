@@ -16,6 +16,12 @@ tags
     F#, argument, parser
 references
     Argu.dll
+dependencies
+  framework: net40
+    FSharp.Core >= LOCKEDVERSION
+  framework: netstandard2.0
+	FSharp.Core >= 4.2
+	System.Configuration.ConfigurationManager >= LOCKEDVERSION
 files
     ../../bin/Release/net40/Argu.dll ==> lib/net40
     ../../bin/Release/net40/Argu.pdb ==> lib/net40
