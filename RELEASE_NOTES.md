@@ -1,3 +1,6 @@
+### 4.1.0
+* Add AppSettings configuration reader support for NetStandard.
+
 ### 4.0.0
 * Support NetStandard 2.0
 * Add Environment Variable configuration reader.
