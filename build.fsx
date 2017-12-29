@@ -4,7 +4,6 @@
 
 #I "packages/build/FAKE/tools"
 #r "packages/build/FAKE/tools/FakeLib.dll"
-#load "packages/build/SourceLink.Fake/tools/SourceLink.fsx"
 
 open System
 open System.IO
@@ -74,7 +73,7 @@ Target "Build" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration", configuration]
+    |> MSBuild "" "Build" ["Configuration", configuration; "SourceLinkCreate", "true"]
     |> Log "AppBuild-Output: "
 )
 
@@ -128,20 +127,6 @@ Target "ReleaseDocs" (fun _ ->
     StageAll tempDocsDir
     Commit tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
     Branches.push tempDocsDir
-)
-
-//----------------------------
-// SourceLink
-
-open SourceLink
-
-Target "SourceLink" (fun _ ->
-    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw project
-    [ yield! !! "src/**/Argu.fsproj" ]
-    |> Seq.iter (fun projFile ->
-        let proj = VsProj.LoadRelease projFile
-        SourceLink.Index proj.CompilesNotLinked proj.OutputFilePdb __SOURCE_DIRECTORY__ baseUrl
-    )
 )
 
 // Github Releases
@@ -212,7 +197,6 @@ Target "Release" DoNothing
   ==> "PrepareRelease"
   ==> "NuGet.Pack"
   ==> "GenerateDocs"
-  ==> "SourceLink"
   ==> "Bundle"
 
 "Bundle"
