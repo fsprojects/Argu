@@ -1,4 +1,4 @@
-﻿group Net40
+﻿group Legacy
 FSharp.Core
 group SourceLink
   SourceLink.Create.CommandLine

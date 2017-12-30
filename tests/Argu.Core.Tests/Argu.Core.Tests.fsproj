@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AssemblyName>Argu.Tests</AssemblyName>
+    <AssemblyName>Argu.Core.Tests</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>

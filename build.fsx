@@ -11,7 +11,6 @@ open Fake
 open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.AssemblyInfoFile
-open Fake.Testing
 
 // --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
@@ -25,12 +24,8 @@ let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
-let netCoreSrcFiles = !! "src/*Core*/*.fsproj"
-let netCoreTestFiles = !! "tests/*Core*/*.fsproj"
-let testAssemblies = !! "bin/Release/net40/*.Tests.dll"
+let testProjects = !! "tests/**/*.??proj"
 
-
-let isDotnetSDKInstalled = DotNetCli.isInstalled()
 let configuration = environVarOrDefault "Configuration" "Release"
 let isTravisCI = environVarOrDefault "TRAVIS" "false" |> Boolean.Parse
 
@@ -67,6 +62,7 @@ Target "Clean" (fun _ ->
 //// --------------------------------------------------------------------------------------
 //// Build library & test project
 
+Target "DotNet.Restore" (fun _ -> DotNetCli.Restore id)
 
 Target "Build" (fun _ ->
     // Build the rest of the project
@@ -81,18 +77,8 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
-Target "RunTests" DoNothing
-
-Target "RunTests.Net40" (fun _ ->
-    testAssemblies
-    |> xUnit2 (fun p ->
-        { p with
-            Parallel = ParallelMode.Collections
-            TimeOut = TimeSpan.FromMinutes 20. })
-)
-
-Target "RunTests.NetCore" (fun _ ->
-    for proj in netCoreTestFiles do
+Target "RunTests" (fun _ ->
+    for proj in testProjects do
         DotNetCli.Test (fun c -> { c with Project = proj }))
 
 //
@@ -170,10 +156,6 @@ Target "ReleaseGitHub" (fun _ ->
     |> Async.RunSynchronously
 )
 
-Target "NetCore.Restore" (fun _ ->
-    for proj in Seq.append netCoreSrcFiles netCoreTestFiles do
-        DotNetCli.Restore(fun c -> { c with Project = proj }))
-
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
@@ -186,10 +168,8 @@ Target "Release" DoNothing
 "Clean"
   ==> "AssemblyInfo"
   ==> "Prepare"
-  ==> "NetCore.Restore"
+  ==> "DotNet.Restore"
   ==> "Build"
-  ==> "RunTests.Net40"
-  ==> "RunTests.NetCore"
   ==> "RunTests"
   ==> "Default"
 
