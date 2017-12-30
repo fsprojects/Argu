@@ -27,7 +27,6 @@ let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
 let testProjects = !! "tests/**/*.??proj"
 
 let configuration = environVarOrDefault "Configuration" "Release"
-let isTravisCI = environVarOrDefault "TRAVIS" "false" |> Boolean.Parse
 
 //// --------------------------------------------------------------------------------------
 //// The rest of the code is standard F# build script 
