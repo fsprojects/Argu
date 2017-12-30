@@ -25,6 +25,10 @@ group Build
 
   nuget FAKE ~> 4.0
   nuget FSharp.Formatting
-  nuget SourceLink.Fake
   nuget xunit.runner.console ~> 2.3
   github fsharp/FAKE modules/Octokit/Octokit.fsx
+
+group SourceLink
+  storage: none
+  source https://www.nuget.org/api/v2
+  nuget SourceLink.Create.CommandLine 2.7.2 copy_local: true
