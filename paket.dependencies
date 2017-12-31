@@ -2,7 +2,6 @@ framework: auto-detect
 source https://www.nuget.org/api/v2
 redirects: force
 
-# NB remember to update paket.template as well if changing this
 nuget FSharp.Core >= 4.2 lowest_matching:true
 nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 

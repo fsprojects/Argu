@@ -1,8 +1,6 @@
 ﻿namespace Argu
 
 open System
-open System.Collections.Generic
-open System.Reflection
 
 open FSharp.Quotations
 open FSharp.Reflection
@@ -161,11 +159,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         let configurationReader = 
             match configurationReader with 
             | Some c -> c
-#if NETSTANDARD2_0
-            | None -> ConfigurationReader.NullReader
-#else
             | None -> ConfigurationReader.FromAppSettings()
-#endif
 
         try
             let appSettingsResults = parseKeyValueConfig configurationReader argInfo
