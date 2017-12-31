@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>ParseResults<'Template> - Argu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Eirik Tsarpalis"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
+    <script type="text/javascript" src="/Argu/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsprojects/Argu">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>ParseResults<'Template></h1>
+<p>
+  <span>Namespace: Argu</span><br />
+</p>
+<div class="xmldoc">
+<p>Argument parsing result holder.</p>
+
+</div>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
+            Catch(f, errorCode, showUsage)
+          </code>
+          <div class="tip" id="125">
+            <strong>Signature:</strong> (f:(unit -&gt; &#39;T) * errorCode:ErrorCode option * showUsage:bool option) -&gt; &#39;T<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L146-146" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
+            Contains(expr, source)
+          </code>
+          <div class="tip" id="126">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * source:ParseSource option) -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L124-124" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Checks if parameter of specific kind has been specified.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
+            Contains(expr, source)
+          </code>
+          <div class="tip" id="127">
+            <strong>Signature:</strong> (expr:Expr&lt;&#39;Template&gt; * source:ParseSource option) -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L120-120" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Checks if parameter of specific kind has been specified.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
+            ErrorHandler
+          </code>
+          <div class="tip" id="128">
+            <strong>Signature:</strong> IExiter<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L44-44" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>get_ErrorHandler</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
+            GetAllResults(source)
+          </code>
+          <div class="tip" id="129">
+            <strong>Signature:</strong> (source:ParseSource option) -&gt; &#39;Template list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L75-75" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Gets all parse results.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
+            GetResult(expr, defaultValue, source)
+          </code>
+          <div class="tip" id="130">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * defaultValue:&#39;Fields option * source:ParseSource option) -&gt; &#39;Fields<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L112-112" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type.
+Command line parameters have precedence over AppSettings parameters.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
+            GetResult(expr, defaultValue, source)
+          </code>
+          <div class="tip" id="131">
+            <strong>Signature:</strong> (expr:Expr&lt;&#39;Template&gt; * defaultValue:&#39;Template option * source:ParseSource option) -&gt; &#39;Template<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L102-102" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type.
+Command line parameters have precedence over AppSettings parameters.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
+            GetResults(expr, source)
+          </code>
+          <div class="tip" id="132">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * source:ParseSource option) -&gt; &#39;Fields list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L70-70" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Query parse results for argument with parameters.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
+            GetResults(expr, source)
+          </code>
+          <div class="tip" id="133">
+            <strong>Signature:</strong> (expr:Expr&lt;&#39;Template&gt; * source:ParseSource option) -&gt; &#39;Template list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L64-64" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Query parse results for parameterless argument.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
+            GetSubCommand()
+          </code>
+          <div class="tip" id="134">
+            <strong>Signature:</strong> unit -&gt; &#39;Template<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L217-217" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Attempts to recover the subcommand parameter from the results,
+if one has been specified.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
+            IsUsageRequested
+          </code>
+          <div class="tip" id="135">
+            <strong>Signature:</strong> bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L51-51" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns true if '--help' parameter has been specified in the command line.</p>
+
+
+              <p>CompiledName: <code>get_IsUsageRequested</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
+            IterResult(expr, iterator, source)
+          </code>
+          <div class="tip" id="136">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * iterator:(&#39;Field -&gt; unit) * source:ParseSource option) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L198-198" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Iterates through the <em>last</em> parse result for a given argument kind.
+Command line parameters have precedence over AppSettings parameters.
+Results are passed to an iterator function that is error handled by the parser.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
+            IterResults(expr, iterator, source)
+          </code>
+          <div class="tip" id="137">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * iterator:(&#39;Field -&gt; unit) * source:ParseSource option) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L187-187" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Iterates through <em>all</em> parse results for a given argument kind.
+Command line parameters have precedence over AppSettings parameters.
+Results are passed to an iterator function that is error handled by the parser.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
+            PostProcessResult(expr, parser, source)
+          </code>
+          <div class="tip" id="138">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * source:ParseSource option) -&gt; &#39;R<br />
+                          <strong>Type parameters:</strong> 'R          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L156-156" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type.
+Command line parameters have precedence over AppSettings parameters.
+Results are passed to a post-processing function that is error handled by the parser.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
+            PostProcessResults(expr, parser, source)
+          </code>
+          <div class="tip" id="139">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * source:ParseSource option) -&gt; &#39;R list<br />
+                          <strong>Type parameters:</strong> 'R          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L166-166" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Query parse results for given argument kind.
+Command line parameters have precedence over AppSettings parameters.
+Results are passed to a post-processing function that is error handled by the parser.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
+            Raise(error, errorCode, showUsage)
+          </code>
+          <div class="tip" id="140">
+            <strong>Signature:</strong> (error:exn * errorCode:ErrorCode option * showUsage:bool option) -&gt; &#39;T<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L139-139" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
+            Raise(msg, errorCode, showUsage)
+          </code>
+          <div class="tip" id="141">
+            <strong>Signature:</strong> (msg:string * errorCode:ErrorCode option * showUsage:bool option) -&gt; &#39;T<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L130-130" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
+            TryGetResult(expr, source)
+          </code>
+          <div class="tip" id="142">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * source:ParseSource option) -&gt; &#39;Fields option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L94-94" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type, if it exists.
+Command line parameters have precedence over AppSettings parameters.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
+            TryGetResult(expr, source)
+          </code>
+          <div class="tip" id="143">
+            <strong>Signature:</strong> (expr:Expr&lt;&#39;Template&gt; * source:ParseSource option) -&gt; &#39;Template option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L87-87" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type, if it exists.
+Command line parameters have precedence over AppSettings parameters.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
+            TryGetSubCommand()
+          </code>
+          <div class="tip" id="144">
+            <strong>Signature:</strong> unit -&gt; &#39;Template option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L205-205" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Attempts to recover the subcommand parameter from the results,
+if one has been specified.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
+            TryPostProcessResult(...)
+          </code>
+          <div class="tip" id="145">
+            <strong>Signature:</strong> (expr:Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser:(&#39;Field -&gt; &#39;R) * source:ParseSource option) -&gt; &#39;R option<br />
+                          <strong>Type parameters:</strong> 'R          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L176-176" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the <em>last</em> specified parameter of given type.
+Command line parameters have precedence over AppSettings parameters.
+Results are passed to a post-processing function that is error handled by the parser.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
+            UnrecognizedCliParams
+          </code>
+          <div class="tip" id="146">
+            <strong>Signature:</strong> string list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L55-55" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Gets all unrecognized CLI parameters which
+accumulates if parsed with 'ignoreUnrecognized = true'</p>
+
+
+              <p>CompiledName: <code>get_UnrecognizedCliParams</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
+            UnrecognizedCliParseResults
+          </code>
+          <div class="tip" id="147">
+            <strong>Signature:</strong> obj list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ParseResults.fs#L59-59" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Gets all parse results that are not part of the current parsing context
+This is only applicable to subcommand parsing operations</p>
+
+
+              <p>CompiledName: <code>get_UnrecognizedCliParseResults</code></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <a target="_blank" href="http://fsprojects.github.io/">
+			<img src="/Argu/img/logo.png" alt="Argu" style="width:150px;margin:10px" />
+		  </a>
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Argu</li>
+            <li><a href="/Argu/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsprojects/Argu">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsprojects/Argu/blob/master/License.md">License</a></li>
+            <li><a href="http://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
+            <li><a href="/Argu/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsprojects/Argu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>
