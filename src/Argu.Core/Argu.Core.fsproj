@@ -15,7 +15,7 @@
     <DocumentationFile>..\..\bin\Release\netstandard2.0\Argu.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Argu\AssemblyInfo.fs" Link="AssemblyInfo.fs" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="..\Argu\Types.fs" Link="Types.fs" />
     <Compile Include="..\Argu\Attributes.fs" Link="Attributes.fs" />
     <Compile Include="..\Argu\Utils.fs" Link="Utils.fs" />

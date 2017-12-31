@@ -2,10 +2,16 @@
 namespace System
 open System.Reflection
 
-[<assembly: AssemblyVersionAttribute("4.1.0")>]
-[<assembly: AssemblyFileVersionAttribute("4.1.0")>]
+[<assembly: AssemblyTitleAttribute("Argu")>]
+[<assembly: AssemblyProductAttribute("Argu")>]
+[<assembly: AssemblyDescriptionAttribute("A declarative command line and XML configuration parser for F# applications.")>]
+[<assembly: AssemblyVersionAttribute("4.2.0")>]
+[<assembly: AssemblyFileVersionAttribute("4.2.0")>]
 do ()
 
 module internal AssemblyVersionInformation =
-    let [<Literal>] AssemblyVersion = "4.1.0"
-    let [<Literal>] AssemblyFileVersion = "4.1.0"
+    let [<Literal>] AssemblyTitle = "Argu"
+    let [<Literal>] AssemblyProduct = "Argu"
+    let [<Literal>] AssemblyDescription = "A declarative command line and XML configuration parser for F# applications."
+    let [<Literal>] AssemblyVersion = "4.2.0"
+    let [<Literal>] AssemblyFileVersion = "4.2.0"

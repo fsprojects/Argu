@@ -1,3 +1,6 @@
+### 4.2.0
+* Migrate to SourceLink 2.0
+
 ### 4.1.0
 * Add AppSettings configuration reader support for NetStandard.
 
