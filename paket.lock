@@ -2,8 +2,6 @@ REDIRECTS: FORCE
 RESTRICTION: || (== net40) (== net461) (== netcoreapp2.0) (== netstandard2.0)
 NUGET
   remote: https://www.nuget.org/api/v2
-    dotnet-xunit (2.3.1) - clitool: true
-      Microsoft.NETCore.App (>= 1.0) - restriction: || (&& (== net40) (>= netcoreapp1.0)) (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
     FsCheck (3.0.0-alpha2)
       FSharp.Core (>= 4.1) - restriction: || (== net40) (== net461) (&& (== netcoreapp2.0) (< netstandard1.6)) (&& (== netstandard2.0) (< netstandard1.6))
       FSharp.Core (>= 4.1.18) - restriction: || (&& (== net40) (>= netstandard1.6)) (&& (== net461) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
@@ -52,15 +50,6 @@ NUGET
     Microsoft.NET.Test.Sdk (15.5.0) - version_in_path: true, restriction: || (&& (== net40) (>= netcoreapp1.0)) (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
       Microsoft.CodeCoverage (>= 1.0.3)
       Microsoft.TestPlatform.TestHost (>= 15.5)
-    Microsoft.NETCore.App (2.0.4) - restriction: || (&& (== net40) (>= netcoreapp1.0)) (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
-      Microsoft.NETCore.DotNetHostPolicy (>= 2.0.4) - restriction: || (&& (== net40) (>= netcoreapp2.0)) (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
-      Microsoft.NETCore.Platforms (>= 2.0.1) - restriction: || (&& (== net40) (>= netcoreapp2.0)) (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
-      NETStandard.Library (>= 2.0.1) - restriction: || (&& (== net40) (>= netcoreapp2.0)) (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
-    Microsoft.NETCore.DotNetAppHost (2.0.4) - restriction: || (&& (== net40) (>= netcoreapp2.0)) (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
-    Microsoft.NETCore.DotNetHostPolicy (2.0.4) - restriction: || (&& (== net40) (>= netcoreapp2.0)) (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
-      Microsoft.NETCore.DotNetHostResolver (>= 2.0.4)
-    Microsoft.NETCore.DotNetHostResolver (2.0.4) - restriction: || (&& (== net40) (>= netcoreapp2.0)) (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
-      Microsoft.NETCore.DotNetAppHost (>= 2.0.4)
     Microsoft.NETCore.Platforms (2.0.1) - restriction: || (&& (== net40) (>= monotouch)) (&& (== net40) (>= netcoreapp2.0)) (&& (== net40) (>= netstandard1.6)) (&& (== net40) (>= netstandard2.0)) (&& (== net40) (>= xamarinios)) (&& (== net40) (>= xamarinmac)) (&& (== net40) (>= xamarintvos)) (&& (== net40) (>= xamarinwatchos)) (&& (== net461) (>= monotouch)) (&& (== net461) (< net45) (>= netstandard2.0)) (&& (== net461) (>= netcoreapp2.0)) (&& (== net461) (>= netstandard1.6)) (&& (== net461) (>= xamarinios)) (&& (== net461) (>= xamarinmac)) (&& (== net461) (>= xamarintvos)) (&& (== net461) (>= xamarinwatchos)) (== netcoreapp2.0) (== netstandard2.0)
     Microsoft.NETCore.Targets (2.0) - restriction: || (&& (== net40) (>= netcoreapp1.0)) (&& (== net40) (>= netstandard1.6)) (&& (== net461) (< net45) (>= netstandard1.6)) (&& (== net461) (>= netcoreapp1.0)) (&& (== net461) (< netstandard1.1) (>= netstandard1.6)) (&& (== net461) (>= netstandard1.6) (< portable-net45+win8+wp8+wpa81)) (&& (== net461) (>= netstandard1.6) (< portable-net45+win8+wpa81)) (== netcoreapp2.0) (== netstandard2.0)
     Microsoft.TestPlatform.ObjectModel (15.5.0) - version_in_path: true, restriction: || (&& (== net40) (>= netcoreapp1.0)) (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
@@ -90,7 +79,7 @@ NUGET
       Microsoft.NETCore.Platforms (>= 2.0) - restriction: || (&& (== net40) (>= netcoreapp2.0)) (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
       System.Security.AccessControl (>= 4.4) - restriction: || (&& (== net40) (>= monoandroid)) (&& (== net40) (>= monotouch)) (&& (== net40) (>= net461)) (&& (== net40) (>= netcoreapp2.0)) (&& (== net40) (>= netstandard2.0)) (&& (== net40) (>= xamarinios)) (&& (== net40) (>= xamarinmac)) (&& (== net40) (>= xamarintvos)) (&& (== net40) (>= xamarinwatchos)) (== net461) (== netcoreapp2.0) (== netstandard2.0)
       System.Security.Principal.Windows (>= 4.4) - restriction: || (&& (== net40) (>= monoandroid)) (&& (== net40) (>= monotouch)) (&& (== net40) (>= net461)) (&& (== net40) (>= netcoreapp2.0)) (&& (== net40) (>= netstandard2.0)) (&& (== net40) (>= xamarinios)) (&& (== net40) (>= xamarinmac)) (&& (== net40) (>= xamarintvos)) (&& (== net40) (>= xamarinwatchos)) (== net461) (== netcoreapp2.0) (== netstandard2.0)
-    NETStandard.Library (2.0.1) - restriction: || (&& (== net40) (== net461)) (&& (== net40) (>= netcoreapp2.0)) (&& (== net40) (>= netstandard1.1)) (&& (== net40) (>= netstandard1.6)) (&& (== net461) (< net452)) (&& (== net461) (>= netcoreapp2.0)) (&& (== net461) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
+    NETStandard.Library (2.0.1) - restriction: || (&& (== net40) (== net461)) (&& (== net40) (>= netcoreapp1.0)) (&& (== net40) (>= netstandard1.1)) (&& (== net40) (>= netstandard1.6)) (&& (== net461) (< net452)) (&& (== net461) (>= netcoreapp1.0)) (&& (== net461) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (&& (== net40) (>= monoandroid)) (&& (== net40) (>= monotouch)) (&& (== net40) (>= net45)) (&& (== net40) (>= net451)) (&& (== net40) (>= net46)) (&& (== net40) (>= net461)) (&& (== net40) (>= netcoreapp2.0)) (&& (== net40) (>= netstandard1.0)) (&& (== net40) (>= netstandard1.1)) (&& (== net40) (>= netstandard1.2)) (&& (== net40) (>= netstandard1.3)) (&& (== net40) (>= netstandard1.4)) (&& (== net40) (>= netstandard1.5)) (&& (== net40) (>= netstandard1.6)) (&& (== net40) (>= netstandard2.0)) (&& (== net40) (>= portable-net45+win8+wp8+wpa81)) (&& (== net40) (>= portable-net45+win8+wpa81)) (&& (== net40) (>= portable-net451+win81+wpa81)) (&& (== net40) (>= uap10.0)) (&& (== net40) (>= wpa81)) (&& (== net40) (>= xamarinios)) (&& (== net40) (>= xamarinmac)) (&& (== net40) (>= xamarintvos)) (&& (== net40) (>= xamarinwatchos)) (== net461) (== netcoreapp2.0) (== netstandard2.0)
     Newtonsoft.Json (10.0.3) - version_in_path: true, restriction: || (&& (== net40) (>= netcoreapp1.0)) (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
       Microsoft.CSharp (>= 4.3) - restriction: || (&& (== net40) (< net20) (>= netstandard1.0)) (&& (== net40) (< net20) (>= netstandard1.3)) (&& (== net461) (< net20)) (== netcoreapp2.0) (== netstandard2.0)
@@ -747,6 +736,7 @@ NUGET
     FSharpVSPowerTools.Core (2.3)
       FSharp.Compiler.Service (>= 2.0.0.3)
     Octokit (0.28)
+    xunit.runner.console (2.3.1)
 GITHUB
   remote: fsharp/FAKE
     modules/Octokit/Octokit.fsx (642a01a5e17b870f816cdd7ee09115e018b786f0)

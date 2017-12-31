@@ -1,6 +1,5 @@
 ﻿FSharp.Core
 xunit
 xunit.runner.visualstudio
-dotnet-xunit
 Unquote
 FsCheck

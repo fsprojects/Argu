@@ -76,18 +76,9 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
-module DotNetCli =
-
-    let XUnit timeout proj =
-        "xunit --fx-version 2.0.0"
-        |> DotNetCli.RunCommand (fun c -> 
-                { c with 
-                    WorkingDir = Path.GetDirectoryName proj ; 
-                    TimeOut = timeout })
-
 Target "RunTests" (fun _ ->
     for proj in testProjects do
-        DotNetCli.XUnit (TimeSpan.FromMinutes 20.) proj)
+        DotNetCli.Test (fun c -> { c with Project = proj }))
 
 //
 //// --------------------------------------------------------------------------------------

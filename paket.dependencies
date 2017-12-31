@@ -10,8 +10,7 @@ nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 nuget Unquote ~> 4.0
 nuget FsCheck ~> 3.0 prerelease
 nuget xunit ~> 2.3
-nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
-clitool dotnet-xunit ~> 2.3
+nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true 
 
 group Legacy
   framework: net40
@@ -26,6 +25,7 @@ group Build
 
   nuget FAKE ~> 4.0
   nuget FSharp.Formatting
+  nuget xunit.runner.console ~> 2.3
   github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group SourceLink
