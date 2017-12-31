@@ -741,7 +741,7 @@ GITHUB
   remote: fsharp/FAKE
     modules/Octokit/Octokit.fsx (642a01a5e17b870f816cdd7ee09115e018b786f0)
       Octokit (>= 0.20)
-GROUP Net40
+GROUP Legacy
 REDIRECTS: FORCE
 RESTRICTION: == net40
 NUGET
