@@ -11,6 +11,7 @@ open Fake
 open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.AssemblyInfoFile
+open Fake.Testing
 
 // --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
@@ -23,10 +24,11 @@ let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
-let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
-let testProjects = !! "tests/**/*.??proj"
+let testProjects = "tests/**/*.??proj"
 
 let configuration = environVarOrDefault "Configuration" "Release"
+let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
+let binFolder = __SOURCE_DIRECTORY__ @@ "bin" @@ configuration
 
 //// --------------------------------------------------------------------------------------
 //// The rest of the code is standard F# build script 
@@ -54,7 +56,7 @@ Target "AssemblyInfo" (fun _ ->
 // Clean build results & restore NuGet packages
 
 Target "Clean" (fun _ ->
-    CleanDirs [ "./bin" @@ configuration ; artifacts ]
+    CleanDirs [ binFolder ; artifacts ]
 )
 
 //
@@ -76,9 +78,22 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
+let runTest (proj : string) =
+    if EnvironmentHelper.isWindows || proj.Contains "Core" then
+        DotNetCli.Test (fun c -> { c with Project = proj })
+    else
+        // revert to classic CLI runner due to dotnet-xunit issue in mono environments
+        let projName = Path.GetFileNameWithoutExtension proj
+        let assembly = binFolder @@ "net4*" @@ projName + ".dll"
+        !! assembly
+        |> XUnit2.xUnit2 (fun c ->
+            { c with
+                Parallel = ParallelMode.Collections
+                TimeOut = TimeSpan.FromMinutes 20. })
+
 Target "RunTests" (fun _ ->
-    for proj in testProjects do
-        DotNetCli.Test (fun c -> { c with Project = proj }))
+    for proj in !! testProjects do
+        runTest proj)
 
 //
 //// --------------------------------------------------------------------------------------
@@ -158,13 +173,15 @@ Target "ReleaseGitHub" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
+Target "Root" DoNothing
 Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "Default" DoNothing
 Target "Bundle" DoNothing
 Target "Release" DoNothing
 
-"Clean"
+"Root"
+  ==> "Clean"
   ==> "AssemblyInfo"
   ==> "Prepare"
   ==> "DotNet.Restore"
