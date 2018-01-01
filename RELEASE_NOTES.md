@@ -1,3 +1,6 @@
+### 4.2.1
+* Fix packaging issue.
+
 ### 4.2.0
 * Migrate to SourceLink 2.0
 
