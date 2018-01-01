@@ -22,6 +22,8 @@ dependencies
   framework: netstandard2.0
 	FSharp.Core >= LOCKEDVERSION
 	System.Configuration.ConfigurationManager >= LOCKEDVERSION
+excludeddependencies
+    SourceLink.Create.CommandLine
 files
     ../../bin/Release/net40/Argu.dll ==> lib/net40
     ../../bin/Release/net40/Argu.pdb ==> lib/net40
