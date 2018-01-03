@@ -1,4 +1,3 @@
 ﻿FSharp.Core
 System.Configuration.ConfigurationManager
-group SourceLink
-  SourceLink.Create.CommandLine
+SourceLink.Create.CommandLine
