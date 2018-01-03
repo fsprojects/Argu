@@ -128,6 +128,15 @@ Target "NuGet.Pack" (fun _ ->
             OutputPath = artifacts
         }))
 
+Target "sourcelink.test" (fun _ ->
+    !! (sprintf "%s/*.nupkg" artifacts)
+    |> Seq.iter (fun nupkg ->
+        DotNetCli.RunCommand
+            (fun p -> { p with WorkingDir = __SOURCE_DIRECTORY__ @@ "tests" @@ "Argu.Core.Tests" } )
+            (sprintf "sourcelink test %s" nupkg)
+    )
+)
+
 Target "NuGet.Push" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = artifacts }))
 
 // Doc generation
@@ -213,6 +222,7 @@ Target "Release" DoNothing
 "Default"
   ==> "PrepareRelease"
   ==> "NuGet.Pack"
+  ==> "sourcelink.test"
   ==> "GenerateDocs"
   ==> "Bundle"
 

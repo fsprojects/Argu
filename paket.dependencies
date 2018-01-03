@@ -1,4 +1,4 @@
-framework: auto-detect
+framework: netstandard2.0, net40, netcoreapp2.0, net461
 source https://www.nuget.org/api/v2
 redirects: force
 
@@ -9,7 +9,9 @@ nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 nuget Unquote ~> 4.0
 nuget FsCheck ~> 3.0 prerelease
 nuget xunit ~> 2.3
-nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true 
+nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
+nuget SourceLink.Create.CommandLine copy_local: true
+clitool dotnet-sourcelink framework: netcoreapp2.0
 
 group Legacy
   framework: net40
@@ -17,6 +19,7 @@ group Legacy
   redirects: force
 
   nuget FSharp.Core >= 4.0 lowest_matching:true
+  nuget SourceLink.Create.CommandLine copy_local: true
 
 group Build
   framework: net461
@@ -26,8 +29,3 @@ group Build
   nuget FSharp.Formatting
   nuget xunit.runner.console ~> 2.3
   github fsharp/FAKE modules/Octokit/Octokit.fsx
-
-group SourceLink
-  storage: none
-  source https://www.nuget.org/api/v2
-  nuget SourceLink.Create.CommandLine 2.7.2 copy_local: true
