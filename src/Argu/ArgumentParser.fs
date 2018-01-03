@@ -181,7 +181,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     ///     Gets a subparser associated with specific subcommand instance
     /// </summary>
     /// <param name="expr">Expression providing the subcommand union constructor.</param>
-    member __.GetSubCommandParser (expr : Expr<ParseResults<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
+    member __.GetSubCommandParser ([<ReflectedDefinition>] expr : Expr<ParseResults<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
         let uci = expr2Uci expr
         let case = argInfo.Cases.[uci.Tag]
         match case.ParameterInfo with
@@ -208,7 +208,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     ///     Gets argument metadata for given union case constructor
     /// </summary>
     /// <param name="ctorExpr">Quoted union case constructor.</param>
-    member __.GetArgumentCaseInfo(ctorExpr : Expr<'Fields -> 'Template>) : ArgumentCaseInfo =
+    member __.GetArgumentCaseInfo([<ReflectedDefinition>] ctorExpr : Expr<'Fields -> 'Template>) : ArgumentCaseInfo =
         let uci = expr2Uci ctorExpr
         argInfo.Cases.[uci.Tag].ToArgumentCaseInfo()
 

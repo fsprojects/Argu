@@ -61,13 +61,13 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <summary>Query parse results for parameterless argument.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetResults (expr : Expr<'Template>, ?source : ParseSource) : 'Template list = 
+    member __.GetResults ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template list = 
         expr |> getResults source |> Seq.map (fun r -> r.Value :?> 'Template) |> Seq.toList
 
     /// <summary>Query parse results for argument with parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetResults (expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields list = 
+    member __.GetResults ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields list = 
         expr |> getResults source |> Seq.map (fun r -> r.FieldContents :?> 'Fields) |> Seq.toList
 
     /// <summary>Gets all parse results.</summary>
@@ -84,14 +84,14 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.TryGetResult (expr : Expr<'Template>, ?source : ParseSource) : 'Template option = 
+    member __.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template option = 
         expr |> tryGetResult source |> Option.map (fun r -> r.Value :?> 'Template)
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists. 
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.TryGetResult (expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields option = 
+    member __.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields option = 
         expr |> tryGetResult source |> Option.map (fun r -> r.FieldContents :?> 'Fields)
 
     /// <summary>Returns the *last* specified parameter of given type. 
@@ -99,7 +99,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="defaultValue">Return this of no parameter of specific kind has been specified.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member s.GetResult (expr : Expr<'Template>, ?defaultValue : 'Template, ?source : ParseSource) : 'Template =
+    member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Template>, ?defaultValue : 'Template, ?source : ParseSource) : 'Template =
         match defaultValue with
         | None -> let r = getResult source expr in r.Value :?> 'Template
         | Some def -> defaultArg (s.TryGetResult(expr, ?source = source)) def
@@ -109,7 +109,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="defaultValue">Return this of no parameter of specific kind has been specified.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member s.GetResult (expr : Expr<'Fields -> 'Template>, ?defaultValue : 'Fields , ?source : ParseSource) : 'Fields =
+    member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?defaultValue : 'Fields , ?source : ParseSource) : 'Fields =
         match defaultValue with
         | None -> let r = getResult source expr in r.FieldContents :?> 'Fields
         | Some def -> defaultArg (s.TryGetResult expr) def
@@ -117,11 +117,11 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.Contains (expr : Expr<'Template>, ?source : ParseSource) : bool = containsResult source expr
+    member __.Contains ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : bool = containsResult source expr
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.Contains (expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
+    member __.Contains ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
 
     /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="msg">The error message to be displayed.</param>
@@ -153,7 +153,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member r.PostProcessResult (expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R =
+    member r.PostProcessResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R =
         expr |> getResult source |> parseResult parser
 
     /// <summary>Query parse results for given argument kind.
@@ -163,7 +163,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member r.PostProcessResults (expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R list =
+    member r.PostProcessResults ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R list =
         expr |> getResults source |> Seq.map (parseResult parser) |> Seq.toList
 
     /// <summary>Returns the *last* specified parameter of given type. 
@@ -173,7 +173,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member r.TryPostProcessResult (expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R option =
+    member r.TryPostProcessResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R option =
         expr |> tryGetResult source |> Option.map (parseResult parser)
 
     /// <summary>
@@ -184,7 +184,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="iterator">The iterator body.</param>
     /// <param name="source">Option source restriction: AppSettings or CommandLine.</param>
-    member r.IterResults (expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
+    member r.IterResults ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
         expr |> getResults source |> Seq.iter (parseResult iterator)
 
     /// <summary>
@@ -195,7 +195,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="iterator">The iterator body.</param>
     /// <param name="source">Option source restriction: AppSettings or CommandLine.</param>
-    member r.IterResult (expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
+    member r.IterResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, iterator : 'Field -> unit, ?source) : unit =
         expr |> tryGetResult source |> Option.iter (parseResult iterator)
 
     /// <summary>
