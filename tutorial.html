@@ -199,8 +199,8 @@ it is more likely that you need to query the results for specific parameters:</p
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">detach</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">Contains</span> &lt;@ <span class="i">Detach</span> @&gt;
-<span class="k">let</span> <span class="i">listener</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">GetResults</span> &lt;@ <span class="i">Listener</span> @&gt;
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">detach</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">Contains</span> <span class="i">Detach</span>
+<span class="k">let</span> <span class="i">listener</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">GetResults</span> <span class="i">Listener</span>
 </code></pre></td>
 </tr>
 </table>
@@ -208,8 +208,8 @@ it is more likely that you need to query the results for specific parameters:</p
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">dataOpt</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">TryGetResult</span> &lt;@ <span class="i">Data</span> @&gt;
-<span class="k">let</span> <span class="i">logLevel</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">GetResult</span> (&lt;@ <span class="i">Log_Level</span> @&gt;, <span class="i">defaultValue</span> <span class="o">=</span> <span class="n">0</span>)
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">dataOpt</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">TryGetResult</span> <span class="i">Data</span>
+<span class="k">let</span> <span class="i">logLevel</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">GetResult</span> (<span class="i">Log_Level</span>, <span class="i">defaultValue</span> <span class="o">=</span> <span class="n">0</span>)
 </code></pre></td>
 </tr>
 </table>
