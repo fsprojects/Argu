@@ -150,7 +150,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="configurationReader">Configuration reader used to source the arguments. Defaults to the AppSettings configuration of the current process.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
-    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
+    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
     member __.Parse (?inputs : string [], ?configurationReader : IConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
