@@ -1,8 +1,8 @@
-framework: netstandard2.0, net40, netcoreapp2.0, net461
-source https://www.nuget.org/api/v2
+framework: net461, netstandard2.0, netcoreapp2.0
+source https://api.nuget.org/v3/index.json
 redirects: force
 
-nuget FSharp.Core >= 4.2 lowest_matching:true
+nuget FSharp.Core >= 4.3 lowest_matching:true
 nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 
 # Testing dependencies; NB intentionally keeping in Main group
@@ -15,7 +15,7 @@ clitool dotnet-sourcelink framework: netcoreapp2.0
 
 group Legacy
   framework: net40
-  source https://www.nuget.org/api/v2
+  source https://api.nuget.org/v3/index.json
   redirects: force
 
   nuget FSharp.Core >= 4.0 lowest_matching:true
@@ -23,7 +23,7 @@ group Legacy
 
 group Build
   framework: net461
-  source https://www.nuget.org/api/v2
+  source https://api.nuget.org/v3/index.json
 
   nuget FAKE ~> 4.0
   nuget FSharp.Formatting

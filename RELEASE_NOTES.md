@@ -1,3 +1,8 @@
+### 5.0.0
+* Allow use of query API with implicit quotations
+* Require FSharp.Core 4.0 for net40.
+* Require FSharp.Core 4.3 for netstandard2.0.
+
 ### 4.2.1
 * Fix packaging issue.
 
