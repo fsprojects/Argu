@@ -156,39 +156,39 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``AppSettings CSV parsing`` () =
         let results = parseFunc true (function "rest arg" -> Some("1,2,3,4,5") | _ -> None)
-        test <@ results.GetResults <@ Rest_Arg @> = [1 .. 5] @>
+        test <@ results.GetResults Rest_Arg = [1 .. 5] @>
 
     [<Fact>]
     let ``AppSettings Flag parsing`` () =
         let results = parseFunc true (function "a" -> Some("true") | "b" -> Some("false") | _ -> None)
-        test <@ results.Contains <@ A @> @>
-        test <@ results.Contains <@ B @> |> not @>
-        test <@ results.Contains <@ C @> |> not @>
+        test <@ results.Contains A @>
+        test <@ results.Contains B |> not @>
+        test <@ results.Contains C |> not @>
 
     [<Fact>]
     let ``AppSettings multi-parameter parsing 1`` () =
         let results = parseFunc true (function "env" -> Some("key,value") | _ -> None)
-        test <@ results.GetResult <@ Env @> = ("key", "value") @>
+        test <@ results.GetResult Env = ("key", "value") @>
 
     [<Fact>]
     let ``AppSettings multi-parameter parsing 2`` () =
         let results = parseFunc true (function "listener" -> Some("localhost:80") | _ -> None)
-        test <@ results.GetResult <@ Listener @> = ("localhost", 80) @>
+        test <@ results.GetResult Listener = ("localhost", 80) @>
 
     [<Fact>]
     let ``AppSettings Optional param`` () =
         let results = parseFunc true (function "optional" -> Some "42" | _ -> None)
-        test <@ results.GetResult <@ Optional @> = (Some 42) @>
+        test <@ results.GetResult Optional = (Some 42) @>
 
     [<Fact>]
     let ``AppSettings List param populated`` () =
         let results = parseFunc true (function "list" -> Some "1,2,3,4,5" | _ -> None)
-        test <@ results.GetResult <@ List @> = [1 .. 5] @>
+        test <@ results.GetResult List = [1 .. 5] @>
 
     [<Fact>]
     let ``AppSettings List param single`` () =
         let results = parseFunc true (function "list" -> Some "42" | _ -> None)
-        test <@ results.GetResult <@ List @> = [42] @>
+        test <@ results.GetResult List = [42] @>
         
 
     [<Fact>]
@@ -221,7 +221,7 @@ module ``Argu Tests`` =
     let ``Rest Parameter`` () =
         let args = [|1..100|] |> Array.map string |> Array.append [| "--mandatory-arg" ; "true" ; "--rest-arg" |]
         let result = parser.ParseCommandLine args
-        test <@ result.GetResults <@ Rest_Arg @> = [1..100] @>
+        test <@ result.GetResults Rest_Arg = [1..100] @>
 
     [<Fact>]
     let ``Multiple AltCommandLine`` () =
@@ -239,7 +239,7 @@ module ``Argu Tests`` =
         let bytes = [|1uy .. 255uy|]
         let args = parser.PrintCommandLineArguments [ Mandatory_Arg false ; Data(42, bytes) ]
         let results = parser.ParseCommandLine args
-        test <@ let _,bytes' = results.GetResult <@ Data @> in bytes' = bytes @>
+        test <@ let _,bytes' = results.GetResult Data in bytes' = bytes @>
 
     [<Fact>]
     let ``Parse colon assignment 1`` () =
@@ -259,7 +259,7 @@ module ``Argu Tests`` =
         let arg = [ Env("foo", "bar") ]
         let clp = parser.PrintCommandLineArguments arg
         let result = parser.Parse(clp, ignoreMissing = true)
-        test <@ result.GetResult <@ Env @> = ("foo", "bar") @>
+        test <@ result.GetResult Env = ("foo", "bar") @>
 
     [<Fact>]
     let ``Parse key-value equals assignment 2`` () =
@@ -269,12 +269,12 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Parse equals assignment`` () =
         let result = parser.Parse([|"--dir=../../my-relative-path"|], ignoreMissing = true)
-        test <@ result.GetResult <@ Dir @> = "../../my-relative-path" @>
+        test <@ result.GetResult Dir = "../../my-relative-path" @>
 
     [<Fact>]
     let ``Parse equals assignment 2`` () =
         let result = parser.Parse([|"--dir==foo"|], ignoreMissing = true)
-        test <@ result.GetResult <@ Dir @> = "=foo" @>
+        test <@ result.GetResult Dir = "=foo" @>
 
     [<Fact>]
     let ``Should fail on incorrect assignment 1`` () =
@@ -293,7 +293,7 @@ module ``Argu Tests`` =
 
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
-        test <@ results.GetResults <@ Log_Level @> = [2] @>
+        test <@ results.GetResults Log_Level = [2] @>
         test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
@@ -327,7 +327,7 @@ module ``Argu Tests`` =
     let ``Simple subcommand parsing 2`` () =
         let args = [|"clean"; "-fdx"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
-        let nested = results.GetResult <@ Clean @>
+        let nested = results.GetResult Clean
         test <@ match results.TryGetSubCommand() with Some (Clean _) -> true | _ -> false @>
         test <@ nested.GetAllResults() = [F; D; X] @>
 
@@ -361,7 +361,7 @@ module ``Argu Tests`` =
     let ``Main command taking list of arguments`` () =
         let args = [|"--mandatory-arg" ; "true" ; "a" ; "b" ; "c" ; "ff" ; "d" |]
         let results = parser.ParseCommandLine(args, ignoreUnrecognized = true)
-        test <@ results.GetResult <@ Main @> = ['a' ; 'b' ; 'c'] @>
+        test <@ results.GetResult Main = ['a' ; 'b' ; 'c'] @>
 
     [<Fact>]
     let ``SubParsers should correctly handle inherited params`` () =

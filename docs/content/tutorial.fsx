@@ -126,13 +126,13 @@ it is more likely that you need to query the results for specific parameters:
 
 *)
 
-let detach = results.Contains <@ Detach @>
-let listener = results.GetResults <@ Listener @>
+let detach = results.Contains Detach
+let listener = results.GetResults Listener
 
 (** The following methods return the last observed result for given argument case *)
 
-let dataOpt = results.TryGetResult <@ Data @>
-let logLevel = results.GetResult (<@ Log_Level @>, defaultValue = 0)
+let dataOpt = results.TryGetResult Data
+let logLevel = results.GetResult (Log_Level, defaultValue = 0)
 
 (**
 

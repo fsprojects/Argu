@@ -804,12 +804,12 @@ NUGET
     xunit.runner.console (2.3.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (642a01a5e17b870f816cdd7ee09115e018b786f0)
+    modules/Octokit/Octokit.fsx (51a7cae12acc7292db4623ae0e3cc3a2ce6ca1c9)
       Octokit (>= 0.20)
 GROUP Legacy
 REDIRECTS: FORCE
 RESTRICTION: == net40
 NUGET
   remote: https://www.nuget.org/api/v2
-    FSharp.Core (3.1.2)
+    FSharp.Core (4.0.0.1)
     SourceLink.Create.CommandLine (2.7.3) - copy_local: true

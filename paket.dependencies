@@ -18,7 +18,7 @@ group Legacy
   source https://www.nuget.org/api/v2
   redirects: force
 
-  nuget FSharp.Core >= 3.1 lowest_matching:true
+  nuget FSharp.Core >= 4.0 lowest_matching:true
   nuget SourceLink.Create.CommandLine copy_local: true
 
 group Build
