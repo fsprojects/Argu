@@ -14,7 +14,7 @@ NUGET
       FSharp.Core (>= 4.2.3) - restriction: || (&& (== net461) (< net452) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       NETStandard.Library (>= 1.6.1) - restriction: || (&& (== net461) (< net452) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       System.ValueTuple (>= 4.4) - restriction: || (&& (== net461) (< net452) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
-    FSharp.Core (4.3.1)
+    FSharp.Core (4.3.2)
     Microsoft.CodeCoverage (1.0.3) - version_in_path: true, restriction: || (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
     Microsoft.CSharp (4.4.1) - restriction: == netcoreapp2.0
     Microsoft.DotNet.PlatformAbstractions (2.0.4) - version_in_path: true, restriction: || (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
@@ -637,7 +637,7 @@ NUGET
     xunit.runner.console (2.3.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (51a7cae12acc7292db4623ae0e3cc3a2ce6ca1c9)
+    modules/Octokit/Octokit.fsx (82d22da50df68d0af572d6cf4922387807cfa3f4)
       Octokit (>= 0.20)
 GROUP Legacy
 REDIRECTS: FORCE
