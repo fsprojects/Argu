@@ -1,3 +1,6 @@
+### 5.0.1
+* Fix framework constraint issue.
+
 ### 5.0.0
 * Allow use of query API with implicit quotations
 * Require FSharp.Core 4.0 for net40.
