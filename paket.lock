@@ -641,7 +641,7 @@ GITHUB
       Octokit (>= 0.20)
 GROUP Legacy
 REDIRECTS: FORCE
-RESTRICTION: == net40
+RESTRICTION: == net45
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FSharp.Core (4.0.0.1)

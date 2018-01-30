@@ -17,7 +17,7 @@ tags
 references
     Argu.dll
 dependencies
-  framework: net40
+  framework: net45
     FSharp.Core >= LOCKEDVERSION-Legacy
   framework: netstandard2.0
 	FSharp.Core >= LOCKEDVERSION

@@ -14,7 +14,7 @@ nuget SourceLink.Create.CommandLine copy_local: true
 clitool dotnet-sourcelink framework: netcoreapp2.0
 
 group Legacy
-  framework: net40
+  framework: net45
   source https://api.nuget.org/v3/index.json
   redirects: force
 
