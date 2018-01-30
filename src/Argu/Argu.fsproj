@@ -7,13 +7,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Tailcalls>false</Tailcalls>
     <OutputPath>..\..\bin\Debug\</OutputPath>
-    <DocumentationFile>..\..\bin\Debug\net40\Argu.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\Debug\net45\Argu.XML</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>RELEASE</DefineConstants>
     <OutputPath>..\..\bin\Release\</OutputPath>
-    <DocumentationFile>..\..\bin\Release\net40\Argu.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\Release\net45\Argu.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />

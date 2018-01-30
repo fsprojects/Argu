@@ -25,9 +25,9 @@ dependencies
 excludeddependencies
     SourceLink.Create.CommandLine
 files
-    ../../bin/Release/net40/Argu.dll ==> lib/net40
-    ../../bin/Release/net40/Argu.pdb ==> lib/net40
-    ../../bin/Release/net40/Argu.xml ==> lib/net40
+    ../../bin/Release/net45/Argu.dll ==> lib/net45
+    ../../bin/Release/net45/Argu.pdb ==> lib/net45
+    ../../bin/Release/net45/Argu.xml ==> lib/net45
     ../../bin/Release/netstandard2.0/Argu.dll ==> lib/netstandard2.0
     ../../bin/Release/netstandard2.0/Argu.pdb ==> lib/netstandard2.0
     ../../bin/Release/netstandard2.0/Argu.xml ==> lib/netstandard2.0

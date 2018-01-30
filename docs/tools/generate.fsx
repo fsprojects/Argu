@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "net40/Argu.dll" ]
+let referenceBinaries = [ "net45/Argu.dll" ]
 // Web site location for the generated documentation
 let website = "/Argu"
 
