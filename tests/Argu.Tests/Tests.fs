@@ -201,6 +201,26 @@ module ``Argu Tests`` =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "-D" |] @>
                                         (fun e -> <@ e.FirstLine.Contains "missing parameter" @>)
 
+
+    // Test the Turkish dot-less 'i', when converting the capital 'I' in the Union below this
+    // will incorrectly
+    type LocaleTurkish =
+        | Install of bool
+    with
+        interface IArgParserTemplate with
+            member a.Usage = "not tested here"
+
+    [<Fact>]
+    let ``CLIArguments Locale`` () =
+        let originalCulture = System.Threading.Thread.CurrentThread.CurrentCulture
+        try
+            System.Threading.Thread.CurrentThread.CurrentCulture <- new System.Globalization.CultureInfo("tr-TR")
+            let parser2 = ArgumentParser.Create<LocaleTurkish> (programName = "gadget")
+            let result = parser2.ParseCommandLine([| "--install"; "true" |], ignoreMissing = true)
+            test <@ result.GetResult <@ Install @> @>
+        finally
+            System.Threading.Thread.CurrentThread.CurrentCulture <- originalCulture
+
     [<Fact>]
     let ``Unique parameter specified once`` () =
         let result = parser.ParseCommandLine([| "--unique-arg" ; "true" |], ignoreMissing = true)

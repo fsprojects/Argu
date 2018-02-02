@@ -28,18 +28,18 @@ let generateOptionName (uci : UnionCaseInfo) =
         | None -> CliPrefix.DoubleDash
         | Some pf -> pf.Prefix
 
-    prefixString + uci.Name.ToLower().Replace('_','-')
+    prefixString + uci.Name.ToLowerInvariant().Replace('_','-')
 
 /// Generate a CLI Param for enumeration cases
-let generateEnumName (name : string) = name.ToLower().Replace('_','-')
+let generateEnumName (name : string) = name.ToLowerInvariant().Replace('_','-')
 
 /// construct an App.Config param from UCI name
 let generateAppSettingsName (uci : UnionCaseInfo) =
-    uci.Name.ToLower().Replace('_',' ')
+    uci.Name.ToLowerInvariant().Replace('_',' ')
 
 /// construct a command identifier from UCI name
 let generateCommandName (uci : UnionCaseInfo) =
-    uci.Name.ToUpper().Replace('_', ' ')
+    uci.Name.ToUpperInvariant().Replace('_', ' ')
 
 let private defaultLabelRegex = new Regex(@"^Item[0-9]*$", RegexOptions.Compiled)
 /// Generates an argument label name from given PropertyInfo
