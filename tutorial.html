@@ -461,7 +461,26 @@ For example, consider this mock git CLI syntax:</p>
 </code></pre></td>
 </tr>
 </table>
-<p>which generates the following syntax:</p>
+<p>and the following console app entrypoint</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[&lt;<span class="i">EntryPoint</span>&gt;]
+<span class="k">let</span> <span class="i">main</span> <span class="i">argv</span> <span class="o">=</span> 
+    <span class="k">try</span> 
+    	<span class="i">parser</span><span class="o">.</span><span class="i">ParseCommandLine</span>(<span class="i">inputs</span> <span class="o">=</span> <span class="i">argv</span>, <span class="i">raiseOnUsage</span> <span class="o">=</span> <span class="k">true</span>) <span class="o">|&gt;</span> <span class="i">ignore</span>
+    <span class="k">with</span> <span class="i">e</span> <span class="k">-&gt;</span> 
+    	<span class="i">printfn</span> <span class="s">&quot;%s&quot;</span> <span class="i">e</span><span class="o">.</span><span class="i">Message</span>
+    <span class="n">0</span>
+</code></pre></td>
+</tr>
+</table>
+<p>which generates the following syntax on corresponding command and subcommand help requests:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
