@@ -329,8 +329,20 @@ with
             | Commit _ -> "Record changes to the repository."
 
 (**
+and the following console app entrypoint
+*)
 
-which generates the following syntax:
+[<EntryPoint>]
+let main argv = 
+    try 
+    	parser.ParseCommandLine(inputs = argv, raiseOnUsage = true) |> ignore
+    with e -> 
+    	printfn "%s" e.Message
+    0
+
+(**
+
+which generates the following syntax on corresponding command and subcommand help requests:
 
     [lang=console]
     USAGE: git [--help] [--version] [--verbose] [<subcommand> [<options>]]
