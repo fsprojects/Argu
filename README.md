@@ -19,5 +19,5 @@ All documentation and related material can be found [here](http://fsprojects.git
 
 Head (branch `master`), Build & Unit tests
 
-* Windows/.NET [![Build status](https://ci.appveyor.com/api/projects/status/woc4r88tfbnu0ci1/branch/master?svg=true)](https://ci.appveyor.com/project/nessos/argu-6jatx/branch/master)
-* Mac OS X/Mono 4.2 [![Build Status](https://travis-ci.org/fsprojects/Argu.png?branch=master)](https://travis-ci.org/fsprojects/Argu/branches)
+* Windows [![Build status](https://ci.appveyor.com/api/projects/status/woc4r88tfbnu0ci1/branch/master?svg=true)](https://ci.appveyor.com/project/nessos/argu-6jatx/branch/master)
+* Linux [![Build Status](https://travis-ci.org/fsprojects/Argu.svg?branch=master)](https://travis-ci.org/fsprojects/Argu/branches)

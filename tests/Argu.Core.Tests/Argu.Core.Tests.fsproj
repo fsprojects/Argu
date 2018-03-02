@@ -1,25 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AssemblyName>Argu.Tests</AssemblyName>
+    <AssemblyName>Argu.Core.Tests</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>
     <OutputPath>..\..\bin\Release\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>NETCOREAPP2_0</DefineConstants>
     <OutputPath>..\..\bin\Debug\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Tests.fs" />
+    <Compile Include="..\Argu.Tests\Tests.fs" Link="Tests.fs" />
+    <Compile Include="Main.fs" />
     <None Include="App.config" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Argu\Argu.fsproj" />
+    <ProjectReference Include="..\..\src\Argu.Core\Argu.Core.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

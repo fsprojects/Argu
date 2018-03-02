@@ -28,18 +28,18 @@ let generateOptionName (uci : UnionCaseInfo) =
         | None -> CliPrefix.DoubleDash
         | Some pf -> pf.Prefix
 
-    prefixString + uci.Name.ToLower().Replace('_','-')
+    prefixString + uci.Name.ToLowerInvariant().Replace('_','-')
 
 /// Generate a CLI Param for enumeration cases
-let generateEnumName (name : string) = name.ToLower().Replace('_','-')
+let generateEnumName (name : string) = name.ToLowerInvariant().Replace('_','-')
 
 /// construct an App.Config param from UCI name
 let generateAppSettingsName (uci : UnionCaseInfo) =
-    uci.Name.ToLower().Replace('_',' ')
+    uci.Name.ToLowerInvariant().Replace('_',' ')
 
 /// construct a command identifier from UCI name
 let generateCommandName (uci : UnionCaseInfo) =
-    uci.Name.ToUpper().Replace('_', ' ')
+    uci.Name.ToUpperInvariant().Replace('_', ' ')
 
 let private defaultLabelRegex = new Regex(@"^Item[0-9]*$", RegexOptions.Compiled)
 /// Generates an argument label name from given PropertyInfo
@@ -48,11 +48,7 @@ let tryExtractUnionParameterLabel (p : PropertyInfo) =
     else Some(p.Name.Replace('_',' '))
 
 let (|NestedParseResults|Optional|List|Other|) (t : Type) =
-#if CORE_CLR
-    if t.GetTypeInfo().IsGenericType then
-#else
     if t.IsGenericType then
-#endif
         let gt = t.GetGenericTypeDefinition()
         if typeof<IParseResult>.IsAssignableFrom t then NestedParseResults(t.GetGenericArguments().[0])
         elif gt = typedefof<_ option> then Optional(t.GetGenericArguments().[0])
@@ -90,20 +86,14 @@ let primitiveParsers =
         mkParser "float" Single.Parse string
         mkParser "double" Double.Parse string
         mkParser "decimal" Decimal.Parse string
-#if !NET35
         mkParser "bigint" System.Numerics.BigInteger.Parse string
-#endif
         mkParser "guid" Guid string
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String
     |]
 
 /// Creates a primitive parser from an enumeration
 let tryGetEnumerationParser label (t : Type) =
-#if CORE_CLR
-    if not (t.GetTypeInfo().IsEnum) then None else
-#else
     if not t.IsEnum then None else
-#endif
     let names = Enum.GetNames(t) |> Seq.map generateEnumName
     let values = Enum.GetValues(t) |> Seq.cast<obj>
     let index = Seq.zip names values |> Seq.toArray
@@ -278,7 +268,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None -> None
 
     let isGatherUnrecognized =
-        if uci.ContainsAttribute<GatherUnrecognized>() then
+        if uci.ContainsAttribute<GatherUnrecognizedAttribute>() then
             match types with
             | _ when isMainCommand -> arguExn "parameter '%O' contains incompatible combination of attributes 'MainCommand' and 'GatherUnrecognized'." uci
             | [|t|] when t = typeof<string> -> true
@@ -369,7 +359,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
             | None -> Some <| generateAppSettingsName uci
             | Some _ when parsers.Type = ArgumentType.SubCommand -> arguExn "CustomAppSettings in %O not supported in subcommands." uci
-            | Some attr when not <| isNullOrWhiteSpace attr.Name -> Some attr.Name
+            | Some attr when not <| String.IsNullOrWhiteSpace attr.Name -> Some attr.Name
             | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name
 
     /// gets the default name of the argument
@@ -452,11 +442,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         arguExn "template type '%O' is not an F# union." t
     elif stack |> List.exists ((=) t) then
         arguExn "template type '%O' implements unsupported recursive pattern." t
-#if CORE_CLR
-    elif t.GetTypeInfo().IsGenericType then
-#else
     elif t.IsGenericType then
-#endif
         arguExn "template type '%O' is generic; this is not supported." t
 
     let helpParam =

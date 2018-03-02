@@ -1,7 +1,7 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../bin/net40"
+#I "../../bin/Release/net45"
 #r "Argu.dll"
 
 open System
@@ -126,13 +126,13 @@ it is more likely that you need to query the results for specific parameters:
 
 *)
 
-let detach = results.Contains <@ Detach @>
-let listener = results.GetResults <@ Listener @>
+let detach = results.Contains Detach
+let listener = results.GetResults Listener
 
 (** The following methods return the last observed result for given argument case *)
 
-let dataOpt = results.TryGetResult <@ Data @>
-let logLevel = results.GetResult (<@ Log_Level @>, defaultValue = 0)
+let dataOpt = results.TryGetResult Data
+let logLevel = results.GetResult (Log_Level, defaultValue = 0)
 
 (**
 
@@ -329,8 +329,20 @@ with
             | Commit _ -> "Record changes to the repository."
 
 (**
+and the following console app entrypoint
+*)
 
-which generates the following syntax:
+[<EntryPoint>]
+let main argv = 
+    try 
+    	parser.ParseCommandLine(inputs = argv, raiseOnUsage = true) |> ignore
+    with e -> 
+    	printfn "%s" e.Message
+    0
+
+(**
+
+which generates the following syntax on corresponding command and subcommand help requests:
 
     [lang=console]
     USAGE: git [--help] [--version] [--verbose] [<subcommand> [<options>]]

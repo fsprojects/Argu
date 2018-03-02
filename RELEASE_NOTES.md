@@ -1,3 +1,24 @@
+### 5.0.1
+* Fix framework constraint issue.
+
+### 5.0.0
+* Allow use of query API with implicit quotations
+* Require FSharp.Core 4.0 for net40.
+* Require FSharp.Core 4.3 for netstandard2.0.
+
+### 4.2.1
+* Fix packaging issue.
+
+### 4.2.0
+* Migrate to SourceLink 2.0
+
+### 4.1.0
+* Add AppSettings configuration reader support for NetStandard.
+
+### 4.0.0
+* Support NetStandard 2.0
+* Add Environment Variable configuration reader.
+
 ### 3.6.1
 * Fix default character width issue in console apps.
 

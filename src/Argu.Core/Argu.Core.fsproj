@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Argu</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <DocumentationFile>..\..\bin\Debug\netstandard2.0\Argu.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>RELEASE;NETSTANDARD2_0</DefineConstants>
+    <OutputPath>..\..\bin\Release\</OutputPath>
+    <DocumentationFile>..\..\bin\Release\netstandard2.0\Argu.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="..\Argu\Types.fs" Link="Types.fs" />
+    <Compile Include="..\Argu\Attributes.fs" Link="Attributes.fs" />
+    <Compile Include="..\Argu\Utils.fs" Link="Utils.fs" />
+    <Compile Include="..\Argu\ConfigReaders.fs" Link="ConfigReaders.fs" />
+    <Compile Include="..\Argu\UnionArgInfo.fs" Link="UnionArgInfo.fs" />
+    <Compile Include="..\Argu\PreCompute.fs" Link="PreCompute.fs" />
+    <Compile Include="..\Argu\UnParsers.fs" Link="UnParsers.fs" />
+    <Compile Include="..\Argu\ParseResults.fs" Link="ParseResults.fs" />
+    <Compile Include="..\Argu\Parsers\Common.fs" Link="Parsers\Common.fs" />
+    <Compile Include="..\Argu\Parsers\Cli.fs" Link="Parsers\Cli.fs" />
+    <Compile Include="..\Argu\Parsers\KeyValue.fs" Link="Parsers\KeyValue.fs" />
+    <Compile Include="..\Argu\ArgumentParser.fs" Link="ArgumentParser.fs" />
+    <None Include="paket.references" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

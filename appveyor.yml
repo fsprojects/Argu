@@ -1,7 +1,10 @@
-os: Visual Studio 2015
+os: Visual Studio 2017
+
+init:
+  - git config --global core.autocrlf input
 
 build_script:
-  - cmd: build.cmd NuGet
+  - cmd: build.cmd Bundle
 
 test: off
 artifacts:

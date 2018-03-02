@@ -1,1 +1,3 @@
-﻿
+﻿group Legacy
+FSharp.Core
+SourceLink.Create.CommandLine

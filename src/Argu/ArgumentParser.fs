@@ -1,8 +1,6 @@
 ﻿namespace Argu
 
 open System
-open System.Collections.Generic
-open System.Reflection
 
 open FSharp.Quotations
 open FSharp.Reflection
@@ -152,13 +150,16 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="configurationReader">Configuration reader used to source the arguments. Defaults to the AppSettings configuration of the current process.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
-    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to false.</param>
+    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
     member __.Parse (?inputs : string [], ?configurationReader : IConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
         let inputs = match inputs with None -> getEnvironmentCommandLineArgs () | Some args -> args
-        let configurationReader = match configurationReader with Some c -> c | None -> ConfigurationReader.DefaultReader()
+        let configurationReader = 
+            match configurationReader with 
+            | Some c -> c
+            | None -> ConfigurationReader.FromAppSettings()
 
         try
             let appSettingsResults = parseKeyValueConfig configurationReader argInfo
@@ -168,35 +169,6 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
             new ParseResults<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
-
-    /// <summary>Parse AppSettings section of XML configuration only.</summary>
-    /// <param name="xmlConfigurationFile">If specified, parse AppSettings configuration from given xml configuration file.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
-    member __.ParseAppSettings (?xmlConfigurationFile : string, ?ignoreMissing : bool) : ParseResults<'Template> =
-        let configurationReader =
-            match xmlConfigurationFile with
-            | None -> ConfigurationReader.DefaultReader()
-            | Some f ->
-#if CORE_CLR
-                raise <| NotImplementedException "App.Config is not supported."
-#else
-                ConfigurationReader.FromAppSettingsFile(f)
-#endif
-
-        __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
-
-    /// <summary>Parse AppSettings section of XML configuration of given assembly.</summary>
-    /// <param name="assembly">assembly to get application configuration from.</param>
-    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    [<Obsolete("Use ArgumentParser.ParseConfiguration method instead")>]
-    member __.ParseAppSettings(assembly : Assembly, ?ignoreMissing : bool) =
-#if CORE_CLR
-        raise <| NotImplementedException "App.Config is not supported."
-#else
-        let configurationReader = ConfigurationReader.FromAppSettings(assembly)
-        __.ParseConfiguration(configurationReader, ?ignoreMissing = ignoreMissing)
-#endif
 
     /// <summary>
     ///     Converts a sequence of template argument inputs into a ParseResults instance
@@ -209,7 +181,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     ///     Gets a subparser associated with specific subcommand instance
     /// </summary>
     /// <param name="expr">Expression providing the subcommand union constructor.</param>
-    member __.GetSubCommandParser (expr : Expr<ParseResults<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
+    member __.GetSubCommandParser ([<ReflectedDefinition>] expr : Expr<ParseResults<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
         let uci = expr2Uci expr
         let case = argInfo.Cases.[uci.Tag]
         match case.ParameterInfo with
@@ -236,7 +208,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     ///     Gets argument metadata for given union case constructor
     /// </summary>
     /// <param name="ctorExpr">Quoted union case constructor.</param>
-    member __.GetArgumentCaseInfo(ctorExpr : Expr<'Fields -> 'Template>) : ArgumentCaseInfo =
+    member __.GetArgumentCaseInfo([<ReflectedDefinition>] ctorExpr : Expr<'Fields -> 'Template>) : ArgumentCaseInfo =
         let uci = expr2Uci ctorExpr
         argInfo.Cases.[uci.Tag].ToArgumentCaseInfo()
 

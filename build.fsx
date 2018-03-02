@@ -4,7 +4,6 @@
 
 #I "packages/build/FAKE/tools"
 #r "packages/build/FAKE/tools/FakeLib.dll"
-#load "packages/build/SourceLink.Fake/tools/SourceLink.fsx"
 
 open System
 open System.IO
@@ -20,17 +19,19 @@ open Fake.Testing
 
 let project = "Argu"
 
+let summary = "A declarative command line and XML configuration parser for F# applications."
+
 let gitOwner = "fsprojects"
 let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
-let testAssemblies = !! "bin/net40/Argu.Tests.dll"
+let testProjects = "tests/**/*.??proj"
 
-let netcoreSrcFiles = !! "src/**/project.json" |> Seq.toList
-let netcoreTestFiles = !! "tests/**/project.json" |> Seq.toList
+let configuration = environVarOrDefault "Configuration" "Release"
+let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
+let binFolder = __SOURCE_DIRECTORY__ @@ "bin" @@ configuration
 
-//
 //// --------------------------------------------------------------------------------------
 //// The rest of the code is standard F# build script 
 //// --------------------------------------------------------------------------------------
@@ -44,12 +45,31 @@ Target "BuildVersion" (fun _ ->
     Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" nugetVersion) |> ignore
 )
 
-// Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-  let fileName = "./src/Argu/AssemblyInfo.fs"
-  CreateFSharpAssemblyInfo fileName
-      [ Attribute.Version release.AssemblyVersion
-        Attribute.FileVersion release.AssemblyVersion] 
+    let getAssemblyInfoAttributes projectName =
+        [ Attribute.Title projectName
+          Attribute.Product project
+          Attribute.Description summary
+          Attribute.Version release.AssemblyVersion
+          Attribute.FileVersion release.AssemblyVersion ]
+
+    let getProjectDetails projectPath =
+        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
+        ( projectPath,
+          projectName,
+          System.IO.Path.GetDirectoryName(projectPath),
+          (getAssemblyInfoAttributes projectName)
+        )
+
+    !! "src/**/*.??proj"
+    |> Seq.map getProjectDetails
+    |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
+        match projFileName with
+        | Fsproj -> CreateFSharpAssemblyInfo (folderName </> "AssemblyInfo.fs") attributes
+        | Csproj -> CreateCSharpAssemblyInfo ((folderName </> "Properties") </> "AssemblyInfo.cs") attributes
+        | Vbproj -> CreateVisualBasicAssemblyInfo ((folderName </> "My Project") </> "AssemblyInfo.vb") attributes
+        | Shproj -> ()
+        )
 )
 
 
@@ -57,31 +77,21 @@ Target "AssemblyInfo" (fun _ ->
 // Clean build results & restore NuGet packages
 
 Target "Clean" (fun _ ->
-    CleanDirs ["./bin/"]
+    CleanDirs [ binFolder ; artifacts ]
 )
 
 //
 //// --------------------------------------------------------------------------------------
 //// Build library & test project
 
-let configuration = environVarOrDefault "Configuration" "Release"
+Target "DotNet.Restore" (fun _ -> DotNetCli.Restore id)
 
-let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
-
-Target "Build.Net35" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [ project + ".sln" ]
-      Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration", "Release-NET35" ]
-    |> Log "AppBuild-Output: "
-)
-
-Target "Build.Net40" (fun _ ->
+Target "Build" (fun _ ->
     // Build the rest of the project
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ project + ".sln" ]
       Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration", configuration]
+    |> MSBuild "" "Build" ["Configuration", configuration; "SourceLinkCreate", "true"]
     |> Log "AppBuild-Output: "
 )
 
@@ -89,35 +99,45 @@ Target "Build.Net40" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
+let runTest (proj : string) =
+    if EnvironmentHelper.isWindows || proj.Contains "Core" then
+        DotNetCli.Test (fun c -> { c with Project = proj })
+    else
+        // revert to classic CLI runner due to dotnet-xunit issue in mono environments
+        let projName = Path.GetFileNameWithoutExtension proj
+        let assembly = binFolder @@ "net4*" @@ projName + ".dll"
+        !! assembly
+        |> XUnit2.xUnit2 (fun c ->
+            { c with
+                Parallel = ParallelMode.Collections
+                TimeOut = TimeSpan.FromMinutes 20. })
+
 Target "RunTests" (fun _ ->
-    ActivateFinalTarget "CloseTestRunner"
-
-    testAssemblies
-    |> xUnit2 (fun p ->
-        { p with
-            Parallel = ParallelMode.Collections
-            TimeOut = TimeSpan.FromMinutes 20. })
-)
-
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
-)
+    for proj in !! testProjects do
+        runTest proj)
 
 //
 //// --------------------------------------------------------------------------------------
 //// Build a NuGet package
-
-Target "NuGet" DoNothing
 
 Target "NuGet.Pack" (fun _ ->
     Paket.Pack(fun config ->
         { config with 
             Version = release.NugetVersion
             ReleaseNotes = String.concat "\n" release.Notes
-            OutputPath = "bin"
+            OutputPath = artifacts
         }))
 
-Target "NuGetPush" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = "bin/" }))
+Target "sourcelink.test" (fun _ ->
+    !! (sprintf "%s/*.nupkg" artifacts)
+    |> Seq.iter (fun nupkg ->
+        DotNetCli.RunCommand
+            (fun p -> { p with WorkingDir = __SOURCE_DIRECTORY__ @@ "tests" @@ "Argu.Core.Tests" } )
+            (sprintf "sourcelink test %s" nupkg)
+    )
+)
+
+Target "NuGet.Push" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = artifacts }))
 
 // Doc generation
 
@@ -139,22 +159,8 @@ Target "ReleaseDocs" (fun _ ->
     Branches.push tempDocsDir
 )
 
-//----------------------------
-// SourceLink
-
-open SourceLink
-
-Target "SourceLink" (fun _ ->
-    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw project
-    [ yield! !! "src/**/*.??proj" ]
-    |> Seq.iter (fun projFile ->
-        let proj = VsProj.LoadRelease projFile
-        SourceLink.Index proj.CompilesNotLinked proj.OutputFilePdb __SOURCE_DIRECTORY__ baseUrl
-    )
-)
-
 // Github Releases
-
+#nowarn "85"
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
@@ -194,72 +200,36 @@ Target "ReleaseGitHub" (fun _ ->
     |> Async.RunSynchronously
 )
 
-// .NET Core SDK and .NET Core
-
-let assertExitCodeZero x = if x = 0 then () else failwithf "Command failed with exit code %i" x
-
-Target "SetVersionInProjectJSON" (fun _ ->
-    for proj in netcoreSrcFiles @ netcoreTestFiles do
-        DotNetCli.SetVersionInProjectJson release.NugetVersion proj
-)
-
-Target "Build.NetCore" (fun _ ->
-    for proj in netcoreSrcFiles @ netcoreTestFiles do
-        DotNetCli.Restore (fun c -> { c with Project = proj })
-
-    for proj in netcoreSrcFiles @ netcoreTestFiles do
-        DotNetCli.Build (fun c -> { c with Project = proj })
-)
-
-Target "RunTests.NetCore" (fun _ ->
-    for proj in netcoreTestFiles do
-        DotNetCli.Test (fun c -> { c with Project = proj })
-)
-
-let isDotnetSDKInstalled = DotNetCli.isInstalled()
-
-Target "NuGet.AddNetCore" (fun _ ->
-    if not isDotnetSDKInstalled then failwith "You need to install .NET core to publish NuGet packages"
-    for proj in netcoreSrcFiles do
-        DotNetCli.Pack (fun c -> { c with Project = proj })
-
-    let nupkg = sprintf "../../bin/Argu.%s.nupkg" (release.NugetVersion)
-    let netcoreNupkg = sprintf "bin/Release/Argu.%s.nupkg" (release.NugetVersion)
-
-    Shell.Exec("dotnet", sprintf """mergenupkg --source "%s" --other "%s" --framework netstandard1.6 """ nupkg netcoreNupkg, "src/Argu/") |> assertExitCodeZero
-)
-
-
-Target "Release" DoNothing
-
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
+Target "Root" DoNothing
 Target "Prepare" DoNothing
 Target "PrepareRelease" DoNothing
 Target "Default" DoNothing
+Target "Bundle" DoNothing
+Target "Release" DoNothing
 
-"Clean"
+"Root"
+  ==> "Clean"
   ==> "AssemblyInfo"
-  ==> "SetVersionInProjectJSON"
   ==> "Prepare"
-  ==> "Build.Net40"
+  ==> "DotNet.Restore"
+  ==> "Build"
   ==> "RunTests"
   ==> "Default"
 
 "Default"
   ==> "PrepareRelease"
-  ==> "SourceLink"
-  =?> ("Build.Net35", not isTravisCI) //mono 4.x doesnt have FSharp.Core 2.3.0.0 installed
-  =?> ("Build.NetCore", isDotnetSDKInstalled)
-  =?> ("RunTests.NetCore", isDotnetSDKInstalled)
   ==> "NuGet.Pack"
-  ==> "NuGet.AddNetCore"
-  ==> "NuGet"
+  ==> "sourcelink.test"
   ==> "GenerateDocs"
+  ==> "Bundle"
+
+"Bundle"
   ==> "ReleaseDocs"
-  ==> "NuGetPush"
   ==> "ReleaseGitHub"
+  ==> "NuGet.Push"
   ==> "Release"
 
 RunTargetOrDefault "Default"

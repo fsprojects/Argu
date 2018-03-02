@@ -1,18 +1,31 @@
-redirects: on
-source https://www.nuget.org/api/v2
+framework: net461, netstandard2.0, netcoreapp2.0
+source https://api.nuget.org/v3/index.json
+redirects: force
 
-nuget FsCheck
-nuget Unquote
-nuget xunit ~> 2.0
-nuget xunit.extensions
-nuget xunit.runner.console
-nuget xunit.runner.visualstudio version_in_path: true
+nuget FSharp.Core >= 4.3.2 lowest_matching:true
+nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
+
+# Testing dependencies; NB intentionally keeping in Main group
+nuget Unquote ~> 4.0
+nuget FsCheck ~> 3.0 prerelease
+nuget xunit ~> 2.3
+nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
+nuget SourceLink.Create.CommandLine copy_local: true
+clitool dotnet-sourcelink framework: netcoreapp2.0
+
+group Legacy
+  framework: net45
+  source https://api.nuget.org/v3/index.json
+  redirects: force
+
+  nuget FSharp.Core >= 4.0 lowest_matching:true
+  nuget SourceLink.Create.CommandLine copy_local: true
 
 group Build
-  source https://www.nuget.org/api/v2
+  framework: net461
+  source https://api.nuget.org/v3/index.json
 
-  nuget FAKE
+  nuget FAKE ~> 4.0
   nuget FSharp.Formatting
-  nuget Nuget.CommandLine
-  nuget SourceLink.Fake
+  nuget xunit.runner.console ~> 2.3
   github fsharp/FAKE modules/Octokit/Octokit.fsx
