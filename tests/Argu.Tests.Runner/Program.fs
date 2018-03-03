@@ -25,7 +25,7 @@ module Program =
 #else
             let configuration = "Release"
 #endif
-            Path.Combine(currentDir, @"..\..\..\tests\Argu.Tests.Runner\bin\", configuration, "netcoreapp2.0", Path.GetFileName currentDll)
+            Path.Combine(currentDir, "..", "..", "..", "tests", "Argu.Tests.Runner", "bin", configuration, "netcoreapp2.0", Path.GetFileName currentDll)
         psi.Arguments <- "\"" + dll + "\" " + args
 #endif
         psi.UseShellExecute <- false
