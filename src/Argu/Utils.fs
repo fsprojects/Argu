@@ -53,6 +53,12 @@ module List =
 [<RequireQualifiedAccess>]
 module Seq =
 
+    /// try fetching first element of a sequence
+    let tryFirst (xs : seq<'T>) =
+        let en = xs.GetEnumerator()
+        if en.MoveNext() then Some en.Current
+        else None
+
     /// try fetching last element of a sequence
     let tryLast (xs : seq<'T>) =
         let mutable isAccessed = false
@@ -184,10 +190,63 @@ let expr2Uci (e : Expr) =
 
     aux None [] e
 
-let private whitespaceRegex = new Regex(@"\s", RegexOptions.Compiled)
+//let private whitespaceRegex = new Regex(@"\s", RegexOptions.Compiled)
+
+/// these chars can't be roundtripped through a cmd-line -> should fail with an exception
+let private invalidChars = [| char 0 |]
+/// these chars require quoting or escaping
+let private peskyChars = [| '"' ; '\t' ; ' ' ; '\\' |]
+
+let private doesStringContain chars (s:string) =
+    s |> Seq.exists (fun c -> chars |> Seq.exists (fun cc -> cc = c))
+    
 let escapeCliString (value : string) =
-    if whitespaceRegex.IsMatch value then sprintf "'%s'" value
-    else value
+//    if Environment.OSVersion.Platform = PlatformID.Win32NT then
+        if value = null then
+            raise (ArgumentNullException("value"))
+        if value = "" then
+            "\"\""
+        else if value |> doesStringContain invalidChars then
+            failwithf "The string can not be roundtripped."
+        else if not (value |> doesStringContain peskyChars) then
+            value
+        else
+            let valueSeq = seq {
+                // always quote if we have some pesky char.
+                // It may not be strictly necessary, but doesn't hurt either
+                yield '"'
+                
+                for i, c in value |> Seq.mapi (fun i c -> i, c) do
+                    match c with
+                    
+                    | '"' ->
+                        yield '\\'
+                        yield '"'
+                    
+                    | '\\' ->
+                        (* The rules for " and \ are stupid. Source: https://github.com/ArildF/masters/blob/1542218180f2f462c604173ce8925f419155f19c/trunk/sscli/clr/src/vm/util.cpp#L1013
+                            * 2N backslashes + " ==> N backslashes and begin/end quote
+                            * 2N+1 backslashes + " ==> N backslashes + literal "
+                            * N backslashes ==> N backslashes                            
+                        *)
+                        let nextCharAfterBackslashes = value |> Seq.skip (i + 1) |> Seq.filter (fun c -> c <> '\\') |> Seq.tryFirst
+                        if nextCharAfterBackslashes = Some ('"') || nextCharAfterBackslashes = None then
+                            yield '\\'
+                            yield '\\'
+                        else
+                            yield '\\'
+                    
+                    | ' ' // we quote anyway, so ' ' does not need to be treated specially.
+                    | '\t' // ... same
+                    | _ -> yield c
+                
+                yield '"'
+            }
+            
+            valueSeq |> Seq.toArray |> String
+//    else
+//        if whitespaceRegex.IsMatch value then sprintf "'%s'" value
+//        else value
 
 let flattenCliTokens (tokens : seq<string>) =
     tokens |> Seq.map escapeCliString |> String.concat " "
