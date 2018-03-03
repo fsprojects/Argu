@@ -3,3 +3,5 @@ xunit
 xunit.runner.visualstudio
 Unquote
 FsCheck
+FsCheck.Xunit
+FsPickler

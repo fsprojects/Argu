@@ -1,6 +1,10 @@
 ﻿[<AutoOpen>]
 module internal Argu.Utils
 
+[<assembly:System.Runtime.CompilerServices.InternalsVisibleTo("Argu.Tests")>]
+[<assembly:System.Runtime.CompilerServices.InternalsVisibleTo("Argu.Core.Tests")>]
+do ()
+
 open System
 open System.Collections.Generic
 open System.IO
@@ -52,7 +56,6 @@ module List =
 
 [<RequireQualifiedAccess>]
 module Seq =
-
     /// try fetching first element of a sequence
     let tryFirst (xs : seq<'T>) =
         let en = xs.GetEnumerator()

@@ -26,7 +26,7 @@ let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
-let testProjects = "tests/**/*.??proj"
+let testProjects = "tests/**/*.Tests.??proj"
 
 let configuration = environVarOrDefault "Configuration" "Release"
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"

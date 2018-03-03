@@ -1,3 +1,4 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
@@ -11,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{FB06D9
 		.paket\paket.targets = .paket\paket.targets
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu", "src\Argu\Argu.fsproj", "{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu", "src\Argu\Argu.fsproj", "{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB909722-1B3F-46A1-9245-277905B1E346}"
 	ProjectSection(SolutionItems) = preProject
@@ -46,9 +47,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{33A4833E
 		docs\tools\templates\template.cshtml = docs\tools\templates\template.cshtml
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{B94D60AD-2083-4E08-B28F-43122BE14819}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{B94D60AD-2083-4E08-B28F-43122BE14819}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu.Samples.LS", "samples\Argu.Samples.LS\Argu.Samples.LS.fsproj", "{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Samples.LS", "samples\Argu.Samples.LS\Argu.Samples.LS.fsproj", "{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{AF8469CE-9BA8-4EDD-BFFA-FF67EA8FFD86}"
 EndProject
@@ -59,6 +60,8 @@ EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Core.Tests", "tests\Argu.Core.Tests\Argu.Core.Tests.fsproj", "{48F82C6A-1BBC-40F0-B9A1-FD05B2EF3341}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3F10A2DD-E1BA-4A9F-8679-A18144168EFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Argu.TestRunner", "tests\Argu.Tests.Runner\Argu.TestRunner.fsproj", "{190BE3BE-8170-4DAC-81CC-4AFAB9DEC198}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +89,10 @@ Global
 		{48F82C6A-1BBC-40F0-B9A1-FD05B2EF3341}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48F82C6A-1BBC-40F0-B9A1-FD05B2EF3341}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48F82C6A-1BBC-40F0-B9A1-FD05B2EF3341}.Release|Any CPU.Build.0 = Release|Any CPU
+		{190BE3BE-8170-4DAC-81CC-4AFAB9DEC198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{190BE3BE-8170-4DAC-81CC-4AFAB9DEC198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{190BE3BE-8170-4DAC-81CC-4AFAB9DEC198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{190BE3BE-8170-4DAC-81CC-4AFAB9DEC198}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +106,7 @@ Global
 		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1} = {AF8469CE-9BA8-4EDD-BFFA-FF67EA8FFD86}
 		{E492695A-2363-4A74-814B-E79745D9C06A} = {6FBA8939-A5FA-4476-9F25-B8CEC181EC21}
 		{48F82C6A-1BBC-40F0-B9A1-FD05B2EF3341} = {3F10A2DD-E1BA-4A9F-8679-A18144168EFA}
+		{190BE3BE-8170-4DAC-81CC-4AFAB9DEC198} = {3F10A2DD-E1BA-4A9F-8679-A18144168EFA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {42B6791A-3A2A-4988-967C-14BE8C294990}

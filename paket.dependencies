@@ -8,6 +8,8 @@ nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 # Testing dependencies; NB intentionally keeping in Main group
 nuget Unquote ~> 4.0
 nuget FsCheck ~> 3.0 prerelease
+nuget FsCheck.Xunit
+nuget FsPickler
 nuget xunit ~> 2.3
 nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
 nuget SourceLink.Create.CommandLine copy_local: true

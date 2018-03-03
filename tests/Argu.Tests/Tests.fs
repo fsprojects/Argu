@@ -757,3 +757,76 @@ module ``Argu Tests`` =
             test <@ r.Parser.PrintUsage().Contains "will be shown" @>
             test <@ r.Parser.PrintUsage().Contains "will be hidden" |> not @>
         | _ -> failwithf "never should get here"
+
+//#if NETCOREAPP2_0
+//#else
+    open MBrace.FsPickler
+
+    /// test that the specified string, when passed to a .NET program, will be parsed to the expected argv array
+    let runRunner (expected:string array) (cmdLine:string) =
+        let outFile = Path.GetTempFileName()
+        try
+            Environment.SetEnvironmentVariable("_ARGU_TEST_OUTFILE", outFile)
+            Argu.Tests.Runner.Program.run(cmdLine)
+            let bytes = File.ReadAllBytes(outFile)
+            let argvArray = FsPickler.CreateBinarySerializer().UnPickle(bytes)
+            if expected <> argvArray then
+                failwithf "Expected %A but got %A. Cmdline is '%s'" expected argvArray cmdLine                  
+        finally
+            File.Delete(outFile)
+    
+    let testRoundTrip argv = runRunner argv (Argu.Utils.flattenCliTokens argv)
+
+    [<Fact>]
+    let ``TestRunner works`` () =
+        runRunner [| "Hello" ; "World" |] "Hello World"        
+    
+    let ``a few hardcoded strings can be rountripped_testCases`` : obj [] [] =    
+        let testCases : string[] [] = [|
+            [| "Hello World" |]
+            [| "\"Hello World\"" |]
+            [| "'Hello World'" |]
+            [| "'" ; "Hello World" ; "'" |]
+            [| "'" ; "Hello" ; "World" ; "'" |]
+            [| "\t " |]
+            [| "\t" |]
+            [| " \t" |]
+            [| "\\" |]
+            [| "\\a" |]
+            [| "a\\" |]
+            
+            [| "\\\"" |]
+            [| "\\\\\"" |]
+            [| "\"\\" |]
+            [| "\"\\\\" |]
+        |]
+        testCases
+        |> Array.map(fun argv -> [| argv :> obj |])
+    
+    [<MemberData("a few hardcoded strings can be rountripped_testCases")>]
+    [<Theory>]
+    let ``a few hardcoded strings can be rountripped`` (argv) =
+        testRoundTrip argv
+        
+    open FsCheck
+    
+    /// FsCheck generates truly random values - reject known-invalid ones
+//    let argvPrecondition (argv:string[]) =
+//        if argv = null then false
+//        else if argv |> Array.exists ((=) null) then false
+//        else if argv |> Array.exists (Seq.exists ((=) '\000')) then false
+//        else true
+        
+    type MyGenerators =
+      static member Tree() =
+          {new Arbitrary<char>() with
+              override x.Generator = Arb.Default.Char().Generator |> Gen.filter (fun c -> c <> '\000')
+          }
+    
+    [<FsCheck.Xunit.Property(MaxFail=1000, Arbitrary=[|typeof<MyGenerators>|])>]
+    let ``random strings can be rountripped`` (argv:NonNull<string> array) =
+//        printfn "%A" argv
+        let argv = argv |> Array.map (fun s -> s.Get)
+//        argvPrecondition argv ==> lazy
+        testRoundTrip argv
+//#endif

@@ -16,11 +16,15 @@
   <ItemGroup>
     <Compile Include="..\Argu.Tests\Tests.fs" Link="Tests.fs" />
     <Compile Include="Main.fs" />
+    <Content Include="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Argu.Core\Argu.Core.fsproj" />
+    <ProjectReference Include="..\Argu.Tests.Runner\Argu.TestRunner.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

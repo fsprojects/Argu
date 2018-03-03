@@ -3,4 +3,6 @@ xunit
 xunit.runner.visualstudio
 Unquote
 FsCheck
+FsCheck.Xunit
 dotnet-sourcelink
+FsPickler
