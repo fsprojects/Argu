@@ -20,7 +20,7 @@ module CliPrefix =
 
 /// Source from which to parse arguments
 [<Flags>]
-type ParseSource = 
+type ParseSource =
     | None          = 0
     | AppSettings   = 1
     | CommandLine   = 2
@@ -75,7 +75,7 @@ type ProcessExiter(colorizerOption : (ErrorCode -> ConsoleColor option) option) 
     // Note: this ctor is required to preserve binary compatibility with < 3.7
     new () = ProcessExiter(None)
     new (colorizer : (ErrorCode -> ConsoleColor option)) = ProcessExiter(Some colorizer)
-    
+
     interface IExiter with
         member __.Name = "Process Exiter"
         member __.Exit(msg : string, errorCode : ErrorCode) =
@@ -103,19 +103,19 @@ type ArgumentType =
 type ArgumentCaseInfo =
     {
         /// Human readable name identifier
-        Name : string
+        Name : Lazy<string>
         /// Union case reflection identifier
         UnionCaseInfo : UnionCaseInfo
         /// Type of argument parser
         ArgumentType : ArgumentType
 
         /// head element denotes primary command line arg
-        CommandLineNames : string list
+        CommandLineNames : Lazy<string list>
         /// name used in AppSettings
-        AppSettingsName : string option
+        AppSettingsName : Lazy<string option>
 
         /// Description of the parameter
-        Description : string
+        Description : Lazy<string>
 
         /// AppSettings parameter separator
         AppSettingsSeparators : string list
@@ -123,23 +123,23 @@ type ArgumentCaseInfo =
         AppSettingsSplitOptions : StringSplitOptions
 
         /// Mandated Cli position for the argument
-        CliPosition : CliPosition
+        CliPosition : Lazy<CliPosition>
         /// Specifies that this argument is the main CLI command
         IsMainCommand : bool
         /// If specified, should consume remaining tokens from the CLI
-        IsRest : bool
+        IsRest : Lazy<bool>
         /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
-        CustomAssignmentSeparator : string option
+        CustomAssignmentSeparator : Lazy<string option>
         /// If specified, multiple parameters can be added in AppSettings in CSV form.
-        AppSettingsCSV : bool
+        AppSettingsCSV : Lazy<bool>
         /// Fails if no argument of this type is specified
-        IsMandatory : bool
+        IsMandatory : Lazy<bool>
         /// Specifies that argument should be specified at most once in CLI
-        IsUnique : bool
+        IsUnique : Lazy<bool>
         /// Hide from Usage
-        IsHidden : bool
+        IsHidden : Lazy<bool>
         /// Declares that the parameter should gather any unrecognized CLI params
-        IsGatherUnrecognized : bool
+        IsGatherUnrecognized : Lazy<bool>
         /// Combine AppSettings with CLI inputs
-        GatherAllSources : bool
+        GatherAllSources : Lazy<bool>
     }

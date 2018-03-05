@@ -3,7 +3,6 @@ module internal Argu.Utils
 
 open System
 open System.Collections.Generic
-open System.IO
 open System.Reflection
 open System.Text
 open System.Text.RegularExpressions
@@ -11,6 +10,7 @@ open System.Text.RegularExpressions
 open FSharp.Reflection
 open FSharp.Quotations
 open FSharp.Quotations.Patterns
+open System.Collections
 
 let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
 
@@ -115,8 +115,8 @@ and ITemplateFunc<'R> =
 /// reflected version of Unchecked.defaultof
 type Unchecked =
     static member UntypedDefaultOf(t : Type) =
-        Existential.FromType(t).Accept { 
-            new IFunc<obj> with 
+        Existential.FromType(t).Accept {
+            new IFunc<obj> with
                 member __.Invoke<'T> () = Unchecked.defaultof<'T> :> obj
             }
 
@@ -199,7 +199,7 @@ let private peskyChars = [| '"' ; '\t' ; ' ' ; '\\' |]
 
 let private doesStringContain chars (s:string) =
     s |> Seq.exists (fun c -> chars |> Seq.exists (fun cc -> cc = c))
-    
+
 let escapeCliString (value : string) =
 //    if Environment.OSVersion.Platform = PlatformID.Win32NT then
         if value = null then
@@ -215,19 +215,19 @@ let escapeCliString (value : string) =
                 // always quote if we have some pesky char.
                 // It may not be strictly necessary, but doesn't hurt either
                 yield '"'
-                
+
                 for i, c in value |> Seq.mapi (fun i c -> i, c) do
                     match c with
-                    
+
                     | '"' ->
                         yield '\\'
                         yield '"'
-                    
+
                     | '\\' ->
                         (* The rules for " and \ are stupid. Source: https://github.com/ArildF/masters/blob/1542218180f2f462c604173ce8925f419155f19c/trunk/sscli/clr/src/vm/util.cpp#L1013
                             * 2N backslashes + " ==> N backslashes and begin/end quote
                             * 2N+1 backslashes + " ==> N backslashes + literal "
-                            * N backslashes ==> N backslashes                            
+                            * N backslashes ==> N backslashes
                         *)
                         let nextCharAfterBackslashes = value |> Seq.skip (i + 1) |> Seq.filter (fun c -> c <> '\\') |> Seq.tryFirst
                         if nextCharAfterBackslashes = Some ('"') || nextCharAfterBackslashes = None then
@@ -235,14 +235,14 @@ let escapeCliString (value : string) =
                             yield '\\'
                         else
                             yield '\\'
-                    
+
                     | ' ' // we quote anyway, so ' ' does not need to be treated specially.
                     | '\t' // ... same
                     | _ -> yield c
-                
+
                 yield '"'
             }
-            
+
             valueSeq |> Seq.toArray |> String
 //    else
 //        if whitespaceRegex.IsMatch value then sprintf "'%s'" value
@@ -264,7 +264,7 @@ type StringExprBuilder () =
 
     member __.Combine(f : StringExpr<unit>, g : StringExpr<'T>) : StringExpr<'T> = fun b -> f b; g b
     member __.Delay (f : unit -> StringExpr<'T>) : StringExpr<'T> = fun b -> f () b
-        
+
     member __.For (xs : 'a seq, f : 'a -> StringExpr<unit>) : StringExpr<unit> =
         fun b ->
             use e = xs.GetEnumerator ()
@@ -292,7 +292,7 @@ module StringExpr =
 type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
     // could probably use a trie here, but cli arg names are relatively few
     // with relatively flat structure to get any real perf benefits
-    let keys, values = 
+    let keys, values =
         keyVals
         |> Seq.toArray
         |> Array.unzip
@@ -324,6 +324,10 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
         if maxPos < 0 then false
         else kresult <- keys.[maxPos] ; vresult <- values.[maxPos] ; true
 
+    member __.Count with get(): int = keys.Length
+    interface IEnumerable<string * 'Value> with
+        member __.GetEnumerator() = keyVals.GetEnumerator()
+        member __.GetEnumerator() = keyVals.GetEnumerator() :> IEnumerator
 
 /// Gets the default width of the current console window,
 /// if available.
@@ -340,7 +344,7 @@ let wordwrap (width:int) (inputText:string) =
 
         if i < 0 then
             max // No whitespace found; break at maximum length
-        else 
+        else
             // Find start of whitespace
             while i >= 0 && Char.IsWhiteSpace text.[pos + i] do
                 i <- i - 1
@@ -367,7 +371,7 @@ let wordwrap (width:int) (inputText:string) =
 
         // Copy this line of text, breaking into smaller lines as needed
         if eol > pos then
-            while eol > pos do 
+            while eol > pos do
                 let mutable len = eol - pos
 
                 if len > width then

@@ -24,7 +24,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
 
     for command in getHierarchy argInfo do
         yield ' '
-        yield command.Name
+        yield command.Name.Value
 
     let! length1 = StringExpr.currentLength
     let offset = length1 - length0
@@ -44,28 +44,28 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
         }
 
     let printedCases =
-        argInfo.Cases
-        |> Seq.filter (fun aI -> not aI.IsHidden && not aI.IsMainCommand)
-        |> Seq.filter (fun aI -> aI.Type <> ArgumentType.SubCommand)
-        |> Seq.sortBy (fun aI -> aI.CliPosition)
+        argInfo.Cases.Value
+        |> Seq.filter (fun aI -> not aI.IsHidden.Value && not aI.IsMainCommand)
+        |> Seq.filter (fun aI -> aI.ArgumentType <> ArgumentType.SubCommand)
+        |> Seq.sortBy (fun aI -> aI.CliPosition.Value)
 
     match argInfo.HelpParam.Flags with
     | h :: _ -> yield! insertToken (sprintf " [%s]" h)
     | _ -> ()
-    
+
     for aI in printedCases do
-        match aI.CommandLineNames with
+        match aI.CommandLineNames.Value with
         | [] -> ()
         | name :: _ ->
 
         let format() = stringExpr {
             yield ' '
-            if not aI.IsMandatory then yield '['
+            if not aI.IsMandatory.Value then yield '['
             yield name
 
-            match aI.ParameterInfo with
+            match aI.ParameterInfo.Value with
             | Primitives parsers ->
-                match aI.CustomAssignmentSeparator with
+                match aI.CustomAssignmentSeparator.Value with
                 | Some sep when parsers.Length = 1 ->
                     yield sprintf "%s<%s>" sep parsers.[0].Description
                 | Some sep ->
@@ -75,10 +75,10 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
                     for p in parsers do
                         yield sprintf " <%s>" p.Description
 
-                if aI.IsRest then yield "..."
+                if aI.IsRest.Value then yield "..."
 
             | OptionalParam (_,parser) ->
-                match aI.CustomAssignmentSeparator with
+                match aI.CustomAssignmentSeparator.Value with
                 | Some sep -> yield sprintf "[%s<%s>]" sep parser.Description
                 | None -> yield sprintf " [<%s>]" parser.Description
 
@@ -86,30 +86,30 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
             | SubCommand (label = Some label) -> yield sprintf " <%s>" label
             | ListParam (_,parser) -> yield sprintf " [<%s>...]" parser.Description
 
-            if not aI.IsMandatory then yield ']'
+            if not aI.IsMandatory.Value then yield ']'
         }
 
         let formatCase = format() |> StringExpr.build
         yield! insertToken formatCase
 
-    if argInfo.ContainsSubcommands then
+    if argInfo.ContainsSubcommands.Value then
         let subCommandString =
             stringExpr {
                 yield ' '
-                if not argInfo.IsRequiredSubcommand then yield '['
+                if not argInfo.IsRequiredSubcommand.Value then yield '['
                 yield "<subcommand> [<options>]"
-                if not argInfo.IsRequiredSubcommand then yield ']'
+                if not argInfo.IsRequiredSubcommand.Value then yield ']'
             } |> StringExpr.build
 
         yield! insertToken subCommandString
 
-    match argInfo.MainCommandParam with
+    match argInfo.MainCommandParam.Value with
     | None -> ()
     | Some mc ->
         let formatMainCommand() = stringExpr {
             yield ' '
-            if not mc.IsMandatory then yield '['
-            match mc.ParameterInfo with
+            if not mc.IsMandatory.Value then yield '['
+            match mc.ParameterInfo.Value with
             | Primitives parsers ->
                 assert(parsers.Length > 0)
                 yield sprintf "<%s>" parsers.[0].Description
@@ -120,13 +120,13 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
                 yield sprintf "<%s>..." parser.Description
 
             | _ -> arguExn "internal error: MainCommand param has invalid internal representation."
-            if not mc.IsMandatory then yield ']'
+            if not mc.IsMandatory.Value then yield ']'
         }
 
         let mainCommand = formatMainCommand() |> StringExpr.build
         yield! insertToken mainCommand
 }
- 
+
 /// <summary>
 ///     print usage string for given arg info
 /// </summary>
@@ -134,19 +134,19 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     if not aI.IsCommandLineArg then () else
     let! start = StringExpr.currentLength
     yield! StringExpr.whiteSpace switchOffset
-    yield String.concat ", " aI.CommandLineNames
+    yield String.concat ", " aI.CommandLineNames.Value
 
-    match aI.ParameterInfo with
+    match aI.ParameterInfo.Value with
     | Primitives parsers when aI.IsMainCommand ->
         assert(parsers.Length > 0)
         yield sprintf "<%s>" parsers.[0].Description
         for i = 1 to parsers.Length - 1 do
             yield sprintf " <%s>" parsers.[i].Description
 
-        if aI.IsRest then yield "..."
+        if aI.IsRest.Value then yield "..."
 
     | Primitives parsers ->
-        match aI.CustomAssignmentSeparator with
+        match aI.CustomAssignmentSeparator.Value with
         | Some sep when parsers.Length = 1 ->
             yield sprintf "%s<%s>" sep parsers.[0].Description
         | Some sep ->
@@ -156,10 +156,10 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
             for p in parsers do
                 yield sprintf " <%s>" p.Description
 
-        if aI.IsRest then yield "..."
+        if aI.IsRest.Value then yield "..."
 
     | OptionalParam (_,parser) ->
-        match aI.CustomAssignmentSeparator with
+        match aI.CustomAssignmentSeparator.Value with
         | Some sep -> yield sprintf "[%s<%s>]" sep parser.Description
         | None -> yield sprintf " [<%s>]" parser.Description
 
@@ -178,8 +178,8 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
         yield! StringExpr.whiteSpace descriptionOffset
     else
         yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
-            
-    let lines = wordwrap (max (width - descriptionOffset) 1) aI.Description
+
+    let lines = wordwrap (max (width - descriptionOffset) 1) aI.Description.Value
 
     match lines with
     | [] -> ()
@@ -235,17 +235,17 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
         yield Environment.NewLine
 
     let options, subcommands =
-        argInfo.Cases
-        |> Seq.filter (fun aI -> not aI.IsHidden)
+        argInfo.Cases.Value
+        |> Seq.filter (fun aI -> not aI.IsHidden.Value)
         |> Seq.filter (fun aI -> not aI.IsMainCommand)
-        |> Seq.partition (fun aI -> aI.Type <> ArgumentType.SubCommand)
+        |> Seq.partition (fun aI -> aI.ArgumentType <> ArgumentType.SubCommand)
 
-    match argInfo.MainCommandParam with
-    | Some aI when not aI.IsHidden -> 
+    match argInfo.MainCommandParam.Value with
+    | Some aI when not aI.IsHidden.Value ->
         let! length = StringExpr.currentLength
         if length > 0 then yield Environment.NewLine
-        assert(Option.isSome aI.MainCommandName)
-        yield sprintf "%s:" aI.MainCommandName.Value
+        assert(Option.isSome aI.MainCommandName.Value)
+        yield sprintf "%s:" aI.MainCommandName.Value.Value
         yield Environment.NewLine; yield Environment.NewLine
         yield! mkArgUsage width aI
     | _ -> ()
@@ -260,14 +260,14 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
 
         match argInfo.HelpParam.Flags with
         | [] -> ()
-        | helpflag :: _ -> 
+        | helpflag :: _ ->
             yield Environment.NewLine
-            let wrappedList = 
+            let wrappedList =
                 sprintf "Use '%s <subcommand> %s' for additional information." programName helpflag
                 |> wordwrap (max (width - switchOffset) 1)
 
-            for line in wrappedList do 
-                yield String.mkWhiteSpace switchOffset 
+            for line in wrappedList do
+                yield String.mkWhiteSpace switchOffset
                 yield line
                 yield Environment.NewLine
 
@@ -278,13 +278,13 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
         yield Environment.NewLine; yield Environment.NewLine
 
         for aI in options do yield! mkArgUsage width aI
-        for aI in argInfo.InheritedParams.Value |> Seq.filter (fun a -> not a.IsHidden) do yield! mkArgUsage width aI
+        for aI in argInfo.InheritedParams.Value |> Seq.filter (fun a -> not a.IsHidden.Value) do yield! mkArgUsage width aI
 
         yield! mkHelpParamUsage width argInfo.HelpParam
 }
 
 /// <summary>
-///     print a command line argument for a set of parameters   
+///     print a command line argument for a set of parameters
 /// </summary>
 let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
     let mkEntry (aI : UnionCaseArgInfo) (t : obj) = seq {
@@ -292,12 +292,12 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 
         let fields = aI.FieldReader.Value t
 
-        let clName() = List.head aI.CommandLineNames
+        let clName() = List.head aI.CommandLineNames.Value
 
-        match aI.ParameterInfo with
-        | Primitives parsers ->  
+        match aI.ParameterInfo.Value with
+        | Primitives parsers ->
             let inline unpars i = parsers.[i].UnParser fields.[i]
-            match aI.CustomAssignmentSeparator with
+            match aI.CustomAssignmentSeparator.Value with
             | Some sep when parsers.Length = 1 ->
                 yield sprintf "%s%s%s" (clName()) sep (unpars 0)
             | Some sep ->
@@ -312,14 +312,14 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
                     yield unpars i
 
         | OptionalParam(existential, parser) ->
-            let optional = 
+            let optional =
                 existential.Accept { new IFunc<obj option> with
                     member __.Invoke<'T> () = fields.[0] :?> 'T option |> Option.map box }
 
             match optional with
             | None -> yield clName()
             | Some v ->
-                match aI.CustomAssignmentSeparator with
+                match aI.CustomAssignmentSeparator.Value with
                 | Some sep -> yield sprintf "%s%s%s" (clName()) sep (parser.UnParser v)
                 | None -> yield clName() ; yield parser.UnParser v
 
@@ -335,8 +335,8 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
         }
 
     args
-    |> Seq.map (fun o -> let tag = argInfo.TagReader.Value o in argInfo.Cases.[tag], o)
-    |> Seq.sortBy (fun (aI,_) -> aI.CliPosition)
+    |> Seq.map (fun o -> let tag = argInfo.TagReader.Value o in argInfo.Cases.Value.[tag], o)
+    |> Seq.sortBy (fun (aI,_) -> aI.CliPosition.Value)
     |> Seq.collect (fun (aI,o) -> mkEntry aI o)
 
 /// <summary>
@@ -345,13 +345,13 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Template list) =
     let mkArgumentEntry (t : 'Template) : XNode [] =
         let tag = argInfo.TagReader.Value (t :> _)
-        let aI = argInfo.Cases.[tag]
+        let aI = argInfo.Cases.Value.[tag]
         let getFields () = aI.FieldReader.Value (t :> _)
 
         let mkElem (mkComment : unit -> string) (key : string) (value : string) : XNode [] =
-            let xelem = 
-                XElement(XName.Get "add", 
-                    XAttribute(XName.Get "key", key), 
+            let xelem =
+                XElement(XName.Get "add",
+                    XAttribute(XName.Get "key", key),
                     XAttribute(XName.Get "value", value))
 
             if printComments then
@@ -359,10 +359,10 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
             else
                 [|xelem|]
 
-        match aI.AppSettingsName with
+        match aI.AppSettingsName.Value with
         | None -> [||]
         | Some key ->
-            match aI.ParameterInfo with
+            match aI.ParameterInfo.Value with
             | SubCommand _ -> [||]
             | Primitives parsers ->
                 let values =
@@ -376,7 +376,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
                 let mkComment () =
                     stringExpr {
                         yield ' '
-                        yield aI.Description.[0]
+                        yield aI.Description.Value.[0]
 
                         match parsers |> Array.toList with
                         | [] -> ()
@@ -401,7 +401,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
                             |> Seq.map (fun t -> fp.UnParser (t :> _))
                             |> String.concat aI.AppSettingsSeparators.[0]
 
-                        let mkComment () = sprintf " %s : %s ..." aI.Description fp.Description
+                        let mkComment () = sprintf " %s : %s ..." aI.Description.Value fp.Description
 
                         mkElem mkComment key values }
 
@@ -413,7 +413,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
                             | None -> ""
                             | Some t -> fp.UnParser (t :> _)
 
-                        let mkComment () = sprintf " %s : ?%s" aI.Description fp.Description
+                        let mkComment () = sprintf " %s : ?%s" aI.Description.Value fp.Description
 
                         mkElem mkComment key value }
 

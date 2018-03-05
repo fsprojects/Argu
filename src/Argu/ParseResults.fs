@@ -4,7 +4,7 @@ open FSharp.Quotations
 
 /// Argument parsing result holder.
 [<Sealed; AutoSerializable(false); StructuredFormatDisplay("{StructuredFormatDisplay}")>]
-type ParseResults<'Template when 'Template :> IArgParserTemplate> 
+type ParseResults<'Template when 'Template :> IArgParserTemplate>
     internal (argInfo : UnionArgInfo, results : UnionParseResults, programName : string, description : string option, usageStringCharWidth : int, exiter : IExiter) =
 
     let mkUsageString message = mkUsageString argInfo programName true usageStringCharWidth message |> StringExpr.build
@@ -28,11 +28,11 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
         let id = expr2Uci e
         let results = results.Cases.[id.Tag]
         match Array.tryLast results with
-        | None -> 
-            let aI = argInfo.Cases.[id.Tag]
-            errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name
+        | None ->
+            let aI = argInfo.Cases.Value.[id.Tag]
+            errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name.Value
         | Some r when restrictF rs r -> r
-        | Some r -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name
+        | Some r -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name.Value
 
     let parseResult (f : 'F -> 'S) (r : UnionCaseParseResult) =
         try f (r.FieldContents :?> 'F)
@@ -61,18 +61,18 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <summary>Query parse results for parameterless argument.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetResults ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template list = 
+    member __.GetResults ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template list =
         expr |> getResults source |> Seq.map (fun r -> r.Value :?> 'Template) |> Seq.toList
 
     /// <summary>Query parse results for argument with parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetResults ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields list = 
+    member __.GetResults ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields list =
         expr |> getResults source |> Seq.map (fun r -> r.FieldContents :?> 'Fields) |> Seq.toList
 
     /// <summary>Gets all parse results.</summary>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetAllResults (?source : ParseSource) : 'Template list = 
+    member __.GetAllResults (?source : ParseSource) : 'Template list =
         results.Cases
         |> Seq.concat
         |> Seq.filter (restrictF source)
@@ -80,21 +80,21 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
         |> Seq.map (fun r -> r.Value :?> 'Template)
         |> Seq.toList
 
-    /// <summary>Returns the *last* specified parameter of given type, if it exists. 
+    /// <summary>Returns the *last* specified parameter of given type, if it exists.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template option = 
+    member __.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template option =
         expr |> tryGetResult source |> Option.map (fun r -> r.Value :?> 'Template)
 
-    /// <summary>Returns the *last* specified parameter of given type, if it exists. 
+    /// <summary>Returns the *last* specified parameter of given type, if it exists.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields option = 
+    member __.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields option =
         expr |> tryGetResult source |> Option.map (fun r -> r.FieldContents :?> 'Fields)
 
-    /// <summary>Returns the *last* specified parameter of given type. 
+    /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="defaultValue">Return this of no parameter of specific kind has been specified.</param>
@@ -103,8 +103,8 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
         match defaultValue with
         | None -> let r = getResult source expr in r.Value :?> 'Template
         | Some def -> defaultArg (s.TryGetResult(expr, ?source = source)) def
-                
-    /// <summary>Returns the *last* specified parameter of given type. 
+
+    /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="defaultValue">Return this of no parameter of specific kind has been specified.</param>
@@ -136,7 +136,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     /// <param name="error">The error to be displayed.</param>
     /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member r.Raise (error : exn, ?errorCode : ErrorCode, ?showUsage : bool) : 'T = 
+    member r.Raise (error : exn, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
         r.Raise (error.Message, ?errorCode = errorCode, ?showUsage = showUsage)
 
     /// <summary>Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.</summary>
@@ -146,7 +146,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     member r.Catch (f : unit -> 'T, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
         try f () with e -> r.Raise(e.Message, ?errorCode = errorCode, ?showUsage = showUsage)
 
-    /// <summary>Returns the *last* specified parameter of given type. 
+    /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.
     ///          Results are passed to a post-processing function that is error handled by the parser.
     /// </summary>
@@ -166,7 +166,7 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     member r.PostProcessResults ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R list =
         expr |> getResults source |> Seq.map (parseResult parser) |> Seq.toList
 
-    /// <summary>Returns the *last* specified parameter of given type. 
+    /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.
     ///          Results are passed to a post-processing function that is error handled by the parser.
     /// </summary>
@@ -203,10 +203,10 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
     ///     if one has been specified.
     /// </summary>
     member r.TryGetSubCommand() : 'Template option =
-        results.Cases 
-        |> Seq.concat 
-        |> Seq.tryPick(fun c -> 
-            if c.CaseInfo.Type = ArgumentType.SubCommand then
+        results.Cases
+        |> Array.concat
+        |> Array.tryPick(fun c ->
+            if c.CaseInfo.ArgumentType = ArgumentType.SubCommand then
                 Some(c.Value :?> 'Template)
             else None)
 
