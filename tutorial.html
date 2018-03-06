@@ -107,7 +107,6 @@ their corresponding XML configuration.</p>
 <span class="l">17: </span>
 <span class="l">18: </span>
 <span class="l">19: </span>
-<span class="l">20: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span class="i">Argu</span>
 
@@ -128,16 +127,13 @@ their corresponding XML configuration.</p>
             | <span class="i">Port</span> _ <span class="k">-&gt;</span> <span class="s">&quot;specify a primary port.&quot;</span>
             | <span class="i">Log_Level</span> _ <span class="k">-&gt;</span> <span class="s">&quot;set the log level.&quot;</span>
             | <span class="i">Detach</span> _ <span class="k">-&gt;</span> <span class="s">&quot;detach daemon from console.&quot;</span>
- 
 </code></pre></td>
 </tr>
 </table>
 <p>We extract the argument parser from the template using the following command:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parser</span> <span class="o">=</span> <span class="i">ArgumentParser</span><span class="o">.</span><span class="i">Create</span><span class="o">&lt;</span><span class="i">CLIArguments</span><span class="o">&gt;</span>(<span class="i">programName</span> <span class="o">=</span> <span class="s">&quot;gadget.exe&quot;</span>)
- 
 </code></pre></td>
 </tr>
 </table>
@@ -452,7 +448,7 @@ For example, consider this mock git CLI syntax:</p>
     | [&lt;<span class="i">CliPrefix</span>(<span class="i">CliPrefix</span><span class="o">.</span><span class="i">None</span>)&gt;] <span class="i">Commit</span> <span class="k">of</span> <span class="i">ParseResults</span><span class="o">&lt;</span><span class="i">CommitArgs</span><span class="o">&gt;</span>
 <span class="k">with</span>
     <span class="k">interface</span> <span class="i">IArgParserTemplate</span> <span class="k">with</span>
-        <span class="k">member</span> <span class="i">this</span><span class="o">.</span><span class="i">Usage</span> <span class="o">=</span> 
+        <span class="k">member</span> <span class="i">this</span><span class="o">.</span><span class="i">Usage</span> <span class="o">=</span>
             <span class="k">match</span> <span class="i">this</span> <span class="k">with</span>
             | <span class="i">Version</span> <span class="k">-&gt;</span> <span class="s">&quot;Prints the Git suite version that the git program came from.&quot;</span>
             | <span class="i">Verbose</span> <span class="k">-&gt;</span> <span class="s">&quot;Print a lot of output to stdout.&quot;</span>
@@ -471,11 +467,11 @@ For example, consider this mock git CLI syntax:</p>
 <span class="l">7: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[&lt;<span class="i">EntryPoint</span>&gt;]
-<span class="k">let</span> <span class="i">main</span> <span class="i">argv</span> <span class="o">=</span> 
-    <span class="k">try</span> 
-    	<span class="i">parser</span><span class="o">.</span><span class="i">ParseCommandLine</span>(<span class="i">inputs</span> <span class="o">=</span> <span class="i">argv</span>, <span class="i">raiseOnUsage</span> <span class="o">=</span> <span class="k">true</span>) <span class="o">|&gt;</span> <span class="i">ignore</span>
-    <span class="k">with</span> <span class="i">e</span> <span class="k">-&gt;</span> 
-    	<span class="i">printfn</span> <span class="s">&quot;%s&quot;</span> <span class="i">e</span><span class="o">.</span><span class="i">Message</span>
+<span class="k">let</span> <span class="i">main</span> <span class="i">argv</span> <span class="o">=</span>
+    <span class="k">try</span>
+        <span class="i">parser</span><span class="o">.</span><span class="i">ParseCommandLine</span>(<span class="i">inputs</span> <span class="o">=</span> <span class="i">argv</span>, <span class="i">raiseOnUsage</span> <span class="o">=</span> <span class="k">true</span>) <span class="o">|&gt;</span> <span class="i">ignore</span>
+    <span class="k">with</span> <span class="i">e</span> <span class="k">-&gt;</span>
+        <span class="i">printfn</span> <span class="s">&quot;%s&quot;</span> <span class="i">e</span><span class="o">.</span><span class="i">Message</span>
     <span class="n">0</span>
 </code></pre></td>
 </tr>
@@ -527,7 +523,7 @@ OPTIONS:
 
     --amend               Replace the tip of the current branch by creating a new commit.
     --patch, -p           Use the interactive patch selection interface to chose which changes to commit.
-    --message, -m &lt;msg&gt;   Use the given &lt;msg&gt; as the commit message. 
+    --message, -m &lt;msg&gt;   Use the given &lt;msg&gt; as the commit message.
     --help                display this list of options.
 </code></pre></td></tr></table>
 <p>This allows specifying parameters that are particular to a subcommand context.
@@ -569,11 +565,11 @@ a post-process facility is provided.</p>
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parsePort</span> <span class="i">p</span> <span class="o">=</span> 
-    <span class="k">if</span> <span class="i">p</span> <span class="o">&lt;</span> <span class="n">0</span> <span class="o">||</span> <span class="i">p</span> <span class="o">&gt;</span> <span class="i">int</span> <span class="i">UInt16</span><span class="o">.</span><span class="i">MaxValue</span> <span class="k">then</span> 
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">parsePort</span> <span class="i">p</span> <span class="o">=</span>
+    <span class="k">if</span> <span class="i">p</span> <span class="o">&lt;</span> <span class="n">0</span> <span class="o">||</span> <span class="i">p</span> <span class="o">&gt;</span> <span class="i">int</span> <span class="i">UInt16</span><span class="o">.</span><span class="i">MaxValue</span> <span class="k">then</span>
         <span class="i">failwith</span> <span class="s">&quot;invalid port number.&quot;</span>
     <span class="k">else</span> <span class="i">p</span>
- 
+
 <span class="k">let</span> <span class="i">ports</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">PostProcessResults</span> (&lt;@ <span class="i">Port</span> @&gt;, <span class="i">parsePort</span>)
 </code></pre></td>
 </tr>
@@ -644,6 +640,7 @@ folder for CLI implementations that use Argu.</p>
 
             <li class="nav-header">Documentation</li>
             <li><a href="/Argu/tutorial.html">Tutorial</a></li>
+            <li><a href="/Argu/perf.html">Performance Tips</a></li>
             <li><a href="/Argu/reference/index.html">API Reference</a></li>
           </ul>
         </div>

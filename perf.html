@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Performance Tips
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="A declarative argument parser for F#"/>
+    <meta name="author" content="Eirik Tsarpalis"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
+    <script type="text/javascript" src="/Argu/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/fsprojects/Argu">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Performance-Tips" class="anchor" href="#Performance-Tips">Performance Tips</a></h1>
+<h2><a name="Introduction" class="anchor" href="#Introduction">Introduction</a></h2>
+<p>Argu simplicity is achieved via Reflection and as such it's performance heavily depend on the size and depth of the
+discriminated union used.</p>
+<p>For applications that wants to get a little more performance out of Argu it's also possible to get a little more
+performance.</p>
+<h2><a name="Bypassing-structure-checks" class="anchor" href="#Bypassing-structure-checks">Bypassing structure checks</a></h2>
+<p>By default Argu checks that the discriminated union is well formed and only contains entries that are valid.
+This incur both the cost of the checks themselves but also the cost of materializing the whole argument graph that could
+be loaded only if the corresponding arguments are used.</p>
+<p>This check can easilly be bypassed either only in release builds :</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="i">checkStructure</span> <span class="o">=</span>
+<span class="prep">#if</span> <span class="i">DEBUG</span>
+<span class="inactive">    </span><span class="inactive">true</span>
+<span class="prep">#else</span>
+    <span class="k">false</span>
+<span class="prep">#endif</span>
+
+<span class="k">let</span> <span class="i">parser</span> <span class="o">=</span> <span class="i">ArgumentParser</span><span class="o">.</span><span class="i">Create</span><span class="o">&lt;</span><span class="i">Arguments</span><span class="o">&gt;</span>(<span class="i">checkStructure</span> <span class="o">=</span> <span class="i">checkStructure</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>Or always, forcing the check to happen during unit tests:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// In the application</span>
+<span class="k">module</span> <span class="i">AppArgs</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="i">parser</span> <span class="o">=</span> <span class="i">ArgumentParser</span><span class="o">.</span><span class="i">Create</span><span class="o">&lt;</span><span class="i">Arguments</span><span class="o">&gt;</span>(<span class="i">checkStructure</span> <span class="o">=</span> <span class="k">false</span>)
+
+<span class="c">// In tests</span>
+[&lt;<span class="i">Fact</span>&gt;]
+<span class="k">let</span> <span class="i">``Argument structure is correct``</span> () <span class="o">=</span>
+    <span class="i">ArgumentParser</span><span class="o">&lt;</span><span class="i">Arguments</span><span class="o">&gt;</span><span class="o">.</span><span class="i">CheckStructure</span>()
+</code></pre></td>
+</tr>
+</table>
+
+
+        </div>
+        <div class="span3">
+          <a target="_blank" href="http://fsprojects.github.io/">
+			<img src="/Argu/img/logo.png" alt="Argu" style="width:150px;margin:10px" />
+		  </a>
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Argu</li>
+            <li><a href="/Argu/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/fsprojects/Argu">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsprojects/Argu/blob/master/License.md">License</a></li>
+            <li><a href="http://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
+            <li><a href="/Argu/perf.html">Performance Tips</a></li>
+            <li><a href="/Argu/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/fsprojects/Argu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>
