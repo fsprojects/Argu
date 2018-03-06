@@ -218,7 +218,7 @@ module Helpers =
                 |> Seq.append helpParam.Flags
                 |> Seq.filter (fun name -> name.Length = 2 && name.[0] = '-' && Char.IsLetterOrDigit name.[1])
                 |> Seq.map (fun name -> name.[1])
-                |> System.Linq.Enumerable.Distinct
+                |> Seq.distinct
                 |> Seq.toArray
                 |> String
 
