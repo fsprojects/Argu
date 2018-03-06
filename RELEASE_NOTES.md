@@ -1,3 +1,7 @@
+### 5.1.0
+* Performance optimizations.
+* Fixed incorrect commandline option generation in non-English locales.
+
 ### 5.0.1
 * Fix framework constraint issue.
 
