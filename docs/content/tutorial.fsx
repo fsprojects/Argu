@@ -1,5 +1,5 @@
 (*** hide ***)
-// This block of code is omitted in the generated HTML documentation. Use 
+// This block of code is omitted in the generated HTML documentation. Use
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin/Release/net45"
 #r "Argu.dll"
@@ -12,8 +12,8 @@ open System
 
 ## Introduction
 
-The library is based on the simple observation that 
-configuration parameters can be naturally described using discriminated unions. 
+The library is based on the simple observation that
+configuration parameters can be naturally described using discriminated unions.
 For instance:
 
 *)
@@ -26,8 +26,8 @@ type Arguments =
 
 (**
 
-Argu takes such discriminated unions and generates 
-a corresponding argument parsing scheme. 
+Argu takes such discriminated unions and generates
+a corresponding argument parsing scheme.
 For example, a parser generated from the above template would
 take the following command line input
 
@@ -80,11 +80,11 @@ with
             | Port _ -> "specify a primary port."
             | Log_Level _ -> "set the log level."
             | Detach _ -> "detach daemon from console."
- 
+
 (** We extract the argument parser from the template using the following command: *)
 
 let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe")
- 
+
 (** We can get the automatically generated usage string by typing *)
 
 let usage = parser.PrintUsage()
@@ -106,7 +106,7 @@ let usage = parser.PrintUsage()
         --log-level <level>   set the log level.
         --detach              detach daemon from console.
         --help                display this list of options.
- 
+
 To parse a command line input:
 
 *)
@@ -121,7 +121,7 @@ let all = results.GetAllResults() // [ Detach ; Listener ("localhost", 8080) ]
 
 ## Querying Parameters
 
-While getting a single list of all parsed results might be useful for some cases, 
+While getting a single list of all parsed results might be useful for some cases,
 it is more likely that you need to query the results for specific parameters:
 
 *)
@@ -136,12 +136,12 @@ let logLevel = results.GetResult (Log_Level, defaultValue = 0)
 
 (**
 
-Querying using quotations enables a simple and type safe way 
+Querying using quotations enables a simple and type safe way
 to deconstruct parse results into their constituent values.
 
 ## Customization
 
-The parsing behaviour of the configuration parameters 
+The parsing behaviour of the configuration parameters
 can be customized by fixing attributes to the union cases:
 
 *)
@@ -249,7 +249,7 @@ provided that these do not specify any parameters in any of their cases.
 
 ## Main commands
 
-Arguments carrying the [MainCommand](reference/argu-arguattributes-maincommandattribute.html) 
+Arguments carrying the [MainCommand](reference/argu-arguattributes-maincommandattribute.html)
 attribute can be used to specify the main set of arguments for the CLI.
 These arguments can be passed without the need to specify a switch identifier.
 
@@ -321,7 +321,7 @@ and GitArgs =
     | [<CliPrefix(CliPrefix.None)>] Commit of ParseResults<CommitArgs>
 with
     interface IArgParserTemplate with
-        member this.Usage = 
+        member this.Usage =
             match this with
             | Version -> "Prints the Git suite version that the git program came from."
             | Verbose -> "Print a lot of output to stdout."
@@ -333,11 +333,11 @@ and the following console app entrypoint
 *)
 
 [<EntryPoint>]
-let main argv = 
-    try 
-    	parser.ParseCommandLine(inputs = argv, raiseOnUsage = true) |> ignore
-    with e -> 
-    	printfn "%s" e.Message
+let main argv =
+    try
+        parser.ParseCommandLine(inputs = argv, raiseOnUsage = true) |> ignore
+    with e ->
+        printfn "%s" e.Message
     0
 
 (**
@@ -369,7 +369,7 @@ and for the subcommand:
 
         --amend               Replace the tip of the current branch by creating a new commit.
         --patch, -p           Use the interactive patch selection interface to chose which changes to commit.
-        --message, -m <msg>   Use the given <msg> as the commit message. 
+        --message, -m <msg>   Use the given <msg> as the commit message.
         --help                display this list of options.
 
 This allows specifying parameters that are particular to a subcommand context.
@@ -388,8 +388,8 @@ make it to the syntax of the child subcommand. For example the command
     git clean --version
 
 will result in parse error since `Version` is not a part of the subcommand syntax,
-but one of its parent syntax. It is possible to parent options visible inside subcommands 
-by attaching the [`InheritAttribute`](http://fsprojects.github.io/Argu/reference/argu-arguattributes-inheritattribute.html) 
+but one of its parent syntax. It is possible to parent options visible inside subcommands
+by attaching the [`InheritAttribute`](http://fsprojects.github.io/Argu/reference/argu-arguattributes-inheritattribute.html)
 to switches.
 
     [lang=fsharp]
@@ -400,17 +400,17 @@ which would make the aforementioned syntax valid.
 
 ## Post Processing
 
-It should be noted here that arbitrary unions are not supported by the parser. 
-Union cases can only contain fields of primitive types. This means that user-defined 
-parsers are not supported. For configuration inputs that are non-trivial, 
+It should be noted here that arbitrary unions are not supported by the parser.
+Union cases can only contain fields of primitive types. This means that user-defined
+parsers are not supported. For configuration inputs that are non-trivial,
 a post-process facility is provided.
 *)
 
-let parsePort p = 
-    if p < 0 || p > int UInt16.MaxValue then 
+let parsePort p =
+    if p < 0 || p > int UInt16.MaxValue then
         failwith "invalid port number."
     else p
- 
+
 let ports = results.PostProcessResults (<@ Port @>, parsePort)
 
 (**
@@ -450,7 +450,7 @@ which would yield the following:
 
 ## More Examples
 
-Check out the [samples](https://github.com/fsprojects/Argu/tree/master/samples) 
+Check out the [samples](https://github.com/fsprojects/Argu/tree/master/samples)
 folder for CLI implementations that use Argu.
 
 *)

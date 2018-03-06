@@ -8,7 +8,7 @@ type KeyValueParseResult = Choice<UnionCaseParseResult [], exn>
 // AppSettings parse errors are threaded to the state rather than raised directly
 type KeyValueParseResults (argInfo : UnionArgInfo) =
     let emptyResult = Choice1Of2 [||]
-    let results = Array.init argInfo.Cases.Length (fun _ -> emptyResult)
+    let results = Array.init argInfo.Cases.Value.Length (fun _ -> emptyResult)
     member __.AddResults (case : UnionCaseArgInfo) (ts : UnionCaseParseResult []) =
         results.[case.Tag] <- Choice1Of2 ts
 
@@ -31,31 +31,31 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
     let inline success ts = state.Results.AddResults caseInfo ts
 
     try
-        match caseInfo.AppSettingsName with
+        match caseInfo.AppSettingsName.Value with
         | Some name ->
             match (try state.Reader.GetValue name with _ -> null) with
             | null | "" -> ()
             | entry ->
-                match caseInfo.ParameterInfo with
+                match caseInfo.ParameterInfo.Value with
                 | Primitives [||] ->
                     let ok, flag = Boolean.TryParse entry
                     if ok then
-                        if flag then 
+                        if flag then
                             let results = [| mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [||] |]
                             success results
                     else
                         error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' is not <bool>." name
 
                 | Primitives fields ->
-                    let tokens = 
-                        if caseInfo.AppSettingsCSV || fields.Length > 1 then
+                    let tokens =
+                        if caseInfo.AppSettingsCSV.Value || fields.Length > 1 then
                             entry.Split(caseInfo.AppSettingsSeparators, caseInfo.AppSettingsSplitOptions)
                         else [| entry |]
 
                     let pos = ref 0
                     let parseNext (parser : FieldParserInfo) =
                         if !pos < tokens.Length then
-                            try 
+                            try
                                 let tok = tokens.[!pos]
                                 incr pos
                                 parser.Parser tok
@@ -69,7 +69,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
                         mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name fields
 
                     let results =
-                        if caseInfo.AppSettingsCSV then [| while !pos < tokens.Length do yield parseSingleArgument () |]
+                        if caseInfo.AppSettingsCSV.Value then [| while !pos < tokens.Length do yield parseSingleArgument () |]
                         else [| parseSingleArgument () |]
 
                     success results
@@ -95,7 +95,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
                 | SubCommand _ -> () // AppSettings will not handle subcommands
 
         | _ -> ()
-            
+
 
     with ParseError _ as e -> state.Results.AddException caseInfo e
 
@@ -104,5 +104,5 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
 /// </summary>
 let parseKeyValueConfig (configReader : IConfigurationReader) (argInfo : UnionArgInfo) =
     let state = { ArgInfo = argInfo ; Reader = configReader ; Results = new KeyValueParseResults(argInfo) }
-    for caseInfo in argInfo.Cases do parseKeyValuePartial state caseInfo
+    for caseInfo in argInfo.Cases.Value do parseKeyValuePartial state caseInfo
     state.Results.Results

@@ -1,14 +1,11 @@
 ﻿[<AutoOpen>]
 module internal Argu.CliParser
 
-open System
-open System.Text.RegularExpressions
-
 type CliParseToken =
     | EndOfStream
     | CliParam of token:string * switch:string * caseInfo:UnionCaseArgInfo * assignment:Assignment
     | UnrecognizedOrArgument of token:string
-    | GroupedParams of token:string * switches:string[] 
+    | GroupedParams of token:string * switches:string[]
     | HelpArgument of token:string
 
 type CliTokenReader(inputs : string[]) =
@@ -28,11 +25,11 @@ type CliTokenReader(inputs : string[]) =
     member __.GetNextToken (peekOnly : bool) (argInfo : UnionArgInfo) =
         // continuation which decides how to consume parsed token
         let inline kont result =
-            if peekOnly then 
-                peekedValue <- result 
+            if peekOnly then
+                peekedValue <- result
                 isPeekedValue <- true
-            else 
-                position <- position + 1 
+            else
+                position <- position + 1
                 isPeekedValue <- false
                 peekedValue <- Unchecked.defaultof<_>
 
@@ -47,7 +44,7 @@ type CliTokenReader(inputs : string[]) =
         elif position = inputs.Length then kont EndOfStream else
 
         let token = inputs.[position]
-        
+
         match token with
         | token when argInfo.HelpParam.IsHelpFlag token -> HelpArgument token |> kont
         | token ->
@@ -66,8 +63,8 @@ type CliTokenReader(inputs : string[]) =
                 tryExtractGroupedSwitches token |> kont
 
     member __.MoveNext() =
-        if position < inputs.Length then 
-            position <- position + 1 
+        if position < inputs.Length then
+            position <- position + 1
             isPeekedValue <- false
             peekedValue <- Unchecked.defaultof<_>
 
@@ -80,7 +77,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
     let mutable lastResult : UnionCaseParseResult option = None
     let unrecognized = new ResizeArray<string>()
     let unrecognizedParseResults = new ResizeArray<obj>()
-    let results = argInfo.Cases |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ())
+    let results = lazy(argInfo.Cases.Value |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ()))
 
     member val IsUsageRequested = false with get,set
 
@@ -93,7 +90,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
             error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." result.ParseContext
 
         match lastResult with
-        | Some lr when not (lr.Tag = result.CaseInfo.Tag && lr.CaseInfo.IsRest) -> 
+        | Some lr when not (lr.Tag = result.CaseInfo.Tag && lr.CaseInfo.IsRest.Value) ->
             error argInfo ErrorCode.CommandLine "parameter '%s' should appear after all other arguments." lr.ParseContext
         | _ -> ()
 
@@ -101,11 +98,11 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
         if result.CaseInfo.IsMainCommand then isMainCommandDefined <- true
 
         resultCount <- resultCount + 1
-        let agg = results.[result.Tag]
-        if result.CaseInfo.IsUnique && agg.Count > 0 then
-            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name
+        let agg = results.Value.[result.Tag]
+        if result.CaseInfo.IsUnique.Value && agg.Count > 0 then
+            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name.Value
 
-        if result.CaseInfo.Type = ArgumentType.SubCommand then
+        if result.CaseInfo.ArgumentType = ArgumentType.SubCommand then
             isSubCommandDefined <- true
 
         agg.Add result
@@ -123,8 +120,8 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
 
     member __.AppendUnrecognized(token:string) = unrecognized.Add token
 
-    member __.ToUnionParseResults() = 
-        { Cases = results |> Array.map (fun c -> c.ToArray()) ; 
+    member __.ToUnionParseResults() =
+        { Cases = results.Value |> Array.map (fun c -> c.ToArray()) ;
           UnrecognizedCliParams = Seq.toList unrecognized ;
           UnrecognizedCliParseResults = Seq.toList unrecognizedParseResults ;
           IsUsageRequested = __.IsUsageRequested }
@@ -136,7 +133,7 @@ and CliParseResultAggregatorStack (context : UnionArgInfo) =
     let offset = context.Depth
     let stack = new ResizeArray<CliParseResultAggregator>(capacity = 2)
 
-    member self.TryDispatchResult(result : UnionCaseParseResult) =
+    member __.TryDispatchResult(result : UnionCaseParseResult) =
         if result.CaseInfo.Depth < offset then false
         else
             stack.[result.CaseInfo.Depth - offset].AppendResultInner result
@@ -170,9 +167,9 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | HelpArgument _ when state.RaiseOnUsage -> raise <| HelpText argInfo
     | HelpArgument _ -> aggregator.IsUsageRequested <- true
     | UnrecognizedOrArgument token ->
-        match argInfo.MainCommandParam with
-        | Some mcp when not (mcp.IsUnique && aggregator.IsMainCommandDefined) ->
-            match mcp.ParameterInfo with
+        match argInfo.MainCommandParam.Value with
+        | Some mcp when not (mcp.IsUnique.Value && aggregator.IsMainCommandDefined) ->
+            match mcp.ParameterInfo.Value with
             | Primitives parsers ->
                 // since main command syntax deals with a degree of implicitness
                 // we need a way to backtrack in case of a parse error.
@@ -180,9 +177,9 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                 // unrecognized argument resolution logic
                 let tokens = new ResizeArray<string>(5)
                 let fields = new ResizeArray<obj>(5)
-                let handleUnrecognized = 
+                let handleUnrecognized =
                     state.IgnoreUnrecognizedArgs ||
-                    Option.isSome argInfo.UnrecognizedGatherParam
+                    Option.isSome argInfo.UnrecognizedGatherParam.Value
 
                 let parseSingleParameter isFirst =
                     tokens.Clear(); fields.Clear()
@@ -197,41 +194,41 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                         match nextToken with
                         | UnrecognizedOrArgument tok ->
                             let mutable result = null
-                            let success = 
+                            let success =
                                 try result <- p.Parser tok ; true
-                                with 
+                                with
                                 | _ when handleUnrecognized -> false
                                 | _ when isFirst -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
-                                | _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." 
+                                | _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'."
                                                     state.Reader.CurrentSegment p.Description token
 
-                            if success then 
+                            if success then
                                 tokens.Add tok ; fields.Add result
                                 if not isFirst then state.Reader.MoveNext()
                                 aux (i + 1)
 
                         | CliParam(_, token, _, _)
-                        | HelpArgument token 
-                        | GroupedParams(token,_) -> 
+                        | HelpArgument token
+                        | GroupedParams(token,_) ->
                             if not handleUnrecognized then
                                 error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description token
                         | _ ->
-                            if not handleUnrecognized then 
+                            if not handleUnrecognized then
                                 error argInfo ErrorCode.CommandLine "argument '%s' must be followed by <%s>." state.Reader.CurrentSegment p.Description
 
                     do aux 0
                     if fields.Count = parsers.Length then
-                        aggregator.AppendResult mcp mcp.Name (fields.ToArray())
+                        aggregator.AppendResult mcp mcp.Name.Value (fields.ToArray())
                         true
                     else
-                        match argInfo.UnrecognizedGatherParam with
+                        match argInfo.UnrecognizedGatherParam.Value with
                         | Some ugp -> for tok in tokens do aggregator.AppendResult ugp token [|tok|]
                         | None when state.IgnoreUnrecognizedArgs -> for tok in tokens do aggregator.AppendUnrecognized tok
                         | None -> arguExn "internal error in main command parser."
 
                         false
 
-                if parseSingleParameter true && mcp.IsRest then
+                if parseSingleParameter true && mcp.IsRest.Value then
                     while not state.Reader.IsCompleted && parseSingleParameter false do ()
 
             | ListParam(existential, field) ->
@@ -252,7 +249,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                                     if not isFirst then state.Reader.MoveNext()
                                     gather false
                                 elif isFirst then
-                                    match argInfo.UnrecognizedGatherParam with
+                                    match argInfo.UnrecognizedGatherParam.Value with
                                     | Some ugp -> aggregator.AppendResult ugp token [|token|]
                                     | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
                                     | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
@@ -261,13 +258,13 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                         do gather true
                         match Seq.toList args with
                         | [] -> () ; false
-                        | list -> aggregator.AppendResult mcp mcp.Name [| list |] ; true }
+                        | list -> aggregator.AppendResult mcp mcp.Name.Value [| list |] ; true }
 
             | paramInfo -> arguExn "internal error. MainCommand has param representation %A" paramInfo
 
         | _ ->
 
-        match argInfo.UnrecognizedGatherParam with
+        match argInfo.UnrecognizedGatherParam.Value with
         | Some ugp -> aggregator.AppendResult ugp token [|token|]
         | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
         | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
@@ -275,7 +272,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | GroupedParams(_, switches) ->
         for sw in switches do
             let caseInfo = argInfo.CliParamIndex.Value.[sw]
-            match caseInfo.ParameterInfo with
+            match caseInfo.ParameterInfo.Value with
             | Primitives [||] -> aggregator.AppendResult caseInfo sw [||]
             | OptionalParam _ -> aggregator.AppendResult caseInfo sw [|None|]
             | _ -> error argInfo ErrorCode.CommandLine "argument '%s' cannot be grouped with other switches." sw
@@ -284,12 +281,12 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s%s<param>'." name sep
 
     | CliParam(token, name, caseInfo, assignment) ->
-        match caseInfo.ParameterInfo with
+        match caseInfo.ParameterInfo.Value with
         | Primitives [|field|] when caseInfo.IsCustomAssignment ->
             match assignment with
             | NoAssignment -> error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
             | Assignment(_,_,eqp) ->
-                let argument = 
+                let argument =
                     try field.Parser eqp
                     with _ -> error argInfo ErrorCode.CommandLine "argument '%s' is assigned invalid value, should be <%s>." token field.Description
 
@@ -300,11 +297,11 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             | UnrecognizedOrArgument token ->
                 match caseInfo.AssignmentParser.Value token with
                 | Assignment(key,_,value) ->
-                    let k = 
+                    let k =
                         try kf.Parser key
                         with _ -> error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key '%s', should be <%s>." state.Reader.CurrentSegment token kf.Description
 
-                    let v = 
+                    let v =
                         try vf.Parser value
                         with _ -> error argInfo ErrorCode.CommandLine "argument '%s' was given invalid value assignment '%s', should be <%s>." state.Reader.CurrentSegment token vf.Description
 
@@ -312,15 +309,15 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     state.Reader.MoveNext()
 
                 | NoAssignment ->
-                    error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'." 
-                        caseInfo.Name kf.Description caseInfo.CustomAssignmentSeparator.Value vf.Description
+                    error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
+                        caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value vf.Description
 
-            | CliParam(token,name,_,Assignment _) -> 
-                error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key name '%s' in '%s'." 
+            | CliParam(token,name,_,Assignment _) ->
+                error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key name '%s' in '%s'."
                     state.Reader.CurrentSegment name token
             | _ ->
-                error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'." 
-                    caseInfo.Name kf.Description caseInfo.CustomAssignmentSeparator.Value vf.Description
+                error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
+                    caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value vf.Description
 
         | Primitives fields ->
             let parseNextField (p : FieldParserInfo) =
@@ -334,29 +331,29 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     result
 
                 | CliParam(_, name, _, _)
-                | HelpArgument name 
+                | HelpArgument name
                 | GroupedParams(name,_) -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description name
                 | _ -> error argInfo ErrorCode.CommandLine "argument '%s' must be followed by <%s>." state.Reader.CurrentSegment p.Description
-                        
+
             let parseSingleParameter () =
                 let fields = fields |> Array.map parseNextField
                 aggregator.AppendResult caseInfo name fields
 
             parseSingleParameter ()
-            if caseInfo.IsRest then
+            if caseInfo.IsRest.Value then
                 while not state.Reader.IsCompleted do
                     parseSingleParameter ()
 
         | OptionalParam(existential, field) when caseInfo.IsCustomAssignment ->
-            let optArgument = existential.Accept { new IFunc<obj> with 
+            let optArgument = existential.Accept { new IFunc<obj> with
                 member __.Invoke<'T> () =
                     match assignment with
                     | NoAssignment -> Option<'T>.None :> obj
-                    | Assignment(_,_,eqp) -> 
-                        let argument = 
+                    | Assignment(_,_,eqp) ->
+                        let argument =
                             try field.Parser eqp
-                            with _ -> 
-                                error argInfo ErrorCode.CommandLine "argument '%s' is assigned invalid value, should be <%s>." 
+                            with _ ->
+                                error argInfo ErrorCode.CommandLine "argument '%s' is assigned invalid value, should be <%s>."
                                     token field.Description
 
                         argument :?> 'T |> Some :> obj }
@@ -367,7 +364,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             let optArgument = existential.Accept { new IFunc<obj> with
                 member __.Invoke<'T> () =
                     match state.Reader.GetNextToken true argInfo with
-                    | UnrecognizedOrArgument tok -> 
+                    | UnrecognizedOrArgument tok ->
                         let argument = try Some(field.Parser tok :?> 'T) with _ -> None
                         match argument with Some _ -> state.Reader.MoveNext() | None -> ()
                         argument :> obj
@@ -399,7 +396,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
         | SubCommand (existential, nestedUnion, _) ->
             let nestedResults = parseCommandLineInner state nestedUnion
-            let result = 
+            let result =
                 existential.Accept { new ITemplateFunc<obj> with
                     member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
                         new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
@@ -409,14 +406,14 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInfo) =
     let results = state.ResultStack.CreateNextAggregator argInfo
     while not state.Reader.IsCompleted do parseCommandLinePartial state argInfo results
-    if argInfo.IsRequiredSubcommand && not results.IsSubCommandDefined then
+    if not results.IsSubCommandDefined && argInfo.IsRequiredSubcommand.Value then
         error argInfo ErrorCode.CommandLine "no valid subcommand has been specified."
     results.ToUnionParseResults()
 
 /// <summary>
 ///     Parse the entire command line
 /// </summary>
-and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (description : string option) (width : int) (exiter : IExiter) 
+and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (description : string option) (width : int) (exiter : IExiter)
                         (raiseOnUsage : bool) (ignoreUnrecognized : bool) (inputs : string []) =
     let state = {
         Reader = new CliTokenReader(inputs)
