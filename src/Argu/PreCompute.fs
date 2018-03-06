@@ -69,7 +69,7 @@ let private dict (s: ('key * 'value) []) =
     let result = System.Collections.Generic.Dictionary<'key, 'value>(s.Length)
     for pair in s do
         result.Add(fst pair, snd pair)
-    result :> System.Collections.Generic.IDictionary<_,_>
+    result
 
 let primitiveParsers = lazy(
     let mkParser name (pars : string -> 'a) unpars = typeof<'a>, mkPrimitiveParser name pars unpars in

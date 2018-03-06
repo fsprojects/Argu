@@ -161,7 +161,7 @@ and [<NoEquality; NoComparison>]
         /// Single character switches
         GroupedSwitchExtractor : Lazy<string -> string []>
         /// Union cases indexed by appsettings parameter names
-        AppSettingsParamIndex : Lazy<IDictionary<string, UnionCaseArgInfo>>
+        AppSettingsParamIndex : Lazy<Dictionary<string, UnionCaseArgInfo>>
         /// Union cases indexed by cli parameter names
         CliParamIndex : Lazy<PrefixDictionary<UnionCaseArgInfo>>
         /// Union case parameter used to gather unrecognized CLI params
