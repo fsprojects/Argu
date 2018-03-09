@@ -1,3 +1,6 @@
-﻿group Legacy
-FSharp.Core
+﻿FSharp.Core
+System.Configuration.ConfigurationManager
 SourceLink.Create.CommandLine
+group Legacy
+  FSharp.Core
+  SourceLink.Create.CommandLine

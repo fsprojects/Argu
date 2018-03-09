@@ -20,7 +20,7 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Argu.Core\Argu.Core.fsproj" />
+    <ProjectReference Include="..\..\src\Argu\Argu.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
