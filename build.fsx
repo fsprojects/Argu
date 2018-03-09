@@ -99,22 +99,43 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
-let runTest (proj : string) =
-    if EnvironmentHelper.isWindows || proj.Contains "Core" then
-        DotNetCli.Test (fun c -> { c with Project = proj })
-    else
-        // revert to classic CLI runner due to dotnet-xunit issue in mono environments
-        let projName = Path.GetFileNameWithoutExtension proj
-        let assembly = binFolder @@ "net4*" @@ projName + ".dll"
-        !! assembly
-        |> XUnit2.xUnit2 (fun c ->
+let runTests config (proj : string) =
+    if EnvironmentHelper.isWindows then
+        DotNetCli.Test (fun c ->
             { c with
-                Parallel = ParallelMode.Collections
-                TimeOut = TimeSpan.FromMinutes 20. })
+                Project = proj
+                Configuration = config })
+    else
+        // work around xunit/mono issue
+        let projDir = Path.GetDirectoryName proj
+        let projName = Path.GetFileNameWithoutExtension proj
+        let netcoreFrameworks, legacyFrameworks = 
+            !! (projDir @@ "bin" @@ config @@ "*/")
+            |> Seq.map Path.GetFileName
+            |> Seq.toArray
+            |> Array.partition 
+                (fun f -> 
+                    f.StartsWith "netcore" || 
+                    f.StartsWith "netstandard")
+
+        for framework in netcoreFrameworks do
+            DotNetCli.Test (fun c ->
+                { c with
+                    Project = proj
+                    Framework = framework
+                    Configuration = config })
+
+        for framework in legacyFrameworks do
+            let assembly = projDir @@ "bin" @@ config @@ framework @@ projName + ".dll"
+            !! assembly
+            |> xUnit2 (fun c ->
+                { c with
+                    Parallel = ParallelMode.Collections
+                    TimeOut = TimeSpan.FromMinutes 20. })
 
 Target "RunTests" (fun _ ->
     for proj in !! testProjects do
-        runTest proj)
+        runTests "Release" proj)
 
 //
 //// --------------------------------------------------------------------------------------
