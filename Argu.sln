@@ -4,14 +4,12 @@ VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{FB06D972-6D76-4220-AD16-8E5F20DADAA6}"
 	ProjectSection(SolutionItems) = preProject
-		.paket\paket.bootstrapper.exe = .paket\paket.bootstrapper.exe
 		paket.dependencies = paket.dependencies
 		paket.lock = paket.lock
 		.paket\Paket.Restore.targets = .paket\Paket.Restore.targets
-		.paket\paket.targets = .paket\paket.targets
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu", "src\Argu\Argu.fsproj", "{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu", "src\Argu\Argu.fsproj", "{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB909722-1B3F-46A1-9245-277905B1E346}"
 	ProjectSection(SolutionItems) = preProject
@@ -46,9 +44,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{33A4833E
 		docs\tools\templates\template.cshtml = docs\tools\templates\template.cshtml
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{B94D60AD-2083-4E08-B28F-43122BE14819}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{B94D60AD-2083-4E08-B28F-43122BE14819}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Argu.Samples.LS", "samples\Argu.Samples.LS\Argu.Samples.LS.fsproj", "{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Samples.LS", "samples\Argu.Samples.LS\Argu.Samples.LS.fsproj", "{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{AF8469CE-9BA8-4EDD-BFFA-FF67EA8FFD86}"
 EndProject
