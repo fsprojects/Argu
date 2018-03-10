@@ -4,11 +4,6 @@
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <AssemblyName>Argu</AssemblyName>
   </PropertyGroup>
-  <PropertyGroup>
-    <OutputPath>bin\$(Configuration)\$(TargetFramework)\</OutputPath>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Argu.xml</DocumentationFile>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
