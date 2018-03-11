@@ -458,12 +458,12 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | [] when isMainCommand.Value ->
             match parsers.Value with
             | Primitives ps ->
-                let name = ps |> Seq.map (fun p -> sprintf "<%s>" p.Description) |> String.concat " "
+                let name = ps |> Seq.map (fun p -> "<" + p.Description + ">" ) |> String.concat " "
                 if isRest.Value then name + "..." else name
-            | ListParam(_,p) -> sprintf "<%s>..." p.Description
-            | _ -> arguExn "internal error in argu parser representation %O." uci
+            | ListParam(_,p) -> "<" + p.Description + ">..."
+            | _ -> raise <| new ArguException("internal error in argu parser representation " + (uci.ToString()) + ".")
         | _ when Option.isSome appSettingsName.Value -> appSettingsName.Value.Value
-        | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci)
+        | _ -> raise <| new ArguException("parameter '" + (uci.ToString()) + "' needs to have at least one parse source."))
 
     let fieldReader = Helpers.fieldReader uci
     let fieldCtor = Helpers.tupleConstructor types
