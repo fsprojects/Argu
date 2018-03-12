@@ -433,8 +433,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
                 yield!
                     attributes.Value
-                    |> Array.filter (fun x -> x :? AltCommandLineAttribute)
-                    |> Array.collect(fun x -> (x :?> AltCommandLineAttribute).Names)
+                    |> Array.collect(function | :? AltCommandLineAttribute as a -> a.Names | _ -> [||])
             ]
 
             for name in cliNames do validateCliParam name
