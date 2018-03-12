@@ -12,19 +12,18 @@ open FSharp.Reflection
 [<AutoOpen>]
 module private FastAttributes =
     let inline hasAttribute<'T when 'T :> Attribute> (attributes: obj[]) =
-        attributes |> Array.tryFindIndex (fun x -> x :? 'T) <> None
+        attributes |> Array.exists (fun x -> x :? 'T)
 
-    let inline hasAttribute2<'T when 'T :> Attribute> (attributes1: obj[]) (attributes2: Attribute[]) =
-        (hasAttribute<'T> attributes1) || (attributes2 |> Array.tryFindIndex (fun x -> x :? 'T) <> None)
+    let inline hasAttribute2<'T when 'T :> Attribute> (attributes: obj[]) (declaringTypeAttributes: obj[]) =
+        (hasAttribute<'T> attributes) || (hasAttribute<'T> declaringTypeAttributes)
 
     let inline tryGetAttribute<'T when 'T :> Attribute> (attributes: obj[]) =
-        attributes |> Array.tryFind (fun x -> x :? 'T) |> Option.map (fun x -> x :?> 'T)
+        attributes |> Array.tryPick (function :? 'T as t -> Some t | _ -> None)
 
-    let inline tryGetAttribute2<'T when 'T :> Attribute> (attributes: obj[]) (attributes2: Attribute[]) =
+    let inline tryGetAttribute2<'T when 'T :> Attribute> (attributes: obj[]) (declaringTypeAttributes: obj[]) =
         match tryGetAttribute<'T> attributes with
         | Some _ as attr -> attr
-        | None ->
-            attributes2 |> Array.tryFind (fun x -> x :? 'T) |> Option.map (fun x -> x :?> 'T)
+        | None -> tryGetAttribute<'T> declaringTypeAttributes
 
 let defaultHelpParam = "help"
 let defaultHelpDescription = "display this list of options."
@@ -38,9 +37,9 @@ let getDefaultHelpParam (t : Type) =
     prefixString + defaultHelpParam
 
 /// construct a CLI param from UCI name
-let generateOptionName (uci : UnionCaseInfo) (attributes1: obj[]) (attributes2: Attribute[])=
+let generateOptionName (uci : UnionCaseInfo) (attributes: obj[]) (declaringTypeAttributes: obj[])=
     let prefixString =
-        match tryGetAttribute2<CliPrefixAttribute> attributes1 attributes2 with
+        match tryGetAttribute2<CliPrefixAttribute> attributes declaringTypeAttributes with
         | None -> CliPrefix.DoubleDash
         | Some pf -> pf.Prefix
 
@@ -298,7 +297,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let tryGetCurrent = fun () -> !current
 
     let attributes = lazy(uci.GetCustomAttributes())
-    let declaringTypeAttributes = lazy(uci.DeclaringType.GetCustomAttributes() |> Array.ofSeq)
+    let declaringTypeAttributes = lazy(uci.DeclaringType.GetCustomAttributes(true))
 
     let isNoCommandLine = lazy(hasAttribute2<NoCommandLineAttribute> attributes.Value declaringTypeAttributes.Value)
     let isAppSettingsCSV = lazy(hasAttribute<ParseCSVAttribute> attributes.Value)
@@ -461,9 +460,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
                 let name = ps |> Seq.map (fun p -> "<" + p.Description + ">" ) |> String.concat " "
                 if isRest.Value then name + "..." else name
             | ListParam(_,p) -> "<" + p.Description + ">..."
-            | _ -> raise <| new ArguException("internal error in argu parser representation " + (uci.ToString()) + ".")
+            | _ -> arguExn "internal error in argu parser representation %O." uci
         | _ when Option.isSome appSettingsName.Value -> appSettingsName.Value.Value
-        | _ -> raise <| new ArguException("parameter '" + (uci.ToString()) + "' needs to have at least one parse source."))
+        | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci)
 
     let fieldReader = Helpers.fieldReader uci
     let fieldCtor = Helpers.tupleConstructor types
