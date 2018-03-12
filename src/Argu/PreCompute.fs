@@ -9,6 +9,22 @@ open System.Text.RegularExpressions
 
 open FSharp.Reflection
 
+[<AutoOpen>]
+module private FastAttributes =
+    let inline hasAttribute<'T when 'T :> Attribute> (attributes: obj[]) =
+        attributes |> Array.exists (fun x -> x :? 'T)
+
+    let inline hasAttribute2<'T when 'T :> Attribute> (attributes: obj[]) (declaringTypeAttributes: obj[]) =
+        (hasAttribute<'T> attributes) || (hasAttribute<'T> declaringTypeAttributes)
+
+    let inline tryGetAttribute<'T when 'T :> Attribute> (attributes: obj[]) =
+        attributes |> Array.tryPick (function :? 'T as t -> Some t | _ -> None)
+
+    let inline tryGetAttribute2<'T when 'T :> Attribute> (attributes: obj[]) (declaringTypeAttributes: obj[]) =
+        match tryGetAttribute<'T> attributes with
+        | Some _ as attr -> attr
+        | None -> tryGetAttribute<'T> declaringTypeAttributes
+
 let defaultHelpParam = "help"
 let defaultHelpDescription = "display this list of options."
 
@@ -21,9 +37,9 @@ let getDefaultHelpParam (t : Type) =
     prefixString + defaultHelpParam
 
 /// construct a CLI param from UCI name
-let generateOptionName (uci : UnionCaseInfo) =
+let generateOptionName (uci : UnionCaseInfo) (attributes: obj[]) (declaringTypeAttributes: obj[])=
     let prefixString =
-        match uci.TryGetAttribute<CliPrefixAttribute>(true) with
+        match tryGetAttribute2<CliPrefixAttribute> attributes declaringTypeAttributes with
         | None -> CliPrefix.DoubleDash
         | Some pf -> pf.Prefix
 
@@ -133,7 +149,7 @@ let tryGetDuEnumerationParser label (t : Type) =
     let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, allBindings))
     let extractUciInfo (uci : UnionCaseInfo) =
         let name =
-            match uci.TryGetAttribute<CustomCommandLineAttribute>() with
+            match tryGetAttribute<CustomCommandLineAttribute> (uci.GetCustomAttributes()) with
             | None -> generateEnumName uci.Name
             | Some attr -> attr.Name
 
@@ -280,18 +296,21 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let current = ref None
     let tryGetCurrent = fun () -> !current
 
-    let isNoCommandLine = lazy(uci.ContainsAttribute<NoCommandLineAttribute> (true))
-    let isAppSettingsCSV = lazy(uci.ContainsAttribute<ParseCSVAttribute> ())
-    let isExactlyOnce = lazy(uci.ContainsAttribute<ExactlyOnceAttribute> (true))
-    let isMandatory = lazy(isExactlyOnce.Value || uci.ContainsAttribute<MandatoryAttribute> (true))
-    let isUnique = lazy(isExactlyOnce.Value || uci.ContainsAttribute<UniqueAttribute> (true))
-    let isInherited = lazy(uci.ContainsAttribute<InheritAttribute> ())
-    let isGatherAll = lazy(uci.ContainsAttribute<GatherAllSourcesAttribute> ())
-    let isRest = lazy(uci.ContainsAttribute<RestAttribute> ())
-    let isHidden = lazy(uci.ContainsAttribute<HiddenAttribute> ())
+    let attributes = lazy(uci.GetCustomAttributes())
+    let declaringTypeAttributes = lazy(uci.DeclaringType.GetCustomAttributes(true))
+
+    let isNoCommandLine = lazy(hasAttribute2<NoCommandLineAttribute> attributes.Value declaringTypeAttributes.Value)
+    let isAppSettingsCSV = lazy(hasAttribute<ParseCSVAttribute> attributes.Value)
+    let isExactlyOnce = lazy(hasAttribute2<ExactlyOnceAttribute> attributes.Value declaringTypeAttributes.Value)
+    let isMandatory = lazy(isExactlyOnce.Value || hasAttribute2<MandatoryAttribute> attributes.Value declaringTypeAttributes.Value)
+    let isUnique = lazy(isExactlyOnce.Value || hasAttribute2<UniqueAttribute> attributes.Value declaringTypeAttributes.Value)
+    let isInherited = lazy(hasAttribute<InheritAttribute> attributes.Value)
+    let isGatherAll = lazy(hasAttribute<GatherAllSourcesAttribute> attributes.Value)
+    let isRest = lazy(hasAttribute<RestAttribute> attributes.Value)
+    let isHidden = lazy(hasAttribute<HiddenAttribute> attributes.Value)
 
     let mainCommandName = lazy(
-        match uci.TryGetAttribute<MainCommandAttribute> () with
+        match tryGetAttribute<MainCommandAttribute> attributes.Value with
         | None -> None
         | Some _ when isNoCommandLine.Value -> arguExn "parameter '%O' contains conflicting attributes 'MainCommand' and 'NoCommandLine'." uci
         | Some _ when types.Length = 0 -> arguExn "parameter '%O' contains MainCommand attribute but has unsupported arity 0." uci
@@ -304,7 +323,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isMainCommand = lazy(Option.isSome mainCommandName.Value)
 
     let cliPosition = lazy(
-        match uci.TryGetAttribute<CliPositionAttribute> () with
+        match tryGetAttribute<CliPositionAttribute> attributes.Value with
         | Some attr ->
             match attr.Position with
             | CliPosition.Unspecified
@@ -314,7 +333,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None -> CliPosition.Unspecified)
 
     let customAssignmentSeparator = lazy(
-        match uci.TryGetAttribute<CustomAssignmentAttribute> (true) with
+        match tryGetAttribute2<CustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value with
         | Some attr ->
             if isMainCommand.Value && types.Length = 1 then
                 arguExn "parameter '%O' of arity 1 contains incompatible attributes 'CustomAssignment' and 'MainCommand'." uci
@@ -329,7 +348,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None -> None)
 
     let isGatherUnrecognized = lazy(
-        if uci.ContainsAttribute<GatherUnrecognizedAttribute>() then
+        if hasAttribute<GatherUnrecognizedAttribute> attributes.Value then
             match types with
             | _ when isMainCommand.Value -> arguExn "parameter '%O' contains incompatible combination of attributes 'MainCommand' and 'GatherUnrecognized'." uci
             | [|t|] when t = typeof<string> -> true
@@ -338,7 +357,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             false)
 
     let appSettingsSeparators, appSettingsSplitOptions =
-        match uci.TryGetAttribute<AppSettingsSeparatorAttribute> (true) with
+        match tryGetAttribute2<AppSettingsSeparatorAttribute> attributes.Value declaringTypeAttributes.Value with
         | None -> [|","|], StringSplitOptions.None
         | Some attr when attr.Separators.Length = 0 ->
             arguExn "parameter '%O' specifies a null or empty AppSettings separator." uci
@@ -408,13 +427,13 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         if isMainCommand.Value || isNoCommandLine.Value then []
         else
             let cliNames = [
-                match uci.TryGetAttribute<CustomCommandLineAttribute> () with
-                | None -> yield generateOptionName uci
+                match tryGetAttribute<CustomCommandLineAttribute> attributes.Value with
+                | None -> yield generateOptionName uci attributes.Value declaringTypeAttributes.Value
                 | Some attr -> yield attr.Name ; yield! attr.AltNames
 
                 yield!
-                    uci.GetAttributes<AltCommandLineAttribute>()
-                    |> Seq.collect (fun attr -> attr.Names)
+                    attributes.Value
+                    |> Array.collect(function | :? AltCommandLineAttribute as a -> a.Names | _ -> [||])
             ]
 
             for name in cliNames do validateCliParam name
@@ -422,9 +441,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             cliNames)
 
     let appSettingsName = lazy(
-        if uci.ContainsAttribute<NoAppSettingsAttribute> (true) then None
+        if hasAttribute2<NoAppSettingsAttribute> attributes.Value declaringTypeAttributes.Value then None
         else
-            match uci.TryGetAttribute<CustomAppSettingsAttribute> () with
+            match tryGetAttribute<CustomAppSettingsAttribute> attributes.Value with
             | None -> Some <| generateAppSettingsName uci
             | Some _ when parsers.Value.Type = ArgumentType.SubCommand -> arguExn "CustomAppSettings in %O not supported in subcommands." uci
             | Some attr when not <| String.IsNullOrWhiteSpace attr.Name -> Some attr.Name
@@ -437,9 +456,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | [] when isMainCommand.Value ->
             match parsers.Value with
             | Primitives ps ->
-                let name = ps |> Seq.map (fun p -> sprintf "<%s>" p.Description) |> String.concat " "
+                let name = ps |> Seq.map (fun p -> "<" + p.Description + ">" ) |> String.concat " "
                 if isRest.Value then name + "..." else name
-            | ListParam(_,p) -> sprintf "<%s>..." p.Description
+            | ListParam(_,p) -> "<" + p.Description + ">..."
             | _ -> arguExn "internal error in argu parser representation %O." uci
         | _ when Option.isSome appSettingsName.Value -> appSettingsName.Value.Value
         | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci)

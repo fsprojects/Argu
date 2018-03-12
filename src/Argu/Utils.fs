@@ -137,40 +137,6 @@ type IDictionary<'K,'V> with
 
 let currentProgramName = lazy(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName)
 
-type UnionCaseInfo with
-    member uci.GetAttributes<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
-        let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
-
-        let caseAttrs = uci.GetCustomAttributes typeof<'T> |> Seq.cast<Attribute>
-        let attrs =
-            if includeDeclaringTypeAttrs then
-                uci.DeclaringType.GetCustomAttributes(typeof<'T>, false)
-                |> Seq.cast<Attribute>
-                |> Seq.append caseAttrs
-            else
-                caseAttrs
-
-        attrs |> Seq.map (fun o -> o :?> 'T)
-
-    member uci.TryGetAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
-        let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
-
-        match uci.GetCustomAttributes typeof<'T> with
-        | [||] when includeDeclaringTypeAttrs ->
-            match uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.toArray with
-            | [||] -> None
-            | attrs -> Some (attrs.[0] :?> 'T)
-        | [||] -> None
-        | attrs -> Some (attrs.[0] :?> 'T)
-
-    member uci.ContainsAttribute<'T when 'T :> Attribute> (?includeDeclaringTypeAttrs : bool) =
-        let includeDeclaringTypeAttrs = defaultArg includeDeclaringTypeAttrs false
-        if uci.GetCustomAttributes typeof<'T> |> Array.isEmpty |> not then true
-        elif includeDeclaringTypeAttrs then
-            uci.DeclaringType.GetCustomAttributes(typeof<'T>, false) |> Seq.isEmpty |> not
-        else
-            false
-
 /// recognize exprs that strictly contain DU constructors
 /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
 let expr2Uci (e : Expr) =
