@@ -154,6 +154,16 @@ module ``Argu Tests`` =
         test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
+    let ``Simple AppSettings contains usage comments`` () =
+        let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
+        let xmlSource = parser.PrintAppSettingsArguments args
+        let usages = List.map (fun a -> (a :> IArgParserTemplate).Usage) args
+        
+        test <@ xmlSource.Contains usages.[0] = true @>
+        test <@ xmlSource.Contains usages.[1] = true @>
+        test <@ xmlSource.Contains usages.[2] = true @>
+
+    [<Fact>]
     let ``AppSettings CSV parsing`` () =
         let results = parseFunc true (function "rest arg" -> Some("1,2,3,4,5") | _ -> None)
         test <@ results.GetResults Rest_Arg = [1 .. 5] @>
