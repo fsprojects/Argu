@@ -376,7 +376,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
                 let mkComment () =
                     stringExpr {
                         yield ' '
-                        yield aI.Description.Value.[0]
+                        yield aI.Description.Value
 
                         match parsers |> Array.toList with
                         | [] -> ()
