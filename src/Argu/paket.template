@@ -11,7 +11,6 @@ summary
 licenseurl https://github.com/fsprojects/Argu/blob/master/License.md
 projecturl http://fsprojects.github.io/Argu/
 iconurl https://raw.githubusercontent.com/fsprojects/Argu/master/docs/files/img/logo.png
-include-pdbs true
 tags
     F#, argument, parser
 references
@@ -23,7 +22,7 @@ dependencies
 	FSharp.Core >= LOCKEDVERSION
 	System.Configuration.ConfigurationManager >= LOCKEDVERSION
 excludeddependencies
-    SourceLink.Create.CommandLine
+    Microsoft.SourceLink.GitHub
 files
     bin/Release/net45/Argu.dll ==> lib/net45
     bin/Release/net45/Argu.pdb ==> lib/net45
