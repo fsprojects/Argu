@@ -1,6 +1,6 @@
 ﻿FSharp.Core
 System.Configuration.ConfigurationManager
-SourceLink.Create.CommandLine
+Microsoft.SourceLink.GitHub
 group Legacy
   FSharp.Core
-  SourceLink.Create.CommandLine
+  Microsoft.SourceLink.GitHub
