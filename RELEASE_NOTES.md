@@ -1,3 +1,6 @@
+### 5.2.0
+* Fix SourceLink issues.
+
 ### 5.1.0
 * Performance optimizations.
 * Fixed incorrect commandline option generation in non-English locales.
