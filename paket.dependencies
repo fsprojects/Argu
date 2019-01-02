@@ -9,8 +9,9 @@ nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 nuget Unquote ~> 4.0
 nuget FsCheck ~> 3.0 prerelease
 nuget xunit ~> 2.3
-nuget xunit.runner.visualstudio ~> 2.3 version_in_path: true
-nuget Microsoft.SourceLink.GitHub prerelease
+nuget Microsoft.NET.Test.Sdk ~> 15.0
+nuget Microsoft.SourceLink.GitHub prerelease copy_local: false
+
 clitool dotnet-sourcelink framework: netcoreapp2.0
 
 group Legacy
@@ -19,7 +20,7 @@ group Legacy
   redirects: force
 
   nuget FSharp.Core >= 4.0 lowest_matching:true
-  nuget Microsoft.SourceLink.GitHub prerelease
+  nuget Microsoft.SourceLink.GitHub prerelease copy_local: false
 
 group Build
   framework: net461

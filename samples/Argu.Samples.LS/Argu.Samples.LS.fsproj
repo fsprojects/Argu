@@ -4,6 +4,7 @@
     <TargetFramework>net461</TargetFramework>
     <OutputType>Exe</OutputType>
     <AssemblyName>ls</AssemblyName>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;RELEASE</DefineConstants>
@@ -16,7 +17,6 @@
   <ItemGroup>
     <Compile Include="Arguments.fs" />
     <Compile Include="Program.fs" />
-    <Content Include="App.config" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

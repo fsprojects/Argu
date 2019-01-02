@@ -39,10 +39,9 @@ let binFolder = __SOURCE_DIRECTORY__ @@ "bin" @@ configuration
 //// Read release notes & version info from RELEASE_NOTES.md
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let release = parseReleaseNotes (IO.File.ReadAllLines "RELEASE_NOTES.md")
-let nugetVersion = release.NugetVersion
 
 Target "BuildVersion" (fun _ ->
-    Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" nugetVersion) |> ignore
+    Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" release.NugetVersion) |> ignore
 )
 
 Target "AssemblyInfo" (fun _ ->
@@ -84,15 +83,11 @@ Target "Clean" (fun _ ->
 //// --------------------------------------------------------------------------------------
 //// Build library & test project
 
-Target "DotNet.Restore" (fun _ -> DotNetCli.Restore id)
-
 Target "Build" (fun _ ->
-    // Build the rest of the project
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [ project + ".sln" ]
-      Excludes = [] } 
-    |> MSBuild "" "Build" ["Configuration", configuration; "SourceLinkCreate", "true"]
-    |> Log "AppBuild-Output: "
+    DotNetCli.Build (fun p ->
+        { p with
+            Project = __SOURCE_DIRECTORY__ 
+            Configuration = configuration })
 )
 
 
@@ -145,9 +140,22 @@ Target "NuGet.Pack" (fun _ ->
     Paket.Pack(fun config ->
         { config with 
             Version = release.NugetVersion
-            ReleaseNotes = String.concat "\n" release.Notes
+            ReleaseNotes = String.concat Environment.NewLine release.Notes
             OutputPath = artifacts
         }))
+
+Target "NuGet.Pack.SDK" (fun _ ->
+    DotNetCli.Pack(fun p ->
+        { p with
+            OutputPath = artifacts
+            Configuration = configuration
+            Project = !! "**/Argu.fsproj" |> Seq.head
+            AdditionalArgs =
+                [ yield "--no-build" ;
+                  yield "--no-restore" ;
+                  yield sprintf "-p:Version=%s" release.NugetVersion ]
+            })
+)
 
 Target "Sourcelink.Test" (fun _ ->
     !! (sprintf "%s/*.nupkg" artifacts)
@@ -235,7 +243,6 @@ Target "Release" DoNothing
   ==> "Clean"
   ==> "AssemblyInfo"
   ==> "Prepare"
-  ==> "DotNet.Restore"
   ==> "Build"
   ==> "RunTests"
   ==> "Default"

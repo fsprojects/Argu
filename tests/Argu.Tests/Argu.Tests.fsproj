@@ -3,14 +3,13 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
     <AssemblyName>Argu.Tests</AssemblyName>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Framework)'=='netcoreapp2.0'">
     <DefineConstants>NETCOREAPP2_0</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Tests.fs" />
-    <Compile Include="Main.fs" />
-    <None Include="App.config" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

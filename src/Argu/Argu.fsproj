@@ -2,10 +2,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
-    <AssemblyName>Argu</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Argu.xml</DocumentationFile>
+    <!-- NuGet metadata -->
+    <PackageId>Argu</PackageId>
+    <Description>A declarative command line and XML configuration parser for F# applications.</Description>
+    <Authors>Eirik Tsarpalis</Authors>
+    <Copyright>2019</Copyright>
+    <PackageTags>F#, argument, parser</PackageTags>
+    <RepositoryUrl>https://github.com/fsprojects/Argu/</RepositoryUrl>
+    <PackageProjectUrl>http://fsprojects.github.io/Argu/</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/fsprojects/Argu/blob/master/License.md</PackageLicenseUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/fsprojects/Argu/master/docs/files/img/logo.png</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
@@ -28,11 +37,11 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <PropertyGroup>
-    <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
+     <!--Optional: Declare that the Repository URL can be published to NuSpec--> 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <!-- Optional: Embed source files that are not tracked by the source control manager to the PDB -->
+     <!--Optional: Embed source files that are not tracked by the source control manager to the PDB--> 
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!-- Optional: Include PDB in the built .nupkg -->
+     <!--Optional: Include PDB in the built .nupkg--> 
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
