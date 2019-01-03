@@ -1,3 +1,4 @@
+STORAGE: NONE
 RESTRICTION: || (== net461) (== netcoreapp2.0) (== netstandard2.0)
 NUGET
   remote: https://api.nuget.org/v3/index.json
@@ -525,6 +526,8 @@ NUGET
     xunit.extensibility.execution (2.4.1)
       NETStandard.Library (>= 1.6.1) - restriction: || (&& (== net461) (< net452)) (== netcoreapp2.0) (== netstandard2.0)
       xunit.extensibility.core (2.4.1)
+    xunit.runner.visualstudio (2.4.1) - version_in_path: true
+      Microsoft.NET.Test.Sdk (>= 15.0) - restriction: || (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
 
 GROUP Build
 RESTRICTION: == net461
@@ -544,8 +547,9 @@ GITHUB
     modules/Octokit/Octokit.fsx (457ae4cfb9bb4a39f0eb1352140584d7d04ebe5d)
       Octokit (>= 0.20)
   remote: eiriktsarpalis/snippets
-    SlnTools/SlnTools.fs (d70819be5502b96e77509882150435bd80c45585)
+    SlnTools/SlnTools.fs (d6a61701270fd6b0bd5eb01bedcff34593bb128c)
 GROUP Legacy
+STORAGE: NONE
 RESTRICTION: == net45
 NUGET
   remote: https://api.nuget.org/v3/index.json

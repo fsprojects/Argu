@@ -1,6 +1,6 @@
 ﻿FSharp.Core
 xunit
-Microsoft.NET.Test.Sdk
+xunit.runner.visualstudio
 Unquote
 FsCheck
 dotnet-sourcelink
