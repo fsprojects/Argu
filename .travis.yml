@@ -12,4 +12,5 @@ dotnet: 2.1.400
 
 script:
   - dotnet --info
+  - export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.5/
   - ./build.sh Default
