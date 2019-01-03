@@ -28,3 +28,4 @@ group Build
   nuget FSharp.Formatting
   nuget xunit.runner.console ~> 2.3
   github fsharp/FAKE modules/Octokit/Octokit.fsx
+  github eiriktsarpalis/snippets SlnTools/SlnTools.fs

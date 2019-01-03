@@ -5,19 +5,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup>
-    <!-- NuGet metadata -->
-    <PackageId>Argu</PackageId>
-    <Description>A declarative command line and XML configuration parser for F# applications.</Description>
-    <Authors>Eirik Tsarpalis</Authors>
-    <Copyright>2019</Copyright>
-    <PackageTags>F#, argument, parser</PackageTags>
-    <RepositoryUrl>https://github.com/fsprojects/Argu/</RepositoryUrl>
-    <PackageProjectUrl>http://fsprojects.github.io/Argu/</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/fsprojects/Argu/blob/master/License.md</PackageLicenseUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/fsprojects/Argu/master/docs/files/img/logo.png</PackageIconUrl>
-  </PropertyGroup>
+  <Import Project="Nuget.props" />
   <ItemGroup>
+    <None Include="NuGet.props" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Attributes.fs" />

@@ -5,6 +5,10 @@
 #I "packages/build/FAKE/tools"
 #r "packages/build/FAKE/tools/FakeLib.dll"
 
+#nowarn "85"
+#load "paket-files/build/eiriktsarpalis/snippets/SlnTools/SlnTools.fs"
+#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
+
 open System
 open System.IO
 open Fake 
@@ -27,6 +31,10 @@ let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
 let configuration = environVarOrDefault "Configuration" "Release"
+
+let nugetProjects = 
+    !! (__SOURCE_DIRECTORY__ @@ "**/NuGet.props")
+    |> Seq.collect (fun prop -> !! (Path.GetDirectoryName prop @@ "*.??proj"))
 
 let testProjects = __SOURCE_DIRECTORY__ @@ "tests/**/*.??proj"
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
@@ -136,11 +144,13 @@ Target "RunTests" (fun _ ->
 //// Build a NuGet package
 
 Target "NuGet.Pack" (fun _ ->
+    let pkgSln = SlnTools.createTempSolutionFile nugetProjects
+
     DotNetCli.Pack(fun p ->
         { p with
             OutputPath = artifacts
             Configuration = configuration
-            Project = !! (__SOURCE_DIRECTORY__ @@ "**/Argu.fsproj") |> Seq.head
+            Project = pkgSln
             AdditionalArgs =
                 [ sprintf "-p:PackageVersion=%s" release.NugetVersion
                   sprintf "-p:PackageReleaseNotes=\"%s\"" (String.concat Environment.NewLine release.Notes) ]
@@ -177,8 +187,6 @@ Target "ReleaseDocs" (fun _ ->
 )
 
 // Github Releases
-#nowarn "85"
-#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
 Target "ReleaseGitHub" (fun _ ->

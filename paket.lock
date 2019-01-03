@@ -543,6 +543,8 @@ GITHUB
   remote: fsharp/FAKE
     modules/Octokit/Octokit.fsx (457ae4cfb9bb4a39f0eb1352140584d7d04ebe5d)
       Octokit (>= 0.20)
+  remote: eiriktsarpalis/snippets
+    SlnTools/SlnTools.fs (d70819be5502b96e77509882150435bd80c45585)
 GROUP Legacy
 RESTRICTION: == net45
 NUGET
