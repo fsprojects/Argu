@@ -26,11 +26,10 @@ let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
-let testProjects = "tests/**/*.??proj"
-
 let configuration = environVarOrDefault "Configuration" "Release"
+
+let testProjects = __SOURCE_DIRECTORY__ @@ "tests/**/*.??proj"
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
-let binFolder = __SOURCE_DIRECTORY__ @@ "bin" @@ configuration
 
 //// --------------------------------------------------------------------------------------
 //// The rest of the code is standard F# build script 
@@ -76,7 +75,7 @@ Target "AssemblyInfo" (fun _ ->
 // Clean build results & restore NuGet packages
 
 Target "Clean" (fun _ ->
-    CleanDirs [ binFolder ; artifacts ]
+    CleanDirs [ artifacts ]
 )
 
 //
@@ -137,33 +136,22 @@ Target "RunTests" (fun _ ->
 //// Build a NuGet package
 
 Target "NuGet.Pack" (fun _ ->
-    Paket.Pack(fun config ->
-        { config with 
-            Version = release.NugetVersion
-            ReleaseNotes = String.concat Environment.NewLine release.Notes
-            OutputPath = artifacts
-        }))
-
-Target "NuGet.Pack.SDK" (fun _ ->
     DotNetCli.Pack(fun p ->
         { p with
             OutputPath = artifacts
             Configuration = configuration
-            Project = !! "**/Argu.fsproj" |> Seq.head
+            Project = !! (__SOURCE_DIRECTORY__ @@ "**/Argu.fsproj") |> Seq.head
             AdditionalArgs =
-                [ yield "--no-build" ;
-                  yield "--no-restore" ;
-                  yield sprintf "-p:Version=%s" release.NugetVersion ]
-            })
+                [ sprintf "-p:PackageVersion=%s" release.NugetVersion
+                  sprintf "-p:PackageReleaseNotes=\"%s\"" (String.concat Environment.NewLine release.Notes) ]
+        })
 )
 
 Target "Sourcelink.Test" (fun _ ->
-    !! (sprintf "%s/*.nupkg" artifacts)
-    |> Seq.iter (fun nupkg ->
+    for nupkg in !! (artifacts @@ "*.nupkg") do
         DotNetCli.RunCommand
             (fun p -> { p with WorkingDir = __SOURCE_DIRECTORY__ @@ "tests" @@ "Argu.Tests" } )
             (sprintf "sourcelink test %s" nupkg)
-    )
 )
 
 Target "NuGet.Push" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = artifacts }))

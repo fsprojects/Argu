@@ -1,30 +1,28 @@
-framework: net461, netstandard2.0, netcoreapp2.0
 source https://api.nuget.org/v3/index.json
-redirects: force
+framework: net461, netstandard2.0, netcoreapp2.0
 
 nuget FSharp.Core >= 4.3.2 lowest_matching:true
 nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 
 # Testing dependencies; NB intentionally keeping in Main group
+nuget Microsoft.NET.Test.Sdk ~> 15.0
+nuget xunit ~> 2.3
 nuget Unquote ~> 4.0
 nuget FsCheck ~> 3.0 prerelease
-nuget xunit ~> 2.3
-nuget Microsoft.NET.Test.Sdk ~> 15.0
-nuget Microsoft.SourceLink.GitHub prerelease copy_local: false
 
-clitool dotnet-sourcelink framework: netcoreapp2.0
+nuget Microsoft.SourceLink.GitHub prerelease copy_local:true
+clitool dotnet-sourcelink
 
 group Legacy
-  framework: net45
   source https://api.nuget.org/v3/index.json
-  redirects: force
+  framework: net45
 
   nuget FSharp.Core >= 4.0 lowest_matching:true
-  nuget Microsoft.SourceLink.GitHub prerelease copy_local: false
+  nuget Microsoft.SourceLink.GitHub prerelease copy_local:true
 
 group Build
-  framework: net461
   source https://api.nuget.org/v3/index.json
+  framework: net461
 
   nuget FAKE ~> 4.0
   nuget FSharp.Formatting
