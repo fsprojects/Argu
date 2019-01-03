@@ -5,7 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <Import Project="Nuget.props" />
+  <Import Project="NuGet.props" />
   <ItemGroup>
     <None Include="NuGet.props" />
     <Compile Include="AssemblyInfo.fs" />
