@@ -36,6 +36,9 @@ let getDefaultHelpParam (t : Type) =
 
     prefixString + defaultHelpParam
 
+/// Generate a CLI Param for enumeration cases
+let generateEnumName (name : string) = name.ToLowerInvariant().Replace('_','-')
+
 /// construct a CLI param from UCI name
 let generateOptionName (uci : UnionCaseInfo) (attributes: obj[]) (declaringTypeAttributes: obj[])=
     let prefixString =
@@ -43,10 +46,7 @@ let generateOptionName (uci : UnionCaseInfo) (attributes: obj[]) (declaringTypeA
         | None -> CliPrefix.DoubleDash
         | Some pf -> pf.Prefix
 
-    prefixString + uci.Name.ToLowerInvariant().Replace('_','-')
-
-/// Generate a CLI Param for enumeration cases
-let generateEnumName (name : string) = name.ToLowerInvariant().Replace('_','-')
+    prefixString + (generateEnumName uci.Name)
 
 /// construct an App.Config param from UCI name
 let generateAppSettingsName (uci : UnionCaseInfo) =
@@ -121,7 +121,7 @@ let tryGetEnumerationParser label (t : Type) =
     let name = names |> String.concat "|"
 
     let parser (text : string) =
-        let text = text.Trim()
+        let text = text.Trim() |> generateEnumName
         let _,value = index |> Array.find (fun (id,_) -> text = id)
         value
 
@@ -160,7 +160,7 @@ let tryGetDuEnumerationParser label (t : Type) =
     let name = index |> Seq.map fst |> String.concat "|"
 
     let parser (text : string) =
-        let text = text.Trim()
+        let text = text.Trim() |> generateEnumName
         let _,value = index |> Array.find (fun (id,_) -> text = id)
         value
 

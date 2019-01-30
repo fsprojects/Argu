@@ -465,6 +465,11 @@ module ``Argu Tests`` =
         test <@ result.GetResult <@ Enum @> = Enum.Second @>
 
     [<Fact>]
+    let ``Enumeration parameter parsing (case-insensitive, allowing original case)`` () =
+        let result = parser.Parse([|"--enum" ; "Third" ; "--mandatory-arg" ; "true"|])
+        test <@ result.GetResult <@ Enum @> = Enum.Third @>
+
+    [<Fact>]
     let ``Enumeration parameter should fail on unsupported values`` () =
         raisesWith<ArguParseException> <@ parser.Parse([|"--enum" ; "first,second" ; "--mandatory-arg" ; "true"|]) @>
                                         (fun e -> <@ e.FirstLine.Contains "first|second|third" @>)
@@ -473,6 +478,11 @@ module ``Argu Tests`` =
     let ``F# Enumeration parameter parsing`` () =
         let result = parser.Parse([|"--enumeration=second" ; "--mandatory-arg" ; "true"|])
         test <@ result.GetResult <@ Enumeration @> = Some Second @>
+
+    [<Fact>]
+    let ``F# Enumeration parameter parsing (case-insensitive, allowing original case)`` () =
+        let result = parser.Parse([|"--enumeration=Third" ; "--mandatory-arg" ; "true"|])
+        test <@ result.GetResult <@ Enumeration @> = Some Third @>
 
     [<Fact>]
     let ``F# Enumeration parameter should fail on unsupported values`` () =
