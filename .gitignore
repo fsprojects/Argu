@@ -194,4 +194,5 @@ docs/tools/FSharp.Formatting.svclog
 /.idea
 
 # Deploy artifacts
-artifacts/
+/artifacts/
+/paket-files/
