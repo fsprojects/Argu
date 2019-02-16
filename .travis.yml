@@ -5,10 +5,10 @@ addons:
     packages:
        - msbuild
 
-sudo: false # use the new container-based Travis infrastructure
-dist: xenial # Ubuntu 14.04
+sudo: false
+dist: xenial
 mono: latest
-dotnet: 2.1.400
+dotnet: 2.2.103
 
 script:
   - dotnet --info
