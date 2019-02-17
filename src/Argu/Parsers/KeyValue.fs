@@ -92,6 +92,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
                     let case = mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [|results|]
                     success [|case|]
 
+                | NullarySubCommand
                 | SubCommand _ -> () // AppSettings will not handle subcommands
 
         | _ -> ()

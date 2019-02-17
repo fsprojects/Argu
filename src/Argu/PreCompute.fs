@@ -308,6 +308,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isGatherAll = lazy(hasAttribute<GatherAllSourcesAttribute> attributes.Value)
     let isRest = lazy(hasAttribute<RestAttribute> attributes.Value)
     let isHidden = lazy(hasAttribute<HiddenAttribute> attributes.Value)
+    let isExplicitSubCommand = lazy(hasAttribute<SubCommandAttribute> attributes.Value)
 
     let mainCommandName = lazy(
         match tryGetAttribute<MainCommandAttribute> attributes.Value with
@@ -374,21 +375,25 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | [|NestedParseResults _|] -> ArgumentType.SubCommand
         | [|Optional _|] -> ArgumentType.Optional
         | [|List _|] -> ArgumentType.List
+        | _ when isExplicitSubCommand.Value -> ArgumentType.SubCommand
         | _ -> ArgumentType.Primitive
+
+    let checkSubCommand() =
+        if Option.isSome customAssignmentSeparator.Value then
+            arguExn "CustomAssignment in '%O' not supported in subcommands." uci
+        if isRest.Value then
+            arguExn "Rest attribute in '%O' not supported in subcommands." uci
+        if isMandatory.Value then
+            arguExn "Mandatory attribute in '%O' not supported in subcommands." uci
+        if isMainCommand.Value then
+            arguExn "MainCommand attribute in '%O' not supported in subcommands." uci
+        if isInherited.Value then
+            arguExn "Inherit attribute in '%O' not supported in subcommands." uci
 
     let parsers = lazy(
         match types with
         | [|NestedParseResults prt|] ->
-            if Option.isSome customAssignmentSeparator.Value then
-                arguExn "CustomAssignment in '%O' not supported in subcommands." uci
-            if isRest.Value then
-                arguExn "Rest attribute in '%O' not supported in subcommands." uci
-            if isMandatory.Value then
-                arguExn "Mandatory attribute in '%O' not supported in subcommands." uci
-            if isMainCommand.Value then
-                arguExn "MainCommand attribute in '%O' not supported in subcommands." uci
-            if isInherited.Value then
-                arguExn "Inherit attribute in '%O' not supported in subcommands." uci
+            checkSubCommand()
 
             let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt
             let shape = ShapeArgumentTemplate.FromType prt
@@ -417,6 +422,12 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             ListParam(Existential.FromType t, getPrimitiveParserByType label t)
 
         | _ ->
+            if isExplicitSubCommand.Value then
+                if not (Array.isEmpty fields) then
+                    arguExn "SubCommand in '%O' not supported for parameters other than ParseResults<_>." uci
+                checkSubCommand()
+                NullarySubCommand
+            else
             let getParser (p : PropertyInfo) =
                 let label = tryExtractUnionParameterLabel p
                 getPrimitiveParserByType label p.PropertyType

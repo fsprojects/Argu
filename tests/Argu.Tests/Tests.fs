@@ -49,6 +49,7 @@ module ``Argu Tests`` =
     type RequiredSubcommand =
         | Foo
         | [<CliPrefix(CliPrefix.None)>] Sub of ParseResults<CleanArgs>
+        | [<SubCommand; CliPrefix(CliPrefix.None)>] Null_Sub
     with
         interface IArgParserTemplate with
             member this.Usage = "required"
@@ -89,6 +90,7 @@ module ``Argu Tests`` =
         | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
         | [<CliPrefix(CliPrefix.None)>] Required of ParseResults<RequiredSubcommand>
         | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResults<GatherUnrecognizedSubcommand>
+        | [<SubCommand; CliPrefix(CliPrefix.None)>] Nullary_Sub
     with
         interface IArgParserTemplate with
             member a.Usage =
@@ -115,6 +117,7 @@ module ``Argu Tests`` =
                 | Clean _ -> "clean state"
                 | Required _ -> "required subcommand"
                 | Unrecognized _ -> "unrecognized subcommand"
+                | Nullary_Sub -> "nullary subcommand"
                 | List _ -> "variadic params"
                 | Optional _ -> "optional params"
                 | A | B | C -> "misc arguments"
@@ -410,6 +413,25 @@ module ``Argu Tests`` =
     [<Fact>]
     let ``Required subcommand attribute should fail on missing subcommand`` () =
         let args = [|"required" ; "--foo" |]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
+                                        (fun e -> <@ e.FirstLine.Contains "subcommand" @>)
+
+    [<Fact>]
+    let ``Nullary subcommand`` () =
+        let args = [|"nullary-sub"|]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        test <@ results.TryGetSubCommand() = Some Nullary_Sub @>
+
+    [<Fact>]
+    let ``Required subcommand should succeed on nullary subcommand`` () =
+        let args = [|"required"; "null-sub"|]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        let nested = results.GetResult <@ Required @>
+        test <@ nested.TryGetSubCommand() = Some Null_Sub @>
+
+    [<Fact>]
+    let ``Calling both a nullary subcommand a normal one should fail`` () =
+        let args = [|"required"; "null-sub"; "sub"; "-fdx"|]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
                                         (fun e -> <@ e.FirstLine.Contains "subcommand" @>)
 
