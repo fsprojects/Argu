@@ -36,6 +36,14 @@ module ``Argu Tests Main List`` =
                 | Force -> "force changes in remote repo"
                 | Remote _ -> "push changes to remote repository and branch"
 
+    type CheckoutArgs =
+        | [<Mandatory>] Branch of string
+    with
+        interface IArgParserTemplate with
+            member this.Usage = 
+                match this with
+                | Branch _ -> "push changes to remote repository and branch"
+
     [<CliPrefix(CliPrefix.Dash)>]
     type CleanArgs =
         | D
@@ -90,6 +98,7 @@ module ``Argu Tests Main List`` =
         | [<CliPrefix(CliPrefix.Dash)>] B
         | [<CliPrefix(CliPrefix.Dash)>] C
         | [<CliPrefix(CliPrefix.None)>] Push of ParseResults<PushArgs>
+        | [<CliPrefix(CliPrefix.None)>] Checkout of ParseResults<CheckoutArgs>
         | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
         | [<CliPrefix(CliPrefix.None)>] Required of ParseResults<RequiredSubcommand>
         | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResults<GatherUnrecognizedSubcommand>
@@ -120,6 +129,7 @@ module ``Argu Tests Main List`` =
                 | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
                 | Last_Parameter _ -> "parameter that has to appear at end of command line args."
                 | Push _ -> "push changes"
+                | Checkout _ -> "checkout ref"
                 | Clean _ -> "clean state"
                 | Required _ -> "required subcommand"
                 | Unrecognized _ -> "unrecognized subcommand"
@@ -427,6 +437,12 @@ module ``Argu Tests Main List`` =
                                     (fun e -> <@ e.FirstLine.Contains "must be followed by <branch name>" @>)
 
     [<Fact>]
+    let ``Main command parsing should fail on missing mandatory sub command parameter`` () =
+        let args = [|"--mandatory-arg" ; "true" ; "checkout"  |]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
+                                    (fun e -> <@ e.FirstLine.Contains "--branch" @>)
+
+    [<Fact>]
     let ``Main command parsing should allow trailing arguments`` () =
         let args = [|"push" ; "origin" ; "master" ; "-f" |]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
@@ -593,7 +609,7 @@ module ``Argu Tests Main List`` =
     [<Fact>]
     let ``Get all subcommand parsers`` () =
         let subcommands = parser.GetSubCommandParsers()
-        test <@ subcommands.Length = 4 @>
+        test <@ subcommands.Length = 5 @>
         test <@ subcommands |> List.forall (fun sc -> sc.IsSubCommandParser) @>
 
     [<Fact>]

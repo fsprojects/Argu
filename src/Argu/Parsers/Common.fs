@@ -67,6 +67,20 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
             | _, ts' -> ts'
 
         match combined with
+        | [| sub |] ->
+            match sub.CaseInfo.ParameterInfo.Value with
+            | SubCommand (_, unionArg, __) -> 
+                let errors = 
+                    unionArg.Cases.Value 
+                    |> Array.choose (fun case -> 
+                    if case.IsMandatory.Value && not ignoreMissingMandatory then
+                        Some (error unionArg ErrorCode.PostProcess "missing parameter '%s'." case.Name.Value)
+                    else None
+                    )
+                match errors with
+                | [||] -> combined
+                | x -> Array.head x
+            | _ -> combined
         | [||] when caseInfo.IsMandatory.Value && not ignoreMissingMandatory ->
             error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name.Value
         | _ -> combined
