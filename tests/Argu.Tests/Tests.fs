@@ -36,6 +36,22 @@ module ``Argu Tests Main List`` =
                 | Force -> "force changes in remote repo"
                 | Remote _ -> "push changes to remote repository and branch"
 
+    type NewArgs =
+        | [<Mandatory>] Name of string
+    with
+        interface IArgParserTemplate with
+            member this.Usage = 
+                match this with
+                | Name _ -> "New name"
+
+    type TagArgs =
+        | New of ParseResults<NewArgs>
+    with
+        interface IArgParserTemplate with
+            member this.Usage = 
+                match this with
+                | New _ -> "New tag"
+
     type CheckoutArgs =
         | [<Mandatory>] Branch of string
     with
@@ -99,6 +115,7 @@ module ``Argu Tests Main List`` =
         | [<CliPrefix(CliPrefix.Dash)>] C
         | [<CliPrefix(CliPrefix.None)>] Push of ParseResults<PushArgs>
         | [<CliPrefix(CliPrefix.None)>] Checkout of ParseResults<CheckoutArgs>
+        | [<CliPrefix(CliPrefix.None)>] Tag of ParseResults<TagArgs>
         | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
         | [<CliPrefix(CliPrefix.None)>] Required of ParseResults<RequiredSubcommand>
         | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResults<GatherUnrecognizedSubcommand>
@@ -130,6 +147,7 @@ module ``Argu Tests Main List`` =
                 | Last_Parameter _ -> "parameter that has to appear at end of command line args."
                 | Push _ -> "push changes"
                 | Checkout _ -> "checkout ref"
+                | Tag _ -> "tag"
                 | Clean _ -> "clean state"
                 | Required _ -> "required subcommand"
                 | Unrecognized _ -> "unrecognized subcommand"
@@ -441,6 +459,12 @@ module ``Argu Tests Main List`` =
         let args = [|"--mandatory-arg" ; "true" ; "checkout"  |]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
                                     (fun e -> <@ e.FirstLine.Contains "--branch" @>)
+
+    [<Fact>]
+    let ``Main command parsing should fail on missing mandatory sub command's sub command parameter`` () =
+        let args = [|"--mandatory-arg"; "true"; "tag"; "--new"; |]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
+                                    (fun e -> <@ e.FirstLine.Contains "--name" @>)
 
     [<Fact>]
     let ``Main command parsing should allow trailing arguments`` () =
