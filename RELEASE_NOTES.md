@@ -1,3 +1,7 @@
+### 5.3.0
+* case-insensitivity for command-line enums.
+* Add SubCommand attribute for nullary subcommands.
+
 ### 5.2.0
 * Fix SourceLink issues.
 
