@@ -40,8 +40,9 @@ type CliPosition =
     | Last          = 3
 
 /// Exception raised by Argu
-type ArguException internal (message : string) =
-    inherit Exception(message)
+type ArguException internal (message : string, exn : Exception) =
+    inherit Exception(message, exn)
+    new(message) = ArguException(message, null)
 
 /// Parse exception raised by Argu
 type ArguParseException internal (message : string, errorCode : ErrorCode) =

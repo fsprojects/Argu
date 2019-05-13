@@ -484,7 +484,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     // extract the description string for given union case
     let description = lazy(
         try dummy.Value.Usage
-        with _ -> arguExn "Error generating usage string from IArgParserTemplate for case %O." uci)
+        with exn -> arguExnChain exn "Error generating usage string from IArgParserTemplate for case %O." uci)
 
     let uai = {
         Tag = uci.Tag
