@@ -16,6 +16,8 @@ let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlag
 
 let inline arguExn fmt = Printf.ksprintf(fun msg -> raise <| new ArguException(msg)) fmt
 
+let inline arguExnChain exn fmt = Printf.ksprintf(fun msg -> raise <| new ArguException(msg, exn)) fmt
+
 /// get CL arguments from environment
 let getEnvironmentCommandLineArgs () =
     match System.Environment.GetCommandLineArgs() with
