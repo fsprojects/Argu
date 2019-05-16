@@ -1,3 +1,6 @@
+### 5.4.0
+* Chain inner exceptions in ArguExceptions.
+
 ### 5.3.0
 * case-insensitivity for command-line enums.
 * Add SubCommand attribute for nullary subcommands.
