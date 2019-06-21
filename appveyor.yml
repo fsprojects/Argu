@@ -1,12 +1,9 @@
 os: Visual Studio 2017
-
 init:
   - git config --global core.autocrlf input
-
 build_script:
   - cmd: build.cmd Bundle
-
 test: off
 artifacts:
-  - path: bin
-    name: bin
+  - path: artifacts
+    name: artifats

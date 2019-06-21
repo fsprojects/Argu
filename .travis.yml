@@ -1,16 +1,8 @@
-language: csharp
+os: linux
+language: bash
 
-addons:
-  apt:
-    packages:
-       - msbuild
-
-sudo: false
-dist: xenial
-mono: latest
-dotnet: 2.2.103
+services:
+  - docker
 
 script:
-  - dotnet --info
-  - export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.5/
-  - ./build.sh Default
+  - make TARGET=Default

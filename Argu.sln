@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{FB06D972-6D76-4220-AD16-8E5F20DADAA6}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,13 +13,16 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu", "src\Argu\Argu.fspro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB909722-1B3F-46A1-9245-277905B1E346}"
 	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
 		.gitignore = .gitignore
 		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
 		build.cmd = build.cmd
 		build.fsx = build.fsx
 		build.sh = build.sh
+		Dockerfile = Dockerfile
 		License.md = License.md
+		Makefile = Makefile
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
