@@ -8,7 +8,6 @@
   <Import Project="NuGet.props" />
   <ItemGroup>
     <None Include="NuGet.props" />
-    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Attributes.fs" />
     <Compile Include="Utils.fs" />

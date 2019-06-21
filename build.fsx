@@ -14,16 +14,11 @@ open System.IO
 open Fake 
 open Fake.Git
 open Fake.ReleaseNotesHelper
-open Fake.AssemblyInfoFile
 open Fake.Testing
 
 // --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
 // --------------------------------------------------------------------------------------
-
-let project = "Argu"
-
-let summary = "A declarative command line and XML configuration parser for F# applications."
 
 let gitOwner = "fsprojects"
 let gitName = "Argu"
@@ -36,7 +31,6 @@ let nugetProjects =
     !! (__SOURCE_DIRECTORY__ @@ "**/NuGet.props")
     |> Seq.collect (fun prop -> !! (Path.GetDirectoryName prop @@ "*.??proj"))
 
-let testProjects = __SOURCE_DIRECTORY__ @@ "tests/**/*.??proj"
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
 
 //// --------------------------------------------------------------------------------------
@@ -50,34 +44,6 @@ let release = parseReleaseNotes (IO.File.ReadAllLines "RELEASE_NOTES.md")
 Target "BuildVersion" (fun _ ->
     Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" release.NugetVersion) |> ignore
 )
-
-Target "AssemblyInfo" (fun _ ->
-    let getAssemblyInfoAttributes projectName =
-        [ Attribute.Title projectName
-          Attribute.Product project
-          Attribute.Description summary
-          Attribute.Version release.AssemblyVersion
-          Attribute.FileVersion release.AssemblyVersion ]
-
-    let getProjectDetails projectPath =
-        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
-        ( projectPath,
-          projectName,
-          System.IO.Path.GetDirectoryName(projectPath),
-          (getAssemblyInfoAttributes projectName)
-        )
-
-    !! "src/**/*.??proj"
-    |> Seq.map getProjectDetails
-    |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
-        match projFileName with
-        | Fsproj -> CreateFSharpAssemblyInfo (folderName </> "AssemblyInfo.fs") attributes
-        | Csproj -> CreateCSharpAssemblyInfo ((folderName </> "Properties") </> "AssemblyInfo.cs") attributes
-        | Vbproj -> CreateVisualBasicAssemblyInfo ((folderName </> "My Project") </> "AssemblyInfo.vb") attributes
-        | Shproj -> ()
-        )
-)
-
 
 // --------------------------------------------------------------------------------------
 // Clean build results & restore NuGet packages
@@ -94,50 +60,37 @@ Target "Build" (fun _ ->
     DotNetCli.Build (fun p ->
         { p with
             Project = __SOURCE_DIRECTORY__ 
-            Configuration = configuration })
+            Configuration = configuration
+            AdditionalArgs = 
+                [
+                    "-p:Version=" + release.NugetVersion
+                    "-p:GenerateAssemblyInfo=true"
+                ] 
+        }
+    )
 )
 
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
-let runTests config (proj : string) =
-    if EnvironmentHelper.isWindows then
-        DotNetCli.Test (fun c ->
-            { c with
-                Project = proj
-                Configuration = config })
-    else
-        // work around xunit/mono issue
-        let projDir = Path.GetDirectoryName proj
-        let projName = Path.GetFileNameWithoutExtension proj
-        let netcoreFrameworks, legacyFrameworks = 
-            !! (projDir @@ "bin" @@ config @@ "*/")
-            |> Seq.map Path.GetFileName
-            |> Seq.toArray
-            |> Array.partition 
-                (fun f -> 
-                    f.StartsWith "netcore" || 
-                    f.StartsWith "netstandard")
-
-        for framework in netcoreFrameworks do
-            DotNetCli.Test (fun c ->
-                { c with
-                    Project = proj
-                    Framework = framework
-                    Configuration = config })
-
-        for framework in legacyFrameworks do
-            let assembly = projDir @@ "bin" @@ config @@ framework @@ projName + ".dll"
-            !! assembly
-            |> xUnit2 (fun c ->
-                { c with
-                    Parallel = ParallelMode.Collections
-                    TimeOut = TimeSpan.FromMinutes 20. })
+let testProjects = __SOURCE_DIRECTORY__ @@ "tests/**/*.??proj"
 
 Target "RunTests" (fun _ ->
     for proj in !! testProjects do
-        runTests "Release" proj)
+        DotNetCli.Test (fun c ->
+            { c with
+                Project = proj
+                Configuration = configuration
+                AdditionalArgs = 
+                    [
+                        yield "--no-build"
+                        yield "--"
+                        if EnvironmentHelper.isMono then yield "RunConfiguration.DisableAppDomain=true"
+                    ]
+            }
+        )
+)
 
 //
 //// --------------------------------------------------------------------------------------
@@ -154,7 +107,8 @@ Target "NuGet.Pack" (fun _ ->
             AdditionalArgs =
                 [ sprintf "-p:PackageVersion=%s" release.NugetVersion
                   sprintf "-p:PackageReleaseNotes=\"%s\"" (String.concat Environment.NewLine release.Notes) ]
-        })
+        }
+    )
 )
 
 Target "Sourcelink.Test" (fun _ ->
@@ -237,7 +191,6 @@ Target "Release" DoNothing
 
 "Root"
   ==> "Clean"
-  ==> "AssemblyInfo"
   ==> "Prepare"
   ==> "Build"
   ==> "RunTests"
