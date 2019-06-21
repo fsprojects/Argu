@@ -3,4 +3,3 @@ xunit
 xunit.runner.visualstudio
 Unquote
 FsCheck
-dotnet-sourcelink

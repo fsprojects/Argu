@@ -6,15 +6,12 @@
 #r "packages/build/FAKE/tools/FakeLib.dll"
 
 #nowarn "85"
-#load "paket-files/build/eiriktsarpalis/snippets/SlnTools/SlnTools.fs"
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 
 open System
-open System.IO
 open Fake 
 open Fake.Git
 open Fake.ReleaseNotesHelper
-open Fake.Testing
 
 // --------------------------------------------------------------------------------------
 // Information about the project to be used at NuGet and in AssemblyInfo files
@@ -26,10 +23,6 @@ let gitHome = "https://github.com/" + gitOwner
 let gitRaw = "https://raw.github.com/" + gitOwner
 
 let configuration = environVarOrDefault "Configuration" "Release"
-
-let nugetProjects = 
-    !! (__SOURCE_DIRECTORY__ @@ "**/NuGet.props")
-    |> Seq.collect (fun prop -> !! (Path.GetDirectoryName prop @@ "*.??proj"))
 
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
 
@@ -92,30 +85,26 @@ Target "RunTests" (fun _ ->
         )
 )
 
-//
-//// --------------------------------------------------------------------------------------
-//// Build a NuGet package
+
+// --------------------------------------------------------------------------------------
+// Build a NuGet package
+
+let nugetProjects = !! "src/**/*.??proj"
 
 Target "NuGet.Pack" (fun _ ->
-    let pkgSln = SlnTools.createTempSolutionFile nugetProjects
-
-    DotNetCli.Pack(fun p ->
-        { p with
-            OutputPath = artifacts
-            Configuration = configuration
-            Project = pkgSln
-            AdditionalArgs =
-                [ sprintf "-p:PackageVersion=%s" release.NugetVersion
-                  sprintf "-p:PackageReleaseNotes=\"%s\"" (String.concat Environment.NewLine release.Notes) ]
-        }
-    )
-)
-
-Target "Sourcelink.Test" (fun _ ->
-    for nupkg in !! (artifacts @@ "*.nupkg") do
-        DotNetCli.RunCommand
-            (fun p -> { p with WorkingDir = __SOURCE_DIRECTORY__ @@ "tests" @@ "Argu.Tests" } )
-            (sprintf "sourcelink test %s" nupkg)
+    for proj in nugetProjects do
+        DotNetCli.Pack(fun p ->
+            { p with
+                OutputPath = artifacts
+                Configuration = configuration
+                Project = proj
+                AdditionalArgs =
+                    [ 
+                      "--no-build"
+                      sprintf "-p:Version=%s" release.NugetVersion
+                      sprintf "-p:PackageReleaseNotes=\"%s\"" (String.concat Environment.NewLine release.Notes) ]
+            }
+        )
 )
 
 Target "NuGet.Push" (fun _ -> Paket.Push (fun p -> { p with WorkingDir = artifacts }))
@@ -199,7 +188,6 @@ Target "Release" DoNothing
 "Default"
   ==> "PrepareRelease"
   ==> "NuGet.Pack"
-  ==> "Sourcelink.Test"
   ==> "GenerateDocs"
   ==> "Bundle"
 

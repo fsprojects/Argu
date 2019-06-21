@@ -1,6 +1,5 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <PackageId>Argu</PackageId>
     <Description>A declarative command line and XML configuration parser for F# applications.</Description>
     <Authors>Eirik Tsarpalis</Authors>
     <Copyright>2019</Copyright>
@@ -9,5 +8,10 @@
     <PackageProjectUrl>http://fsprojects.github.io/Argu/</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/fsprojects/Argu/blob/master/License.md</PackageLicenseUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/fsprojects/Argu/master/docs/files/img/logo.png</PackageIconUrl>
+    <!-- SourceLink Options -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 </Project>
