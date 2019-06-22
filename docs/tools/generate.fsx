@@ -4,7 +4,8 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "net45/Argu.dll" ]
+let referenceProjects = [ "../../src/Argu/" ]
+
 // Web site location for the generated documentation
 let website = "/Argu"
 
@@ -22,19 +23,20 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-#I "../../packages/build/FSharp.Compiler.Service/lib/net40"
-#I "../../packages/build/FSharpVSPowerTools.Core/lib/net45"
-#I "../../packages/build/FSharp.Formatting/lib/net40"
+#I "../../packages/build/FSharp.Compiler.Service/lib/net45"
+#I "../../packages/build/FSharp.Formatting/lib/net461"
 #r "../../packages/build/FAKE/tools/FakeLib.dll"
+#r "RazorEngine.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.MetadataFormat.dll"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Formatting.Razor.dll"
+
 open Fake
 open System.IO
-open Fake.FileHelper
-open FSharp.Literate
-open FSharp.MetadataFormat
+open FSharp.Formatting.Razor
 
 // When called from 'build.fsx', use the public project URL as <root>
 // otherwise, use the current 'output' directory.
@@ -45,7 +47,6 @@ let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output")
 #endif
 
 // Paths with template/source/output locations
-let bin        = __SOURCE_DIRECTORY__ @@ "../../bin/Release"
 let content    = __SOURCE_DIRECTORY__ @@ "../content"
 let output     = __SOURCE_DIRECTORY__ @@ "../output"
 let files      = __SOURCE_DIRECTORY__ @@ "../files"
@@ -55,37 +56,42 @@ let docTemplate = formatting @@ "templates/docpage.cshtml"
 
 // Where to look for *.csproj templates (in this order)
 let layoutRoots =
-  [ templates; formatting @@ "templates"
-    formatting @@ "templates/reference" ]
+    [   templates; formatting @@ "templates"
+        formatting @@ "templates/reference" ]
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
-  CopyRecursive files output true |> Log "Copying file: "
-  ensureDirectory (output @@ "content")
-  CopyRecursive (formatting @@ "styles") (output @@ "content") true 
+    CopyRecursive files output true |> Log "Copying file: "
+    ensureDirectory (output @@ "content")
+    CopyRecursive (formatting @@ "styles") (output @@ "content") true 
     |> Log "Copying styles and scripts: "
+
+
+let getReferenceAssembliesForProject (proj : string) =
+    !! (proj @@ "bin/Release/net4*/*.XML")
+    |> Seq.map (fun p -> Path.ChangeExtension(p, "dll"))
+    |> Seq.toList
 
 // Build API reference from XML comments
 let buildReference () =
-  CleanDir (output @@ "reference")
-  let binaries =
-    referenceBinaries
-    |> List.map (fun lib-> bin @@ lib)
-  MetadataFormat.Generate
-    ( binaries, output @@ "reference", layoutRoots, 
-      parameters = ("root", root)::info,
-      sourceRepo = githubLink @@ "tree/master",
-      sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
-      publicOnly = true )
+    CleanDir (output @@ "reference")
+    let binaries = referenceProjects |> List.collect getReferenceAssembliesForProject
+    RazorMetadataFormat.Generate
+        ( binaries, output @@ "reference", layoutRoots, 
+          parameters = ("root", root)::info,
+          sourceRepo = githubLink @@ "tree/master",
+          sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
+          publicOnly = true )
 
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
-  let subdirs = Directory.EnumerateDirectories(content, "*", SearchOption.AllDirectories)
-  for dir in Seq.append [content] subdirs do
-    let sub = if dir.Length > content.Length then dir.Substring(content.Length + 1) else "."
-    Literate.ProcessDirectory
-      ( dir, docTemplate, output @@ sub, replacements = ("root", root)::info,
-        layoutRoots = layoutRoots, generateAnchors = true )
+    let subdirs = Directory.EnumerateDirectories(content, "*", SearchOption.AllDirectories)
+    let dirs = Seq.append [content] subdirs |> Seq.toList
+    for dir in dirs do
+        let sub = if dir.Length > content.Length then dir.Substring(content.Length + 1) else "."
+        RazorLiterate.ProcessDirectory
+            ( dir, docTemplate, output @@ sub, replacements = ("root", root)::info,
+            layoutRoots = layoutRoots, generateAnchors = true )
 
 // Generate
 CleanDir output

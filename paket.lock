@@ -8,7 +8,7 @@ NUGET
       NETStandard.Library (>= 1.6.1) - restriction: || (&& (== net461) (< net452) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       System.ValueTuple (>= 4.5) - restriction: || (&& (== net461) (< net452) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
     FSharp.Core (4.3.2)
-    Microsoft.Build.Tasks.Git (1.0.0-beta2-19270-01) - copy_local: true, restriction: == netstandard2.0
+    Microsoft.Build.Tasks.Git (1.0.0-beta2-19270-01) - copy_local: true
     Microsoft.CodeCoverage (16.1.1) - restriction: || (== net461) (== netcoreapp2.0) (&& (== netstandard2.0) (>= net45)) (&& (== netstandard2.0) (>= netcoreapp1.0))
     Microsoft.DotNet.PlatformAbstractions (2.1) - restriction: || (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
       System.AppContext (>= 4.1) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
@@ -30,8 +30,8 @@ NUGET
       Microsoft.TestPlatform.TestHost (>= 15.9.2) - restriction: || (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
     Microsoft.NETCore.Platforms (2.2.1) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (&& (== net461) (< net45) (>= netstandard2.0)) (&& (== net461) (< net452) (>= netstandard1.6)) (&& (== net461) (>= netcoreapp2.0)) (&& (== net461) (< netstandard1.0) (>= netstandard1.6)) (&& (== net461) (< netstandard1.3) (>= netstandard1.6) (>= wpa81)) (&& (== net461) (>= netstandard1.6) (< portable-net45+win8+wpa81)) (&& (== net461) (>= netstandard1.6) (>= uap10.0)) (&& (== net461) (>= netstandard1.6) (>= wp8)) (== netcoreapp2.0) (== netstandard2.0)
     Microsoft.NETCore.Targets (2.1) - restriction: || (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
-    Microsoft.SourceLink.Common (1.0.0-beta2-19270-01) - copy_local: true, restriction: == netstandard2.0
-    Microsoft.SourceLink.GitHub (1.0.0-beta2-19270-01) - copy_local: true, restriction: == netstandard2.0
+    Microsoft.SourceLink.Common (1.0.0-beta2-19270-01) - copy_local: true
+    Microsoft.SourceLink.GitHub (1.0.0-beta2-19270-01) - copy_local: true
       Microsoft.Build.Tasks.Git (>= 1.0.0-beta2-19270-01)
       Microsoft.SourceLink.Common (>= 1.0.0-beta2-19270-01)
     Microsoft.TestPlatform.ObjectModel (16.1.1) - restriction: || (&& (== net461) (>= netcoreapp1.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp1.0))
@@ -506,6 +506,7 @@ NUGET
       System.Collections.Immutable (>= 1.5)
       System.Reflection.Metadata (>= 1.6)
       System.ValueTuple (>= 4.4)
+    FSharp.Compiler.Tools (10.2.3)
     FSharp.Core (4.6.2)
     FSharp.Formatting (3.1)
       FSharp.Compiler.Service (>= 27.0.1 < 28.0)
@@ -517,7 +518,6 @@ NUGET
     System.Reflection.Metadata (1.6)
       System.Collections.Immutable (>= 1.5)
     System.ValueTuple (4.5)
-    xunit.runner.console (2.4.1)
 GITHUB
   remote: fsharp/FAKE
     modules/Octokit/Octokit.fsx (61b83e7ccfe6e5072a243fa5a50042a7b743f4d2)
