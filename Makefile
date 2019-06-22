@@ -2,7 +2,7 @@ SOURCE_DIRECTORY := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 TOOLS_FOLDER := $(SOURCE_DIRECTORY)tools
 IMAGE_NAME_FILE := $(TOOLS_FOLDER)/image-name
 IMAGE_NAME := argu-build
-TARGET := Default
+TARGET := Bundle
 BUILD_VERSION := 0.0.1-alpha
 TEST_COVERAGE := all
 

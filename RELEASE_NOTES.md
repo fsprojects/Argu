@@ -1,3 +1,6 @@
+### 5.5.0
+* Publish separate symbols package.
+
 ### 5.4.0
 * Chain inner exceptions in ArguExceptions.
 
