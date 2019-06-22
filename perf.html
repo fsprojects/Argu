@@ -13,8 +13,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
-    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
-    <script type="text/javascript" src="/Argu/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="file://C:\Users\eirik.tsarpalis\devel\public\Argu\docs\tools\../output/content/style.css" />
+    <script type="text/javascript" src="file://C:\Users\eirik.tsarpalis\devel\public\Argu\docs\tools\../output/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -27,7 +27,7 @@
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://github.com/fsprojects/Argu">github page</a></li>
         </ul>
-        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
+        <h3 class="muted"><a href="file://C:\Users\eirik.tsarpalis\devel\public\Argu\docs\tools\../output/index.html">Argu</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -53,14 +53,14 @@ be loaded only if the corresponding arguments are used.</p>
 <span class="l">7: </span>
 <span class="l">8: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">checkStructure</span> <span class="o">=</span>
-<span class="prep">#if</span> <span class="i">DEBUG</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">checkStructure</span> <span class="o">=</span>
+<span class="pp">#if</span> <span class="id">DEBUG</span>
 <span class="inactive">    </span><span class="inactive">true</span>
-<span class="prep">#else</span>
+<span class="pp">#else</span>
     <span class="k">false</span>
-<span class="prep">#endif</span>
+<span class="pp">#endif</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">parser</span> <span class="o">=</span> <span class="i">ArgumentParser</span><span class="o">.</span><span class="i">Create</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs1', 6)" onmouseover="showTip(event, 'fs1', 6)" class="i">Arguments</span><span class="o">&gt;</span>(<span onmouseout="hideTip(event, 'fs4', 7)" onmouseover="showTip(event, 'fs4', 7)" class="i">checkStructure</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 8)" onmouseover="showTip(event, 'fs4', 8)" class="i">checkStructure</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="id">parser</span> <span class="o">=</span> <span class="id">ArgumentParser</span><span class="pn">.</span><span class="id">Create</span><span class="pn">&lt;</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="id">Arguments</span><span class="pn">&gt;</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs2', 5)" onmouseover="showTip(event, 'fs2', 5)" class="id">checkStructure</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="id">checkStructure</span><span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
@@ -75,33 +75,31 @@ be loaded only if the corresponding arguments are used.</p>
 <span class="l">8: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// In the application</span>
-<span class="k">module</span> <span class="t">AppArgs</span> <span class="o">=</span>
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 9)" onmouseover="showTip(event, 'fs6', 9)" class="i">parser</span> <span class="o">=</span> <span class="i">ArgumentParser</span><span class="o">.</span><span class="i">Create</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs1', 10)" onmouseover="showTip(event, 'fs1', 10)" class="i">Arguments</span><span class="o">&gt;</span>(<span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="i">checkStructure</span> <span class="o">=</span> <span class="k">false</span>)
+<span class="k">module</span> <span class="m">AppArgs</span> <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="id">parser</span> <span class="o">=</span> <span class="id">ArgumentParser</span><span class="pn">.</span><span class="id">Create</span><span class="pn">&lt;</span><span onmouseout="hideTip(event, 'fs4', 8)" onmouseover="showTip(event, 'fs4', 8)" class="id">Arguments</span><span class="pn">&gt;</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs2', 9)" onmouseover="showTip(event, 'fs2', 9)" class="id">checkStructure</span> <span class="o">=</span> <span class="k">false</span><span class="pn">)</span>
 
 <span class="c">// In tests</span>
-[&lt;<span class="i">Fact</span>&gt;]
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="f">``Argument structure is correct``</span> () <span class="o">=</span>
-    <span class="i">ArgumentParser</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs1', 13)" onmouseover="showTip(event, 'fs1', 13)" class="i">Arguments</span><span class="o">&gt;</span><span class="o">.</span><span class="i">CheckStructure</span>()
+<span class="pn">[&lt;</span><span class="id">Fact</span><span class="pn">&gt;]</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="fn">``Argument structure is correct``</span> <span class="pn">(</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="id">ArgumentParser</span><span class="pn">&lt;</span><span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="id">Arguments</span><span class="pn">&gt;</span><span class="pn">.</span><span class="id">CheckStructure</span><span class="pn">(</span><span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
 
-<div class="tip" id="fs1">type Arguments =<br />&#160;&#160;| Argument<br />&#160;&#160;interface obj<br />&#160;&#160;override Usage : string<br /><br />Full name: Perf.Arguments</div>
-<div class="tip" id="fs2">union case Arguments.Argument: Arguments</div>
-<div class="tip" id="fs3">override Arguments.Usage : string<br /><br />Full name: Perf.Arguments.Usage</div>
-<div class="tip" id="fs4">val checkStructure : bool<br /><br />Full name: Perf.checkStructure</div>
-<div class="tip" id="fs5">val parser : obj<br /><br />Full name: Perf.parser</div>
-<div class="tip" id="fs6">val parser : obj<br /><br />Full name: Perf.AppArgs.parser</div>
-<div class="tip" id="fs7">val ( Argument structure is correct ) : unit -&gt; &#39;a<br /><br />Full name: Perf.( Argument structure is correct )</div>
+<div class="tip" id="fs1">union case Arguments.Argument: Arguments</div>
+<div class="tip" id="fs2">val checkStructure : bool</div>
+<div class="tip" id="fs3">val parser : obj</div>
+<div class="tip" id="fs4">type Arguments =<br />&#160;&#160;| Argument<br />&#160;&#160;&#160;&#160;interface obj<br />&#160;&#160;&#160;&#160;override Usage : string</div>
+<div class="tip" id="fs5">val ( Argument structure is correct ) : unit -&gt; &#39;a</div>
 
         </div>
         <div class="span3">
           <a target="_blank" href="http://fsprojects.github.io/">
-			<img src="/Argu/img/logo.png" alt="Argu" style="width:150px;margin:10px" />
+			<img src="file://C:\Users\eirik.tsarpalis\devel\public\Argu\docs\tools\../output/img/logo.png" alt="Argu" style="width:150px;margin:10px" />
 		  </a>
           <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
             <li class="nav-header">Argu</li>
-            <li><a href="/Argu/index.html">Home page</a></li>
+            <li><a href="file://C:\Users\eirik.tsarpalis\devel\public\Argu\docs\tools\../output/index.html">Home page</a></li>
             <li class="divider"></li>
             <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
             <li><a href="http://github.com/fsprojects/Argu">Source Code on GitHub</a></li>
@@ -109,9 +107,9 @@ be loaded only if the corresponding arguments are used.</p>
             <li><a href="http://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
-            <li><a href="/Argu/perf.html">Performance Tips</a></li>
-            <li><a href="/Argu/reference/index.html">API Reference</a></li>
+            <li><a href="file://C:\Users\eirik.tsarpalis\devel\public\Argu\docs\tools\../output/tutorial.html">Tutorial</a></li>
+            <li><a href="file://C:\Users\eirik.tsarpalis\devel\public\Argu\docs\tools\../output/perf.html">Performance Tips</a></li>
+            <li><a href="file://C:\Users\eirik.tsarpalis\devel\public\Argu\docs\tools\../output/reference/index.html">API Reference</a></li>
           </ul>
         </div>
       </div>
