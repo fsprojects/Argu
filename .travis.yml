@@ -5,4 +5,4 @@ services:
   - docker
 
 script:
-  - make TARGET=Default
+  - make TARGET=Bundle
