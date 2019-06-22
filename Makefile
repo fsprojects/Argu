@@ -20,6 +20,9 @@ build: init-container
 copy-artifacts:
 	docker cp `cat $(IMAGE_NAME_FILE)`:/app/artifacts $(SOURCE_DIRECTORY)
 
+bash:
+	docker exec -it `cat $(IMAGE_NAME_FILE)` bash
+
 clean:
 	docker rm -f `cat $(IMAGE_NAME_FILE)`
 	rm -f $(IMAGE_NAME_FILE)

@@ -7,9 +7,3 @@
 # intermediate files
 **/obj/
 **/bin/
-
-# unused
-/docs
-/examples
-/wiki
-/_wiki
