@@ -15,7 +15,7 @@ init-container:
 			sh -c 'while true; do sleep 10; done' # Block the main container process forever
 
 build: init-container
-	docker exec `cat $(IMAGE_NAME_FILE)` ./build.sh $(TARGET)
+	docker exec -t `cat $(IMAGE_NAME_FILE)` ./build.sh $(TARGET)
 
 copy-artifacts:
 	docker cp `cat $(IMAGE_NAME_FILE)`:/app/artifacts $(SOURCE_DIRECTORY)
