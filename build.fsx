@@ -26,9 +26,9 @@ let configuration = environVarOrDefault "Configuration" "Release"
 
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
 
-//// --------------------------------------------------------------------------------------
-//// The rest of the code is standard F# build script 
-//// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+// The rest of the code is standard F# build script 
+// --------------------------------------------------------------------------------------
 
 //// Read release notes & version info from RELEASE_NOTES.md
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
@@ -46,8 +46,8 @@ Target "Clean" (fun _ ->
 )
 
 //
-//// --------------------------------------------------------------------------------------
-//// Build library & test project
+// --------------------------------------------------------------------------------------
+// Build library & test project
 
 Target "Build" (fun _ ->
     DotNetCli.Build (fun p ->
