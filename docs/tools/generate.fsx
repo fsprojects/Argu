@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceProjects = [ "../../src/Argu/" ]
+let referenceProjects = [ "../../src/Argu" ]
 
 // Web site location for the generated documentation
 let website = "/Argu"
@@ -68,14 +68,13 @@ let copyFiles () =
 
 
 let getReferenceAssembliesForProject (proj : string) =
-    !! (proj @@ "bin/Release/net4*/*.XML")
-    |> Seq.map (fun p -> Path.ChangeExtension(p, "dll"))
-    |> Seq.toList
+    let projName = Path.GetFileName proj
+    !! (proj @@ "bin/Release/net4*/" + projName + ".dll") |> Seq.head
 
 // Build API reference from XML comments
 let buildReference () =
     CleanDir (output @@ "reference")
-    let binaries = referenceProjects |> List.collect getReferenceAssembliesForProject
+    let binaries = referenceProjects |> List.map getReferenceAssembliesForProject
     RazorMetadataFormat.Generate
         ( binaries, output @@ "reference", layoutRoots, 
           parameters = ("root", root)::info,
