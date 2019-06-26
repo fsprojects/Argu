@@ -1,7 +1,6 @@
-(*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use
 // it to define helpers that you do not want to show in the documentation.
-#I "../../bin/Release/net45"
+#I "../../src/Argu/bin/Release/net45"
 #r "Argu.dll"
 
 open System
@@ -332,7 +331,7 @@ with
 and the following console app entrypoint
 *)
 
-[<EntryPoint>]
+//[<EntryPoint>]
 let main argv =
     try
         parser.ParseCommandLine(inputs = argv, raiseOnUsage = true) |> ignore
