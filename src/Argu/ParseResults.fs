@@ -4,7 +4,7 @@ open FSharp.Quotations
 
 /// Argument parsing result holder.
 [<Sealed; AutoSerializable(false); StructuredFormatDisplay("{StructuredFormatDisplay}")>]
-type ParseResults<'Template when 'Template :> IArgParserTemplate>
+type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template when 'Template :> IArgParserTemplate>
     internal (argInfo : UnionArgInfo, results : UnionParseResults, programName : string, description : string option, usageStringCharWidth : int, exiter : IExiter) =
 
     let mkUsageString message = mkUsageString argInfo programName true usageStringCharWidth message |> StringExpr.build
@@ -223,3 +223,24 @@ type ParseResults<'Template when 'Template :> IArgParserTemplate>
 
     // used by StructuredFormatDisplay attribute
     member private r.StructuredFormatDisplay = r.ToString()
+
+    // used by EqualityConditionalOn attribute
+    override r.Equals (other : obj) = 
+        match other with
+        | :? ParseResults<'Template> as other -> 
+            Unchecked.equals 
+                (r.GetAllResults())
+                (other.GetAllResults())
+        | _ -> false
+
+    // used by EqualityConditionalOn attribute
+    override r.GetHashCode () = 
+        Unchecked.hash (r.GetAllResults())
+        
+    // used by ComparisonConditionalOn attribute
+    interface System.IComparable with   
+        member r.CompareTo other =
+            match other with
+            | :? ParseResults<'Template> as other -> 
+                Unchecked.compare (r.GetAllResults()) (other.GetAllResults())
+            | _ -> invalidArg "other" "cannot compare values of different types"
