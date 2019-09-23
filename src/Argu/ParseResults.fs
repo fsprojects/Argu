@@ -38,6 +38,14 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         try f (r.FieldContents :?> 'F)
         with e -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
 
+    let getAllResults source =
+        results.Cases
+        |> Seq.concat
+        |> Seq.filter (restrictF source)
+        |> Seq.sortBy (fun r -> ((int r.Source) <<< 16) + r.Index)
+        |> Seq.map (fun r -> r.Value :?> 'Template)
+        |> Seq.toList
+
     interface IParseResult with
         member __.GetAllResults () = __.GetAllResults() |> Seq.map box
 
@@ -73,12 +81,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <summary>Gets all parse results.</summary>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     member __.GetAllResults (?source : ParseSource) : 'Template list =
-        results.Cases
-        |> Seq.concat
-        |> Seq.filter (restrictF source)
-        |> Seq.sortBy (fun r -> ((int r.Source) <<< 16) + r.Index)
-        |> Seq.map (fun r -> r.Value :?> 'Template)
-        |> Seq.toList
+        getAllResults source
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
@@ -223,24 +226,30 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
 
     // used by StructuredFormatDisplay attribute
     member private r.StructuredFormatDisplay = r.ToString()
+    
+    // used by EqualityConditionalOn attribute
+    // used by ComparisonConditionalOn attribute
+    member val private CachedAllResults = lazy (getAllResults None) with get
 
     // used by EqualityConditionalOn attribute
     override r.Equals (other : obj) = 
         match other with
         | :? ParseResults<'Template> as other -> 
             Unchecked.equals 
-                (r.GetAllResults())
-                (other.GetAllResults())
+                r.CachedAllResults.Value
+                other.CachedAllResults.Value
         | _ -> false
 
     // used by EqualityConditionalOn attribute
     override r.GetHashCode () = 
-        Unchecked.hash (r.GetAllResults())
+        Unchecked.hash r.CachedAllResults.Value
         
     // used by ComparisonConditionalOn attribute
     interface System.IComparable with   
         member r.CompareTo other =
             match other with
             | :? ParseResults<'Template> as other -> 
-                Unchecked.compare (r.GetAllResults()) (other.GetAllResults())
+                Unchecked.compare 
+                    r.CachedAllResults.Value 
+                    other.CachedAllResults.Value
             | _ -> invalidArg "other" "cannot compare values of different types"
