@@ -204,8 +204,13 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                                 | _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'."
                                                     state.Reader.CurrentSegment p.Description token
 
-                            if success then
-                                tokens.Add tok ; fields.Add result
+                            if success then   
+                                // Might be a MainCommand, but if the main type is string, then might not
+                                // If we're ignoring unrecognized, then it's better to parse as unrecognized than an out-of-position MainCommand
+                                if mcp.IsLast && state.IgnoreUnrecognizedArgs && not state.Reader.IsCompleted then 
+                                    aggregator.AppendUnrecognized tok
+                                else
+                                    tokens.Add tok ; fields.Add result
                                 if not isFirst then state.Reader.MoveNext()
                                 aux (i + 1)
 
@@ -236,8 +241,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             | ListParam(existential, field) ->
                 ignore <| existential.Accept { new IFunc<bool> with
                     member __.Invoke<'T>() =
-                        let args = new ResizeArray<'T> ()
-                        let rec gather isFirst =
+                        let rec gather isFirst args =
                             let nextToken =
                                 if isFirst then UnrecognizedOrArgument token
                                 else state.Reader.GetNextToken true argInfo
@@ -247,20 +251,27 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                                 let mutable result = Unchecked.defaultof<'T>
                                 let success = try result <- field.Parser token :?> 'T ; true with _ -> false
                                 if success then
-                                    args.Add result
                                     if not isFirst then state.Reader.MoveNext()
-                                    gather false
+                                    gather false (token :: args)
                                 elif isFirst then
                                     match argInfo.UnrecognizedGatherParam.Value with
                                     | Some ugp -> aggregator.AppendResult ugp token [|token|]
                                     | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
                                     | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
-                            | _ -> ()
+                                    args
+                                else args
+                            | CliParam _ -> 
+                                // If the main type is string, then the gathered arguments here might not be main commands. 
+                                // Can detect this by observing a subsequent argument that IS recognized
+                                if mcp.IsLast && state.IgnoreUnrecognizedArgs 
+                                then List.iter aggregator.AppendUnrecognized args; [] 
+                                else args
+                            | _ -> args
 
-                        do gather true
-                        match Seq.toList args with
+                        let gathered = gather true [] |> List.rev                        
+                        match gathered with
                         | [] -> () ; false
-                        | list -> aggregator.AppendResult mcp mcp.Name.Value [| list |] ; true }
+                        | list -> aggregator.AppendResult mcp mcp.Name.Value [| List.map (fun arg -> field.Parser arg  :?> 'T) list |] ; true }
 
             | paramInfo -> arguExn "internal error. MainCommand has param representation %A" paramInfo
 
