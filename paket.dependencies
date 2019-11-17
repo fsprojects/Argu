@@ -1,13 +1,13 @@
 source https://api.nuget.org/v3/index.json
-framework: net461, netstandard2.0, netcoreapp2.0
+framework: net472, netstandard2.0, netcoreapp3.0
 storage: none
 
 nuget FSharp.Core >= 4.3.2 lowest_matching:true
 nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
 
 # Testing dependencies; NB intentionally keeping in Main group
-nuget Microsoft.NET.Test.Sdk ~> 15.0
-nuget xunit ~> 2.3
+nuget Microsoft.NET.Test.Sdk ~> 16.0
+nuget xunit ~> 2.4
 nuget xunit.runner.visualstudio ~> 2.4.0 version_in_path: true
 nuget Unquote ~> 4.0
 nuget FsCheck ~> 3.0 prerelease
@@ -24,10 +24,21 @@ group Legacy
 
 group Build
   source https://api.nuget.org/v3/index.json
-  framework: net461
+  storage: none
+
+  nuget Fake.Core               ~> 5.16.0
+  nuget Fake.Core.UserInput	    ~> 5.16.0
+  nuget Fake.Core.ReleaseNotes  ~> 5.16.0
+  nuget Fake.Core.Target        ~> 5.16.0
+  nuget Fake.IO.FileSystem      ~> 5.16.0
+  nuget Fake.DotNet.Cli	        ~> 5.16.0
+  nuget Fake.Tools.Git          ~> 5.16.0
+  nuget Fake.Api.Github         ~> 5.16.0
+
+group DocGeneration
+  source https://api.nuget.org/v3/index.json
+  framework: net472
 
   nuget FAKE ~> 4.0
   nuget FSharp.Formatting ~> 3.1
   nuget FSharp.Compiler.Tools ~> 10.2.3
-
-  github fsharp/FAKE modules/Octokit/Octokit.fsx

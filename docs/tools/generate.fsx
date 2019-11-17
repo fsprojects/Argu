@@ -23,9 +23,9 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-#I "../../packages/build/FSharp.Compiler.Service/lib/net45"
-#I "../../packages/build/FSharp.Formatting/lib/net461"
-#r "../../packages/build/FAKE/tools/FakeLib.dll"
+#I "../../packages/docgeneration/FSharp.Compiler.Service/lib/net45"
+#I "../../packages/docgeneration/FSharp.Formatting/lib/net461"
+#r "../../packages/docgeneration/FAKE/tools/FakeLib.dll"
 #r "RazorEngine.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"
@@ -51,7 +51,7 @@ let content    = __SOURCE_DIRECTORY__ @@ "../content"
 let output     = __SOURCE_DIRECTORY__ @@ "../output"
 let files      = __SOURCE_DIRECTORY__ @@ "../files"
 let templates  = __SOURCE_DIRECTORY__ @@ "templates"
-let formatting = __SOURCE_DIRECTORY__ @@ "../../packages/build/FSharp.Formatting/"
+let formatting = __SOURCE_DIRECTORY__ @@ "../../packages/docgeneration/FSharp.Formatting/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 
 // Where to look for *.csproj templates (in this order)

@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <IsPackable>true</IsPackable>
+    <PackageIcon>logo.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Types.fs" />
@@ -18,6 +21,7 @@
     <Compile Include="Parsers\KeyValue.fs" />
     <Compile Include="ArgumentParser.fs" />
     <None Include="paket.references" />
+    <None Include="..\..\resource\logo.png" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net45'">
     <Reference Include="System.Configuration" />
