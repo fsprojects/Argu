@@ -78,10 +78,6 @@ Target.create "RunTests" (fun _ ->
             MSBuildParams =
                 { c.MSBuildParams with
                     Properties = [("ParallelizeAssemblies", "true"); ("ParallelizeTestCollections", "true")] }
-
-            RunSettingsArguments = 
-                if Environment.isWindows then None
-                else Some " -- RunConfiguration.DisableAppDomain=true" // https://github.com/xunit/xunit/issues/1357
         }) __SOURCE_DIRECTORY__
 )
 
