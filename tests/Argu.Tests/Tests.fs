@@ -857,7 +857,6 @@ module ``Argu Tests Main Primitive`` =
               | CustomAppConfig _ -> "parameter with custom AppConfig key."
               | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
               | Last_Parameter _ -> "parameter that has to appear at end of command line args."
-              | Nullary_Sub -> "nullary subcommand"
               | List _ -> "variadic params"
               | Optional _ -> "optional params"
 
