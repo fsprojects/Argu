@@ -125,7 +125,7 @@ Target.create "GenerateDocs" (fun _ ->
     let args = "--define:RELEASE generate.fsx"
     let command, args = 
         if Environment.isWindows then path, args
-        else "mono", sprintf "'%s' %s" path args
+        else "mono", sprintf "%s %s" path args
 
     if Shell.Exec(command, args, workingDir) <> 0 then
         failwith "failed to generate docs"
