@@ -1,7 +1,7 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../src/Argu/bin/Release/net45"
+#I "../../src/Argu/bin/Release/netstandard2.0"
 #r "Argu.dll"
 
 open System
@@ -10,7 +10,7 @@ open System
 
 # Argu
 
-Argu (pronounced "Argue") is a declarative CLI argument/XML configuration parser for F# applications.
+Argu (pronounced "Argue") is a declarative CLI argument parser for F# applications.
 Allows quick definition of argument parsing schema through F# union declarations.
 
 <div class="row">

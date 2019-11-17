@@ -1,26 +1,21 @@
 source https://api.nuget.org/v3/index.json
-framework: net472, netstandard2.0, netcoreapp3.0
+framework: netstandard2.0
 storage: none
 
 nuget FSharp.Core >= 4.3.2 lowest_matching:true
 nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
-
-# Testing dependencies; NB intentionally keeping in Main group
-nuget Microsoft.NET.Test.Sdk ~> 16.0
-nuget xunit ~> 2.4
-nuget xunit.runner.visualstudio ~> 2.4.0 version_in_path: true
-nuget Unquote ~> 4.0
-nuget FsCheck ~> 3.0 prerelease
-
 nuget Microsoft.SourceLink.GitHub prerelease copy_local:true
 
-group Legacy
+group Tests
   source https://api.nuget.org/v3/index.json
-  framework: net45
-  storage: none
+  framework: netcoreapp3.0, net472
 
-  nuget FSharp.Core >= 4.0 lowest_matching:true
-  nuget Microsoft.SourceLink.GitHub prerelease copy_local:true
+  nuget FSharp.Core ~> 4.7.0
+  nuget Microsoft.NET.Test.Sdk ~> 16.0
+  nuget xunit ~> 2.4
+  nuget xunit.runner.visualstudio ~> 2.4.0 version_in_path: true
+  nuget Unquote ~> 4.0
+  nuget FsCheck ~> 3.0 prerelease
 
 group Build
   source https://api.nuget.org/v3/index.json

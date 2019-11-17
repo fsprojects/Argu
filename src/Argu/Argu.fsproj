@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <IsPackable>true</IsPackable>
@@ -22,9 +22,6 @@
     <Compile Include="ArgumentParser.fs" />
     <None Include="paket.references" />
     <None Include="..\..\resource\logo.png" Pack="true" PackagePath="" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
-    <Reference Include="System.Configuration" />
   </ItemGroup>
   <PropertyGroup>
      <!--Optional: Declare that the Repository URL can be published to NuSpec--> 

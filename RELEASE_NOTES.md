@@ -1,3 +1,6 @@
+### 6.0.0
+* Target netstandard2.0 only.
+
 ### 5.5.0
 * Publish separate symbols package.
 

@@ -1,6 +1,3 @@
 ﻿FSharp.Core
 System.Configuration.ConfigurationManager
 Microsoft.SourceLink.GitHub
-group Legacy
-  FSharp.Core
-  Microsoft.SourceLink.GitHub
