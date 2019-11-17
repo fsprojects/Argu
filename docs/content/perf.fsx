@@ -1,10 +1,8 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use
 // it to define helpers that you do not want to show in the documentation.
-#I "../../bin/Release/net45"
+#I "../../bin/Release/netstandard2.0"
 #r "Argu.dll"
-#I "../../packages/xunit.extensibility.core/lib/netstandard1.1"
-#r "xunit.core.dll"
 
 open Argu
 open Xunit
@@ -15,6 +13,8 @@ with
     interface IArgParserTemplate with
         member __.Usage =
             "Usage"
+
+type FactAttribute () = inherit System.Attribute()
 
 (**
 

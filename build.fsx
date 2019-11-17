@@ -134,11 +134,11 @@ Target.create "GenerateDocs" (fun _ ->
 Target.create "ReleaseDocs" (fun _ ->
     let tempDocsDir = "temp/gh-pages"
     let outputDocsDir = "docs/output"
-    Shell.cleanDir tempDocsDir
-    Git.Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
+
+    Directory.ensure outputDocsDir
 
     Shell.cleanDir tempDocsDir
-    Directory.ensure outputDocsDir
+    Git.Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
     Shell.copyRecursive outputDocsDir tempDocsDir true |> Trace.tracefn "%A"
     Git.Staging.stageAll tempDocsDir
     Git.Commit.exec tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
