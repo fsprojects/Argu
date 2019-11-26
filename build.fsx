@@ -24,7 +24,6 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let gitOwner = "fsprojects"
 let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
-let gitRaw = "https://raw.github.com/" + gitOwner
 
 let configuration = Environment.environVarOrDefault "Configuration" "Release"
 
