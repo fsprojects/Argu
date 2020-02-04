@@ -63,7 +63,7 @@ A minimal parser based on the above example can be created as follows:
 
 open Argu
 
-type CLIArguments =
+type CliArguments =
     | Working_Directory of path:string
     | Listener of host:string * port:int
     | Data of base64:byte[]
@@ -83,7 +83,7 @@ with
 
 (** We extract the argument parser from the template using the following command: *)
 
-let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe")
+let parser = ArgumentParser.Create<CliArguments>(programName = "gadget.exe")
 
 (** We can get the automatically generated usage string by typing *)
 
