@@ -36,10 +36,6 @@ let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
 // Read additional information from the release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
-Target.create "BuildVersion" (fun _ ->
-    Shell.Exec("appveyor", sprintf "UpdateBuild -Version \"%s\"" release.NugetVersion) |> ignore
-)
-
 // --------------------------------------------------------------------------------------
 // Clean build results & restore NuGet packages
 
@@ -118,16 +114,8 @@ Target.create "NuGet.Push" (fun _ ->
 // Doc generation
 
 Target.create "GenerateDocs" (fun _ ->
-    // ugh, still need to use mono and legacy fsi for FSharp.Formatting
-    let path = __SOURCE_DIRECTORY__ @@ "packages/docgeneration/FSharp.Compiler.Tools/tools/fsi.exe"
-    let workingDir = "docs/tools"
-    let args = "--define:RELEASE generate.fsx"
-    let command, args = 
-        if Environment.isWindows then path, args
-        else "mono", sprintf "%s %s" path args
-
-    if Shell.Exec(command, args, workingDir) <> 0 then
-        failwith "failed to generate docs"
+    let res = DotNet.exec (fun d -> { d with WorkingDirectory = "docs/tools" }) "fsi" "--define:RELEASE generate.fsx"
+    if not res.OK then failwith "failed to generate docs"
 )
 
 Target.create "ReleaseDocs" (fun _ ->

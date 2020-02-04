@@ -23,10 +23,10 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-#I "../../packages/docgeneration/FSharp.Compiler.Service/lib/net45"
-#I "../../packages/docgeneration/FSharp.Formatting/lib/net461"
+#I "../../packages/docgeneration/FSharp.Compiler.Service/lib/netstandard2.0"
+#I "../../packages/docgeneration/FSharp.Formatting/lib/netstandard2.0"
 #r "../../packages/docgeneration/FAKE/tools/FakeLib.dll"
-#r "RazorEngine.dll"
+#r "RazorEngine.NetCore.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
@@ -34,7 +34,9 @@ let info =
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Razor.dll"
 
-open Fake
+open Fake.IO
+open Fake.IO.FileSystemOperators
+open Fake.IO.Globbing.Operators
 open System.IO
 open FSharp.Formatting.Razor
 
@@ -61,10 +63,9 @@ let layoutRoots =
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
-    CopyRecursive files output true |> Log "Copying file: "
-    ensureDirectory (output @@ "content")
-    CopyRecursive (formatting @@ "styles") (output @@ "content") true 
-    |> Log "Copying styles and scripts: "
+    Fake.IO.DirectoryInfo.copyRecursiveTo true (DirectoryInfo output) (DirectoryInfo files) |> ignore
+    Fake.IO.Directory.ensure (output @@ "content")
+    Fake.IO.DirectoryInfo.copyRecursiveTo true (DirectoryInfo (output @@ "content")) (DirectoryInfo (formatting @@ "styles")) |> ignore
 
 
 let getReferenceAssembliesForProject (proj : string) =
@@ -73,7 +74,7 @@ let getReferenceAssembliesForProject (proj : string) =
 
 // Build API reference from XML comments
 let buildReference () =
-    CleanDir (output @@ "reference")
+    Shell.cleanDir (output @@ "reference")
     let binaries = referenceProjects |> List.map getReferenceAssembliesForProject
     RazorMetadataFormat.Generate
         ( binaries, output @@ "reference", layoutRoots, 
@@ -93,8 +94,8 @@ let buildDocumentation () =
             layoutRoots = layoutRoots, generateAnchors = true )
 
 // Generate
-CleanDir output
-CreateDir output
+Shell.cleanDir output
+Shell.mkdir output
 copyFiles()
 buildDocumentation()
 buildReference()
