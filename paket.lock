@@ -1075,6 +1075,7 @@ NUGET
       System.Runtime.Handles (>= 4.3)
 
 GROUP Tests
+STORAGE: NONE
 RESTRICTION: || (== net472) (== netcoreapp3.0)
 NUGET
   remote: https://api.nuget.org/v3/index.json
