@@ -8,7 +8,7 @@ nuget Microsoft.SourceLink.GitHub prerelease copy_local:true
 
 group Tests
   source https://api.nuget.org/v3/index.json
-  framework: netcoreapp3.0, net472
+  framework: netcoreapp3.1, net472
   storage: none
 
   nuget FSharp.Core ~> 4.7.0
