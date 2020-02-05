@@ -823,7 +823,7 @@ NUGET
       System.Runtime.Loader (>= 4.0)
       System.Security.Cryptography.Algorithms (>= 4.3)
     FSharp.Core (4.7)
-    FSharp.Formatting (4.0.0-alpha01)
+    FSharp.Formatting (4.0.0-alpha02)
       FSharp.Compiler.Service (>= 33.0)
     Microsoft.NETCore.Platforms (3.1)
     Microsoft.NETCore.Targets (3.1)

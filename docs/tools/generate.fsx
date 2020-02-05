@@ -3,6 +3,8 @@
 // (the generated documentation is stored in the 'docs/output' directory)
 // --------------------------------------------------------------------------------------
 
+System.Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+
 // Binaries that have XML documentation (in a corresponding generated XML file)
 let referenceProjects = [ "../../src/Argu" ]
 
