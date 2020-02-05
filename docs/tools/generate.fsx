@@ -2,8 +2,25 @@
 // Builds the documentation from `.fsx` and `.md` files in the 'docs/content' directory
 // (the generated documentation is stored in the 'docs/output' directory)
 // --------------------------------------------------------------------------------------
+#I "../../packages/docgeneration/FSharp.Compiler.Service/lib/netstandard2.0"
+#I "../../packages/docgeneration/FSharp.Formatting/lib/netstandard2.0"
+#r "../../packages/docgeneration/FAKE/tools/FakeLib.dll"
+#r "RazorEngine.NetCore.dll"
+#r "FSharp.Markdown.dll"
+#r "FSharp.Literate.dll"
+#r "FSharp.CodeFormat.dll"
+#r "FSharp.MetadataFormat.dll"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Formatting.Razor.dll"
 
-System.Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+open System
+open System.IO
+open Fake.IO
+open Fake.IO.FileSystemOperators
+open Fake.IO.Globbing.Operators
+open FSharp.Formatting.Razor
+
+Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
 let referenceProjects = [ "../../src/Argu" ]
@@ -20,27 +37,6 @@ let info =
     "project-summary", "A declarative argument parser for F#"
     "project-github", githubLink
     "project-nuget", "http://www.nuget.org/packages/Argu" ]
-
-// --------------------------------------------------------------------------------------
-// For typical project, no changes are needed below
-// --------------------------------------------------------------------------------------
-
-#I "../../packages/docgeneration/FSharp.Compiler.Service/lib/netstandard2.0"
-#I "../../packages/docgeneration/FSharp.Formatting/lib/netstandard2.0"
-#r "../../packages/docgeneration/FAKE/tools/FakeLib.dll"
-#r "RazorEngine.NetCore.dll"
-#r "FSharp.Markdown.dll"
-#r "FSharp.Literate.dll"
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.MetadataFormat.dll"
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.Formatting.Razor.dll"
-
-open Fake.IO
-open Fake.IO.FileSystemOperators
-open Fake.IO.Globbing.Operators
-open System.IO
-open FSharp.Formatting.Razor
 
 // When called from 'build.fsx', use the public project URL as <root>
 // otherwise, use the current 'output' directory.
