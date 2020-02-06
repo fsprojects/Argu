@@ -196,6 +196,7 @@ docs/tools/FSharp.Formatting.svclog
 # Deploy artifacts
 /artifacts/
 /paket-files/
+/.paket/load/
 tools/
 
 # Ionide
