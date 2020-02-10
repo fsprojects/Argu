@@ -32,4 +32,4 @@ group Build
   nuget Fake.Tools.Git          ~> 5.19.0
   nuget Fake.Api.Github         ~> 5.19.0
 
-  nuget FSharp.Formatting ~> 4.0 prerelease
+  nuget FSharp.Formatting ~> 4.0 prerelease storage: packages
