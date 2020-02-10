@@ -2,7 +2,7 @@
 // Builds the documentation from `.fsx` and `.md` files in the 'docs/content' directory
 // (the generated documentation is stored in the 'docs/output' directory)
 // --------------------------------------------------------------------------------------
-#load "../../.paket/load/netcoreapp3.1/Build/build.group.fsx"
+#load "../../.paket/load/netstandard2.0/Build/build.group.fsx"
 
 open System
 open System.IO

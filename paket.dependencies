@@ -21,7 +21,7 @@ group Tests
 group Build
   source https://api.nuget.org/v3/index.json
   generate_load_scripts: true
-  framework: netcoreapp3.1
+  framework: netstandard2.0
   storage: none
 
   nuget Fake.Core.UserInput	    ~> 5.19.0
