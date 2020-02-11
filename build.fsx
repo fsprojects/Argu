@@ -184,7 +184,7 @@ Target.create "Release" ignore
   ==> "Clean"
   ==> "Prepare"
   ==> "Build"
-  ==> "RunTests"
+  //==> "RunTests"
   ==> "Default"
 
 "Default"
