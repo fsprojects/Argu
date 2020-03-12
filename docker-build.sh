@@ -2,7 +2,7 @@
 
 cd `dirname $0`
 
-IMAGE_LABEL="fsharp-formatting-build"
+IMAGE_LABEL="argu-build"
 
 # docker build
 docker build -t $IMAGE_LABEL .
