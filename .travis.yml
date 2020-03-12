@@ -5,4 +5,4 @@ services:
   - docker
 
 script:
-  - make TARGET=Bundle
+  - ./docker-build.sh -t Bundle

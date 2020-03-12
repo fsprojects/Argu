@@ -149,7 +149,7 @@ Target.create "ReleaseGitHub" (fun _ ->
     Git.Branches.pushTag "" remote release.NugetVersion
 
     let client =
-        match Environment.GetEnvironmentVariable "OctokitToken" with
+        match Environment.GetEnvironmentVariable "GITHUB_TOKEN" with
         | null -> 
             let user =
                 match Environment.environVarOrDefault "github-user" "" with
@@ -184,7 +184,7 @@ Target.create "Release" ignore
   ==> "Clean"
   ==> "Prepare"
   ==> "Build"
-  //==> "RunTests"
+  ==> "RunTests"
   ==> "Default"
 
 "Default"
