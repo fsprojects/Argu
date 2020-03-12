@@ -101,14 +101,11 @@ Target.create "NuGet.ValidateSourceLink" (fun _ ->
 )
 
 Target.create "NuGet.Push" (fun _ ->
-    DotNet.nugetPush (fun opts ->
-        { opts with
-            PushParams =
-                { opts.PushParams with
-                    NoSymbols = true
-                    Source = Some "https://api.nuget.org/v3/index.json"
-                    ApiKey = Some (Environment.GetEnvironmentVariable "NUGET_KEY") }
-        }) (artifacts + "/*")
+    let source = "https://api.nuget.org/v3/index.json"
+    let apikey =  Environment.environVarOrDefault "NUGET_KEY" ""
+    for artifact in !! (artifacts + "/*nupkg") do
+        let result = DotNet.exec id "nuget" (sprintf "push -s %s -k %s %s" source apikey artifact)
+        if not result.OK then failwith "failed to push packages"  
 )
 
 // Doc generation
