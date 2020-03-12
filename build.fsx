@@ -105,7 +105,7 @@ Target.create "NuGet.Push" (fun _ ->
     let apikey =  Environment.environVarOrDefault "NUGET_KEY" ""
     for artifact in !! (artifacts + "/*nupkg") do
         let result = DotNet.exec id "nuget" (sprintf "push -s %s -k %s %s" source apikey artifact)
-        if not result.OK then failwith "failed to push packages"  
+        if not result.OK then failwith "failed to push packages"
 )
 
 // Doc generation
