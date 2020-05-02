@@ -99,6 +99,12 @@ type ArgumentType =
     /// Argument specifies a subcommand
     | SubCommand = 4
 
+type CustomAssignmentSeperator =
+    {
+        Separator : string
+        IsExclusive : bool
+    }
+
 /// Union argument metadata
 [<NoEquality; NoComparison>]
 type ArgumentCaseInfo =
@@ -130,7 +136,7 @@ type ArgumentCaseInfo =
         /// If specified, should consume remaining tokens from the CLI
         IsRest : Lazy<bool>
         /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
-        CustomAssignmentSeparator : Lazy<string option>
+        CustomAssignmentSeparator : Lazy<CustomAssignmentSeperator option>
         /// If specified, multiple parameters can be added in AppSettings in CSV form.
         AppSettingsCSV : Lazy<bool>
         /// Fails if no argument of this type is specified

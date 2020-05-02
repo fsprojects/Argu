@@ -294,10 +294,33 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s%s<param>'." name sep
 
     | CliParam(token, name, caseInfo, assignment) ->
+        let parseNextField (p : FieldParserInfo) =
+            match state.Reader.GetNextToken true argInfo with
+            | UnrecognizedOrArgument token ->
+                let result =
+                    try p.Parser token
+                    with _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description token
+
+                state.Reader.MoveNext()
+                result
+
+            | CliParam(_, name, _, _)
+            | HelpArgument name
+            | GroupedParams(name,_) -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description name
+            | _ -> error argInfo ErrorCode.CommandLine "argument '%s' must be followed by <%s>." state.Reader.CurrentSegment p.Description
+
+        let parseSingleParameter fields =
+            let fields = fields |> Array.map parseNextField
+            aggregator.AppendResult caseInfo name fields
+        
         match caseInfo.ParameterInfo.Value with
         | Primitives [|field|] when caseInfo.IsCustomAssignment ->
             match assignment with
-            | NoAssignment -> error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
+            | NoAssignment ->
+                if caseInfo.CustomAssignmentSeparator.Value.Value.IsExclusive then
+                    error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
+                else
+                    field |> Array.singleton |> parseSingleParameter
             | Assignment(_,_,eqp) ->
                 let argument =
                     try field.Parser eqp
@@ -323,39 +346,20 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
                 | NoAssignment ->
                     error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
-                        caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value vf.Description
+                        caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
 
             | CliParam(token,name,_,Assignment _) ->
                 error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key name '%s' in '%s'."
                     state.Reader.CurrentSegment name token
             | _ ->
                 error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
-                    caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value vf.Description
+                    caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
 
         | Primitives fields ->
-            let parseNextField (p : FieldParserInfo) =
-                match state.Reader.GetNextToken true argInfo with
-                | UnrecognizedOrArgument token ->
-                    let result =
-                        try p.Parser token
-                        with _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description token
-
-                    state.Reader.MoveNext()
-                    result
-
-                | CliParam(_, name, _, _)
-                | HelpArgument name
-                | GroupedParams(name,_) -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description name
-                | _ -> error argInfo ErrorCode.CommandLine "argument '%s' must be followed by <%s>." state.Reader.CurrentSegment p.Description
-
-            let parseSingleParameter () =
-                let fields = fields |> Array.map parseNextField
-                aggregator.AppendResult caseInfo name fields
-
-            parseSingleParameter ()
+            parseSingleParameter fields
             if caseInfo.IsRest.Value then
                 while not state.Reader.IsCompleted do
-                    parseSingleParameter ()
+                    parseSingleParameter fields
 
         | OptionalParam(existential, field) when caseInfo.IsCustomAssignment ->
             let optArgument = existential.Accept { new IFunc<obj> with

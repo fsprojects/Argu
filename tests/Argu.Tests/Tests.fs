@@ -77,6 +77,7 @@ module ``Argu Tests Main List`` =
         | [<ColonAssignment>] Assignment of string
         | [<EqualsAssignment>] Env of key:string * value:string
         | [<EqualsAssignment>] Dir of path:string
+        | [<EitherSpaceOrEqualsAssignment>] Flex_Assignment of string
         | [<First>] First_Parameter of string
         | [<Last>] Last_Parameter of string
         | Optional of int option
@@ -103,6 +104,7 @@ module ``Argu Tests Main List`` =
                 | Rest_Arg _ -> "an argument that consumes all remaining command line tokens."
                 | Data _ -> "pass raw data in base64 format."
                 | Dir _ -> "Project directory to place the config & database in."
+                | Flex_Assignment _ -> "An equals assignment which can also be used with a space separator"
                 | Log_Level _ -> "set the log level."
                 | Detach _ -> "detach daemon from console."
                 | Assignment _ -> "assign with colon operation."
@@ -308,6 +310,17 @@ module ``Argu Tests Main List`` =
     let ``Parse equals assignment 2`` () =
         let result = parser.Parse([|"--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Dir = "=foo" @>
+        
+    // TODO MC: Need to add a test for the colon version too
+    [<Fact>]
+    let ``Parse equals or space assignment with equals`` () =
+        let result = parser.Parse([|"--flex-assignment=../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
+        test <@ result.GetResult Flex_Assignment = "../../my-relative-path" @>
+        
+    [<Fact>]
+    let ``Parse equals or space assignment with space`` () =
+        let result = parser.Parse([|"--flex-assignment"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
+        test <@ result.GetResult Flex_Assignment = "../../my-relative-path" @>
 
     [<Fact>]
     let ``Should fail on incorrect assignment 1`` () =
