@@ -336,17 +336,16 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let customAssignmentSeparator : Lazy<CustomAssignmentSeperator option> = lazy(
         let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value
         let spaceOrCustomAssignment = tryGetAttribute2<EitherSpaceOrCustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value
-        // TODO MC: Need to update attribute names in these error messages
-        let validateCustomAssignmentAttributes() =
+        let validateCustomAssignmentAttributes attributeName =
             if isMainCommand.Value && types.Length = 1 then
-                arguExn "parameter '%O' of arity 1 contains incompatible attributes 'CustomAssignment' and 'MainCommand'." uci
+                arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
             if types.Length <> 1 && types.Length <> 2 then
-                arguExn "parameter '%O' has CustomAssignment attribute but specifies %d parameters. Should be 1 or 2." uci types.Length
+                arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 or 2." uci attributeName types.Length
             elif isRest.Value then
-                arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'Rest'." uci
+                arguExn "parameter '%O' contains incompatible attributes '%s' and 'Rest'." uci attributeName
         match customAssignment, spaceOrCustomAssignment with
         | Some customAssignment, None ->
-            validateCustomAssignmentAttributes()
+            validateCustomAssignmentAttributes "CustomAssignment"
             validateSeparator uci customAssignment.Separator
             {
                 Separator = customAssignment.Separator
@@ -354,10 +353,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             }
             |> Some
         | Some _, Some _ ->
-            // TODO MC: Need to test this new case
             arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
         | None, Some spaceOrCustomAssignment ->
-            validateCustomAssignmentAttributes()
+            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment"
             validateSeparator uci spaceOrCustomAssignment.Separator
             {
                 Separator = spaceOrCustomAssignment.Separator
