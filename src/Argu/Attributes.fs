@@ -130,29 +130,29 @@ type EqualsAssignmentAttribute () =
 type ColonAssignmentAttribute () = 
     inherit CustomAssignmentAttribute(":")
     
-/// Use an custom separator for parameter assignment.
-/// e.g. '--param<separator>arg' or '--param key<separator>value'.
+/// Use a custom separator for parameter assignment.
+/// e.g. '--param<separator>arg'
 /// Parameters can also be assigned using space as separator e.g. '--param arg'
-/// Requires that the argument should have parameters of arity 1 or 2 only.
+/// Requires that the argument should have parameters of arity 1 only.
 /// Can be used to specify any assignment separator.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-type EitherSpaceOrCustomAssignmentAttribute (separator : string) = 
+type CustomAssignmentOrSpacedAttribute (separator : string) = 
     inherit Attribute ()
     member __.Separator = separator
 
-/// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
+/// Use '--param=arg' assignment syntax in CLI.
 /// Parameters can also be assigned using space as separator e.g. '--param arg'
-/// Requires that the argument should have parameters of arity 1 or 2 only.
+/// Requires that the argument should have parameters of arity 1 only.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-type EitherSpaceOrEqualsAssignmentAttribute () = 
-    inherit EitherSpaceOrCustomAssignmentAttribute("=")
+type EqualsAssignmentOrSpacedAttribute () = 
+    inherit CustomAssignmentOrSpacedAttribute("=")
 
-/// Use '--param:arg' or '--param key:value' assignment syntax in CLI.
+/// Use '--param:arg' assignment syntax in CLI.
 /// Parameters can also be assigned using space as separator e.g. '--param arg'
-/// Requires that the argument should have parameters of arity 1 or 2 only.
+/// Requires that the argument should have parameters of arity 1 only.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
-type EitherSpaceOrColonAssignmentAttribute () = 
-    inherit EitherSpaceOrCustomAssignmentAttribute(":")
+type ColonAssignmentOrSpacedAttribute () = 
+    inherit CustomAssignmentOrSpacedAttribute(":")
 
 /// Declares a custom default CLI identifier for the current parameter.
 /// Replaces the auto-generated identifier name.

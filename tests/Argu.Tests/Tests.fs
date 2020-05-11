@@ -77,8 +77,8 @@ module ``Argu Tests Main List`` =
         | [<ColonAssignment>] Assignment of string
         | [<EqualsAssignment>] Env of key:string * value:string
         | [<EqualsAssignment>] Dir of path:string
-        | [<EitherSpaceOrEqualsAssignment>] Flex_Equals_Assignment of string
-        | [<EitherSpaceOrColonAssignment>] Flex_Colon_Assignment of string
+        | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string
+        | [<ColonAssignmentOrSpaced>] Flex_Colon_Assignment of string
         | [<First>] First_Parameter of string
         | [<Last>] Last_Parameter of string
         | Optional of int option
@@ -334,8 +334,8 @@ module ``Argu Tests Main List`` =
         let result = parser.Parse([|"--flex-colon-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Flex_Colon_Assignment = "../../my-relative-path" @>
     
-    type DisallwoedAssignmentArgs =
-    | [<EitherSpaceOrEqualsAssignment>] [<EqualsAssignment>] Flex_Equals_Assignment of string
+    type DisallowedAssignmentArgs =
+    | [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
     with
         interface IArgParserTemplate with
             member a.Usage =
@@ -344,7 +344,7 @@ module ``Argu Tests Main List`` =
 
     [<Fact>]
     let ``Disallowed equals assignment combination throws`` () =
-        raisesWith<ArguException> <@ ArgumentParser.Create<DisallwoedAssignmentArgs> (programName = "gadget") @>
+        raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedAssignmentArgs> (programName = "gadget") @>
     
     [<Fact>]
     let ``Should fail on incorrect assignment 1`` () =

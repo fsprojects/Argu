@@ -265,7 +265,7 @@ module Helpers =
                 let tupleType = FSharpType.MakeTupleType types
                 FSharpValue.PreComputeTupleConstructor tupleType)
 
-    let assignParser (customAssignmentSeparator: Lazy<CustomAssignmentSeperator option>) =
+    let assignParser (customAssignmentSeparator: Lazy<CustomAssignmentSeparator option>) =
         lazy(
             match customAssignmentSeparator.Value with
             | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
@@ -333,9 +333,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             | _ -> arguExn "Invalid CliPosition setting '%O' for parameter '%O'" attr.Position uci
         | None -> CliPosition.Unspecified)
 
-    let customAssignmentSeparator : Lazy<CustomAssignmentSeperator option> = lazy(
+    let customAssignmentSeparator : Lazy<CustomAssignmentSeparator option> = lazy(
         let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value
-        let spaceOrCustomAssignment = tryGetAttribute2<EitherSpaceOrCustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value
+        let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attributes.Value declaringTypeAttributes.Value
         let validateCustomAssignmentAttributes attributeName =
             if isMainCommand.Value && types.Length = 1 then
                 arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
@@ -349,7 +349,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             validateSeparator uci customAssignment.Separator
             {
                 Separator = customAssignment.Separator
-                IsExclusive = true
+                TolerateSpacedArguments = true
             }
             |> Some
         | Some _, Some _ ->
@@ -359,7 +359,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             validateSeparator uci spaceOrCustomAssignment.Separator
             {
                 Separator = spaceOrCustomAssignment.Separator
-                IsExclusive = false
+                TolerateSpacedArguments = false
             }
             |> Some
         | None, None -> None
