@@ -336,30 +336,34 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let customAssignmentSeparator : Lazy<CustomAssignmentSeparator option> = lazy(
         let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value
         let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attributes.Value declaringTypeAttributes.Value
-        let validateCustomAssignmentAttributes attributeName =
+        let validateCustomAssignmentAttributes attributeName tolerateSpacedArguments =
             if isMainCommand.Value && types.Length = 1 then
                 arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
+            if types.Length <> 1 && tolerateSpacedArguments = SpacedArgumentsToleration.Tolerate then
+                arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 only." uci attributeName types.Length
             if types.Length <> 1 && types.Length <> 2 then
                 arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 or 2." uci attributeName types.Length
             elif isRest.Value then
                 arguExn "parameter '%O' contains incompatible attributes '%s' and 'Rest'." uci attributeName
         match customAssignment, spaceOrCustomAssignment with
         | Some customAssignment, None ->
-            validateCustomAssignmentAttributes "CustomAssignment"
+            let spaceToleration = SpacedArgumentsToleration.DoNotTolerate
+            validateCustomAssignmentAttributes "CustomAssignment" spaceToleration
             validateSeparator uci customAssignment.Separator
             {
                 Separator = customAssignment.Separator
-                TolerateSpacedArguments = true
+                TolerateSpacedArguments = spaceToleration
             }
             |> Some
         | Some _, Some _ ->
             arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
         | None, Some spaceOrCustomAssignment ->
-            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment"
+            let spaceToleration = SpacedArgumentsToleration.Tolerate
+            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" spaceToleration 
             validateSeparator uci spaceOrCustomAssignment.Separator
             {
                 Separator = spaceOrCustomAssignment.Separator
-                TolerateSpacedArguments = false
+                TolerateSpacedArguments = spaceToleration
             }
             |> Some
         | None, None -> None

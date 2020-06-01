@@ -137,9 +137,6 @@ type ColonAssignmentAttribute () =
 /// Can be used to specify any assignment separator.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type CustomAssignmentOrSpacedAttribute (separator : string) =
-    // Strictly, this will work work with arity 2 arguments, but not with the space separator, in these cases, behaviour
-    // is no different to CustomAssignmentAttribute, and so it's best to advertise this as intended for arity 1
-    // arguments only.
     inherit Attribute ()
     member __.Separator = separator
 

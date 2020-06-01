@@ -78,7 +78,6 @@ module ``Argu Tests Main List`` =
         | [<EqualsAssignment>] Env of key:string * value:string
         | [<EqualsAssignment>] Dir of path:string
         | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string
-        | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment_Arity_2 of key:string * value:string
         | [<ColonAssignmentOrSpaced>] Flex_Colon_Assignment of string
         | [<First>] First_Parameter of string
         | [<Last>] Last_Parameter of string
@@ -108,7 +107,6 @@ module ``Argu Tests Main List`` =
                 | Dir _ -> "Project directory to place the config & database in."
                 | Flex_Equals_Assignment _ -> "An equals assignment which can also be used with a space separator"
                 | Flex_Colon_Assignment _ -> "A colon assignment which can also be used with a space separator"
-                | Flex_Equals_Assignment_Arity_2 _ -> "Arity 2 works with equals but not space"
                 | Log_Level _ -> "set the log level."
                 | Detach _ -> "detach daemon from console."
                 | Assignment _ -> "assign with colon operation."
@@ -328,17 +326,6 @@ module ``Argu Tests Main List`` =
     let ``Parse equals or space assignment with space`` () =
         let result = parser.Parse([|"--flex-equals-assignment"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
-        
-    [<Fact>]
-    let ``Parse equal or space assignment with key-value assignment with equals`` () =
-        let clp = [|"--flex-equals-assignment-arity-2"; "foo=bar"|]
-        let result = parser.Parse(clp, ignoreMissing = true)
-        test <@ result.GetResult Flex_Equals_Assignment_Arity_2 = ("foo", "bar") @>
-    
-    [<Fact>]    
-    let ``Parse equal or space assignment with key-value assignment with space fails`` () =
-        let clp = [|"--flex-equals-assignment-arity-2"; "foo"; "bar"|]
-        raises<ArguParseException> <@ parser.Parse(clp, ignoreMissing = true) @>
 
     [<Fact>]
     let ``Parse colon or space assignment with colon`` () =
@@ -358,6 +345,18 @@ module ``Argu Tests Main List`` =
     [<Fact>]
     let ``Disallowed equals assignment combination throws`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedAssignmentArgs> (programName = "gadget") @>
+        
+    type DisallowedArityWithAssignmentOrSpaced =
+    | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string * int
+    with
+        interface IArgParserTemplate with
+            member a.Usage =
+                match a with
+                | Flex_Equals_Assignment _ -> "Disallowed attribute / arity combination"
+
+    [<Fact>]
+    let ``EqualsAssignmentOrSpaced and arity not one combination throws`` () =
+        raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedArityWithAssignmentOrSpaced> (programName = "gadget1") @>
     
     [<Fact>]
     let ``Should fail on incorrect assignment 1`` () =
