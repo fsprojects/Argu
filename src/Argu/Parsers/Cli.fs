@@ -317,11 +317,10 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         | Primitives [|field|] when caseInfo.IsCustomAssignment ->
             match assignment with
             | NoAssignment ->
-                match caseInfo.CustomAssignmentSeparator.Value.Value.TolerateSpacedArguments with
-                | SpacedArgumentsToleration.DoNotTolerate ->
-                    error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
-                | SpacedArgumentsToleration.Tolerate ->
+                if caseInfo.CustomAssignmentSeparator.Value.Value.TolerateSpacedArguments then
                     parseSingleParameter [| field |]
+                else
+                    error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
             | Assignment(_,_,eqp) ->
                 let argument =
                     try field.Parser eqp

@@ -98,20 +98,12 @@ type ArgumentType =
     | List       = 3
     /// Argument specifies a subcommand
     | SubCommand = 4
-
-/// Representation of whether spaced arguments should be tolerated
-[<RequireQualifiedAccess>]
-type SpacedArgumentsToleration =
-    /// Tolerate spaces between arguments which otherwise require a character separator
-    | Tolerate
-    /// Do not tolerate spaces between arguments, requiring that the specified character separator is used in all cases
-    | DoNotTolerate
     
 /// Describes the permitted separators between arguments and their values
 type CustomAssignmentSeparator =
     {
         Separator : string
-        TolerateSpacedArguments : SpacedArgumentsToleration
+        TolerateSpacedArguments : bool
     }
 
 /// Union argument metadata
