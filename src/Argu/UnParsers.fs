@@ -66,9 +66,9 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
             match aI.ParameterInfo.Value with
             | Primitives parsers ->
                 match aI.CustomAssignmentSeparator.Value with
-                | Some sep when parsers.Length = 1 ->
+                | Some {Separator = sep} when parsers.Length = 1 ->
                     yield sprintf "%s<%s>" sep parsers.[0].Description
-                | Some sep ->
+                | Some {Separator = sep} ->
                     assert(parsers.Length = 2)
                     yield sprintf " <%s>%s<%s>" parsers.[0].Description sep parsers.[1].Description
                 | None ->
@@ -79,7 +79,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
 
             | OptionalParam (_,parser) ->
                 match aI.CustomAssignmentSeparator.Value with
-                | Some sep -> yield sprintf "[%s<%s>]" sep parser.Description
+                | Some {Separator = sep} -> yield sprintf "[%s<%s>]" sep parser.Description
                 | None -> yield sprintf " [<%s>]" parser.Description
 
             | SubCommand (label = None) -> yield " <options>"
@@ -148,9 +148,9 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
 
     | Primitives parsers ->
         match aI.CustomAssignmentSeparator.Value with
-        | Some sep when parsers.Length = 1 ->
+        | Some {Separator = sep} when parsers.Length = 1 ->
             yield sprintf "%s<%s>" sep parsers.[0].Description
-        | Some sep ->
+        | Some {Separator = sep} ->
             assert (parsers.Length = 2)
             yield sprintf " <%s>%s<%s>" parsers.[0].Description sep parsers.[1].Description
         | None ->
@@ -161,7 +161,7 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
 
     | OptionalParam (_,parser) ->
         match aI.CustomAssignmentSeparator.Value with
-        | Some sep -> yield sprintf "[%s<%s>]" sep parser.Description
+        | Some {Separator = sep} -> yield sprintf "[%s<%s>]" sep parser.Description
         | None -> yield sprintf " [<%s>]" parser.Description
 
     | ListParam (_,parser) when aI.IsMainCommand ->
@@ -300,9 +300,9 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
         | Primitives parsers ->
             let inline unpars i = parsers.[i].UnParser fields.[i]
             match aI.CustomAssignmentSeparator.Value with
-            | Some sep when parsers.Length = 1 ->
+            | Some {Separator = sep} when parsers.Length = 1 ->
                 yield sprintf "%s%s%s" (clName()) sep (unpars 0)
-            | Some sep ->
+            | Some {Separator = sep} ->
                 assert(parsers.Length = 2)
                 if not aI.IsMainCommand then yield clName()
                 yield sprintf "%s%s%s" (unpars 0) sep (unpars 1)
@@ -322,7 +322,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
             | None -> yield clName()
             | Some v ->
                 match aI.CustomAssignmentSeparator.Value with
-                | Some sep -> yield sprintf "%s%s%s" (clName()) sep (parser.UnParser v)
+                | Some {Separator = sep} -> yield sprintf "%s%s%s" (clName()) sep (parser.UnParser v)
                 | None -> yield clName() ; yield parser.UnParser v
 
         | ListParam(_, parser) ->

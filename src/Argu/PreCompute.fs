@@ -265,11 +265,11 @@ module Helpers =
                 let tupleType = FSharpType.MakeTupleType types
                 FSharpValue.PreComputeTupleConstructor tupleType)
 
-    let assignParser (customAssignmentSeparator: Lazy<string option>) =
+    let assignParser (customAssignmentSeparator: Lazy<CustomAssignmentSeparator option>) =
         lazy(
             match customAssignmentSeparator.Value with
             | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
-            | Some sep ->
+            | Some {Separator = sep} ->
                 let pattern = @"^(.+)" + (Regex.Escape sep) + "(.+)$"
                 let regex = new Regex(pattern, RegexOptions.RightToLeft ||| RegexOptions.Compiled)
                 fun token ->
@@ -333,20 +333,41 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             | _ -> arguExn "Invalid CliPosition setting '%O' for parameter '%O'" attr.Position uci
         | None -> CliPosition.Unspecified)
 
-    let customAssignmentSeparator = lazy(
-        match tryGetAttribute2<CustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value with
-        | Some attr ->
+    let customAssignmentSeparator : Lazy<CustomAssignmentSeparator option> = lazy(
+        let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value
+        let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attributes.Value declaringTypeAttributes.Value
+        let validateCustomAssignmentAttributes attributeName tolerateSpacedArguments =
             if isMainCommand.Value && types.Length = 1 then
-                arguExn "parameter '%O' of arity 1 contains incompatible attributes 'CustomAssignment' and 'MainCommand'." uci
+                arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
+            if types.Length <> 1 && tolerateSpacedArguments then
+                arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 only." uci attributeName types.Length
             if types.Length <> 1 && types.Length <> 2 then
-                arguExn "parameter '%O' has CustomAssignment attribute but specifies %d parameters. Should be 1 or 2." uci types.Length
+                arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 or 2." uci attributeName types.Length
             elif isRest.Value then
-                arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'Rest'." uci
-
-            validateSeparator uci attr.Separator
-            Some attr.Separator
-
-        | None -> None)
+                arguExn "parameter '%O' contains incompatible attributes '%s' and 'Rest'." uci attributeName
+        match customAssignment, spaceOrCustomAssignment with
+        | Some customAssignment, None ->
+            let tolerateSpacedArguments = false
+            validateCustomAssignmentAttributes "CustomAssignment" tolerateSpacedArguments
+            validateSeparator uci customAssignment.Separator
+            {
+                Separator = customAssignment.Separator
+                TolerateSpacedArguments = tolerateSpacedArguments
+            }
+            |> Some
+        | Some _, Some _ ->
+            arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
+        | None, Some spaceOrCustomAssignment ->
+            let tolerateSpacedArguments = true
+            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" tolerateSpacedArguments 
+            validateSeparator uci spaceOrCustomAssignment.Separator
+            {
+                Separator = spaceOrCustomAssignment.Separator
+                TolerateSpacedArguments = tolerateSpacedArguments
+            }
+            |> Some
+        | None, None -> None
+        )
 
     let isGatherUnrecognized = lazy(
         if hasAttribute<GatherUnrecognizedAttribute> attributes.Value then

@@ -109,7 +109,8 @@ type MainCommandAttribute (argumentName : string) =
 [<Obsolete("Argu 3.0 prints union labels by default. Please remove this attribute.")>]
 type PrintLabelsAttribute () = inherit Attribute ()
 
-/// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
+/// Use a custom separator for parameter assignment.
+/// e.g. '--param<separator>arg' or '--param key<separator>value'.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
 /// Can be used to specify any assignment separator.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
@@ -128,6 +129,30 @@ type EqualsAssignmentAttribute () =
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type ColonAssignmentAttribute () = 
     inherit CustomAssignmentAttribute(":")
+    
+/// Use a custom separator for parameter assignment.
+/// e.g. '--param<separator>arg'
+/// Parameters can also be assigned using space as separator e.g. '--param arg'
+/// Requires that the argument should have parameters of arity 1 only.
+/// Can be used to specify any assignment separator.
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type CustomAssignmentOrSpacedAttribute (separator : string) =
+    inherit Attribute ()
+    member __.Separator = separator
+
+/// Use '--param=arg' assignment syntax in CLI.
+/// Parameters can also be assigned using space as separator e.g. '--param arg'
+/// Requires that the argument should have parameters of arity 1 only.
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type EqualsAssignmentOrSpacedAttribute () = 
+    inherit CustomAssignmentOrSpacedAttribute("=")
+
+/// Use '--param:arg' assignment syntax in CLI.
+/// Parameters can also be assigned using space as separator e.g. '--param arg'
+/// Requires that the argument should have parameters of arity 1 only.
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type ColonAssignmentOrSpacedAttribute () = 
+    inherit CustomAssignmentOrSpacedAttribute(":")
 
 /// Declares a custom default CLI identifier for the current parameter.
 /// Replaces the auto-generated identifier name.

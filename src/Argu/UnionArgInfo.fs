@@ -92,7 +92,7 @@ type UnionCaseArgInfo =
         AppSettingsSplitOptions : StringSplitOptions
 
         /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
-        CustomAssignmentSeparator : Lazy<string option>
+        CustomAssignmentSeparator : Lazy<CustomAssignmentSeparator option>
         /// Reads assignment for that specific value
         AssignmentParser : Lazy<string -> Assignment>
 

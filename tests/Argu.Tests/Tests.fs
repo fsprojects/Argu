@@ -77,6 +77,8 @@ module ``Argu Tests Main List`` =
         | [<ColonAssignment>] Assignment of string
         | [<EqualsAssignment>] Env of key:string * value:string
         | [<EqualsAssignment>] Dir of path:string
+        | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string
+        | [<ColonAssignmentOrSpaced>] Flex_Colon_Assignment of string
         | [<First>] First_Parameter of string
         | [<Last>] Last_Parameter of string
         | Optional of int option
@@ -103,6 +105,8 @@ module ``Argu Tests Main List`` =
                 | Rest_Arg _ -> "an argument that consumes all remaining command line tokens."
                 | Data _ -> "pass raw data in base64 format."
                 | Dir _ -> "Project directory to place the config & database in."
+                | Flex_Equals_Assignment _ -> "An equals assignment which can also be used with a space separator"
+                | Flex_Colon_Assignment _ -> "A colon assignment which can also be used with a space separator"
                 | Log_Level _ -> "set the log level."
                 | Detach _ -> "detach daemon from console."
                 | Assignment _ -> "assign with colon operation."
@@ -308,7 +312,52 @@ module ``Argu Tests Main List`` =
     let ``Parse equals assignment 2`` () =
         let result = parser.Parse([|"--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Dir = "=foo" @>
+        
+    [<Fact>]
+    let ``Parse equals or space assignment with equals`` () =
+        let result = parser.Parse([|"--flex-equals-assignment=../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
+        test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
+        
+    [<Fact>]
+    let ``Parse equals or space assignment with colon fails`` () =
+        raises<ArguParseException> <@ parser.Parse([|"--flex-equals-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true) @>
+        
+    [<Fact>]
+    let ``Parse equals or space assignment with space`` () =
+        let result = parser.Parse([|"--flex-equals-assignment"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
+        test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
 
+    [<Fact>]
+    let ``Parse colon or space assignment with colon`` () =
+        // No need to test space assignment or assignment failure, as EitherSpaceOrEqualsAssignmentAttribute and
+        // EitherSpaceOrColonAssignmentAttribute share the same underlying implementation.
+        let result = parser.Parse([|"--flex-colon-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
+        test <@ result.GetResult Flex_Colon_Assignment = "../../my-relative-path" @>
+    
+    type DisallowedAssignmentArgs =
+    | [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
+    with
+        interface IArgParserTemplate with
+            member a.Usage =
+                match a with
+                | Flex_Equals_Assignment _ -> "Disallowed attribute combination"
+
+    [<Fact>]
+    let ``Disallowed equals assignment combination throws`` () =
+        raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedAssignmentArgs> (programName = "gadget") @>
+        
+    type DisallowedArityWithAssignmentOrSpaced =
+    | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string * int
+    with
+        interface IArgParserTemplate with
+            member a.Usage =
+                match a with
+                | Flex_Equals_Assignment _ -> "Disallowed attribute / arity combination"
+
+    [<Fact>]
+    let ``EqualsAssignmentOrSpaced and arity not one combination throws`` () =
+        raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedArityWithAssignmentOrSpaced> (programName = "gadget1") @>
+    
     [<Fact>]
     let ``Should fail on incorrect assignment 1`` () =
         raises<ArguParseException> <@ parser.Parse([|"--dir:foo"|], ignoreMissing = true) @>
