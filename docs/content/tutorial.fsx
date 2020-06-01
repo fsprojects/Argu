@@ -70,7 +70,7 @@ type CliArguments =
     | Port of tcp_port:int
     | Log_Level of level:int
     | Detach
-with
+
     interface IArgParserTemplate with
         member s.Usage =
             match s with
@@ -290,7 +290,7 @@ type CleanArgs =
     | D
     | F
     | X
-with
+
     interface IArgParserTemplate with
         member this.Usage =
             match this with
@@ -304,7 +304,7 @@ and CommitArgs =
     | Amend
     | [<AltCommandLine("-p")>] Patch
     | [<AltCommandLine("-m")>] Message of msg:string
-with
+
     interface IArgParserTemplate with
         member this.Usage =
             match this with
@@ -319,7 +319,7 @@ and GitArgs =
     | [<AltCommandLine("-v")>] Verbose
     | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
     | [<CliPrefix(CliPrefix.None)>] Commit of ParseResults<CommitArgs>
-with
+
     interface IArgParserTemplate with
         member this.Usage =
             match this with
