@@ -151,6 +151,7 @@ type Argument =
     | [<NoCommandLine>] Connection_String of conn:string
     | [<Unique>] Listener of host:string * port:int
     | [<EqualsAssignment>] Assignment of value:string
+    | [<EqualsAssignmentOrSpaced>] AssignmentOrSpace of value:string
     | [<AltCommandLine("-p")>] Primary_Port of tcp_port:int
 
 (**
@@ -164,6 +165,8 @@ In this case,
   * [`AltCommandLine`](reference/argu-arguattributes-altcommandlineattribute.html): specifies an alternative command line switch.
 
   * [`EqualsAssignment`](reference/argu-arguattributes-equalsassignmentattribute.html) : enforces `--assignment=value` and `--assignment key=value` CLI syntax.
+  
+  * [`EqualsAssignmentOrSpaced`](reference/argu-arguattributes-equalsassignmentorspacedattribute.html) : enforces `--assignment=value` and `--assignment value` CLI syntax.
 
   * [`Unique`](reference/argu-arguattributes-uniqueattribute.html) : parser will fail if CLI provides this argument more than once.
 
