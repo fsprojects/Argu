@@ -1,3 +1,6 @@
+### 6.1.0
+* Add a CustomAssignmentOrSpacedAttribute for custom assignments that can also be space separated.
+
 ### 6.0.0
 * Target netstandard2.0 only.
 

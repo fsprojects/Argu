@@ -6,4 +6,4 @@ build_script:
 test: off
 artifacts:
   - path: artifacts
-    name: artifats
+    name: artifacts
