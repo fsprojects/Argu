@@ -78,6 +78,7 @@ module ``Argu Tests Main List`` =
         | [<EqualsAssignment>] Env of key:string * value:string
         | [<EqualsAssignment>] Dir of path:string
         | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string
+        | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment_With_Option of string option
         | [<ColonAssignmentOrSpaced>] Flex_Colon_Assignment of string
         | [<First>] First_Parameter of string
         | [<Last>] Last_Parameter of string
@@ -106,6 +107,7 @@ module ``Argu Tests Main List`` =
                 | Data _ -> "pass raw data in base64 format."
                 | Dir _ -> "Project directory to place the config & database in."
                 | Flex_Equals_Assignment _ -> "An equals assignment which can also be used with a space separator"
+                | Flex_Equals_Assignment_With_Option _ -> "Flex_Equals_Assignment but with optional parameter type"
                 | Flex_Colon_Assignment _ -> "A colon assignment which can also be used with a space separator"
                 | Log_Level _ -> "set the log level."
                 | Detach _ -> "detach daemon from console."
@@ -326,6 +328,11 @@ module ``Argu Tests Main List`` =
     let ``Parse equals or space assignment with space`` () =
         let result = parser.Parse([|"--flex-equals-assignment"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
+        
+    [<Fact>]
+    let ``Parse equals or space assignment with space and optional type`` () =
+        let result = parser.Parse([|"--flex-equals-assignment-with-option"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
+        test <@ result.GetResult Flex_Equals_Assignment_With_Option = Some "../../my-relative-path" @>
 
     [<Fact>]
     let ``Parse colon or space assignment with colon`` () =
