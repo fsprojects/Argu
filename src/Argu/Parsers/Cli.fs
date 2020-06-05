@@ -160,6 +160,15 @@ type CliParseState =
         Reader : CliTokenReader
     }
 
+let private parseOptionalWithoutAssignment<'T> field state argInfo =
+    match state.Reader.GetNextToken true argInfo with
+    | UnrecognizedOrArgument tok ->
+        let argument = try Some(field.Parser tok :?> 'T) with _ -> None
+        match argument with Some _ -> state.Reader.MoveNext() | None -> ()
+        argument :> obj
+
+    | _ -> Option<'T>.None :> obj
+
 /// parse the next command line argument and append to state
 let rec private parseCommandLinePartial (state : CliParseState) (argInfo : UnionArgInfo) (aggregator : CliParseResultAggregator) =
     state.Reader.BeginCliSegment()
@@ -365,7 +374,8 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             let optArgument = existential.Accept { new IFunc<obj> with
                 member __.Invoke<'T> () =
                     match assignment with
-                    | NoAssignment -> Option<'T>.None :> obj
+                    | NoAssignment ->
+                        parseOptionalWithoutAssignment<'T> field state argInfo
                     | Assignment(_,_,eqp) ->
                         let argument =
                             try field.Parser eqp
@@ -380,13 +390,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         | OptionalParam(existential, field) ->
             let optArgument = existential.Accept { new IFunc<obj> with
                 member __.Invoke<'T> () =
-                    match state.Reader.GetNextToken true argInfo with
-                    | UnrecognizedOrArgument tok ->
-                        let argument = try Some(field.Parser tok :?> 'T) with _ -> None
-                        match argument with Some _ -> state.Reader.MoveNext() | None -> ()
-                        argument :> obj
-
-                    | _ -> Option<'T>.None :> obj }
+                    parseOptionalWithoutAssignment<'T> field state argInfo }
 
             aggregator.AppendResult caseInfo name [| optArgument |]
 
