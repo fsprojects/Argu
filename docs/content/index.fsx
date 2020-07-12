@@ -73,6 +73,12 @@ of an application's configuration file:
         <add key="detach" value="true" />
     </appSettings>
 
+Furthermore, you can parse environment variables, by supplying the an `EnvironmentVariableReader` to the `Parse` call:
+
+    [lang=fsharp]
+    let reader = EnvironmentVariableConfigurationReader() :> IConfigurationReader
+    parser.Parse(argv, configurationReader=reader)
+
 ## Who uses Argu?
 
   * [MBrace](http://m-brace.net/)
@@ -80,6 +86,8 @@ of an application's configuration file:
   * [FAKE](http://fsharp.github.io/FAKE/)
   
   * [Paket](http://fsprojects.github.io/Paket/)
+  
+  * [Logary](https://logary.tech)
 
 ## Documentation
 
