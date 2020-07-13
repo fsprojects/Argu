@@ -62,11 +62,11 @@ For instance:</p>
 <span class="l">4: </span>
 <span class="l">5: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="rt">Arguments</span> <span class="o">=</span>
-    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="uc">Working_Directory</span> <span class="k">of</span> <span class="id">path</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="rt">string</span>
-    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="uc">Listener</span> <span class="k">of</span> <span class="id">host</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="rt">string</span> <span class="pn">*</span> <span class="id">port</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="vt">int</span>
-    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="uc">Log_Level</span> <span class="k">of</span> <span class="id">level</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs6', 9)" onmouseover="showTip(event, 'fs6', 9)" class="vt">int</span>
-    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs8', 10)" onmouseover="showTip(event, 'fs8', 10)" class="uc">Detach</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="rt">Arguments</span> <span class="o">=</span>
+    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="uc">Working_Directory</span> <span class="k">of</span> <span class="id">path</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="rt">string</span>
+    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="uc">Listener</span> <span class="k">of</span> <span class="id">host</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs5', 7)" onmouseover="showTip(event, 'fs5', 7)" class="rt">string</span> <span class="pn">*</span> <span class="id">port</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="vt">int</span>
+    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="uc">Log_Level</span> <span class="k">of</span> <span class="id">level</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs7', 10)" onmouseover="showTip(event, 'fs7', 10)" class="vt">int</span>
+    <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="uc">Detach</span>
 </code></pre></td>
 </tr>
 </table>
@@ -81,7 +81,7 @@ take the following command line input</p>
 <p>and parse it into the list</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">[</span> <span class="uc">Working_Directory</span> <span class="s">&quot;/var/run&quot;</span> <span class="pn">;</span> <span class="uc">Listener</span><span class="pn">(</span><span class="s">&quot;localhost&quot;</span><span class="pn">,</span> <span class="n">8080</span><span class="pn">)</span> <span class="pn">;</span> <span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="uc">Detach</span> <span class="pn">]</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">[</span> <span class="uc">Working_Directory</span> <span class="s">&quot;/var/run&quot;</span> <span class="pn">;</span> <span class="uc">Listener</span><span class="pn">(</span><span class="s">&quot;localhost&quot;</span><span class="pn">,</span> <span class="n">8080</span><span class="pn">)</span> <span class="pn">;</span> <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="uc">Detach</span> <span class="pn">]</span>
 </code></pre></td>
 </tr>
 </table>
@@ -101,34 +101,105 @@ of an application's configuration file:</p>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="detach"</span> <span class="o">value</span><span class="k">="true"</span> <span class="k">/&gt;</span>
 <span class="k">&lt;/</span><span class="i">appSettings</span><span class="k">&gt;</span>
 </code></pre></td></tr></table>
-<h2><a name="Who-uses-Argu" class="anchor" href="#Who-uses-Argu">Who uses Argu?</a></h2>
-<ul>
-<li><p><a href="http://m-brace.net/">MBrace</a></p></li>
-<li><p><a href="http://fsharp.github.io/FAKE/">FAKE</a></p></li>
-<li><p><a href="http://fsprojects.github.io/Paket/">Paket</a></p></li>
-</ul>
-<h2><a name="Documentation" class="anchor" href="#Documentation">Documentation</a></h2>
-<ul>
-<li><p><a href="tutorial.html">Tutorial</a> A short walkthrough of Argu features.</p></li>
-<li>
-<p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types,
-modules and functions in the library.</p>
-</li>
-</ul>
-<h2><a name="Contributing-and-copyright" class="anchor" href="#Contributing-and-copyright">Contributing and copyright</a></h2>
-<p>The project is hosted on <a href="https://github.com/fsprojects/Argu">GitHub</a> where you can <a href="https://github.com/fsprojects/Argu/issues">report issues</a>, fork
-the project and submit pull requests.</p>
-<p>The library is available under the MIT License.
-For more information see the <a href="https://github.com/fsprojects/Argu/blob/master/License.md">License file</a> in the GitHub repository.</p>
+<p>Furthermore, you can parse environment variables, by supplying the an <code>EnvironmentVariableReader</code> to the <code>Parse</code> call:
+*</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="id">argv</span> <span class="o">=</span> <span class="pn">[|</span> <span class="s">&quot;--log-level&quot;</span><span class="pn">;</span> <span class="s">&quot;3&quot;</span> <span class="pn">|]</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="id">reader</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="rt">EnvironmentVariableConfigurationReader</span><span class="pn">(</span><span class="pn">)</span> <span class="o">:&gt;</span> <span onmouseout="hideTip(event, 'fs13', 16)" onmouseover="showTip(event, 'fs13', 16)" class="if">IConfigurationReader</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 17)" onmouseover="showTip(event, 'fs14', 17)" class="id">parser</span> <span class="o">=</span>  <span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="rt">ArgumentParser</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="id">Create</span><span class="pn">&lt;</span><span onmouseout="hideTip(event, 'fs3', 20)" onmouseover="showTip(event, 'fs3', 20)" class="rt">Arguments</span><span class="pn">&gt;</span><span class="pn">(</span><span class="id">programName</span> <span class="o">=</span> <span class="s">&quot;rutta&quot;</span><span class="pn">)</span>
+<span class="c">// pass the reader to the Parse call</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="id">results</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 22)" onmouseover="showTip(event, 'fs14', 22)" class="id">parser</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs18', 23)" onmouseover="showTip(event, 'fs18', 23)" class="id">Parse</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs10', 24)" onmouseover="showTip(event, 'fs10', 24)" class="id">argv</span><span class="pn">,</span> <span class="id">configurationReader</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs11', 25)" onmouseover="showTip(event, 'fs11', 25)" class="id">reader</span><span class="pn">)</span>
+
+<span class="c">(*</span>
+<span class="c">## Who uses Argu?</span>
+
+<span class="c">  * [MBrace](http://m-brace.net/)</span>
+<span class="c">  </span>
+<span class="c">  * [FAKE](http://fsharp.github.io/FAKE/)</span>
+<span class="c">  </span>
+<span class="c">  * [Paket](http://fsprojects.github.io/Paket/)</span>
+<span class="c">  </span>
+<span class="c">  * [Logary](https://logary.tech)</span>
+
+<span class="c">## Documentation</span>
+
+<span class="c">  * [Tutorial](tutorial.html) A short walkthrough of Argu features.</span>
+
+<span class="c">  * [API Reference](reference/index.html) contains automatically generated documentation for all types, </span>
+<span class="c">    modules and functions in the library.</span>
+
+<span class="c">## Contributing and copyright</span>
+
+<span class="c">The project is hosted on [GitHub][gh] where you can [report issues][issues], fork </span>
+<span class="c">the project and submit pull requests.</span>
+
+<span class="c">The library is available under the MIT License. </span>
+<span class="c">For more information see the [License file][license] in the GitHub repository. </span>
+
+<span class="c">  [gh]: https://github.com/fsprojects/Argu</span>
+<span class="c">  [issues]: https://github.com/fsprojects/Argu/issues</span>
+<span class="c">  [license]: https://github.com/fsprojects/Argu/blob/master/License.md</span>
+
+<span class="c">*)</span>
+</code></pre></td>
+</tr>
+</table>
 
 <div class="tip" id="fs1">namespace System</div>
-<div class="tip" id="fs2">type Arguments =<br />&#160;&#160;| Working_Directory of path: string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Log_Level of level: int<br />&#160;&#160;| Detach</div>
-<div class="tip" id="fs3">union case Arguments.Working_Directory: path: string -&gt; Arguments</div>
-<div class="tip" id="fs4">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />--------------------<br />type string = String</div>
-<div class="tip" id="fs5">union case Arguments.Listener: host: string * port: int -&gt; Arguments</div>
-<div class="tip" id="fs6">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />--------------------<br />type int = int32<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int</div>
-<div class="tip" id="fs7">union case Arguments.Log_Level: level: int -&gt; Arguments</div>
-<div class="tip" id="fs8">union case Arguments.Detach: Arguments</div>
+<div class="tip" id="fs2">namespace Argu</div>
+<div class="tip" id="fs3">type Arguments =<br />&#160;&#160;| Working_Directory of path: string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Log_Level of level: int<br />&#160;&#160;| Detach</div>
+<div class="tip" id="fs4">union case Arguments.Working_Directory: path: string -&gt; Arguments</div>
+<div class="tip" id="fs5">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />--------------------<br />type string = String</div>
+<div class="tip" id="fs6">union case Arguments.Listener: host: string * port: int -&gt; Arguments</div>
+<div class="tip" id="fs7">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />--------------------<br />type int = int32<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int</div>
+<div class="tip" id="fs8">union case Arguments.Log_Level: level: int -&gt; Arguments</div>
+<div class="tip" id="fs9">union case Arguments.Detach: Arguments</div>
+<div class="tip" id="fs10">val argv : string []</div>
+<div class="tip" id="fs11">val reader : IConfigurationReader</div>
+<div class="tip" id="fs12">Multiple items<br />type EnvironmentVariableConfigurationReader =<br />&#160;&#160;interface IConfigurationReader<br />&#160;&#160;new : unit -&gt; EnvironmentVariableConfigurationReader<br /><br />--------------------<br />new : unit -&gt; EnvironmentVariableConfigurationReader</div>
+<div class="tip" id="fs13">type IConfigurationReader =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member GetValue : key:string -&gt; string<br />&#160;&#160;&#160;&#160;abstract member Name : string<br />&#160;&#160;end</div>
+<div class="tip" id="fs14">val parser : obj</div>
+<div class="tip" id="fs15">Multiple items<br />type ArgumentParser =<br />&#160;&#160;private new : argInfo:UnionArgInfo * _programName:string * helpTextMessage:string option * _usageStringCharacterWidth:int * errorHandler:IExiter -&gt; ArgumentParser<br />&#160;&#160;abstract member Accept : visitor:IArgumentParserVisitor&lt;&#39;R&gt; -&gt; &#39;R<br />&#160;&#160;member GetArgumentCases : unit -&gt; ArgumentCaseInfo list<br />&#160;&#160;member GetSubCommandParsers : unit -&gt; ArgumentParser list<br />&#160;&#160;member PrintCommandLineSyntax : ?programName:string * ?usageStringCharacterWidth:int -&gt; string<br />&#160;&#160;member PrintUsage : ?message:string * ?programName:string * ?hideSyntax:bool * ?usageStringCharacterWidth:int -&gt; string<br />&#160;&#160;member ErrorHandler : IExiter<br />&#160;&#160;member HelpDescription : string<br />&#160;&#160;member HelpFlags : string list<br />&#160;&#160;member HelpTextMessage : string option<br />&#160;&#160;...<br /><br />--------------------<br />type ArgumentParser&lt;&#39;Template (requires &#39;Template :&gt; IArgParserTemplate)&gt; =<br />&#160;&#160;inherit ArgumentParser<br />&#160;&#160;new : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;private new : argInfo:UnionArgInfo * _programName:string * helpTextMessage:string option * _usageStringCharacterWidth:int * errorHandler:IExiter -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;override Accept : visitor:IArgumentParserVisitor&lt;&#39;a1&gt; -&gt; &#39;a1<br />&#160;&#160;member GetArgumentCaseInfo : ctorExpr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; -&gt; ArgumentCaseInfo<br />&#160;&#160;member GetArgumentCaseInfo : value:&#39;Template -&gt; ArgumentCaseInfo<br />&#160;&#160;member GetSubCommandParser : expr:Expr&lt;(ParseResults&lt;&#39;SubTemplate&gt; -&gt; &#39;Template)&gt; -&gt; ArgumentParser&lt;&#39;SubTemplate&gt; (requires &#39;SubTemplate :&gt; IArgParserTemplate)<br />&#160;&#160;member GetTag : value:&#39;Template -&gt; int<br />&#160;&#160;member Parse : ?inputs:string [] * ?configurationReader:IConfigurationReader * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseCommandLine : ?inputs:string [] * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;...<br /><br />--------------------<br />new : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;&#39;Template&gt;</div>
+<div class="tip" id="fs16">static member ArgumentParser.Create : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;</div>
+<div class="tip" id="fs17">val results : obj</div>
+<div class="tip" id="fs18"></div>
 
         </div>
         <div class="span3">
