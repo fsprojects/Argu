@@ -5,6 +5,7 @@
 #r "Argu.dll"
 
 open System
+open Argu
 
 (**
 
@@ -74,11 +75,15 @@ of an application's configuration file:
     </appSettings>
 
 Furthermore, you can parse environment variables, by supplying the an `EnvironmentVariableReader` to the `Parse` call:
+**)
 
-    [lang=fsharp]
-    let reader = EnvironmentVariableConfigurationReader() :> IConfigurationReader
-    parser.Parse(argv, configurationReader=reader)
+let argv = [| "--log-level"; "3" |]
+let reader = EnvironmentVariableConfigurationReader() :> IConfigurationReader
+let parser =  ArgumentParser.Create<Arguments>(programName = "rutta")
+// pass the reader to the Parse call
+let results = parser.Parse(argv, configurationReader=reader)
 
+(*
 ## Who uses Argu?
 
   * [MBrace](http://m-brace.net/)
