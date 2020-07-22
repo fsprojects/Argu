@@ -101,86 +101,41 @@ of an application's configuration file:</p>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="detach"</span> <span class="o">value</span><span class="k">="true"</span> <span class="k">/&gt;</span>
 <span class="k">&lt;/</span><span class="i">appSettings</span><span class="k">&gt;</span>
 </code></pre></td></tr></table>
-<p>Furthermore, you can parse environment variables, by supplying the an <code>EnvironmentVariableReader</code> to the <code>Parse</code> call:
-*</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
-<span class="l"> 2: </span>
-<span class="l"> 3: </span>
-<span class="l"> 4: </span>
-<span class="l"> 5: </span>
-<span class="l"> 6: </span>
-<span class="l"> 7: </span>
-<span class="l"> 8: </span>
-<span class="l"> 9: </span>
-<span class="l">10: </span>
-<span class="l">11: </span>
-<span class="l">12: </span>
-<span class="l">13: </span>
-<span class="l">14: </span>
-<span class="l">15: </span>
-<span class="l">16: </span>
-<span class="l">17: </span>
-<span class="l">18: </span>
-<span class="l">19: </span>
-<span class="l">20: </span>
-<span class="l">21: </span>
-<span class="l">22: </span>
-<span class="l">23: </span>
-<span class="l">24: </span>
-<span class="l">25: </span>
-<span class="l">26: </span>
-<span class="l">27: </span>
-<span class="l">28: </span>
-<span class="l">29: </span>
-<span class="l">30: </span>
-<span class="l">31: </span>
-<span class="l">32: </span>
-<span class="l">33: </span>
-<span class="l">34: </span>
-<span class="l">35: </span>
-<span class="l">36: </span>
-<span class="l">37: </span>
+<p>Furthermore, you can parse environment variables, by supplying the an <code>EnvironmentVariableReader</code> to the <code>Parse</code> call:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="id">argv</span> <span class="o">=</span> <span class="pn">[|</span> <span class="s">&quot;--log-level&quot;</span><span class="pn">;</span> <span class="s">&quot;3&quot;</span> <span class="pn">|]</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="id">reader</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="rt">EnvironmentVariableConfigurationReader</span><span class="pn">(</span><span class="pn">)</span> <span class="o">:&gt;</span> <span onmouseout="hideTip(event, 'fs13', 16)" onmouseover="showTip(event, 'fs13', 16)" class="if">IConfigurationReader</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 17)" onmouseover="showTip(event, 'fs14', 17)" class="id">parser</span> <span class="o">=</span>  <span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="rt">ArgumentParser</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="id">Create</span><span class="pn">&lt;</span><span onmouseout="hideTip(event, 'fs3', 20)" onmouseover="showTip(event, 'fs3', 20)" class="rt">Arguments</span><span class="pn">&gt;</span><span class="pn">(</span><span class="id">programName</span> <span class="o">=</span> <span class="s">&quot;rutta&quot;</span><span class="pn">)</span>
 <span class="c">// pass the reader to the Parse call</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="id">results</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 22)" onmouseover="showTip(event, 'fs14', 22)" class="id">parser</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs18', 23)" onmouseover="showTip(event, 'fs18', 23)" class="id">Parse</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs10', 24)" onmouseover="showTip(event, 'fs10', 24)" class="id">argv</span><span class="pn">,</span> <span class="id">configurationReader</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs11', 25)" onmouseover="showTip(event, 'fs11', 25)" class="id">reader</span><span class="pn">)</span>
-
-<span class="c">(*</span>
-<span class="c">## Who uses Argu?</span>
-
-<span class="c">  * [MBrace](http://m-brace.net/)</span>
-<span class="c">  </span>
-<span class="c">  * [FAKE](http://fsharp.github.io/FAKE/)</span>
-<span class="c">  </span>
-<span class="c">  * [Paket](http://fsprojects.github.io/Paket/)</span>
-<span class="c">  </span>
-<span class="c">  * [Logary](https://logary.tech)</span>
-
-<span class="c">## Documentation</span>
-
-<span class="c">  * [Tutorial](tutorial.html) A short walkthrough of Argu features.</span>
-
-<span class="c">  * [API Reference](reference/index.html) contains automatically generated documentation for all types, </span>
-<span class="c">    modules and functions in the library.</span>
-
-<span class="c">## Contributing and copyright</span>
-
-<span class="c">The project is hosted on [GitHub][gh] where you can [report issues][issues], fork </span>
-<span class="c">the project and submit pull requests.</span>
-
-<span class="c">The library is available under the MIT License. </span>
-<span class="c">For more information see the [License file][license] in the GitHub repository. </span>
-
-<span class="c">  [gh]: https://github.com/fsprojects/Argu</span>
-<span class="c">  [issues]: https://github.com/fsprojects/Argu/issues</span>
-<span class="c">  [license]: https://github.com/fsprojects/Argu/blob/master/License.md</span>
-
-<span class="c">*)</span>
 </code></pre></td>
 </tr>
 </table>
+<h2><a name="Who-uses-Argu" class="anchor" href="#Who-uses-Argu">Who uses Argu?</a></h2>
+<ul>
+<li><p><a href="http://m-brace.net/">MBrace</a></p></li>
+<li><p><a href="http://fsharp.github.io/FAKE/">FAKE</a></p></li>
+<li><p><a href="http://fsprojects.github.io/Paket/">Paket</a></p></li>
+<li><p><a href="https://logary.tech">Logary</a></p></li>
+</ul>
+<h2><a name="Documentation" class="anchor" href="#Documentation">Documentation</a></h2>
+<ul>
+<li><p><a href="tutorial.html">Tutorial</a> A short walkthrough of Argu features.</p></li>
+<li>
+<p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types,
+modules and functions in the library.</p>
+</li>
+</ul>
+<h2><a name="Contributing-and-copyright" class="anchor" href="#Contributing-and-copyright">Contributing and copyright</a></h2>
+<p>The project is hosted on <a href="https://github.com/fsprojects/Argu">GitHub</a> where you can <a href="https://github.com/fsprojects/Argu/issues">report issues</a>, fork
+the project and submit pull requests.</p>
+<p>The library is available under the MIT License.
+For more information see the <a href="https://github.com/fsprojects/Argu/blob/master/License.md">License file</a> in the GitHub repository.</p>
 
 <div class="tip" id="fs1">namespace System</div>
 <div class="tip" id="fs2">namespace Argu</div>
