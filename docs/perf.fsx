@@ -1,11 +1,10 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use
 // it to define helpers that you do not want to show in the documentation.
-#I "../../bin/Release/netstandard2.0"
+#I "../src/Argu/bin/Release/netstandard2.0"
 #r "Argu.dll"
 
 open Argu
-open Xunit
 
 type Arguments =
     | Argument

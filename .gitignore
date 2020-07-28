@@ -170,7 +170,11 @@ $RECYCLE.BIN/
 packages/
 
 # Generated documentation folder
-docs/output/
+/docs/output/
+/output/
+/.fsdocs/
+/tmp/
+/output/
 
 # Temp folder used for publishing docs
 temp/
@@ -187,7 +191,7 @@ paket-files
 *.orig
 docs/content/license.md
 docs/content/release-notes.md
-.fake
+.fake/
 docs/tools/FSharp.Formatting.svclog
 
 # Rider

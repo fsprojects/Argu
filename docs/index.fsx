@@ -1,11 +1,20 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
-#I "../../src/Argu/bin/Release/netstandard2.0"
+#I "../src/Argu/bin/Release/netstandard2.0"
 #r "Argu.dll"
 
 open System
 open Argu
+
+type Args =
+    | Working_Directory of path:string
+    | Listener of host:string * port:int
+    | Log_Level of level:int
+    | Detach
+with
+    interface IArgParserTemplate with
+        member __.Usage = ""
 
 (**
 
@@ -79,7 +88,7 @@ Furthermore, you can parse environment variables, by supplying the an `Environme
 
 let argv = [| "--log-level"; "3" |]
 let reader = EnvironmentVariableConfigurationReader() :> IConfigurationReader
-let parser =  ArgumentParser.Create<Arguments>(programName = "rutta")
+let parser =  ArgumentParser.Create<Args>(programName = "rutta")
 // pass the reader to the Parse call
 let results = parser.Parse(argv, configurationReader=reader)
 

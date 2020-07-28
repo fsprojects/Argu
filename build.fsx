@@ -111,13 +111,13 @@ Target.create "NuGet.Push" (fun _ ->
 // Doc generation
 
 Target.create "GenerateDocs" (fun _ ->
-    let res = DotNet.exec id "fsi" "--define:RELEASE docs/tools/generate.fsx"
-    if not res.OK then failwith "failed to generate docs"
+   Shell.cleanDir ".fsdocs"
+   DotNet.exec id "fsdocs" "build --clean" |> ignore
 )
 
 Target.create "ReleaseDocs" (fun _ ->
     let tempDocsDir = "temp/gh-pages"
-    let outputDocsDir = "docs/output"
+    let outputDocsDir = "output/"
 
     Directory.ensure outputDocsDir
 
