@@ -1,154 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
+
+<head>
+    <meta charset="utf-8">
     <title>CliPrefix - Argu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Eirik Tsarpalis"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Eirik Tsarpalis">
 
-    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
-    <script type="text/javascript" src="/Argu/content/tips.js"></script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+
+</head>
+
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsprojects/Argu">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
-
-<h1>CliPrefix</h1>
-<p>
-  <span>Namespace: Argu</span><br />
-        <span>
-          Attributes:<br />
-[&lt;RequireQualifiedAccess&gt;]<br />
-          
-      </span>
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+            </ul>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                <div>
+  <h1>
+    CliPrefix Module
+  </h1>
+  <p>
+    Namespace: Argu
+  </p>
+  <p>
+    Assembly: Argu.dll
+  </p>
+  <br/>
+  <div class="xmldoc">
+    <p class='summary'>
+ Predefined CLI prefixes to be added
 </p>
-<div class="xmldoc">
-<p>Predefined CLI prefixes to be added</p>
-
+  </div>
+  <div>
+    <h3>
+      Functions and values
+    </h3>
+    <table class="table member-list">
+      <thead>
+        <tr>
+          <td class="member-list-header">
+            Function or value
+          </td>
+          <td class="member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="member-name" id="Dash">
+            <div>
+              <code onmouseout="hideTip(event, '5', 5)" onmouseover="showTip(event, '5', 5)">
+                CliPrefix.Dash
+              </code>
+              <div class="tip" id="5">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CliPrefix.Dash
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Single Dash prefix '-'
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L17-17" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="DoubleDash">
+            <div>
+              <code onmouseout="hideTip(event, '6', 6)" onmouseover="showTip(event, '6', 6)">
+                CliPrefix.DoubleDash
+              </code>
+              <div class="tip" id="6">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CliPrefix.DoubleDash
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Double Dash prefix '--'
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L19-19" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="None">
+            <div>
+              <code onmouseout="hideTip(event, '7', 7)" onmouseover="showTip(event, '7', 7)">
+                CliPrefix.None
+              </code>
+              <div class="tip" id="7">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CliPrefix.None
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ No Cli Prefix
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L15-15" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
 </div>
+                
+            </div>
+            <div class="span3"> 
+                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
 
-<!-- Render nested types and modules, if there are any -->
+                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+                <div id="header">
+                    <div class="searchbox">
+                        <label for="search-by">
+                            <i class="fas fa-search"></i>
+                        </label>
+                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                        <span data-search-clear="">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                </div>
+                <!-- END SEARCH BOX: this adds support for the search box -->
 
-  <h3>Functions and values</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Function or value</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '5', 5)" onmouseover="showTip(event, '5', 5)">
-            CliPrefix.Dash
-          </code>
-          <div class="tip" id="5">
-            <strong>Signature:</strong> string<br />
-                                    <span>
-            <strong>Attributes:</strong><br />
-[&lt;Literal&gt;]<br />
-          </span>
-          </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L17-17" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Single Dash prefix '-'</p>
+                <ul class="nav nav-list" id="menu">
+                    <li class="nav-header">Argu</li>
+                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
+                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
 
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '6', 6)" onmouseover="showTip(event, '6', 6)">
-            CliPrefix.DoubleDash
-          </code>
-          <div class="tip" id="6">
-            <strong>Signature:</strong> string<br />
-                                    <span>
-            <strong>Attributes:</strong><br />
-[&lt;Literal&gt;]<br />
-          </span>
-          </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L19-19" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Double Dash prefix '--'</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '7', 7)" onmouseover="showTip(event, '7', 7)">
-            CliPrefix.None
-          </code>
-          <div class="tip" id="7">
-            <strong>Signature:</strong> string<br />
-                                    <span>
-            <strong>Attributes:</strong><br />
-[&lt;Literal&gt;]<br />
-          </span>
-          </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Types.fs#L15-15" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>No Cli Prefix</p>
-
-
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="span3">
-          <a target="_blank" href="http://fsprojects.github.io/">
-			<img src="/Argu/img/logo.png" alt="Argu" style="width:150px;margin:10px" />
-		  </a>
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">Argu</li>
-            <li><a href="/Argu/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsprojects/Argu">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsprojects/Argu/blob/master/License.md">License</a></li>
-            <li><a href="http://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-
-            <li class="nav-header">Documentation</li>
-            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
-            <li><a href="/Argu/perf.html">Performance Tips</a></li>
-            <li><a href="/Argu/reference/index.html">API Reference</a></li>
-          </ul>
-        </div>
-      </div>
     </div>
-    <a href="http://github.com/fsprojects/Argu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
+
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
+    <!-- END SEARCH BOX: this adds support for the search box -->
+</body>
+
+</html>

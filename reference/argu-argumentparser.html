@@ -1,333 +1,823 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
+
+<head>
+    <meta charset="utf-8">
     <title>ArgumentParser - Argu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Eirik Tsarpalis"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Eirik Tsarpalis">
 
-    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
-    <script type="text/javascript" src="/Argu/content/tips.js"></script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+
+</head>
+
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsprojects/Argu">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
-
-<h1>ArgumentParser</h1>
-<p>
-
-    <span>Namespace: Argu</span><br />
-            <span>
-            Attributes: <br />
-[&lt;AbstractClass&gt;]<br />
-[&lt;NoEquality&gt;]<br />
-[&lt;NoComparison&gt;]<br />
-[&lt;AutoSerializable(false)&gt;]<br />
-            
-        </span>
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+            </ul>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                <div>
+  <h1>
+    ArgumentParser Type
+  </h1>
+  <p>
+    Namespace: Argu
+  </p>
+  <p>
+    Assembly: Argu.dll
+  </p>
+  <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <div class="xmldoc">
+    <p class='summary'>
+ The Argu type generates an argument parser given a type argument
+ that is an F# discriminated union. It can then be used to parse command line arguments
+ or XML configuration.
 </p>
-<div class="xmldoc">
-<p>The Argu type generates an argument parser given a type argument
-that is an F# discriminated union. It can then be used to parse command line arguments
-or XML configuration.</p>
-
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Instance members
+    </h3>
+    <table class="table member-list">
+      <thead>
+        <tr>
+          <td class="member-list-header">
+            Instance member
+          </td>
+          <td class="member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="member-name" id="Accept">
+            <div>
+              <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
+                this.Accept(visitor)
+              </code>
+              <div class="tip" id="75">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Accept(visitor)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        visitor
+                      </b>
+                      :
+                      IArgumentParserVisitor&lt;&#39;R&gt;
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  &#39;R
+                  <br/>
+                  Signature: 
+                  (visitor: IArgumentParserVisitor&lt;&#39;R&gt;) -&gt; &#39;R
+                  <br/>
+                  Modifiers: 
+                  abstract
+                  <br/>
+                  Type parameters: 
+                  &#39;R
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+     Enables access to the typed API of an ArgumentParser
+     when template type is unknown.
+ </p><h4>Parameters</h4><dl><dt><span class='parameter'>visitor</span></dt><dd><p>Visitor used to access the parser.</p></dd></dl>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  visitor
+                </code>
+                :
+                <code class="code-type">
+                  IArgumentParserVisitor&lt;&#39;R&gt;
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              &#39;R
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L73-73" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="ErrorHandler">
+            <div>
+              <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
+                this.ErrorHandler
+              </code>
+              <div class="tip" id="76">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.ErrorHandler
+                  <br/>
+                  Return Type: 
+                  IExiter
+                  <br/>
+                  Signature: 
+                  IExiter
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Gets the default error handler used by the instance
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              IExiter
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L27-27" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="GetArgumentCases">
+            <div>
+              <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
+                this.GetArgumentCases()
+              </code>
+              <div class="tip" id="77">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.GetArgumentCases()
+                  <br/>
+                  Return Type: 
+                  ArgumentCaseInfo list
+                  <br/>
+                  Signature: 
+                  unit -&gt; ArgumentCaseInfo list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Gets metadata for all union cases used by parser
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ArgumentCaseInfo list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L30-30" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="GetSubCommandParsers">
+            <div>
+              <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
+                this.GetSubCommandParsers()
+              </code>
+              <div class="tip" id="78">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.GetSubCommandParsers()
+                  <br/>
+                  Return Type: 
+                  ArgumentParser list
+                  <br/>
+                  Signature: 
+                  unit -&gt; ArgumentParser list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Gets all subcommand parsers for given parser
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ArgumentParser list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L36-36" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="HelpDescription">
+            <div>
+              <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
+                this.HelpDescription
+              </code>
+              <div class="tip" id="79">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.HelpDescription
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Gets the help description specified for the CLI parser
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L19-19" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="HelpFlags">
+            <div>
+              <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
+                this.HelpFlags
+              </code>
+              <div class="tip" id="80">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.HelpFlags
+                  <br/>
+                  Return Type: 
+                  string list
+                  <br/>
+                  Signature: 
+                  string list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Gets the help flags specified for the CLI parser
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L17-17" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="HelpTextMessage">
+            <div>
+              <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
+                this.HelpTextMessage
+              </code>
+              <div class="tip" id="81">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.HelpTextMessage
+                  <br/>
+                  Return Type: 
+                  string option
+                  <br/>
+                  Signature: 
+                  string option
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Gets the message that will be displayed at the top of the help text
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string option
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L21-21" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="IsSubCommandParser">
+            <div>
+              <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
+                this.IsSubCommandParser
+              </code>
+              <div class="tip" id="82">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.IsSubCommandParser
+                  <br/>
+                  Return Type: 
+                  bool
+                  <br/>
+                  Signature: 
+                  bool
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ Returns true if parser corresponds to a subcommand
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              bool
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L23-23" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="ParentInfo">
+            <div>
+              <code onmouseout="hideTip(event, '83', 83)" onmouseover="showTip(event, '83', 83)">
+                this.ParentInfo
+              </code>
+              <div class="tip" id="83">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.ParentInfo
+                  <br/>
+                  Return Type: 
+                  ArgumentCaseInfo option
+                  <br/>
+                  Signature: 
+                  ArgumentCaseInfo option
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+ If subcommand parser, gets parent argument metadata
+</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ArgumentCaseInfo option
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L25-25" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="PrintCommandLineSyntax">
+            <div>
+              <code onmouseout="hideTip(event, '84', 84)" onmouseover="showTip(event, '84', 84)">
+                this.PrintCommandLineSyntax(?programName, ?usageStringCharacterWidth)
+              </code>
+              <div class="tip" id="84">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.PrintCommandLineSyntax(?programName, ?usageStringCharacterWidth)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        ?programName
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?usageStringCharacterWidth
+                      </b>
+                      :
+                      int
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  (programName: string * usageStringCharacterWidth: int) -&gt; string
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+     Prints command line syntax. Useful for generating documentation.
+ </p><h4>Parameters</h4><dl><dt><span class='parameter'>programName</span></dt><dd><p>Program name identifier placed at start of syntax string</p></dd><dt><span class='parameter'>usageStringCharacterWidth</span></dt><dd><p>Text width used when formatting the usage string.</p></dd></dl>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  ?programName
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?usageStringCharacterWidth
+                </code>
+                :
+                <code class="code-type">
+                  int
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L63-63" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="PrintUsage">
+            <div>
+              <code onmouseout="hideTip(event, '85', 85)" onmouseover="showTip(event, '85', 85)">
+                this.PrintUsage(?message, ?programName, ?hideSyntax, ?usageStringCharacterWidth)
+              </code>
+              <div class="tip" id="85">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.PrintUsage(?message, ?programName, ?hideSyntax, ?usageStringCharacterWidth)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        ?message
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?programName
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?hideSyntax
+                      </b>
+                      :
+                      bool
+                    </li>
+                    <li>
+                      <b>
+                        ?usageStringCharacterWidth
+                      </b>
+                      :
+                      int
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  (message: string * programName: string * hideSyntax: bool * usageStringCharacterWidth: int) -&gt; string
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>Formats a usage string for the argument parser.</p><h4>Parameters</h4><dl><dt><span class='parameter'>message</span></dt><dd><p>The message to be displayed on top of the usage string.</p></dd><dt><span class='parameter'>programName</span></dt><dd><p>Override the default program name settings.</p></dd><dt><span class='parameter'>hideSyntax</span></dt><dd><p>Do not display 'USAGE: [syntax]' at top of usage string. Defaults to false.</p></dd><dt><span class='parameter'>usageStringCharacterWidth</span></dt><dd><p>Text width used when formatting the usage string.</p></dd></dl>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  ?message
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?programName
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?hideSyntax
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?usageStringCharacterWidth
+                </code>
+                :
+                <code class="code-type">
+                  int
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L52-52" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>
+      Static members
+    </h3>
+    <table class="table member-list">
+      <thead>
+        <tr>
+          <td class="member-list-header">
+            Static member
+          </td>
+          <td class="member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="member-name" id="Create">
+            <div>
+              <code onmouseout="hideTip(event, '86', 86)" onmouseover="showTip(event, '86', 86)">
+                ArgumentParser.Create(?programName, ?helpTextMessage, ?usageStringCharacterWidth, ?errorHandler, ?checkStructure)
+              </code>
+              <div class="tip" id="86">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  ArgumentParser.Create(?programName, ?helpTextMessage, ?usageStringCharacterWidth, ?errorHandler, ?checkStructure)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        ?programName
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?helpTextMessage
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?usageStringCharacterWidth
+                      </b>
+                      :
+                      int
+                    </li>
+                    <li>
+                      <b>
+                        ?errorHandler
+                      </b>
+                      :
+                      IExiter
+                    </li>
+                    <li>
+                      <b>
+                        ?checkStructure
+                      </b>
+                      :
+                      bool
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  ArgumentParser&lt;&#39;Template&gt;
+                  <br/>
+                  Signature: 
+                  (programName: string * helpTextMessage: string * usageStringCharacterWidth: int * errorHandler: IExiter * checkStructure: bool) -&gt; ArgumentParser&lt;&#39;Template&gt;
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p class='summary'>
+     Create a new argument parsing scheme using given 'Template type
+     which must be an F# Discriminated Union.
+ </p><h4>Parameters</h4><dl><dt><span class='parameter'>programName</span></dt><dd><p>Program identifier, e.g. 'cat'. Defaults to the current executable name.</p></dd><dt><span class='parameter'>helpTextMessage</span></dt><dd><p>Message that will be displayed at the top of the help text.</p></dd><dt><span class='parameter'>usageStringCharacterWidth</span></dt><dd><p>Text width used when formatting the usage string. Defaults to 80 chars.</p></dd><dt><span class='parameter'>errorHandler</span></dt><dd><p>The implementation of IExiter used for error handling. Exception is default.</p></dd><dt><span class='parameter'>checkStructure</span></dt><dd><p>Indicate if the structure of the arguments discriminated union should be checked for errors.</p></dd></dl>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  ?programName
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?helpTextMessage
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?usageStringCharacterWidth
+                </code>
+                :
+                <code class="code-type">
+                  int
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?errorHandler
+                </code>
+                :
+                <code class="code-type">
+                  IExiter
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?checkStructure
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              ArgumentParser&lt;&#39;Template&gt;
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L268-268" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
-  <h3>Instance members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Instance member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
-            x.Accept(visitor)
-          </code>
-          <div class="tip" id="75">
-            <strong>Signature:</strong> visitor:IArgumentParserVisitor&lt;&#39;R&gt; -&gt; &#39;R<br />
-              <strong>Modifiers:</strong> abstract<br />
-                          <strong>Type parameters:</strong> 'R                      </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L73-73" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Enables access to the typed API of an ArgumentParser
-when template type is unknown.</p>
+                
+            </div>
+            <div class="span3"> 
+                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
 
+                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+                <div id="header">
+                    <div class="searchbox">
+                        <label for="search-by">
+                            <i class="fas fa-search"></i>
+                        </label>
+                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                        <span data-search-clear="">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                </div>
+                <!-- END SEARCH BOX: this adds support for the search box -->
 
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
-            x.ErrorHandler
-          </code>
-          <div class="tip" id="76">
-            <strong>Signature:</strong> IExiter<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L27-27" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Gets the default error handler used by the instance</p>
+                <ul class="nav nav-list" id="menu">
+                    <li class="nav-header">Argu</li>
+                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
+                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
 
-
-              <p>CompiledName: <code>get_ErrorHandler</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
-            x.GetArgumentCases()
-          </code>
-          <div class="tip" id="77">
-            <strong>Signature:</strong> unit -&gt; ArgumentCaseInfo list<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L30-30" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Gets metadata for all union cases used by parser</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
-            x.GetSubCommandParsers()
-          </code>
-          <div class="tip" id="78">
-            <strong>Signature:</strong> unit -&gt; ArgumentParser list<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L36-36" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Gets all subcommand parsers for given parser</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
-            x.HelpDescription
-          </code>
-          <div class="tip" id="79">
-            <strong>Signature:</strong> string<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L19-19" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Gets the help description specified for the CLI parser</p>
-
-
-              <p>CompiledName: <code>get_HelpDescription</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
-            x.HelpFlags
-          </code>
-          <div class="tip" id="80">
-            <strong>Signature:</strong> string list<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L17-17" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Gets the help flags specified for the CLI parser</p>
-
-
-              <p>CompiledName: <code>get_HelpFlags</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
-            x.HelpTextMessage
-          </code>
-          <div class="tip" id="81">
-            <strong>Signature:</strong> string option<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L21-21" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Gets the message that will be displayed at the top of the help text</p>
-
-
-              <p>CompiledName: <code>get_HelpTextMessage</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
-            x.IsSubCommandParser
-          </code>
-          <div class="tip" id="82">
-            <strong>Signature:</strong> bool<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L23-23" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Returns true if parser corresponds to a subcommand</p>
-
-
-              <p>CompiledName: <code>get_IsSubCommandParser</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '83', 83)" onmouseover="showTip(event, '83', 83)">
-            x.ParentInfo
-          </code>
-          <div class="tip" id="83">
-            <strong>Signature:</strong> ArgumentCaseInfo option<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L25-25" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>If subcommand parser, gets parent argument metadata</p>
-
-
-              <p>CompiledName: <code>get_ParentInfo</code></p>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '84', 84)" onmouseover="showTip(event, '84', 84)">
-            x.PrintCommandLineSyntax(...)
-          </code>
-          <div class="tip" id="84">
-            <strong>Signature:</strong> (programName:string option * usageStringCharacterWidth:int option) -&gt; string<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L63-63" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Prints command line syntax. Useful for generating documentation.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '85', 85)" onmouseover="showTip(event, '85', 85)">
-            x.PrintUsage(...)
-          </code>
-          <div class="tip" id="85">
-            <strong>Signature:</strong> (message:string option * programName:string option * hideSyntax:bool option * usageStringCharacterWidth:int option) -&gt; string<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L52-52" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Formats a usage string for the argument parser.</p>
-
-
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <h3>Static members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Static member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '86', 86)" onmouseover="showTip(event, '86', 86)">
-            ArgumentParser.Create(...)
-          </code>
-          <div class="tip" id="86">
-            <strong>Signature:</strong> (programName:string option * helpTextMessage:string option * usageStringCharacterWidth:int option * errorHandler:IExiter option * checkStructure:bool option) -&gt; ArgumentParser&lt;&#39;Template&gt;<br />
-                          <strong>Type parameters:</strong> 'Template                      </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/ArgumentParser.fs#L268-268" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Create a new argument parsing scheme using given 'Template type
-which must be an F# Discriminated Union.</p>
-
-
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="span3">
-          <a target="_blank" href="http://fsprojects.github.io/">
-			<img src="/Argu/img/logo.png" alt="Argu" style="width:150px;margin:10px" />
-		  </a>
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">Argu</li>
-            <li><a href="/Argu/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsprojects/Argu">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsprojects/Argu/blob/master/License.md">License</a></li>
-            <li><a href="http://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-
-            <li class="nav-header">Documentation</li>
-            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
-            <li><a href="/Argu/perf.html">Performance Tips</a></li>
-            <li><a href="/Argu/reference/index.html">API Reference</a></li>
-          </ul>
-        </div>
-      </div>
     </div>
-    <a href="http://github.com/fsprojects/Argu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
+
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
+    <!-- END SEARCH BOX: this adds support for the search box -->
+</body>
+
+</html>

@@ -1,102 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
+
+<head>
+    <meta charset="utf-8">
     <title>InheritAttribute - Argu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Eirik Tsarpalis"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Eirik Tsarpalis">
 
-    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
-    <script type="text/javascript" src="/Argu/content/tips.js"></script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+
+</head>
+
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsprojects/Argu">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
-
-<h1>InheritAttribute</h1>
-<p>
-
-    <span>Namespace: Argu</span><br />
-        <span>Parent Module: <a href="argu-arguattributes.html">ArguAttributes</a></span><br />
-            <span>
-            Attributes: <br />
-[&lt;AttributeUsage(128, AllowMultiple = false)&gt;]<br />
-            
-        </span>
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+            </ul>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                <div>
+  <h1>
+    InheritAttribute Type
+  </h1>
+  <p>
+    Namespace: Argu
+  </p>
+  <p>
+    Assembly: Argu.dll
+  </p>
+  <br/>
+  <span>
+    Parent Module: 
+    <a href="argu-arguattributes.html">
+      ArguAttributes
+    </a>
+  </span>
+  <p>
+    Base Type: Attribute
+  </p>
+  <p>
+    This is an attribute type definition
+  </p>
+  <div class="xmldoc">
+    <p class='summary'>
+ Denotes that the given argument should be inherited in the scope of any subcommands.
 </p>
-<div class="xmldoc">
-<p>Denotes that the given argument should be inherited in the scope of any subcommands.</p>
-
-</div>
-  <h3>Constructors</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
-            new()
-          </code>
-          <div class="tip" id="41">
-            <strong>Signature:</strong> unit -&gt; InheritAttribute<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/Argu/tree/master/src/Argu/Attributes.fs#L36-36" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Constructors
+    </h3>
+    <table class="table member-list">
+      <thead>
+        <tr>
+          <td class="member-list-header">
+            Constructor
+          </td>
+          <td class="member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="member-name" id="( .ctor )">
+            <div>
+              <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+                InheritAttribute()
+              </code>
+              <div class="tip" id="41">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  InheritAttribute()
+                  <br/>
+                  Return Type: 
+                  InheritAttribute
+                  <br/>
+                  Signature: 
+                  unit -&gt; InheritAttribute
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            Return Type: 
+            <code class="code-type">
+              InheritAttribute
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Attributes.fs#L36-36" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
             </a>
-          
-              <p>CompiledName: <code>.ctor</code></p>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
+</div>
+                
+            </div>
+            <div class="span3"> 
+                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
 
-        </div>
-        <div class="span3">
-          <a target="_blank" href="http://fsprojects.github.io/">
-			<img src="/Argu/img/logo.png" alt="Argu" style="width:150px;margin:10px" />
-		  </a>
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">Argu</li>
-            <li><a href="/Argu/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsprojects/Argu">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsprojects/Argu/blob/master/License.md">License</a></li>
-            <li><a href="http://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+                <div id="header">
+                    <div class="searchbox">
+                        <label for="search-by">
+                            <i class="fas fa-search"></i>
+                        </label>
+                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                        <span data-search-clear="">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                </div>
+                <!-- END SEARCH BOX: this adds support for the search box -->
 
-            <li class="nav-header">Documentation</li>
-            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
-            <li><a href="/Argu/perf.html">Performance Tips</a></li>
-            <li><a href="/Argu/reference/index.html">API Reference</a></li>
-          </ul>
+                <ul class="nav nav-list" id="menu">
+                    <li class="nav-header">Argu</li>
+                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
+                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-      </div>
     </div>
-    <a href="http://github.com/fsprojects/Argu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
+
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
+    <!-- END SEARCH BOX: this adds support for the search box -->
+</body>
+
+</html>

@@ -1,343 +1,471 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <title>Namespaces - Argu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Eirik Tsarpalis"/>
 
-    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+<head>
+    <meta charset="utf-8">
+    <title>API Reference - Argu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Eirik Tsarpalis">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="/Argu/content/style.css" />
-    <script type="text/javascript" src="/Argu/content/tips.js"></script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+
+</head>
+
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsprojects/Argu">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/Argu/index.html">Argu</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
-<h1>Argu</h1>
-
-  <h2>Argu Namespace</h2>
-    <div>
-      <table class="table table-bordered type-list">
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+            </ul>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                <div>
+  <h1>
+    Argu
+  </h1>
+  <h2>
+    Argu Namespace
+  </h2>
+  <table class="table type-list module-list">
     <thead>
-      <tr><td>Type</td><td>Description</td></tr>
+      <tr>
+        <td>
+          Type/Module
+        </td>
+        <td>
+          Description
+        </td>
+      </tr>
     </thead>
     <tbody>
-        <tr>
-          <td class="type-name">
-            <a href="argu-appsettingsconfigurationreader.html">AppSettingsConfigurationReader</a>
-          </td>
-          <td class="xmldoc">
-          <p>AppSettings XML configuration reader</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-arguexception.html">ArguException</a>
-          </td>
-          <td class="xmldoc">
-          <p>Exception raised by Argu</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-arguparseexception.html">ArguParseException</a>
-          </td>
-          <td class="xmldoc">
-          <p>Parse exception raised by Argu</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-argumentcaseinfo.html">ArgumentCaseInfo</a>
-          </td>
-          <td class="xmldoc">
-          <p>Union argument metadata</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-argumentparser.html">ArgumentParser</a>
-          </td>
-          <td class="xmldoc">
-          <p>The Argu type generates an argument parser given a type argument
-that is an F# discriminated union. It can then be used to parse command line arguments
-or XML configuration.</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-argumentparser-1.html">ArgumentParser<'Template></a>
-          </td>
-          <td class="xmldoc">
-          <p>The Argu type generates an argument parser given a type argument
-that is an F# discriminated union. It can then be used to parse command line arguments
-or XML configuration.</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-argumenttype.html">ArgumentType</a>
-          </td>
-          <td class="xmldoc">
-          <p>Argument parameter type identifier</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-cliposition.html">CliPosition</a>
-          </td>
-          <td class="xmldoc">
-          <p>Cli Position required to place argument</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-configurationreader.html">ConfigurationReader</a>
-          </td>
-          <td class="xmldoc">
-          <p>Configuration reader implementations</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-customassignmentseparator.html">CustomAssignmentSeparator</a>
-          </td>
-          <td class="xmldoc">
-          <p>Describes the permitted separators between arguments and their values</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-dictionaryconfigurationreader.html">DictionaryConfigurationReader</a>
-          </td>
-          <td class="xmldoc">
-          <p>Configuration reader dictionary proxy</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-environmentvariableconfigurationreader.html">EnvironmentVariableConfigurationReader</a>
-          </td>
-          <td class="xmldoc">
-          <p>Environment variable-based configuration reader</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-errorcode.html">ErrorCode</a>
-          </td>
-          <td class="xmldoc">
-          <p>Error codes reported by Argu</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-exceptionexiter.html">ExceptionExiter</a>
-          </td>
-          <td class="xmldoc">
-          <p>Handles argument parser errors by raising an exception</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-functionconfigurationreader.html">FunctionConfigurationReader</a>
-          </td>
-          <td class="xmldoc">
-          <p>Function configuration reader proxy</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-iargparsertemplate.html">IArgParserTemplate</a>
-          </td>
-          <td class="xmldoc">
-          <p>Interface that must be implemented by all Argu template types</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-iargumentparservisitor-1.html">IArgumentParserVisitor<'R></a>
-          </td>
-          <td class="xmldoc">
-          <p>Rank-2 function used for accessing typed APIs of untyped parsers</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-iconfigurationreader.html">IConfigurationReader</a>
-          </td>
-          <td class="xmldoc">
-          <p>Abstract key/value configuration reader</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-iexiter.html">IExiter</a>
-          </td>
-          <td class="xmldoc">
-          <p>An interface for error handling in the argument parser</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-nullconfigurationreader.html">NullConfigurationReader</a>
-          </td>
-          <td class="xmldoc">
-          <p>Configuration reader that never returns a value</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-parseresults-1.html">ParseResults<'Template></a>
-          </td>
-          <td class="xmldoc">
-          <p>Argument parsing result holder.</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-parsesource.html">ParseSource</a>
-          </td>
-          <td class="xmldoc">
-          <p>Source from which to parse arguments</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="argu-processexiter.html">ProcessExiter</a>
-          </td>
-          <td class="xmldoc">
-          <p>Handles argument parser errors by exiting the process
-after printing a parse error.</p>
-
-
-          </td>
-        </tr>
-    </tbody>
-  </table>
-  <table class="table table-bordered module-list">
-    <thead>
-      <tr><td>Module</td><td>Description</td></tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td class="module-name">
-            <a href="argu-arguattributes.html">ArguAttributes</a>
-          </td>
-          <td class="xmldoc">
-          <p>Argu Attribute declaration module</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="module-name">
-            <a href="argu-argumentparserutils.html">ArgumentParserUtils</a>
-          </td>
-          <td class="xmldoc">
+      <tr>
+        <td class="type-name">
+          <a name="AppSettingsConfigurationReader">
+            <a href="argu-appsettingsconfigurationreader.html">
+              AppSettingsConfigurationReader
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ AppSettings XML configuration reader
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ArguAttributes">
+            <a href="argu-arguattributes.html">
+              ArguAttributes
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Argu Attribute declaration module
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ArguException">
+            <a href="argu-arguexception.html">
+              ArguException
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Exception raised by Argu
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ArguParseException">
+            <a href="argu-arguparseexception.html">
+              ArguParseException
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Parse exception raised by Argu
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ArgumentCaseInfo">
+            <a href="argu-argumentcaseinfo.html">
+              ArgumentCaseInfo
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Union argument metadata
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ArgumentParser">
+            <a href="argu-argumentparser.html">
+              ArgumentParser
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ The Argu type generates an argument parser given a type argument
+ that is an F# discriminated union. It can then be used to parse command line arguments
+ or XML configuration.
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ArgumentParser<'Template>">
+            <a href="argu-argumentparser-1.html">
+              ArgumentParser<'Template>
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ The Argu type generates an argument parser given a type argument
+ that is an F# discriminated union. It can then be used to parse command line arguments
+ or XML configuration.
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ArgumentParserUtils">
+            <a href="argu-argumentparserutils.html">
+              ArgumentParserUtils
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
           
-          </td>
-        </tr>
-        <tr>
-          <td class="module-name">
-            <a href="argu-cliprefix.html">CliPrefix</a>
-          </td>
-          <td class="xmldoc">
-          <p>Predefined CLI prefixes to be added</p>
-
-
-          </td>
-        </tr>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ArgumentType">
+            <a href="argu-argumenttype.html">
+              ArgumentType
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Argument parameter type identifier
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="CliPosition">
+            <a href="argu-cliposition.html">
+              CliPosition
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Cli Position required to place argument
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="CliPrefix">
+            <a href="argu-cliprefix.html">
+              CliPrefix
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Predefined CLI prefixes to be added
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ConfigurationReader">
+            <a href="argu-configurationreader.html">
+              ConfigurationReader
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Configuration reader implementations
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="CustomAssignmentSeparator">
+            <a href="argu-customassignmentseparator.html">
+              CustomAssignmentSeparator
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Describes the permitted separators between arguments and their values
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="DictionaryConfigurationReader">
+            <a href="argu-dictionaryconfigurationreader.html">
+              DictionaryConfigurationReader
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Configuration reader dictionary proxy
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="EnvironmentVariableConfigurationReader">
+            <a href="argu-environmentvariableconfigurationreader.html">
+              EnvironmentVariableConfigurationReader
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Environment variable-based configuration reader
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ErrorCode">
+            <a href="argu-errorcode.html">
+              ErrorCode
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Error codes reported by Argu
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ExceptionExiter">
+            <a href="argu-exceptionexiter.html">
+              ExceptionExiter
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Handles argument parser errors by raising an exception
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="FunctionConfigurationReader">
+            <a href="argu-functionconfigurationreader.html">
+              FunctionConfigurationReader
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Function configuration reader proxy
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="IArgParserTemplate">
+            <a href="argu-iargparsertemplate.html">
+              IArgParserTemplate
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Interface that must be implemented by all Argu template types
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="IArgumentParserVisitor<'R>">
+            <a href="argu-iargumentparservisitor-1.html">
+              IArgumentParserVisitor<'R>
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Rank-2 function used for accessing typed APIs of untyped parsers
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="IConfigurationReader">
+            <a href="argu-iconfigurationreader.html">
+              IConfigurationReader
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Abstract key/value configuration reader
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="IExiter">
+            <a href="argu-iexiter.html">
+              IExiter
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ An interface for error handling in the argument parser
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="NullConfigurationReader">
+            <a href="argu-nullconfigurationreader.html">
+              NullConfigurationReader
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Configuration reader that never returns a value
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ParseResults<'Template>">
+            <a href="argu-parseresults-1.html">
+              ParseResults<'Template>
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Argument parsing result holder.
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ParseSource">
+            <a href="argu-parsesource.html">
+              ParseSource
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Source from which to parse arguments
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ProcessExiter">
+            <a href="argu-processexiter.html">
+              ProcessExiter
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          <p class='summary'>
+ Handles argument parser errors by exiting the process
+ after printing a parse error.
+</p>
+        </td>
+      </tr>
     </tbody>
   </table>
+</div>
+                
+            </div>
+            <div class="span3"> 
+                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
 
-    </div>
+                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+                <div id="header">
+                    <div class="searchbox">
+                        <label for="search-by">
+                            <i class="fas fa-search"></i>
+                        </label>
+                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                        <span data-search-clear="">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                </div>
+                <!-- END SEARCH BOX: this adds support for the search box -->
 
+                <ul class="nav nav-list" id="menu">
+                    <li class="nav-header">Argu</li>
+                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
+                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="span3">
-          <a target="_blank" href="http://fsprojects.github.io/">
-			<img src="/Argu/img/logo.png" alt="Argu" style="width:150px;margin:10px" />
-		  </a>
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">Argu</li>
-            <li><a href="/Argu/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://www.nuget.org/packages/Argu">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsprojects/Argu">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsprojects/Argu/blob/master/License.md">License</a></li>
-            <li><a href="http://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-
-            <li class="nav-header">Documentation</li>
-            <li><a href="/Argu/tutorial.html">Tutorial</a></li>
-            <li><a href="/Argu/perf.html">Performance Tips</a></li>
-            <li><a href="/Argu/reference/index.html">API Reference</a></li>
-          </ul>
-        </div>
-      </div>
     </div>
-    <a href="http://github.com/fsprojects/Argu"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
+
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
+    <!-- END SEARCH BOX: this adds support for the search box -->
+</body>
+
+</html>
