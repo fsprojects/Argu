@@ -1,20 +1,33 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29009.5
+VisualStudioVersion = 16.0.30324.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{FB06D972-6D76-4220-AD16-8E5F20DADAA6}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu", "src\Argu\Argu.fsproj", "{7B13281E-1F6F-43D2-A6F9-08CF36C00681}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Samples.LS", "samples\Argu.Samples.LS\Argu.Samples.LS.fsproj", "{ABAA4202-6662-4F84-9622-C485DB1C1325}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{25AAC0C7-1879-4372-845C-53A14FA8E32A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{90A3B3AC-1053-4B65-8BB4-522CA5AEBE2E}"
 	ProjectSection(SolutionItems) = preProject
-		paket.dependencies = paket.dependencies
-		paket.lock = paket.lock
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{2D8E9813-7B6B-42E2-8676-9F45075E5FA6}"
+	ProjectSection(SolutionItems) = preProject
+		.github\ISSUE_TEMPLATE.md = .github\ISSUE_TEMPLATE.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{CB5628A0-F04B-4FF4-BF1E-F85F8677F86E}"
+	ProjectSection(SolutionItems) = preProject
 		.paket\Paket.Restore.targets = .paket\Paket.Restore.targets
 	EndProjectSection
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu", "src\Argu\Argu.fsproj", "{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB909722-1B3F-46A1-9245-277905B1E346}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C2E8EEB5-55DD-49A1-94EA-C4746C804AFD}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		.gitignore = .gitignore
+		.tfignore = .tfignore
 		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
 		build.cmd = build.cmd
@@ -23,41 +36,38 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{AB90
 		Directory.Build.props = Directory.Build.props
 		docker-build.sh = docker-build.sh
 		Dockerfile = Dockerfile
-		.config\dotnet-tools.json = .config\dotnet-tools.json
+		global.json = global.json
 		License.md = License.md
+		paket.dependencies = paket.dependencies
+		paket.lock = paket.lock
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{31C8F489-6FEC-4DE5-A247-8447D56B5C04}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{036AEA2A-4F01-4834-A345-B7C6D27754FB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{5063BA7E-DCB9-48A9-9ADA-BFC79A95194C}"
 	ProjectSection(SolutionItems) = preProject
-		docs\content\index.fsx = docs\content\index.fsx
-		docs\content\tutorial.fsx = docs\content\tutorial.fsx
+		docs\_template.html = docs\_template.html
+		docs\index.fsx = docs\index.fsx
+		docs\perf.fsx = docs\perf.fsx
+		docs\tutorial.fsx = docs\tutorial.fsx
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{745EFEBD-8B8D-4B9B-9743-6AC51D586724}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "img", "img", "{0E623042-7E58-4528-B2A0-1D322F8E4D1A}"
 	ProjectSection(SolutionItems) = preProject
-		docs\files\img\fsharp.png = docs\files\img\fsharp.png
-		docs\files\img\nessos.png = docs\files\img\nessos.png
+		docs\img\logo.pdn = docs\img\logo.pdn
+		docs\img\logo.png = docs\img\logo.png
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{33A4833E-3B3D-40FD-8FFE-734E9C510A46}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resource", "resource", "{D5E730FC-E844-4A70-A1C7-97E515472615}"
 	ProjectSection(SolutionItems) = preProject
-		docs\tools\generate.fsx = docs\tools\generate.fsx
-		docs\tools\templates\template.cshtml = docs\tools\templates\template.cshtml
+		resource\logo.png = resource\logo.png
 	EndProjectSection
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{B94D60AD-2083-4E08-B28F-43122BE14819}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{6FCD6F65-A553-4A21-A460-D6243B3FA22E}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Samples.LS", "samples\Argu.Samples.LS\Argu.Samples.LS.fsproj", "{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{41238EB5-6497-4CC4-AEED-AF44ED028676}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{AF8469CE-9BA8-4EDD-BFFA-FF67EA8FFD86}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6FBA8939-A5FA-4476-9F25-B8CEC181EC21}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3F10A2DD-E1BA-4A9F-8679-A18144168EFA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{034BBCBB-12AA-4852-9CFA-0A8635A7FD05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,31 +75,29 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B94D60AD-2083-4E08-B28F-43122BE14819}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B94D60AD-2083-4E08-B28F-43122BE14819}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B94D60AD-2083-4E08-B28F-43122BE14819}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B94D60AD-2083-4E08-B28F-43122BE14819}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B13281E-1F6F-43D2-A6F9-08CF36C00681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B13281E-1F6F-43D2-A6F9-08CF36C00681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B13281E-1F6F-43D2-A6F9-08CF36C00681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B13281E-1F6F-43D2-A6F9-08CF36C00681}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABAA4202-6662-4F84-9622-C485DB1C1325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABAA4202-6662-4F84-9622-C485DB1C1325}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABAA4202-6662-4F84-9622-C485DB1C1325}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABAA4202-6662-4F84-9622-C485DB1C1325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25AAC0C7-1879-4372-845C-53A14FA8E32A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25AAC0C7-1879-4372-845C-53A14FA8E32A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25AAC0C7-1879-4372-845C-53A14FA8E32A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25AAC0C7-1879-4372-845C-53A14FA8E32A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{49E38CF1-8B37-4A4F-83CF-EAFE9577BCC6} = {6FBA8939-A5FA-4476-9F25-B8CEC181EC21}
-		{036AEA2A-4F01-4834-A345-B7C6D27754FB} = {31C8F489-6FEC-4DE5-A247-8447D56B5C04}
-		{745EFEBD-8B8D-4B9B-9743-6AC51D586724} = {31C8F489-6FEC-4DE5-A247-8447D56B5C04}
-		{33A4833E-3B3D-40FD-8FFE-734E9C510A46} = {31C8F489-6FEC-4DE5-A247-8447D56B5C04}
-		{B94D60AD-2083-4E08-B28F-43122BE14819} = {3F10A2DD-E1BA-4A9F-8679-A18144168EFA}
-		{C7615A27-8D3D-466A-9B0B-D6C068B31CB1} = {AF8469CE-9BA8-4EDD-BFFA-FF67EA8FFD86}
+		{7B13281E-1F6F-43D2-A6F9-08CF36C00681} = {41238EB5-6497-4CC4-AEED-AF44ED028676}
+		{ABAA4202-6662-4F84-9622-C485DB1C1325} = {6FCD6F65-A553-4A21-A460-D6243B3FA22E}
+		{25AAC0C7-1879-4372-845C-53A14FA8E32A} = {034BBCBB-12AA-4852-9CFA-0A8635A7FD05}
+		{0E623042-7E58-4528-B2A0-1D322F8E4D1A} = {5063BA7E-DCB9-48A9-9ADA-BFC79A95194C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {42B6791A-3A2A-4988-967C-14BE8C294990}
+		SolutionGuid = {787017CA-EBA8-4AF2-8D93-5171CC495A64}
 	EndGlobalSection
 EndGlobal

@@ -31,5 +31,3 @@ group Build
   nuget Fake.DotNet.Cli	        ~> 5.20.0
   nuget Fake.Tools.Git          ~> 5.20.0
   nuget Fake.Api.Github         ~> 5.20.0
-
-  nuget FSharp.Formatting ~> 4.0 storage: packages
