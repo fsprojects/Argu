@@ -3,19 +3,22 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Argu
+    <title>Introduction
 </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="Eirik Tsarpalis">
 
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -27,29 +30,67 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <a href="http://fsprojects.github.io/Argu/"><img id="fsdocs-logo" src="http://fsprojects.github.io/Argu/img/logo.png" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/perf.html">
+    Performance Tips
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/tutorial.html">
+    Tutorial
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+    </nav>
     <div class="container">
         <div class="masthead">
-            <ul class="nav nav-pills pull-right">
-                <li><a href="http://fsharp.org">fsharp.org</a></li>
-            </ul>
-            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu/">Argu</a></h3>
         </div>
         <hr />
-        <div class="row">
-            <div class="span9" id="main">
-                <h1><a name="Argu" class="anchor" href="#Argu">Argu</a></h1>
-<p>Argu (pronounced "Argue") is a declarative CLI argument parser for F# applications.
-Allows quick definition of argument parsing schema through F# union declarations.</p>
-<div class="row">
-  <div class="span1"></div>
-  <div class="span6">
-    <div class="well well-small" id="nuget">
-      Argu can be <a href="https://nuget.org/packages/Argu">installed from NuGet</a>:
-      <pre>PM> Install-Package Argu</pre>
-    </div>
-  </div>
-  <div class="span1"></div>
-</div>
+        <div class="container" id="fsdocs-content">
+            <h1><a name="Introduction" class="anchor" href="#Introduction">Introduction</a></h1>
+<p>Argu (pronounced "Argue") is a declarative CLI argument parser for F# console applications.
+It allows modelling the command-line syntax using discriminated unions,
+which the library converts into a working parser using reflection.</p>
 <p>Argu is a mature library that comes with many features</p>
 <ul>
 <li>Declarative: easily model your syntax definitions using F# unions.</li>
@@ -57,49 +98,29 @@ Allows quick definition of argument parsing schema through F# union declarations
 <li>Customizable: control most aspects of your parser behaviour.</li>
 <li>Subcommands: use contextual syntax with nested argument schemata.</li>
 </ul>
-<h2><a name="Introduction" class="anchor" href="#Introduction">Introduction</a></h2>
+<p>It can be installed using <a href="https://nuget.org/packages/Argu">NuGet</a>.</p>
+<h2><a name="Basic-Concepts" class="anchor" href="#Basic-Concepts">Basic Concepts</a></h2>
 <p>The library is based on the simple observation that
 configuration parameters can be naturally described using discriminated unions.
 For instance:</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs10', 12)" onmouseover="showTip(event, 'fs10', 12)" class="rt">Arguments</span> <span class="o">=</span>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs10', 12)" onmouseover="showTip(event, 'fs10', 12)" class="rt">Arguments</span> <span class="o">=</span>
     <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs11', 13)" onmouseover="showTip(event, 'fs11', 13)" class="uc">Working_Directory</span> <span class="k">of</span> <span class="id">path</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs4', 14)" onmouseover="showTip(event, 'fs4', 14)" class="rt">string</span>
     <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="uc">Listener</span> <span class="k">of</span> <span class="id">host</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs4', 16)" onmouseover="showTip(event, 'fs4', 16)" class="rt">string</span> <span class="pn">*</span> <span class="id">port</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs6', 17)" onmouseover="showTip(event, 'fs6', 17)" class="vt">int</span>
     <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs13', 18)" onmouseover="showTip(event, 'fs13', 18)" class="uc">Log_Level</span> <span class="k">of</span> <span class="id">level</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs6', 19)" onmouseover="showTip(event, 'fs6', 19)" class="vt">int</span>
     <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs14', 20)" onmouseover="showTip(event, 'fs14', 20)" class="uc">Detach</span>
-</code></pre></td>
-</tr>
-</table>
+</code></pre>
 <p>Argu takes such discriminated unions and generates
 a corresponding argument parsing scheme.
 For example, a parser generated from the above template would
 take the following command line input</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip"><code lang="bash">--working-directory /var/run --listener localhost 8080 --detach
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="bash">--working-directory /var/run --listener localhost 8080 --detach
 </code></pre></td></tr></table>
 <p>and parse it into the list</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">[</span> <span onmouseout="hideTip(event, 'fs3', 21)" onmouseover="showTip(event, 'fs3', 21)" class="uc">Working_Directory</span> <span class="s">&quot;/var/run&quot;</span> <span class="pn">;</span> <span onmouseout="hideTip(event, 'fs5', 22)" onmouseover="showTip(event, 'fs5', 22)" class="uc">Listener</span><span class="pn">(</span><span class="s">&quot;localhost&quot;</span><span class="pn">,</span> <span class="n">8080</span><span class="pn">)</span> <span class="pn">;</span> <span onmouseout="hideTip(event, 'fs14', 23)" onmouseover="showTip(event, 'fs14', 23)" class="uc">Detach</span> <span class="pn">]</span>
-</code></pre></td>
-</tr>
-</table>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="pn">[</span> <span onmouseout="hideTip(event, 'fs3', 21)" onmouseover="showTip(event, 'fs3', 21)" class="uc">Working_Directory</span> <span class="s">&quot;/var/run&quot;</span> <span class="pn">;</span> <span onmouseout="hideTip(event, 'fs5', 22)" onmouseover="showTip(event, 'fs5', 22)" class="uc">Listener</span><span class="pn">(</span><span class="s">&quot;localhost&quot;</span><span class="pn">,</span> <span class="n">8080</span><span class="pn">)</span> <span class="pn">;</span> <span onmouseout="hideTip(event, 'fs14', 23)" onmouseover="showTip(event, 'fs14', 23)" class="uc">Detach</span> <span class="pn">]</span>
+</code></pre>
 <p>Argu is also capable of reading the <code>AppSettings</code> section
 of an application's configuration file:</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">appSettings</span><span class="k">&gt;</span>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">appSettings</span><span class="k">&gt;</span>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="working directory"</span> <span class="o">value</span><span class="k">="C:\temp"</span> <span class="k">/&gt;</span>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="listener"</span> <span class="o">value</span><span class="k">="192.168.0.3, 2675"</span> <span class="k">/&gt;</span>
     <span class="k">&lt;</span><span class="i">add</span> <span class="o">key</span><span class="k">="log level"</span> <span class="o">value</span><span class="k">="3"</span> <span class="k">/&gt;</span>
@@ -107,20 +128,12 @@ of an application's configuration file:</p>
 <span class="k">&lt;/</span><span class="i">appSettings</span><span class="k">&gt;</span>
 </code></pre></td></tr></table>
 <p>Furthermore, you can parse environment variables, by supplying the an <code>EnvironmentVariableReader</code> to the <code>Parse</code> call:</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 24)" onmouseover="showTip(event, 'fs15', 24)" class="id">argv</span> <span class="o">=</span> <span class="pn">[|</span> <span class="s">&quot;--log-level&quot;</span><span class="pn">;</span> <span class="s">&quot;3&quot;</span> <span class="pn">|]</span>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 24)" onmouseover="showTip(event, 'fs15', 24)" class="id">argv</span> <span class="o">=</span> <span class="pn">[|</span> <span class="s">&quot;--log-level&quot;</span><span class="pn">;</span> <span class="s">&quot;3&quot;</span> <span class="pn">|]</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 25)" onmouseover="showTip(event, 'fs16', 25)" class="id">reader</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 26)" onmouseover="showTip(event, 'fs17', 26)" class="rt">EnvironmentVariableConfigurationReader</span><span class="pn">(</span><span class="pn">)</span> <span class="o">:&gt;</span> <span onmouseout="hideTip(event, 'fs18', 27)" onmouseover="showTip(event, 'fs18', 27)" class="if">IConfigurationReader</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs19', 28)" onmouseover="showTip(event, 'fs19', 28)" class="id">parser</span> <span class="o">=</span>  <span onmouseout="hideTip(event, 'fs20', 29)" onmouseover="showTip(event, 'fs20', 29)" class="rt">ArgumentParser</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs21', 30)" onmouseover="showTip(event, 'fs21', 30)" class="id">Create</span><span class="pn">&lt;</span><span onmouseout="hideTip(event, 'fs22', 31)" onmouseover="showTip(event, 'fs22', 31)" class="rt">Args</span><span class="pn">&gt;</span><span class="pn">(</span><span class="id">programName</span> <span class="o">=</span> <span class="s">&quot;rutta&quot;</span><span class="pn">)</span>
 <span class="c">// pass the reader to the Parse call</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 32)" onmouseover="showTip(event, 'fs23', 32)" class="id">results</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 33)" onmouseover="showTip(event, 'fs19', 33)" class="fn">parser</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs24', 34)" onmouseover="showTip(event, 'fs24', 34)" class="id">Parse</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs15', 35)" onmouseover="showTip(event, 'fs15', 35)" class="id">argv</span><span class="pn">,</span> <span class="id">configurationReader</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs16', 36)" onmouseover="showTip(event, 'fs16', 36)" class="id">reader</span><span class="pn">)</span>
-</code></pre></td>
-</tr>
-</table>
+</code></pre>
 <h2><a name="Who-uses-Argu" class="anchor" href="#Who-uses-Argu">Who uses Argu?</a></h2>
 <ul>
 <li><p><a href="http://m-brace.net/">MBrace</a></p></li>
@@ -142,71 +155,41 @@ the project and submit pull requests.</p>
 <p>The library is available under the MIT License.
 For more information see the <a href="https://github.com/fsprojects/Argu/blob/master/License.md">License file</a> in the GitHub repository.</p>
 
-                <div class="tip" id="fs1">namespace System</div>
-<div class="tip" id="fs2">namespace Argu</div>
-<div class="tip" id="fs3">union case Args.Working_Directory: path: string -&gt; Args</div>
-<div class="tip" id="fs4">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />--------------------<br />type string = String</div>
-<div class="tip" id="fs5">union case Args.Listener: host: string * port: int -&gt; Args</div>
-<div class="tip" id="fs6">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />--------------------<br />type int = int32<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int</div>
-<div class="tip" id="fs7">union case Args.Log_Level: level: int -&gt; Args</div>
-<div class="tip" id="fs8">union case Args.Detach: Args</div>
-<div class="tip" id="fs9">type IArgParserTemplate =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member Usage : string<br />&#160;&#160;end</div>
-<div class="tip" id="fs10">type Arguments =<br />&#160;&#160;| Working_Directory of path: string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Log_Level of level: int<br />&#160;&#160;| Detach</div>
-<div class="tip" id="fs11">union case Arguments.Working_Directory: path: string -&gt; Arguments</div>
-<div class="tip" id="fs12">union case Arguments.Listener: host: string * port: int -&gt; Arguments</div>
-<div class="tip" id="fs13">union case Arguments.Log_Level: level: int -&gt; Arguments</div>
-<div class="tip" id="fs14">union case Arguments.Detach: Arguments</div>
-<div class="tip" id="fs15">val argv : string []</div>
-<div class="tip" id="fs16">val reader : IConfigurationReader</div>
-<div class="tip" id="fs17">Multiple items<br />type EnvironmentVariableConfigurationReader =<br />&#160;&#160;interface IConfigurationReader<br />&#160;&#160;new : unit -&gt; EnvironmentVariableConfigurationReader<br /><br />--------------------<br />new : unit -&gt; EnvironmentVariableConfigurationReader</div>
-<div class="tip" id="fs18">type IConfigurationReader =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member GetValue : key:string -&gt; string<br />&#160;&#160;&#160;&#160;abstract member Name : string<br />&#160;&#160;end</div>
-<div class="tip" id="fs19">val parser : ArgumentParser&lt;Args&gt;</div>
-<div class="tip" id="fs20">Multiple items<br />type ArgumentParser =<br />&#160;&#160;private new : argInfo:UnionArgInfo * _programName:string * helpTextMessage:string option * _usageStringCharacterWidth:int * errorHandler:IExiter -&gt; ArgumentParser<br />&#160;&#160;abstract member Accept : visitor:IArgumentParserVisitor&lt;&#39;R&gt; -&gt; &#39;R<br />&#160;&#160;member GetArgumentCases : unit -&gt; ArgumentCaseInfo list<br />&#160;&#160;member GetSubCommandParsers : unit -&gt; ArgumentParser list<br />&#160;&#160;member PrintCommandLineSyntax : ?programName:string * ?usageStringCharacterWidth:int -&gt; string<br />&#160;&#160;member PrintUsage : ?message:string * ?programName:string * ?hideSyntax:bool * ?usageStringCharacterWidth:int -&gt; string<br />&#160;&#160;member ErrorHandler : IExiter<br />&#160;&#160;member HelpDescription : string<br />&#160;&#160;member HelpFlags : string list<br />&#160;&#160;member HelpTextMessage : string option<br />&#160;&#160;...<br /><br />--------------------<br />type ArgumentParser&lt;&#39;Template (requires &#39;Template :&gt; IArgParserTemplate)&gt; =<br />&#160;&#160;inherit ArgumentParser<br />&#160;&#160;new : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;private new : argInfo:UnionArgInfo * _programName:string * helpTextMessage:string option * _usageStringCharacterWidth:int * errorHandler:IExiter -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;override Accept : visitor:IArgumentParserVisitor&lt;&#39;a1&gt; -&gt; &#39;a1<br />&#160;&#160;member GetArgumentCaseInfo : ctorExpr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; -&gt; ArgumentCaseInfo<br />&#160;&#160;member GetArgumentCaseInfo : value:&#39;Template -&gt; ArgumentCaseInfo<br />&#160;&#160;member GetSubCommandParser : expr:Expr&lt;(ParseResults&lt;&#39;SubTemplate&gt; -&gt; &#39;Template)&gt; -&gt; ArgumentParser&lt;&#39;SubTemplate&gt; (requires &#39;SubTemplate :&gt; IArgParserTemplate)<br />&#160;&#160;member GetTag : value:&#39;Template -&gt; int<br />&#160;&#160;member Parse : ?inputs:string [] * ?configurationReader:IConfigurationReader * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseCommandLine : ?inputs:string [] * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;...<br /><br />--------------------<br />new : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;&#39;Template&gt;</div>
-<div class="tip" id="fs21">static member ArgumentParser.Create : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;</div>
-<div class="tip" id="fs22">type Args =<br />&#160;&#160;| Working_Directory of path: string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Log_Level of level: int<br />&#160;&#160;| Detach<br />&#160;&#160;&#160;&#160;interface IArgParserTemplate</div>
-<div class="tip" id="fs23">val results : ParseResults&lt;Args&gt;</div>
-<div class="tip" id="fs24"></div>
+            <div class="fsdocs-tip" id="fs1">namespace System</div>
+<div class="fsdocs-tip" id="fs2">namespace Argu</div>
+<div class="fsdocs-tip" id="fs3">union case Args.Working_Directory: path: string -&gt; Args</div>
+<div class="fsdocs-tip" id="fs4">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />--------------------<br />type string = String</div>
+<div class="fsdocs-tip" id="fs5">union case Args.Listener: host: string * port: int -&gt; Args</div>
+<div class="fsdocs-tip" id="fs6">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />--------------------<br />type int = int32<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int</div>
+<div class="fsdocs-tip" id="fs7">union case Args.Log_Level: level: int -&gt; Args</div>
+<div class="fsdocs-tip" id="fs8">union case Args.Detach: Args</div>
+<div class="fsdocs-tip" id="fs9">type IArgParserTemplate =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member Usage : string<br />&#160;&#160;end</div>
+<div class="fsdocs-tip" id="fs10">type Arguments =<br />&#160;&#160;| Working_Directory of path: string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Log_Level of level: int<br />&#160;&#160;| Detach</div>
+<div class="fsdocs-tip" id="fs11">union case Arguments.Working_Directory: path: string -&gt; Arguments</div>
+<div class="fsdocs-tip" id="fs12">union case Arguments.Listener: host: string * port: int -&gt; Arguments</div>
+<div class="fsdocs-tip" id="fs13">union case Arguments.Log_Level: level: int -&gt; Arguments</div>
+<div class="fsdocs-tip" id="fs14">union case Arguments.Detach: Arguments</div>
+<div class="fsdocs-tip" id="fs15">val argv : string []</div>
+<div class="fsdocs-tip" id="fs16">val reader : IConfigurationReader</div>
+<div class="fsdocs-tip" id="fs17">Multiple items<br />type EnvironmentVariableConfigurationReader =<br />&#160;&#160;interface IConfigurationReader<br />&#160;&#160;new : unit -&gt; EnvironmentVariableConfigurationReader<br /><br />--------------------<br />new : unit -&gt; EnvironmentVariableConfigurationReader</div>
+<div class="fsdocs-tip" id="fs18">type IConfigurationReader =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member GetValue : key:string -&gt; string<br />&#160;&#160;&#160;&#160;abstract member Name : string<br />&#160;&#160;end</div>
+<div class="fsdocs-tip" id="fs19">val parser : ArgumentParser&lt;Args&gt;</div>
+<div class="fsdocs-tip" id="fs20">Multiple items<br />type ArgumentParser =<br />&#160;&#160;private new : argInfo:UnionArgInfo * _programName:string * helpTextMessage:string option * _usageStringCharacterWidth:int * errorHandler:IExiter -&gt; ArgumentParser<br />&#160;&#160;abstract member Accept : visitor:IArgumentParserVisitor&lt;&#39;R&gt; -&gt; &#39;R<br />&#160;&#160;member GetArgumentCases : unit -&gt; ArgumentCaseInfo list<br />&#160;&#160;member GetSubCommandParsers : unit -&gt; ArgumentParser list<br />&#160;&#160;member PrintCommandLineSyntax : ?programName:string * ?usageStringCharacterWidth:int -&gt; string<br />&#160;&#160;member PrintUsage : ?message:string * ?programName:string * ?hideSyntax:bool * ?usageStringCharacterWidth:int -&gt; string<br />&#160;&#160;member ErrorHandler : IExiter<br />&#160;&#160;member HelpDescription : string<br />&#160;&#160;member HelpFlags : string list<br />&#160;&#160;member HelpTextMessage : string option<br />&#160;&#160;...<br /><br />--------------------<br />type ArgumentParser&lt;&#39;Template (requires &#39;Template :&gt; IArgParserTemplate)&gt; =<br />&#160;&#160;inherit ArgumentParser<br />&#160;&#160;new : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;private new : argInfo:UnionArgInfo * _programName:string * helpTextMessage:string option * _usageStringCharacterWidth:int * errorHandler:IExiter -&gt; ArgumentParser&lt;&#39;Template&gt;<br />&#160;&#160;override Accept : visitor:IArgumentParserVisitor&lt;&#39;a1&gt; -&gt; &#39;a1<br />&#160;&#160;member GetArgumentCaseInfo : ctorExpr:Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; -&gt; ArgumentCaseInfo<br />&#160;&#160;member GetArgumentCaseInfo : value:&#39;Template -&gt; ArgumentCaseInfo<br />&#160;&#160;member GetSubCommandParser : expr:Expr&lt;(ParseResults&lt;&#39;SubTemplate&gt; -&gt; &#39;Template)&gt; -&gt; ArgumentParser&lt;&#39;SubTemplate&gt; (requires &#39;SubTemplate :&gt; IArgParserTemplate)<br />&#160;&#160;member GetTag : value:&#39;Template -&gt; int<br />&#160;&#160;member Parse : ?inputs:string [] * ?configurationReader:IConfigurationReader * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;member ParseCommandLine : ?inputs:string [] * ?ignoreMissing:bool * ?ignoreUnrecognized:bool * ?raiseOnUsage:bool -&gt; ParseResults&lt;&#39;Template&gt;<br />&#160;&#160;...<br /><br />--------------------<br />new : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;&#39;Template&gt;</div>
+<div class="fsdocs-tip" id="fs21">static member ArgumentParser.Create : ?programName:string * ?helpTextMessage:string * ?usageStringCharacterWidth:int * ?errorHandler:IExiter * ?checkStructure:bool -&gt; ArgumentParser&lt;#IArgParserTemplate&gt;</div>
+<div class="fsdocs-tip" id="fs22">type Args =<br />&#160;&#160;| Working_Directory of path: string<br />&#160;&#160;| Listener of host: string * port: int<br />&#160;&#160;| Log_Level of level: int<br />&#160;&#160;| Detach<br />&#160;&#160;&#160;&#160;interface IArgParserTemplate</div>
+<div class="fsdocs-tip" id="fs23">val results : ParseResults&lt;Args&gt;</div>
+<div class="fsdocs-tip" id="fs24"></div>
 
-            </div>
-            <div class="span3"> 
-                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
-
-                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-                <div id="header">
-                    <div class="searchbox">
-                        <label for="search-by">
-                            <i class="fas fa-search"></i>
-                        </label>
-                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-                        <span data-search-clear="">
-                            <i class="fas fa-times"></i>
-                        </span>
-                    </div>
-                </div>
-                <!-- END SEARCH BOX: this adds support for the search box -->
-
-                <ul class="nav nav-list" id="menu">
-                    <li class="nav-header">Argu</li>
-                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
-                    <li class="divider"></li>
-                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
-                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
-
-                    <li class="nav-header">Documentation</li>
-                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
-                </ul>
-            </div>
         </div>
-    </div>
-    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
 
-    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
-    <!-- END SEARCH BOX: this adds support for the search box -->
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
 </body>
 
 </html>
