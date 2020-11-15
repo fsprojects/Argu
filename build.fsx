@@ -69,10 +69,6 @@ Target.create "RunTests" (fun _ ->
             Configuration = DotNet.BuildConfiguration.fromString configuration
             NoBuild = true
             Blame = true
-
-            MSBuildParams =
-                { c.MSBuildParams with
-                    Properties = [("ParallelizeAssemblies", "true"); ("ParallelizeTestCollections", "true")] }
         }) __SOURCE_DIRECTORY__
 )
 
