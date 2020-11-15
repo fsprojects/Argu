@@ -18,21 +18,11 @@ with
 
 (**
 
-# Argu
+# Introduction
 
-Argu (pronounced "Argue") is a declarative CLI argument parser for F# applications.
-Allows quick definition of argument parsing schema through F# union declarations.
-
-<div class="row">
-  <div class="span1"></div>
-  <div class="span6">
-    <div class="well well-small" id="nuget">
-      Argu can be <a href="https://nuget.org/packages/Argu">installed from NuGet</a>:
-      <pre>PM> Install-Package Argu</pre>
-    </div>
-  </div>
-  <div class="span1"></div>
-</div>
+Argu (pronounced "Argue") is a declarative CLI argument parser for F# console applications.
+It allows modelling the command-line syntax using discriminated unions,
+which the library converts into a working parser using reflection.
 
 Argu is a mature library that comes with many features
 
@@ -41,7 +31,9 @@ Argu is a mature library that comes with many features
   * Customizable: control most aspects of your parser behaviour.
   * Subcommands: use contextual syntax with nested argument schemata.
 
-## Introduction
+It can be installed using <a href="https://nuget.org/packages/Argu">NuGet</a>.
+
+## Basic Concepts
 
 The library is based on the simple observation that 
 configuration parameters can be naturally described using discriminated unions. 
