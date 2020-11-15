@@ -1,4 +1,4 @@
-FROM eiriktsarpalis/dotnet-sdk-mono:3.1.300-buster
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim-amd64
 
 # allow pushing docs & tags using docker builds:
 # pass git credentials using $GITHUB_TOKEN environment variable

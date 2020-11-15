@@ -1,9 +1,0 @@
-os: Visual Studio 2019
-init:
-  - git config --global core.autocrlf input
-build_script:
-  - cmd: build.cmd -t Bundle
-test: off
-artifacts:
-  - path: artifacts
-    name: artifacts

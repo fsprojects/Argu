@@ -1,8 +1,0 @@
-os: linux
-language: bash
-
-services:
-  - docker
-
-script:
-  - ./docker-build.sh -t Bundle
