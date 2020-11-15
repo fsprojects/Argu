@@ -108,7 +108,7 @@ Target.create "NuGet.Push" (fun _ ->
 
 Target.create "GenerateDocs" (fun _ ->
    Shell.cleanDir ".fsdocs"
-   DotNet.exec id "fsdocs" "build --clean" |> ignore
+   DotNet.exec id "fsdocs" "build --clean --strict --property Configuration=Release" |> ignore
 )
 
 Target.create "ReleaseDocs" (fun _ ->
