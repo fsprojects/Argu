@@ -3,18 +3,21 @@
 
 <head>
     <meta charset="utf-8">
-    <title>LastAttribute - Argu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LastAttribute (Argu)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="Eirik Tsarpalis">
 
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -26,45 +29,232 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <a href="http://fsprojects.github.io/Argu/"><img id="fsdocs-logo" src="http://fsprojects.github.io/Argu/img/logo.png" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/perf.html">
+    Performance Tips
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/tutorial.html">
+    Tutorial
+
+  </a>
+</li>
+                <li class="nav-header">
+  Namespaces
+</li>             
+<li class="nav-item active">
+  <span>
+    <a class="nav-link active" href="http://fsprojects.github.io/Argu/reference/argu.html">
+      Argu
+    </a>
+  </span>
+</li>             
+<ul list-style-type="none">
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-appsettingsconfigurationreader.html">
+      AppSettingsConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">
+      ArguAttributes
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguexception.html">
+      ArguException
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentcaseinfo.html">
+      ArgumentCaseInfo
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparser.html">
+      ArgumentParser
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparser-1.html">
+      ArgumentParser<'Template>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparserutils.html">
+      ArgumentParserUtils
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumenttype.html">
+      ArgumentType
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguparseexception.html">
+      ArguParseException
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-cliposition.html">
+      CliPosition
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-cliprefix.html">
+      CliPrefix
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-configurationreader.html">
+      ConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-customassignmentseparator.html">
+      CustomAssignmentSeparator
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-dictionaryconfigurationreader.html">
+      DictionaryConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-environmentvariableconfigurationreader.html">
+      EnvironmentVariableConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">
+      ErrorCode
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-exceptionexiter.html">
+      ExceptionExiter
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-functionconfigurationreader.html">
+      FunctionConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iargparsertemplate.html">
+      IArgParserTemplate
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iargumentparservisitor-1.html">
+      IArgumentParserVisitor<'R>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iconfigurationreader.html">
+      IConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">
+      IExiter
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-nullconfigurationreader.html">
+      NullConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-parseresults-1.html">
+      ParseResults<'Template>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">
+      ParseSource
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-processexiter.html">
+      ProcessExiter
+    </a>
+  </li>
+</ul>
+            </ul>
+        </div>
+    </nav>
     <div class="container">
         <div class="masthead">
-            <ul class="nav nav-pills pull-right">
-                <li><a href="http://fsharp.org">fsharp.org</a></li>
-            </ul>
-            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu/">Argu</a></h3>
         </div>
         <hr />
-        <div class="row">
-            <div class="span9" id="main">
-                <div>
+        <div class="container" id="fsdocs-content">
+            <div>
   <h1>
     LastAttribute Type
   </h1>
   <p>
-    Namespace: Argu
+    Namespace: 
+    <a href="http://fsprojects.github.io/Argu/reference/argu.html">
+      Argu
+    </a>
   </p>
   <p>
     Assembly: Argu.dll
   </p>
-  <br/>
   <span>
     Parent Module: 
-    <a href="argu-arguattributes.html">
+    <a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">
       ArguAttributes
     </a>
   </span>
   <p>
-    Base Type: CliPositionAttribute
+    Base Type: 
+    <code><a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes-clipositionattribute.html">CliPositionAttribute</a></code>
   </p>
   <p>
     This is an attribute type definition
   </p>
-  <div class="xmldoc">
-    <p class='summary'>
+  <div class="fsdocs-xmldoc">
+    
  Declares that argument can only be placed at the end of the CLI syntax.
  A parse exception will be raised if that is not the case.
-</p>
+
   </div>
+  <div></div>
+  <div></div>
+  <div></div>
   <div></div>
   <div></div>
   <div></div>
@@ -72,50 +262,62 @@
     <h3>
       Constructors
     </h3>
-    <table class="table member-list">
+    <table class="table outer-list fsdocs-member-list">
       <thead>
         <tr>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Constructor
           </td>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name" id="( .ctor )">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
-                LastAttribute()
+                <p>
+                  <a id="( .ctor )">
+                    <a href="#( .ctor )">
+                      <code><span>LastAttribute<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="42">
+              <div class="fsdocs-tip" id="42">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>LastAttribute<span>()</span></span></code>
                   <br/>
-                  LastAttribute()
                   <br/>
-                  Return Type: 
-                  LastAttribute
-                  <br/>
-                  Signature: 
-                  unit -&gt; LastAttribute
+                  <span>
+                    Returns: 
+                    <code><a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes-lastattribute.html">LastAttribute</a></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            Return Type: 
-            <code class="code-type">
-              LastAttribute
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Attributes.fs#L90-90" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Attributes.fs#L90-90" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-arguattributes-lastattribute.html">LastAttribute</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
       </tbody>
@@ -124,47 +326,17 @@
   <div></div>
   <div></div>
 </div>
-                
-            </div>
-            <div class="span3"> 
-                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
-
-                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-                <div id="header">
-                    <div class="searchbox">
-                        <label for="search-by">
-                            <i class="fas fa-search"></i>
-                        </label>
-                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-                        <span data-search-clear="">
-                            <i class="fas fa-times"></i>
-                        </span>
-                    </div>
-                </div>
-                <!-- END SEARCH BOX: this adds support for the search box -->
-
-                <ul class="nav nav-list" id="menu">
-                    <li class="nav-header">Argu</li>
-                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
-                    <li class="divider"></li>
-                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
-                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
-
-                    <li class="nav-header">Documentation</li>
-                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
-                </ul>
-            </div>
+            
         </div>
-    </div>
-    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
 
-    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
-    <!-- END SEARCH BOX: this adds support for the search box -->
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
 </body>
 
 </html>

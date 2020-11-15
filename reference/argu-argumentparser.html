@@ -3,18 +3,21 @@
 
 <head>
     <meta charset="utf-8">
-    <title>ArgumentParser - Argu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArgumentParser (Argu)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="Eirik Tsarpalis">
 
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -26,37 +29,224 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <a href="http://fsprojects.github.io/Argu/"><img id="fsdocs-logo" src="http://fsprojects.github.io/Argu/img/logo.png" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/perf.html">
+    Performance Tips
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/tutorial.html">
+    Tutorial
+
+  </a>
+</li>
+                <li class="nav-header">
+  Namespaces
+</li>             
+<li class="nav-item active">
+  <span>
+    <a class="nav-link active" href="http://fsprojects.github.io/Argu/reference/argu.html">
+      Argu
+    </a>
+  </span>
+</li>             
+<ul list-style-type="none">
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-appsettingsconfigurationreader.html">
+      AppSettingsConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">
+      ArguAttributes
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguexception.html">
+      ArguException
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentcaseinfo.html">
+      ArgumentCaseInfo
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparser.html">
+      ArgumentParser
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparser-1.html">
+      ArgumentParser<'Template>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparserutils.html">
+      ArgumentParserUtils
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumenttype.html">
+      ArgumentType
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguparseexception.html">
+      ArguParseException
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-cliposition.html">
+      CliPosition
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-cliprefix.html">
+      CliPrefix
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-configurationreader.html">
+      ConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-customassignmentseparator.html">
+      CustomAssignmentSeparator
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-dictionaryconfigurationreader.html">
+      DictionaryConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-environmentvariableconfigurationreader.html">
+      EnvironmentVariableConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">
+      ErrorCode
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-exceptionexiter.html">
+      ExceptionExiter
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-functionconfigurationreader.html">
+      FunctionConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iargparsertemplate.html">
+      IArgParserTemplate
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iargumentparservisitor-1.html">
+      IArgumentParserVisitor<'R>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iconfigurationreader.html">
+      IConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">
+      IExiter
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-nullconfigurationreader.html">
+      NullConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-parseresults-1.html">
+      ParseResults<'Template>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">
+      ParseSource
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-processexiter.html">
+      ProcessExiter
+    </a>
+  </li>
+</ul>
+            </ul>
+        </div>
+    </nav>
     <div class="container">
         <div class="masthead">
-            <ul class="nav nav-pills pull-right">
-                <li><a href="http://fsharp.org">fsharp.org</a></li>
-            </ul>
-            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu/">Argu</a></h3>
         </div>
         <hr />
-        <div class="row">
-            <div class="span9" id="main">
-                <div>
+        <div class="container" id="fsdocs-content">
+            <div>
   <h1>
     ArgumentParser Type
   </h1>
   <p>
-    Namespace: Argu
+    Namespace: 
+    <a href="http://fsprojects.github.io/Argu/reference/argu.html">
+      Argu
+    </a>
   </p>
   <p>
     Assembly: Argu.dll
   </p>
-  <br/>
   <p>
-    Base Type: obj
+    Base Type: 
+    <code>obj</code>
   </p>
-  <div class="xmldoc">
-    <p class='summary'>
+  <div class="fsdocs-xmldoc">
+    
  The Argu type generates an argument parser given a type argument
  that is an F# discriminated union. It can then be used to parse command line arguments
  or XML configuration.
-</p>
+
   </div>
+  <div></div>
+  <div></div>
+  <div></div>
   <div></div>
   <div></div>
   <div></div>
@@ -65,45 +255,54 @@
     <h3>
       Instance members
     </h3>
-    <table class="table member-list">
+    <table class="table outer-list fsdocs-member-list">
       <thead>
         <tr>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Instance member
           </td>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name" id="Accept">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
-                this.Accept(visitor)
+                <p>
+                  <a id="Accept">
+                    <a href="#Accept">
+                      <code><span>this.Accept<span><span>(<span>visitor</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="75">
+              <div class="fsdocs-tip" id="75">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.Accept<span><span>(<span>visitor</span>)</span></span></span></code>
                   <br/>
-                  this.Accept(visitor)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         visitor
                       </b>
                       :
-                      IArgumentParserVisitor&lt;&#39;R&gt;
-                    </li>
+                      <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-iargumentparservisitor-1.html">IArgumentParserVisitor</a>&lt;'R&gt;</span></code>
+                       - 
+                      Visitor used to access the parser.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;R
-                  <br/>
-                  Signature: 
-                  (visitor: IArgumentParserVisitor&lt;&#39;R&gt;) -&gt; &#39;R
+                  <span>
+                    Returns: 
+                    <code>'R</code>
+                  </span>
                   <br/>
                   Modifiers: 
                   abstract
@@ -114,519 +313,662 @@
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L73-73" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
      Enables access to the typed API of an ArgumentParser
      when template type is unknown.
- </p><h4>Parameters</h4><dl><dt><span class='parameter'>visitor</span></dt><dd><p>Visitor used to access the parser.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+ 
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   visitor
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  IArgumentParserVisitor&lt;&#39;R&gt;
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;R
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L73-73" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-iargumentparservisitor-1.html">IArgumentParserVisitor</a>&lt;'R&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Visitor used to access the parser.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>'R</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="ErrorHandler">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
-                this.ErrorHandler
+                <p>
+                  <a id="ErrorHandler">
+                    <a href="#ErrorHandler">
+                      <code><span>this.ErrorHandler</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="76">
+              <div class="fsdocs-tip" id="76">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.ErrorHandler</span></code>
                   <br/>
-                  this.ErrorHandler
                   <br/>
-                  Return Type: 
-                  IExiter
-                  <br/>
-                  Signature: 
-                  IExiter
+                  <span>
+                    Returns: 
+                    <code><a href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">IExiter</a></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L27-27" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Gets the default error handler used by the instance
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              IExiter
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L27-27" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">IExiter</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GetArgumentCases">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
-                this.GetArgumentCases()
+                <p>
+                  <a id="GetArgumentCases">
+                    <a href="#GetArgumentCases">
+                      <code><span>this.GetArgumentCases<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="77">
+              <div class="fsdocs-tip" id="77">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.GetArgumentCases<span>()</span></span></code>
                   <br/>
-                  this.GetArgumentCases()
                   <br/>
-                  Return Type: 
-                  ArgumentCaseInfo list
-                  <br/>
-                  Signature: 
-                  unit -&gt; ArgumentCaseInfo list
+                  <span>
+                    Returns: 
+                    <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-argumentcaseinfo.html">ArgumentCaseInfo</a>&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L30-30" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Gets metadata for all union cases used by parser
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              ArgumentCaseInfo list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L30-30" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-argumentcaseinfo.html">ArgumentCaseInfo</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GetSubCommandParsers">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
-                this.GetSubCommandParsers()
+                <p>
+                  <a id="GetSubCommandParsers">
+                    <a href="#GetSubCommandParsers">
+                      <code><span>this.GetSubCommandParsers<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="78">
+              <div class="fsdocs-tip" id="78">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.GetSubCommandParsers<span>()</span></span></code>
                   <br/>
-                  this.GetSubCommandParsers()
                   <br/>
-                  Return Type: 
-                  ArgumentParser list
-                  <br/>
-                  Signature: 
-                  unit -&gt; ArgumentParser list
+                  <span>
+                    Returns: 
+                    <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-argumentparser.html">ArgumentParser</a>&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L36-36" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Gets all subcommand parsers for given parser
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              ArgumentParser list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L36-36" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-argumentparser.html">ArgumentParser</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="HelpDescription">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
-                this.HelpDescription
+                <p>
+                  <a id="HelpDescription">
+                    <a href="#HelpDescription">
+                      <code><span>this.HelpDescription</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="79">
+              <div class="fsdocs-tip" id="79">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.HelpDescription</span></code>
                   <br/>
-                  this.HelpDescription
                   <br/>
-                  Return Type: 
-                  string
-                  <br/>
-                  Signature: 
-                  string
+                  <span>
+                    Returns: 
+                    <code>string</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L19-19" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Gets the help description specified for the CLI parser
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              string
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L19-19" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="HelpFlags">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
-                this.HelpFlags
+                <p>
+                  <a id="HelpFlags">
+                    <a href="#HelpFlags">
+                      <code><span>this.HelpFlags</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="80">
+              <div class="fsdocs-tip" id="80">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.HelpFlags</span></code>
                   <br/>
-                  this.HelpFlags
                   <br/>
-                  Return Type: 
-                  string list
-                  <br/>
-                  Signature: 
-                  string list
+                  <span>
+                    Returns: 
+                    <code><span>string&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L17-17" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Gets the help flags specified for the CLI parser
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              string list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L17-17" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>string&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="HelpTextMessage">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
-                this.HelpTextMessage
+                <p>
+                  <a id="HelpTextMessage">
+                    <a href="#HelpTextMessage">
+                      <code><span>this.HelpTextMessage</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="81">
+              <div class="fsdocs-tip" id="81">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.HelpTextMessage</span></code>
                   <br/>
-                  this.HelpTextMessage
                   <br/>
-                  Return Type: 
-                  string option
-                  <br/>
-                  Signature: 
-                  string option
+                  <span>
+                    Returns: 
+                    <code><span>string&#32;option</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L21-21" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Gets the message that will be displayed at the top of the help text
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              string option
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L21-21" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>string&#32;option</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IsSubCommandParser">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
-                this.IsSubCommandParser
+                <p>
+                  <a id="IsSubCommandParser">
+                    <a href="#IsSubCommandParser">
+                      <code><span>this.IsSubCommandParser</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="82">
+              <div class="fsdocs-tip" id="82">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.IsSubCommandParser</span></code>
                   <br/>
-                  this.IsSubCommandParser
                   <br/>
-                  Return Type: 
-                  bool
-                  <br/>
-                  Signature: 
-                  bool
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L23-23" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Returns true if parser corresponds to a subcommand
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              bool
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L23-23" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="ParentInfo">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '83', 83)" onmouseover="showTip(event, '83', 83)">
-                this.ParentInfo
+                <p>
+                  <a id="ParentInfo">
+                    <a href="#ParentInfo">
+                      <code><span>this.ParentInfo</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="83">
+              <div class="fsdocs-tip" id="83">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.ParentInfo</span></code>
                   <br/>
-                  this.ParentInfo
                   <br/>
-                  Return Type: 
-                  ArgumentCaseInfo option
-                  <br/>
-                  Signature: 
-                  ArgumentCaseInfo option
+                  <span>
+                    Returns: 
+                    <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-argumentcaseinfo.html">ArgumentCaseInfo</a>&#32;option</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L25-25" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  If subcommand parser, gets parent argument metadata
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              ArgumentCaseInfo option
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L25-25" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-argumentcaseinfo.html">ArgumentCaseInfo</a>&#32;option</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="PrintCommandLineSyntax">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '84', 84)" onmouseover="showTip(event, '84', 84)">
-                this.PrintCommandLineSyntax(?programName, ?usageStringCharacterWidth)
+                <p>
+                  <a id="PrintCommandLineSyntax">
+                    <a href="#PrintCommandLineSyntax">
+                      <code><span>this.PrintCommandLineSyntax<span><span>(<span>?programName,&#32;?usageStringCharacterWidth</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="84">
+              <div class="fsdocs-tip" id="84">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.PrintCommandLineSyntax<span><span>(<span>?programName,&#32;?usageStringCharacterWidth</span>)</span></span></span></code>
                   <br/>
-                  this.PrintCommandLineSyntax(?programName, ?usageStringCharacterWidth)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         ?programName
                       </b>
                       :
-                      string
-                    </li>
-                    <li>
+                      <code>string</code>
+                       - 
+                      Program name identifier placed at start of syntax string
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?usageStringCharacterWidth
                       </b>
                       :
-                      int
-                    </li>
+                      <code>int</code>
+                       - 
+                      Text width used when formatting the usage string.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  string
-                  <br/>
-                  Signature: 
-                  (programName: string * usageStringCharacterWidth: int) -&gt; string
+                  <span>
+                    Returns: 
+                    <code>string</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L63-63" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
      Prints command line syntax. Useful for generating documentation.
- </p><h4>Parameters</h4><dl><dt><span class='parameter'>programName</span></dt><dd><p>Program name identifier placed at start of syntax string</p></dd><dt><span class='parameter'>usageStringCharacterWidth</span></dt><dd><p>Text width used when formatting the usage string.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+ 
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?programName
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  string
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Program name identifier placed at start of syntax string
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?usageStringCharacterWidth
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  int
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              string
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L63-63" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code>int</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Text width used when formatting the usage string.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="PrintUsage">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '85', 85)" onmouseover="showTip(event, '85', 85)">
-                this.PrintUsage(?message, ?programName, ?hideSyntax, ?usageStringCharacterWidth)
+                <p>
+                  <a id="PrintUsage">
+                    <a href="#PrintUsage">
+                      <code><span>this.PrintUsage<span><span>(<span>?message,&#32;?programName,&#32;?hideSyntax,&#32;?usageStringCharacterWidth</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="85">
+              <div class="fsdocs-tip" id="85">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.PrintUsage<span><span>(<span>?message,&#32;?programName,&#32;?hideSyntax,&#32;?usageStringCharacterWidth</span>)</span></span></span></code>
                   <br/>
-                  this.PrintUsage(?message, ?programName, ?hideSyntax, ?usageStringCharacterWidth)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         ?message
                       </b>
                       :
-                      string
-                    </li>
-                    <li>
+                      <code>string</code>
+                       - 
+                      The message to be displayed on top of the usage string.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?programName
                       </b>
                       :
-                      string
-                    </li>
-                    <li>
+                      <code>string</code>
+                       - 
+                      Override the default program name settings.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?hideSyntax
                       </b>
                       :
-                      bool
-                    </li>
-                    <li>
+                      <code>bool</code>
+                       - 
+                      Do not display 'USAGE: [syntax]' at top of usage string. Defaults to false.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?usageStringCharacterWidth
                       </b>
                       :
-                      int
-                    </li>
+                      <code>int</code>
+                       - 
+                      Text width used when formatting the usage string.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  string
-                  <br/>
-                  Signature: 
-                  (message: string * programName: string * hideSyntax: bool * usageStringCharacterWidth: int) -&gt; string
+                  <span>
+                    Returns: 
+                    <code>string</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Formats a usage string for the argument parser.</p><h4>Parameters</h4><dl><dt><span class='parameter'>message</span></dt><dd><p>The message to be displayed on top of the usage string.</p></dd><dt><span class='parameter'>programName</span></dt><dd><p>Override the default program name settings.</p></dd><dt><span class='parameter'>hideSyntax</span></dt><dd><p>Do not display 'USAGE: [syntax]' at top of usage string. Defaults to false.</p></dd><dt><span class='parameter'>usageStringCharacterWidth</span></dt><dd><p>Text width used when formatting the usage string.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L52-52" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Formats a usage string for the argument parser.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?message
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  string
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The message to be displayed on top of the usage string.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?programName
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  string
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Override the default program name settings.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?hideSyntax
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  bool
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Do not display 'USAGE: [syntax]' at top of usage string. Defaults to false.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?usageStringCharacterWidth
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  int
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              string
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L52-52" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code>int</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Text width used when formatting the usage string.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
       </tbody>
@@ -636,188 +978,198 @@
     <h3>
       Static members
     </h3>
-    <table class="table member-list">
+    <table class="table outer-list fsdocs-member-list">
       <thead>
         <tr>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Static member
           </td>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name" id="Create">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '86', 86)" onmouseover="showTip(event, '86', 86)">
-                ArgumentParser.Create(?programName, ?helpTextMessage, ?usageStringCharacterWidth, ?errorHandler, ?checkStructure)
+                <p>
+                  <a id="Create">
+                    <a href="#Create">
+                      <code><span>ArgumentParser.Create<span><span>(<span>?programName,&#32;?helpTextMessage,&#32;?usageStringCharacterWidth,&#32;?errorHandler,&#32;?checkStructure</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="86">
+              <div class="fsdocs-tip" id="86">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>ArgumentParser.Create<span><span>(<span>?programName,&#32;?helpTextMessage,&#32;?usageStringCharacterWidth,&#32;?errorHandler,&#32;?checkStructure</span>)</span></span></span></code>
                   <br/>
-                  ArgumentParser.Create(?programName, ?helpTextMessage, ?usageStringCharacterWidth, ?errorHandler, ?checkStructure)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         ?programName
                       </b>
                       :
-                      string
-                    </li>
-                    <li>
+                      <code>string</code>
+                       - 
+                      Program identifier, e.g. 'cat'. Defaults to the current executable name.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?helpTextMessage
                       </b>
                       :
-                      string
-                    </li>
-                    <li>
+                      <code>string</code>
+                       - 
+                      Message that will be displayed at the top of the help text.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?usageStringCharacterWidth
                       </b>
                       :
-                      int
-                    </li>
-                    <li>
+                      <code>int</code>
+                       - 
+                      Text width used when formatting the usage string. Defaults to 80 chars.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?errorHandler
                       </b>
                       :
-                      IExiter
-                    </li>
-                    <li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">IExiter</a></code>
+                       - 
+                      The implementation of IExiter used for error handling. Exception is default.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?checkStructure
                       </b>
                       :
-                      bool
-                    </li>
+                      <code>bool</code>
+                       - 
+                      Indicate if the structure of the arguments discriminated union should be checked for errors.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  ArgumentParser&lt;&#39;Template&gt;
-                  <br/>
-                  Signature: 
-                  (programName: string * helpTextMessage: string * usageStringCharacterWidth: int * errorHandler: IExiter * checkStructure: bool) -&gt; ArgumentParser&lt;&#39;Template&gt;
+                  <span>
+                    Returns: 
+                    <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-argumentparser-1.html">ArgumentParser</a>&lt;'Template&gt;</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L268-268" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
      Create a new argument parsing scheme using given 'Template type
      which must be an F# Discriminated Union.
- </p><h4>Parameters</h4><dl><dt><span class='parameter'>programName</span></dt><dd><p>Program identifier, e.g. 'cat'. Defaults to the current executable name.</p></dd><dt><span class='parameter'>helpTextMessage</span></dt><dd><p>Message that will be displayed at the top of the help text.</p></dd><dt><span class='parameter'>usageStringCharacterWidth</span></dt><dd><p>Text width used when formatting the usage string. Defaults to 80 chars.</p></dd><dt><span class='parameter'>errorHandler</span></dt><dd><p>The implementation of IExiter used for error handling. Exception is default.</p></dd><dt><span class='parameter'>checkStructure</span></dt><dd><p>Indicate if the structure of the arguments discriminated union should be checked for errors.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+ 
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?programName
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  string
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Program identifier, e.g. 'cat'. Defaults to the current executable name.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?helpTextMessage
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  string
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Message that will be displayed at the top of the help text.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?usageStringCharacterWidth
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  int
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>int</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Text width used when formatting the usage string. Defaults to 80 chars.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?errorHandler
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  IExiter
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">IExiter</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The implementation of IExiter used for error handling. Exception is default.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?checkStructure
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  bool
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              ArgumentParser&lt;&#39;Template&gt;
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ArgumentParser.fs#L268-268" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Indicate if the structure of the arguments discriminated union should be checked for errors.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span><a href="http://fsprojects.github.io/Argu/reference/argu-argumentparser-1.html">ArgumentParser</a>&lt;'Template&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
-                
-            </div>
-            <div class="span3"> 
-                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
-
-                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-                <div id="header">
-                    <div class="searchbox">
-                        <label for="search-by">
-                            <i class="fas fa-search"></i>
-                        </label>
-                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-                        <span data-search-clear="">
-                            <i class="fas fa-times"></i>
-                        </span>
-                    </div>
-                </div>
-                <!-- END SEARCH BOX: this adds support for the search box -->
-
-                <ul class="nav nav-list" id="menu">
-                    <li class="nav-header">Argu</li>
-                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
-                    <li class="divider"></li>
-                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
-                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
-
-                    <li class="nav-header">Documentation</li>
-                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
-                </ul>
-            </div>
+            
         </div>
-    </div>
-    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
 
-    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
-    <!-- END SEARCH BOX: this adds support for the search box -->
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
 </body>
 
 </html>

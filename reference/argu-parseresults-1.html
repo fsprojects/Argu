@@ -3,18 +3,21 @@
 
 <head>
     <meta charset="utf-8">
-    <title>ParseResults<'Template> - Argu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParseResults<'Template> (Argu)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="Eirik Tsarpalis">
 
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -26,46 +29,228 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <a href="http://fsprojects.github.io/Argu/"><img id="fsdocs-logo" src="http://fsprojects.github.io/Argu/img/logo.png" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/perf.html">
+    Performance Tips
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/tutorial.html">
+    Tutorial
+
+  </a>
+</li>
+                <li class="nav-header">
+  Namespaces
+</li>             
+<li class="nav-item active">
+  <span>
+    <a class="nav-link active" href="http://fsprojects.github.io/Argu/reference/argu.html">
+      Argu
+    </a>
+  </span>
+</li>             
+<ul list-style-type="none">
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-appsettingsconfigurationreader.html">
+      AppSettingsConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">
+      ArguAttributes
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguexception.html">
+      ArguException
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentcaseinfo.html">
+      ArgumentCaseInfo
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparser.html">
+      ArgumentParser
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparser-1.html">
+      ArgumentParser<'Template>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparserutils.html">
+      ArgumentParserUtils
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumenttype.html">
+      ArgumentType
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguparseexception.html">
+      ArguParseException
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-cliposition.html">
+      CliPosition
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-cliprefix.html">
+      CliPrefix
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-configurationreader.html">
+      ConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-customassignmentseparator.html">
+      CustomAssignmentSeparator
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-dictionaryconfigurationreader.html">
+      DictionaryConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-environmentvariableconfigurationreader.html">
+      EnvironmentVariableConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">
+      ErrorCode
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-exceptionexiter.html">
+      ExceptionExiter
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-functionconfigurationreader.html">
+      FunctionConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iargparsertemplate.html">
+      IArgParserTemplate
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iargumentparservisitor-1.html">
+      IArgumentParserVisitor<'R>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iconfigurationreader.html">
+      IConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">
+      IExiter
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-nullconfigurationreader.html">
+      NullConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-parseresults-1.html">
+      ParseResults<'Template>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">
+      ParseSource
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-processexiter.html">
+      ProcessExiter
+    </a>
+  </li>
+</ul>
+            </ul>
+        </div>
+    </nav>
     <div class="container">
         <div class="masthead">
-            <ul class="nav nav-pills pull-right">
-                <li><a href="http://fsharp.org">fsharp.org</a></li>
-            </ul>
-            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu/">Argu</a></h3>
         </div>
         <hr />
-        <div class="row">
-            <div class="span9" id="main">
-                <div>
+        <div class="container" id="fsdocs-content">
+            <div>
   <h1>
     ParseResults<'Template> Type
   </h1>
   <p>
-    Namespace: Argu
+    Namespace: 
+    <a href="http://fsprojects.github.io/Argu/reference/argu.html">
+      Argu
+    </a>
   </p>
   <p>
     Assembly: Argu.dll
   </p>
-  <br/>
   <p>
-    Base Type: obj
+    Base Type: 
+    <code>obj</code>
   </p>
   <p>
     All Interfaces: 
+    <code><a href="https://docs.microsoft.com/dotnet/api/system.icomparable">IComparable</a></code>
+    , 
+    <code><a href="http://fsprojects.github.io/Argu/reference/argu-unionarginfo-iparseresult.html">IParseResult</a></code>
   </p>
-  <ul>
-    <li>
-      IComparable
-    </li>
-    <li>
-      IParseResult
-    </li>
-  </ul>
-  <div class="xmldoc">
-    <p class='summary'>
+  <div class="fsdocs-xmldoc">
+    
  Argument parsing result holder.
-</p>
+
   </div>
+  <div></div>
+  <div></div>
+  <div></div>
   <div></div>
   <div></div>
   <div></div>
@@ -74,1651 +259,2129 @@
     <h3>
       Instance members
     </h3>
-    <table class="table member-list">
+    <table class="table outer-list fsdocs-member-list">
       <thead>
         <tr>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Instance member
           </td>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name" id="Catch">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
-                this.Catch(f, ?errorCode, ?showUsage)
+                <p>
+                  <a id="Catch">
+                    <a href="#Catch">
+                      <code><span>this.Catch<span><span>(<span>f,&#32;?errorCode,&#32;?showUsage</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="131">
+              <div class="fsdocs-tip" id="131">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.Catch<span><span>(<span>f,&#32;?errorCode,&#32;?showUsage</span>)</span></span></span></code>
                   <br/>
-                  this.Catch(f, ?errorCode, ?showUsage)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         f
                       </b>
                       :
-                      unit -&gt; &#39;T
-                    </li>
-                    <li>
+                      <code><span>unit&#32;->&#32;'T</span></code>
+                       - 
+                      The operation to be executed.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?errorCode
                       </b>
                       :
-                      ErrorCode
-                    </li>
-                    <li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">ErrorCode</a></code>
+                       - 
+                      The error code to be returned.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?showUsage
                       </b>
                       :
-                      bool
-                    </li>
+                      <code>bool</code>
+                       - 
+                      Print usage together with error message.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;T
-                  <br/>
-                  Signature: 
-                  (f: (unit -&gt; &#39;T) * errorCode: ErrorCode * showUsage: bool) -&gt; &#39;T
+                  <span>
+                    Returns: 
+                    <code>'T</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.</p><h4>Parameters</h4><dl><dt><span class='parameter'>f</span></dt><dd><p>The operation to be executed.</p></dd><dt><span class='parameter'>errorCode</span></dt><dd><p>The error code to be returned.</p></dd><dt><span class='parameter'>showUsage</span></dt><dd><p>Print usage together with error message.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L149-149" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   f
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  unit -&gt; &#39;T
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span>unit&#32;->&#32;'T</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The operation to be executed.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?errorCode
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ErrorCode
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">ErrorCode</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The error code to be returned.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?showUsage
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  bool
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;T
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L149-149" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Print usage together with error message.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>'T</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="Contains">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
-                this.Contains(expr, ?source)
+                <p>
+                  <a id="Contains">
+                    <a href="#Contains">
+                      <code><span>this.Contains<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="132">
+              <div class="fsdocs-tip" id="132">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.Contains<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.Contains(expr, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Fields&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  bool
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * source: ParseSource) -&gt; bool
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Checks if parameter of specific kind has been specified.</p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L127-127" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Checks if parameter of specific kind has been specified.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Fields&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              bool
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L127-127" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="Contains">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
-                this.Contains(expr, ?source)
+                <p>
+                  <a id="Contains">
+                    <a href="#Contains">
+                      <code><span>this.Contains<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="133">
+              <div class="fsdocs-tip" id="133">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.Contains<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.Contains(expr, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;&#39;Template&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;'Template&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  bool
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;&#39;Template&gt; * source: ParseSource) -&gt; bool
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Checks if parameter of specific kind has been specified.</p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L123-123" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Checks if parameter of specific kind has been specified.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;&#39;Template&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;'Template&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              bool
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L123-123" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="ErrorHandler">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
-                this.ErrorHandler
+                <p>
+                  <a id="ErrorHandler">
+                    <a href="#ErrorHandler">
+                      <code><span>this.ErrorHandler</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="134">
+              <div class="fsdocs-tip" id="134">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.ErrorHandler</span></code>
                   <br/>
-                  this.ErrorHandler
                   <br/>
-                  Return Type: 
-                  IExiter
-                  <br/>
-                  Signature: 
-                  IExiter
+                  <span>
+                    Returns: 
+                    <code><a href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">IExiter</a></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            Return Type: 
-            <code class="code-type">
-              IExiter
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L52-52" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L52-52" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">IExiter</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GetAllResults">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
-                this.GetAllResults(?source)
+                <p>
+                  <a id="GetAllResults">
+                    <a href="#GetAllResults">
+                      <code><span>this.GetAllResults<span><span>(<span>?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="135">
+              <div class="fsdocs-tip" id="135">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.GetAllResults<span><span>(<span>?source</span>)</span></span></span></code>
                   <br/>
-                  this.GetAllResults(?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;Template list
-                  <br/>
-                  Signature: 
-                  (source: ParseSource) -&gt; &#39;Template list
+                  <span>
+                    Returns: 
+                    <code><span>'Template&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Gets all parse results.</p><h4>Parameters</h4><dl><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L83-83" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Gets all parse results.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;Template list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L83-83" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>'Template&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GetResult">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
-                this.GetResult(expr, ?defaultValue, ?source)
+                <p>
+                  <a id="GetResult">
+                    <a href="#GetResult">
+                      <code><span>this.GetResult<span><span>(<span>expr,&#32;?defaultValue,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="136">
+              <div class="fsdocs-tip" id="136">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.GetResult<span><span>(<span>expr,&#32;?defaultValue,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.GetResult(expr, ?defaultValue, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Fields&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?defaultValue
                       </b>
                       :
-                      &#39;Fields
-                    </li>
-                    <li>
+                      <code>'Fields</code>
+                       - 
+                      Return this of no parameter of specific kind has been specified.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;Fields
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * defaultValue: &#39;Fields * source: ParseSource) -&gt; &#39;Fields
+                  <span>
+                    Returns: 
+                    <code>'Fields</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Returns the *last* specified parameter of given type.
-          Command line parameters have precedence over AppSettings parameters.</p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>defaultValue</span></dt><dd><p>Return this of no parameter of specific kind has been specified.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L115-115" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Returns the *last* specified parameter of given type.
+          Command line parameters have precedence over AppSettings parameters.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Fields&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?defaultValue
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  &#39;Fields
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>'Fields</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Return this of no parameter of specific kind has been specified.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;Fields
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L115-115" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>'Fields</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GetResult">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
-                this.GetResult(expr, ?defaultValue, ?source)
+                <p>
+                  <a id="GetResult">
+                    <a href="#GetResult">
+                      <code><span>this.GetResult<span><span>(<span>expr,&#32;?defaultValue,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="137">
+              <div class="fsdocs-tip" id="137">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.GetResult<span><span>(<span>expr,&#32;?defaultValue,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.GetResult(expr, ?defaultValue, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;&#39;Template&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;'Template&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?defaultValue
                       </b>
                       :
-                      &#39;Template
-                    </li>
-                    <li>
+                      <code>'Template</code>
+                       - 
+                      Return this of no parameter of specific kind has been specified.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;Template
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;&#39;Template&gt; * defaultValue: &#39;Template * source: ParseSource) -&gt; &#39;Template
+                  <span>
+                    Returns: 
+                    <code>'Template</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Returns the *last* specified parameter of given type.
-          Command line parameters have precedence over AppSettings parameters.</p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>defaultValue</span></dt><dd><p>Return this of no parameter of specific kind has been specified.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L105-105" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Returns the *last* specified parameter of given type.
+          Command line parameters have precedence over AppSettings parameters.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;&#39;Template&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;'Template&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?defaultValue
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  &#39;Template
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>'Template</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Return this of no parameter of specific kind has been specified.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;Template
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L105-105" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>'Template</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GetResults">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
-                this.GetResults(expr, ?source)
+                <p>
+                  <a id="GetResults">
+                    <a href="#GetResults">
+                      <code><span>this.GetResults<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="138">
+              <div class="fsdocs-tip" id="138">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.GetResults<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.GetResults(expr, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Fields&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;Fields list
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * source: ParseSource) -&gt; &#39;Fields list
+                  <span>
+                    Returns: 
+                    <code><span>'Fields&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Query parse results for argument with parameters.</p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L78-78" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Query parse results for argument with parameters.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Fields&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;Fields list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L78-78" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>'Fields&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GetResults">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
-                this.GetResults(expr, ?source)
+                <p>
+                  <a id="GetResults">
+                    <a href="#GetResults">
+                      <code><span>this.GetResults<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="139">
+              <div class="fsdocs-tip" id="139">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.GetResults<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.GetResults(expr, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;&#39;Template&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;'Template&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;Template list
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;&#39;Template&gt; * source: ParseSource) -&gt; &#39;Template list
+                  <span>
+                    Returns: 
+                    <code><span>'Template&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Query parse results for parameterless argument.</p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L72-72" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Query parse results for parameterless argument.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;&#39;Template&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;'Template&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;Template list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L72-72" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>'Template&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GetSubCommand">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
-                this.GetSubCommand()
+                <p>
+                  <a id="GetSubCommand">
+                    <a href="#GetSubCommand">
+                      <code><span>this.GetSubCommand<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="140">
+              <div class="fsdocs-tip" id="140">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.GetSubCommand<span>()</span></span></code>
                   <br/>
-                  this.GetSubCommand()
                   <br/>
-                  Return Type: 
-                  &#39;Template
-                  <br/>
-                  Signature: 
-                  unit -&gt; &#39;Template
+                  <span>
+                    Returns: 
+                    <code>'Template</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L220-220" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
      Attempts to recover the subcommand parameter from the results,
      if one has been specified.
- </p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              &#39;Template
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L220-220" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+ 
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>'Template</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IsUsageRequested">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
-                this.IsUsageRequested
+                <p>
+                  <a id="IsUsageRequested">
+                    <a href="#IsUsageRequested">
+                      <code><span>this.IsUsageRequested</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="141">
+              <div class="fsdocs-tip" id="141">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.IsUsageRequested</span></code>
                   <br/>
-                  this.IsUsageRequested
                   <br/>
-                  Return Type: 
-                  bool
-                  <br/>
-                  Signature: 
-                  bool
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L59-59" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Returns true if '--help' parameter has been specified in the command line.
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              bool
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L59-59" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IterResult">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
-                this.IterResult(expr, iterator, ?source)
+                <p>
+                  <a id="IterResult">
+                    <a href="#IterResult">
+                      <code><span>this.IterResult<span><span>(<span>expr,&#32;iterator,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="142">
+              <div class="fsdocs-tip" id="142">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.IterResult<span><span>(<span>expr,&#32;iterator,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.IterResult(expr, iterator, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         iterator
                       </b>
                       :
-                      &#39;Field -&gt; unit
-                    </li>
-                    <li>
+                      <code><span>'Field&#32;->&#32;unit</span></code>
+                       - 
+                      The iterator body.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Option source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * iterator: (&#39;Field -&gt; unit) * source: ParseSource) -&gt; unit
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L201-201" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
      Iterates through the *last* parse result for a given argument kind.
      Command line parameters have precedence over AppSettings parameters.
      Results are passed to an iterator function that is error handled by the parser.
- </p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>iterator</span></dt><dd><p>The iterator body.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Option source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+ 
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   iterator
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  &#39;Field -&gt; unit
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span>'Field&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The iterator body.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L201-201" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Option source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IterResults">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
-                this.IterResults(expr, iterator, ?source)
+                <p>
+                  <a id="IterResults">
+                    <a href="#IterResults">
+                      <code><span>this.IterResults<span><span>(<span>expr,&#32;iterator,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="143">
+              <div class="fsdocs-tip" id="143">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.IterResults<span><span>(<span>expr,&#32;iterator,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.IterResults(expr, iterator, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         iterator
                       </b>
                       :
-                      &#39;Field -&gt; unit
-                    </li>
-                    <li>
+                      <code><span>'Field&#32;->&#32;unit</span></code>
+                       - 
+                      The iterator body.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Option source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * iterator: (&#39;Field -&gt; unit) * source: ParseSource) -&gt; unit
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L190-190" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
      Iterates through *all* parse results for a given argument kind.
      Command line parameters have precedence over AppSettings parameters.
      Results are passed to an iterator function that is error handled by the parser.
- </p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>iterator</span></dt><dd><p>The iterator body.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Option source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+ 
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   iterator
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  &#39;Field -&gt; unit
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span>'Field&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The iterator body.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L190-190" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Option source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="PostProcessResult">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
-                this.PostProcessResult(expr, parser, ?source)
+                <p>
+                  <a id="PostProcessResult">
+                    <a href="#PostProcessResult">
+                      <code><span>this.PostProcessResult<span><span>(<span>expr,&#32;parser,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="144">
+              <div class="fsdocs-tip" id="144">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.PostProcessResult<span><span>(<span>expr,&#32;parser,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.PostProcessResult(expr, parser, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         parser
                       </b>
                       :
-                      &#39;Field -&gt; &#39;R
-                    </li>
-                    <li>
+                      <code><span>'Field&#32;->&#32;'R</span></code>
+                       - 
+                      The post-processing parser.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;R
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser: (&#39;Field -&gt; &#39;R) * source: ParseSource) -&gt; &#39;R
+                  <span>
+                    Returns: 
+                    <code>'R</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Returns the *last* specified parameter of given type.
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L159-159" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Returns the *last* specified parameter of given type.
           Command line parameters have precedence over AppSettings parameters.
           Results are passed to a post-processing function that is error handled by the parser.
- </p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>parser</span></dt><dd><p>The post-processing parser.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+ 
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   parser
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  &#39;Field -&gt; &#39;R
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span>'Field&#32;->&#32;'R</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The post-processing parser.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;R
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L159-159" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>'R</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="PostProcessResults">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
-                this.PostProcessResults(expr, parser, ?source)
+                <p>
+                  <a id="PostProcessResults">
+                    <a href="#PostProcessResults">
+                      <code><span>this.PostProcessResults<span><span>(<span>expr,&#32;parser,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="145">
+              <div class="fsdocs-tip" id="145">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.PostProcessResults<span><span>(<span>expr,&#32;parser,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.PostProcessResults(expr, parser, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         parser
                       </b>
                       :
-                      &#39;Field -&gt; &#39;R
-                    </li>
-                    <li>
+                      <code><span>'Field&#32;->&#32;'R</span></code>
+                       - 
+                      The post-processing parser.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;R list
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser: (&#39;Field -&gt; &#39;R) * source: ParseSource) -&gt; &#39;R list
+                  <span>
+                    Returns: 
+                    <code><span>'R&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Query parse results for given argument kind.
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L169-169" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Query parse results for given argument kind.
           Command line parameters have precedence over AppSettings parameters.
           Results are passed to a post-processing function that is error handled by the parser.
- </p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>parser</span></dt><dd><p>The post-processing parser.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+ 
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   parser
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  &#39;Field -&gt; &#39;R
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span>'Field&#32;->&#32;'R</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The post-processing parser.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;R list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L169-169" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>'R&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="Raise">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
-                this.Raise(error, ?errorCode, ?showUsage)
+                <p>
+                  <a id="Raise">
+                    <a href="#Raise">
+                      <code><span>this.Raise<span><span>(<span>error,&#32;?errorCode,&#32;?showUsage</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="146">
+              <div class="fsdocs-tip" id="146">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.Raise<span><span>(<span>error,&#32;?errorCode,&#32;?showUsage</span>)</span></span></span></code>
                   <br/>
-                  this.Raise(error, ?errorCode, ?showUsage)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         error
                       </b>
                       :
-                      exn
-                    </li>
-                    <li>
+                      <code>exn</code>
+                       - 
+                      The error to be displayed.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?errorCode
                       </b>
                       :
-                      ErrorCode
-                    </li>
-                    <li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">ErrorCode</a></code>
+                       - 
+                      The error code to be returned.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?showUsage
                       </b>
                       :
-                      bool
-                    </li>
+                      <code>bool</code>
+                       - 
+                      Print usage together with error message.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;T
-                  <br/>
-                  Signature: 
-                  (error: exn * errorCode: ErrorCode * showUsage: bool) -&gt; &#39;T
+                  <span>
+                    Returns: 
+                    <code>'T</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</p><h4>Parameters</h4><dl><dt><span class='parameter'>error</span></dt><dd><p>The error to be displayed.</p></dd><dt><span class='parameter'>errorCode</span></dt><dd><p>The error code to be returned.</p></dd><dt><span class='parameter'>showUsage</span></dt><dd><p>Print usage together with error message.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L142-142" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Raise an error through the argument parser's exiter mechanism. Display usage optionally.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   error
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  exn
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>exn</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The error to be displayed.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?errorCode
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ErrorCode
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">ErrorCode</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The error code to be returned.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?showUsage
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  bool
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;T
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L142-142" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Print usage together with error message.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>'T</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="Raise">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
-                this.Raise(msg, ?errorCode, ?showUsage)
+                <p>
+                  <a id="Raise">
+                    <a href="#Raise">
+                      <code><span>this.Raise<span><span>(<span>msg,&#32;?errorCode,&#32;?showUsage</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="147">
+              <div class="fsdocs-tip" id="147">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.Raise<span><span>(<span>msg,&#32;?errorCode,&#32;?showUsage</span>)</span></span></span></code>
                   <br/>
-                  this.Raise(msg, ?errorCode, ?showUsage)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         msg
                       </b>
                       :
-                      string
-                    </li>
-                    <li>
+                      <code>string</code>
+                       - 
+                      The error message to be displayed.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?errorCode
                       </b>
                       :
-                      ErrorCode
-                    </li>
-                    <li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">ErrorCode</a></code>
+                       - 
+                      The error code to be returned.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?showUsage
                       </b>
                       :
-                      bool
-                    </li>
+                      <code>bool</code>
+                       - 
+                      Print usage together with error message.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;T
-                  <br/>
-                  Signature: 
-                  (msg: string * errorCode: ErrorCode * showUsage: bool) -&gt; &#39;T
+                  <span>
+                    Returns: 
+                    <code>'T</code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</p><h4>Parameters</h4><dl><dt><span class='parameter'>msg</span></dt><dd><p>The error message to be displayed.</p></dd><dt><span class='parameter'>errorCode</span></dt><dd><p>The error code to be returned.</p></dd><dt><span class='parameter'>showUsage</span></dt><dd><p>Print usage together with error message.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L133-133" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Raise an error through the argument parser's exiter mechanism. Display usage optionally.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   msg
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  string
-                </code>
-              </li>
-              <li>
-                <code>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The error message to be displayed.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?errorCode
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ErrorCode
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">ErrorCode</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The error code to be returned.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?showUsage
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  bool
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;T
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L133-133" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Print usage together with error message.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code>'T</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="TryGetResult">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
-                this.TryGetResult(expr, ?source)
+                <p>
+                  <a id="TryGetResult">
+                    <a href="#TryGetResult">
+                      <code><span>this.TryGetResult<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="148">
+              <div class="fsdocs-tip" id="148">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.TryGetResult<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.TryGetResult(expr, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Fields&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;Fields option
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt; * source: ParseSource) -&gt; &#39;Fields option
+                  <span>
+                    Returns: 
+                    <code><span>'Fields&#32;option</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Returns the *last* specified parameter of given type, if it exists.
-          Command line parameters have precedence over AppSettings parameters.</p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L97-97" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Returns the *last* specified parameter of given type, if it exists.
+          Command line parameters have precedence over AppSettings parameters.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Fields -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Fields&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;Fields option
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L97-97" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>'Fields&#32;option</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="TryGetResult">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
-                this.TryGetResult(expr, ?source)
+                <p>
+                  <a id="TryGetResult">
+                    <a href="#TryGetResult">
+                      <code><span>this.TryGetResult<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="149">
+              <div class="fsdocs-tip" id="149">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.TryGetResult<span><span>(<span>expr,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.TryGetResult(expr, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;&#39;Template&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;'Template&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;Template option
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;&#39;Template&gt; * source: ParseSource) -&gt; &#39;Template option
+                  <span>
+                    Returns: 
+                    <code><span>'Template&#32;option</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Returns the *last* specified parameter of given type, if it exists.
-          Command line parameters have precedence over AppSettings parameters.</p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L90-90" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Returns the *last* specified parameter of given type, if it exists.
+          Command line parameters have precedence over AppSettings parameters.
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;&#39;Template&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;'Template&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;Template option
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L90-90" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>'Template&#32;option</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="TryGetSubCommand">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '150', 150)" onmouseover="showTip(event, '150', 150)">
-                this.TryGetSubCommand()
+                <p>
+                  <a id="TryGetSubCommand">
+                    <a href="#TryGetSubCommand">
+                      <code><span>this.TryGetSubCommand<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="150">
+              <div class="fsdocs-tip" id="150">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.TryGetSubCommand<span>()</span></span></code>
                   <br/>
-                  this.TryGetSubCommand()
                   <br/>
-                  Return Type: 
-                  &#39;Template option
-                  <br/>
-                  Signature: 
-                  unit -&gt; &#39;Template option
+                  <span>
+                    Returns: 
+                    <code><span>'Template&#32;option</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L208-208" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
      Attempts to recover the subcommand parameter from the results,
      if one has been specified.
- </p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              &#39;Template option
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L208-208" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+ 
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>'Template&#32;option</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="TryPostProcessResult">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '151', 151)" onmouseover="showTip(event, '151', 151)">
-                this.TryPostProcessResult(expr, parser, ?source)
+                <p>
+                  <a id="TryPostProcessResult">
+                    <a href="#TryPostProcessResult">
+                      <code><span>this.TryPostProcessResult<span><span>(<span>expr,&#32;parser,&#32;?source</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="151">
+              <div class="fsdocs-tip" id="151">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.TryPostProcessResult<span><span>(<span>expr,&#32;parser,&#32;?source</span>)</span></span></span></code>
                   <br/>
-                  this.TryPostProcessResult(expr, parser, ?source)
-                  Parameter Types: 
+                  <br/>
+                  Parameters: 
                   <ul>
-                    <li>
+                    <span>
                       <b>
                         expr
                       </b>
                       :
-                      Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                    </li>
-                    <li>
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+                       - 
+                      The name of the parameter, expressed as quotation of DU constructor.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         parser
                       </b>
                       :
-                      &#39;Field -&gt; &#39;R
-                    </li>
-                    <li>
+                      <code><span>'Field&#32;->&#32;'R</span></code>
+                       - 
+                      The post-processing parser.
+                    </span>
+                    <br/>
+                    <span>
                       <b>
                         ?source
                       </b>
                       :
-                      ParseSource
-                    </li>
+                      <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+                       - 
+                      Optional source restriction: AppSettings or CommandLine.
+                    </span>
+                    <br/>
                   </ul>
                   <br/>
-                  Return Type: 
-                  &#39;R option
-                  <br/>
-                  Signature: 
-                  (expr: Expr&lt;(&#39;Field -&gt; &#39;Template)&gt; * parser: (&#39;Field -&gt; &#39;R) * source: ParseSource) -&gt; &#39;R option
+                  <span>
+                    Returns: 
+                    <code><span>'R&#32;option</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>Returns the *last* specified parameter of given type.
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L179-179" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              Returns the *last* specified parameter of given type.
           Command line parameters have precedence over AppSettings parameters.
           Results are passed to a post-processing function that is error handled by the parser.
- </p><h4>Parameters</h4><dl><dt><span class='parameter'>expr</span></dt><dd><p>The name of the parameter, expressed as quotation of DU constructor.</p></dd><dt><span class='parameter'>parser</span></dt><dd><p>The post-processing parser.</p></dd><dt><span class='parameter'>source</span></dt><dd><p>Optional source restriction: AppSettings or CommandLine.</p></dd></dl>
-            <br/>
-            Parameter Types: 
-            <ul>
-              <li>
-                <code>
+ 
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   expr
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  Expr&lt;(&#39;Field -&gt; &#39;Template)&gt;
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/microsoft.fsharp.quotations.fsharpexpr-1">Expr</a>&lt;<span>(<span>'Field&#32;->&#32;'Template</span>)</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The name of the parameter, expressed as quotation of DU constructor.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   parser
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  &#39;Field -&gt; &#39;R
-                </code>
-              </li>
-              <li>
-                <code>
+                <code><span>'Field&#32;->&#32;'R</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  The post-processing parser.
+                </p>
+              </dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
                   ?source
-                </code>
+                </span>
                 :
-                <code class="code-type">
-                  ParseSource
-                </code>
-              </li>
-            </ul>
-            Return Type: 
-            <code class="code-type">
-              &#39;R option
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L179-179" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+                <code><a href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">ParseSource</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs">
+                <p>
+                  Optional source restriction: AppSettings or CommandLine.
+                </p>
+              </dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>'R&#32;option</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="UnrecognizedCliParams">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '152', 152)" onmouseover="showTip(event, '152', 152)">
-                this.UnrecognizedCliParams
+                <p>
+                  <a id="UnrecognizedCliParams">
+                    <a href="#UnrecognizedCliParams">
+                      <code><span>this.UnrecognizedCliParams</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="152">
+              <div class="fsdocs-tip" id="152">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.UnrecognizedCliParams</span></code>
                   <br/>
-                  this.UnrecognizedCliParams
                   <br/>
-                  Return Type: 
-                  string list
-                  <br/>
-                  Signature: 
-                  string list
+                  <span>
+                    Returns: 
+                    <code><span>string&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L63-63" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Gets all unrecognized CLI parameters which
  accumulates if parsed with 'ignoreUnrecognized = true'
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              string list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L63-63" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>string&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="UnrecognizedCliParseResults">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '153', 153)" onmouseover="showTip(event, '153', 153)">
-                this.UnrecognizedCliParseResults
+                <p>
+                  <a id="UnrecognizedCliParseResults">
+                    <a href="#UnrecognizedCliParseResults">
+                      <code><span>this.UnrecognizedCliParseResults</span></code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="153">
+              <div class="fsdocs-tip" id="153">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code><span>this.UnrecognizedCliParseResults</span></code>
                   <br/>
-                  this.UnrecognizedCliParseResults
                   <br/>
-                  Return Type: 
-                  obj list
-                  <br/>
-                  Signature: 
-                  obj list
+                  <span>
+                    Returns: 
+                    <code><span>obj&#32;list</span></code>
+                  </span>
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L67-67" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Gets all parse results that are not part of the current parsing context
  This is only applicable to subcommand parsing operations
-</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              obj list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/ParseResults.fs#L67-67" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns:
+                </span>
+                <code><span>obj&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
           </td>
         </tr>
       </tbody>
@@ -1726,47 +2389,17 @@
   </div>
   <div></div>
 </div>
-                
-            </div>
-            <div class="span3"> 
-                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
-
-                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-                <div id="header">
-                    <div class="searchbox">
-                        <label for="search-by">
-                            <i class="fas fa-search"></i>
-                        </label>
-                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-                        <span data-search-clear="">
-                            <i class="fas fa-times"></i>
-                        </span>
-                    </div>
-                </div>
-                <!-- END SEARCH BOX: this adds support for the search box -->
-
-                <ul class="nav nav-list" id="menu">
-                    <li class="nav-header">Argu</li>
-                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
-                    <li class="divider"></li>
-                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
-                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
-
-                    <li class="nav-header">Documentation</li>
-                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
-                </ul>
-            </div>
+            
         </div>
-    </div>
-    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
 
-    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
-    <!-- END SEARCH BOX: this adds support for the search box -->
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
 </body>
 
 </html>

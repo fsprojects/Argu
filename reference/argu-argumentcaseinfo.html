@@ -3,18 +3,21 @@
 
 <head>
     <meta charset="utf-8">
-    <title>ArgumentCaseInfo - Argu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArgumentCaseInfo (Argu)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="Eirik Tsarpalis">
 
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu//content/fsdocs-style.css" />
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="http://fsprojects.github.io/Argu/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -26,590 +29,849 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <a href="http://fsprojects.github.io/Argu/"><img id="fsdocs-logo" src="http://fsprojects.github.io/Argu/img/logo.png" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/Argu/">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/perf.html">
+    Performance Tips
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="http://fsprojects.github.io/Argu/tutorial.html">
+    Tutorial
+
+  </a>
+</li>
+                <li class="nav-header">
+  Namespaces
+</li>             
+<li class="nav-item active">
+  <span>
+    <a class="nav-link active" href="http://fsprojects.github.io/Argu/reference/argu.html">
+      Argu
+    </a>
+  </span>
+</li>             
+<ul list-style-type="none">
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-appsettingsconfigurationreader.html">
+      AppSettingsConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguattributes.html">
+      ArguAttributes
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguexception.html">
+      ArguException
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentcaseinfo.html">
+      ArgumentCaseInfo
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparser.html">
+      ArgumentParser
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparser-1.html">
+      ArgumentParser<'Template>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumentparserutils.html">
+      ArgumentParserUtils
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-argumenttype.html">
+      ArgumentType
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-arguparseexception.html">
+      ArguParseException
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-cliposition.html">
+      CliPosition
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-cliprefix.html">
+      CliPrefix
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-configurationreader.html">
+      ConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-customassignmentseparator.html">
+      CustomAssignmentSeparator
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-dictionaryconfigurationreader.html">
+      DictionaryConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-environmentvariableconfigurationreader.html">
+      EnvironmentVariableConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-errorcode.html">
+      ErrorCode
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-exceptionexiter.html">
+      ExceptionExiter
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-functionconfigurationreader.html">
+      FunctionConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iargparsertemplate.html">
+      IArgParserTemplate
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iargumentparservisitor-1.html">
+      IArgumentParserVisitor<'R>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iconfigurationreader.html">
+      IConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-iexiter.html">
+      IExiter
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-nullconfigurationreader.html">
+      NullConfigurationReader
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-parseresults-1.html">
+      ParseResults<'Template>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-parsesource.html">
+      ParseSource
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="http://fsprojects.github.io/Argu/reference/argu-processexiter.html">
+      ProcessExiter
+    </a>
+  </li>
+</ul>
+            </ul>
+        </div>
+    </nav>
     <div class="container">
         <div class="masthead">
-            <ul class="nav nav-pills pull-right">
-                <li><a href="http://fsharp.org">fsharp.org</a></li>
-            </ul>
-            <h3 class="muted"><a href="http://fsprojects.github.io/Argu//index.html">Argu</a></h3>
+            <h3 class="muted"><a href="http://fsprojects.github.io/Argu/">Argu</a></h3>
         </div>
         <hr />
-        <div class="row">
-            <div class="span9" id="main">
-                <div>
+        <div class="container" id="fsdocs-content">
+            <div>
   <h1>
     ArgumentCaseInfo Type
   </h1>
   <p>
-    Namespace: Argu
+    Namespace: 
+    <a href="http://fsprojects.github.io/Argu/reference/argu.html">
+      Argu
+    </a>
   </p>
   <p>
     Assembly: Argu.dll
   </p>
-  <br/>
   <p>
-    Base Type: obj
+    Base Type: 
+    <code>obj</code>
   </p>
-  <div class="xmldoc">
-    <p class='summary'>
+  <div class="fsdocs-xmldoc">
+    
  Union argument metadata
-</p>
+
   </div>
+  <div></div>
+  <div></div>
+  <div></div>
   <div></div>
   <div>
     <h3>
       Record fields
     </h3>
-    <table class="table member-list">
+    <table class="table outer-list fsdocs-member-list">
       <thead>
         <tr>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Record Field
           </td>
-          <td class="member-list-header">
+          <td class="fsdocs-member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name" id="AppSettingsCSV">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
-                AppSettingsCSV
+                <p>
+                  <a id="AppSettingsCSV">
+                    <a href="#AppSettingsCSV">
+                      <code>AppSettingsCSV</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="57">
+              <div class="fsdocs-tip" id="57">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>AppSettingsCSV</code>
                   <br/>
-                  AppSettingsCSV
-                  <br/>
-                  Signature: 
-                  Lazy&lt;bool&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L142-142" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  If specified, multiple parameters can be added in AppSettings in CSV form.
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L142-142" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="AppSettingsName">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
-                AppSettingsName
+                <p>
+                  <a id="AppSettingsName">
+                    <a href="#AppSettingsName">
+                      <code>AppSettingsName</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="58">
+              <div class="fsdocs-tip" id="58">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>AppSettingsName</code>
                   <br/>
-                  AppSettingsName
-                  <br/>
-                  Signature: 
-                  Lazy&lt;string option&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L123-123" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  name used in AppSettings
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L123-123" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="AppSettingsSeparators">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
-                AppSettingsSeparators
+                <p>
+                  <a id="AppSettingsSeparators">
+                    <a href="#AppSettingsSeparators">
+                      <code>AppSettingsSeparators</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="59">
+              <div class="fsdocs-tip" id="59">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>AppSettingsSeparators</code>
                   <br/>
-                  AppSettingsSeparators
-                  <br/>
-                  Signature: 
-                  string list
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L129-129" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  AppSettings parameter separator
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L129-129" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="AppSettingsSplitOptions">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
-                AppSettingsSplitOptions
+                <p>
+                  <a id="AppSettingsSplitOptions">
+                    <a href="#AppSettingsSplitOptions">
+                      <code>AppSettingsSplitOptions</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="60">
+              <div class="fsdocs-tip" id="60">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>AppSettingsSplitOptions</code>
                   <br/>
-                  AppSettingsSplitOptions
-                  <br/>
-                  Signature: 
-                  StringSplitOptions
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L131-131" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  AppSettings parameter split options
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L131-131" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="ArgumentType">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '61', 61)" onmouseover="showTip(event, '61', 61)">
-                ArgumentType
+                <p>
+                  <a id="ArgumentType">
+                    <a href="#ArgumentType">
+                      <code>ArgumentType</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="61">
+              <div class="fsdocs-tip" id="61">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>ArgumentType</code>
                   <br/>
-                  ArgumentType
-                  <br/>
-                  Signature: 
-                  ArgumentType
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L118-118" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Type of argument parser
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L118-118" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="CliPosition">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '62', 62)" onmouseover="showTip(event, '62', 62)">
-                CliPosition
+                <p>
+                  <a id="CliPosition">
+                    <a href="#CliPosition">
+                      <code>CliPosition</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="62">
+              <div class="fsdocs-tip" id="62">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>CliPosition</code>
                   <br/>
-                  CliPosition
-                  <br/>
-                  Signature: 
-                  Lazy&lt;CliPosition&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L134-134" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Mandated Cli position for the argument
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L134-134" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="CommandLineNames">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '63', 63)" onmouseover="showTip(event, '63', 63)">
-                CommandLineNames
+                <p>
+                  <a id="CommandLineNames">
+                    <a href="#CommandLineNames">
+                      <code>CommandLineNames</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="63">
+              <div class="fsdocs-tip" id="63">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>CommandLineNames</code>
                   <br/>
-                  CommandLineNames
-                  <br/>
-                  Signature: 
-                  Lazy&lt;string list&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L121-121" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  head element denotes primary command line arg
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L121-121" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="CustomAssignmentSeparator">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '64', 64)" onmouseover="showTip(event, '64', 64)">
-                CustomAssignmentSeparator
+                <p>
+                  <a id="CustomAssignmentSeparator">
+                    <a href="#CustomAssignmentSeparator">
+                      <code>CustomAssignmentSeparator</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="64">
+              <div class="fsdocs-tip" id="64">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>CustomAssignmentSeparator</code>
                   <br/>
-                  CustomAssignmentSeparator
-                  <br/>
-                  Signature: 
-                  Lazy&lt;CustomAssignmentSeparator option&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L140-140" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L140-140" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="Description">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '65', 65)" onmouseover="showTip(event, '65', 65)">
-                Description
+                <p>
+                  <a id="Description">
+                    <a href="#Description">
+                      <code>Description</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="65">
+              <div class="fsdocs-tip" id="65">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>Description</code>
                   <br/>
-                  Description
-                  <br/>
-                  Signature: 
-                  Lazy&lt;string&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L126-126" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Description of the parameter
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L126-126" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="GatherAllSources">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '66', 66)" onmouseover="showTip(event, '66', 66)">
-                GatherAllSources
+                <p>
+                  <a id="GatherAllSources">
+                    <a href="#GatherAllSources">
+                      <code>GatherAllSources</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="66">
+              <div class="fsdocs-tip" id="66">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>GatherAllSources</code>
                   <br/>
-                  GatherAllSources
-                  <br/>
-                  Signature: 
-                  Lazy&lt;bool&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L152-152" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Combine AppSettings with CLI inputs
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L152-152" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IsGatherUnrecognized">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '67', 67)" onmouseover="showTip(event, '67', 67)">
-                IsGatherUnrecognized
+                <p>
+                  <a id="IsGatherUnrecognized">
+                    <a href="#IsGatherUnrecognized">
+                      <code>IsGatherUnrecognized</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="67">
+              <div class="fsdocs-tip" id="67">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>IsGatherUnrecognized</code>
                   <br/>
-                  IsGatherUnrecognized
-                  <br/>
-                  Signature: 
-                  Lazy&lt;bool&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L150-150" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Declares that the parameter should gather any unrecognized CLI params
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L150-150" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IsHidden">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '68', 68)" onmouseover="showTip(event, '68', 68)">
-                IsHidden
+                <p>
+                  <a id="IsHidden">
+                    <a href="#IsHidden">
+                      <code>IsHidden</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="68">
+              <div class="fsdocs-tip" id="68">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>IsHidden</code>
                   <br/>
-                  IsHidden
-                  <br/>
-                  Signature: 
-                  Lazy&lt;bool&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L148-148" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Hide from Usage
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L148-148" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IsMainCommand">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '69', 69)" onmouseover="showTip(event, '69', 69)">
-                IsMainCommand
+                <p>
+                  <a id="IsMainCommand">
+                    <a href="#IsMainCommand">
+                      <code>IsMainCommand</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="69">
+              <div class="fsdocs-tip" id="69">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>IsMainCommand</code>
                   <br/>
-                  IsMainCommand
-                  <br/>
-                  Signature: 
-                  bool
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L136-136" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Specifies that this argument is the main CLI command
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L136-136" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IsMandatory">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '70', 70)" onmouseover="showTip(event, '70', 70)">
-                IsMandatory
+                <p>
+                  <a id="IsMandatory">
+                    <a href="#IsMandatory">
+                      <code>IsMandatory</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="70">
+              <div class="fsdocs-tip" id="70">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>IsMandatory</code>
                   <br/>
-                  IsMandatory
-                  <br/>
-                  Signature: 
-                  Lazy&lt;bool&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L144-144" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Fails if no argument of this type is specified
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L144-144" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IsRest">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
-                IsRest
+                <p>
+                  <a id="IsRest">
+                    <a href="#IsRest">
+                      <code>IsRest</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="71">
+              <div class="fsdocs-tip" id="71">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>IsRest</code>
                   <br/>
-                  IsRest
-                  <br/>
-                  Signature: 
-                  Lazy&lt;bool&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L138-138" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  If specified, should consume remaining tokens from the CLI
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L138-138" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="IsUnique">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
-                IsUnique
+                <p>
+                  <a id="IsUnique">
+                    <a href="#IsUnique">
+                      <code>IsUnique</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="72">
+              <div class="fsdocs-tip" id="72">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>IsUnique</code>
                   <br/>
-                  IsUnique
-                  <br/>
-                  Signature: 
-                  Lazy&lt;bool&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L146-146" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Specifies that argument should be specified at most once in CLI
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L146-146" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="Name">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
-                Name
+                <p>
+                  <a id="Name">
+                    <a href="#Name">
+                      <code>Name</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="73">
+              <div class="fsdocs-tip" id="73">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>Name</code>
                   <br/>
-                  Name
-                  <br/>
-                  Signature: 
-                  Lazy&lt;string&gt;
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L114-114" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Human readable name identifier
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L114-114" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="UnionCaseInfo">
+          <td class="fsdocs-member-name">
             <div>
               <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
-                UnionCaseInfo
+                <p>
+                  <a id="UnionCaseInfo">
+                    <a href="#UnionCaseInfo">
+                      <code>UnionCaseInfo</code>
+                    </a>
+                  </a>
+                </p>
               </code>
-              <div class="tip" id="74">
+              <div class="fsdocs-tip" id="74">
                 <div class="member-tooltip">
                   Full Usage: 
+                  <code>UnionCaseInfo</code>
                   <br/>
-                  UnionCaseInfo
-                  <br/>
-                  Signature: 
-                  UnionCaseInfo
                   <br/>
                 </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            <p class='summary'>
+          <td class="fsdocs-xmldoc">
+            <p class="fsdocs-summary">
+              <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L116-116" class="fsdocs-source-link">
+                <img src="http://fsprojects.github.io/Argu/content/img/github.png" class="normal"/>
+                <img src="http://fsprojects.github.io/Argu/content/img/github-blue.png" class="hover"/>
+              </a>
+              
  Union case reflection identifier
-</p>
-            <br/>
-            <a href="https://github.com/fsprojects/Argu//tree/master/src/Argu/Types.fs#L116-116" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
+
+            </p>
           </td>
         </tr>
       </tbody>
@@ -620,47 +882,17 @@
   <div></div>
   <div></div>
 </div>
-                
-            </div>
-            <div class="span3"> 
-                <a href="http://fsprojects.github.io/Argu//index.html"> <img src="http://fsprojects.github.io/Argu//img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /> </a>
-
-                <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-                <div id="header">
-                    <div class="searchbox">
-                        <label for="search-by">
-                            <i class="fas fa-search"></i>
-                        </label>
-                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-                        <span data-search-clear="">
-                            <i class="fas fa-times"></i>
-                        </span>
-                    </div>
-                </div>
-                <!-- END SEARCH BOX: this adds support for the search box -->
-
-                <ul class="nav nav-list" id="menu">
-                    <li class="nav-header">Argu</li>
-                    <li><a href="http://fsprojects.github.io/Argu/">Home page</a></li>
-                    <li class="divider"></li>
-                    <li><a href="https://github.com/fsprojects/Argu/">Source Code on GitHub</a></li>
-                    <li><a href="https://github.com/fsprojects/Argu//blob/master/LICENSE.md">License</a></li>
-
-                    <li class="nav-header">Documentation</li>
-                    <li><a href="http://fsprojects.github.io/Argu//reference/index.html">API Reference</a></li>
-                </ul>
-            </div>
+            
         </div>
-    </div>
-    <a href="https://github.com/fsprojects/Argu/"> <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"> </a>
 
-    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-    <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/'</script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-    <script type="text/javascript" src="http://fsprojects.github.io/Argu//content/fsdocs-search.js"></script>
-    <!-- END SEARCH BOX: this adds support for the search box -->
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = 'http://fsprojects.github.io/Argu/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="http://fsprojects.github.io/Argu/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
 </body>
 
 </html>
