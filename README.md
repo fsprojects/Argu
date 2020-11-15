@@ -1,4 +1,4 @@
-# Argu [![NuGet Badge](https://buildstats.info/nuget/Argu)](https://www.nuget.org/packages/Argu)
+# Argu [![Build & Tests](https://github.com/fsprojects/Argu/workflows/Build%20&%20Tests/badge.svg?branch=master)](https://github.com/fsprojects/Argu/actions) [![NuGet Badge](https://buildstats.info/nuget/Argu)](https://www.nuget.org/packages/Argu)
 
 A declarative CLI argument/XML configuration parser for F# applications. 
 
@@ -14,10 +14,3 @@ All documentation and related material can be found [here](http://fsprojects.git
 ### Maintainers
 
 * Eirik Tsarpalis ([@eiriktsarpalis](https://twitter.com/eiriktsarpalis))
-
-### Build Status
-
-Head (branch `master`), Build & Unit tests
-
-* Windows [![Build status](https://ci.appveyor.com/api/projects/status/woc4r88tfbnu0ci1/branch/master?svg=true)](https://ci.appveyor.com/project/nessos/argu-6jatx/branch/master)
-* Linux [![Build Status](https://travis-ci.org/fsprojects/Argu.svg?branch=master)](https://travis-ci.org/fsprojects/Argu/branches)
