@@ -925,7 +925,7 @@ module ``Argu Tests Main Primitive`` =
     [<Fact>]
     let ``Simple command line parsing`` () =
         let args = 
-            [| "--first-parameter" ; "bar" ; "--CamelCasedArg"; "string" ; "--mandatory-arg" ; "true" ; "-D" ; 
+            [| "--first-parameter" ; "bar" ; "--camelcasedarg"; "string" ; "--mandatory-arg" ; "true" ; "-D" ; 
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
         let expected_outcome = [ First_Parameter "bar" ; CamelCasedArg "string"
