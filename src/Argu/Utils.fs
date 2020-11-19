@@ -269,12 +269,17 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
     member __.Item(key : string) =
         let mutable kr = null
         let mutable vr = Unchecked.defaultof<_>
-        if __.TryGetPrefix(key, &kr, &vr) && kr = key then vr
+        if __.TryGetCaseInsensitivePrefix(key, &kr, &vr) && kr = key then vr
         else
             raise <| new KeyNotFoundException(key)
 
+    /// Look up best matching case insensitive key entry by prefix
+    member __.TryGetCaseInsensitivePrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =
+        __.TryGetPrefix(value, &kresult, &vresult) ||
+        __.TryGetPrefix(value.ToLower(), &kresult, &vresult)
+    
     /// Look up best matching key entry by prefix
-    member __.TryGetPrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =
+    member private __.TryGetPrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =
         // Just iterate through all the keys, picking the matching prefix
         // with the maximal length
         let mutable maxPos = -1

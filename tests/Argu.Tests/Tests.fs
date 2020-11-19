@@ -891,6 +891,7 @@ module ``Argu Tests Main Primitive`` =
       | [<EqualsAssignment>] Dir of path:string
       | [<First>] First_Parameter of string
       | [<Last>] Last_Parameter of string
+      | CamelCasedArg of string
       | Optional of int option
       | List of int list
     with
@@ -913,6 +914,7 @@ module ``Argu Tests Main Primitive`` =
               | CustomAppConfig _ -> "parameter with custom AppConfig key."
               | First_Parameter _ -> "parameter that has to appear at beginning of command line args."
               | Last_Parameter _ -> "parameter that has to appear at end of command line args."
+              | CamelCasedArg _ -> "Camel cased argument."
               | List _ -> "variadic params"
               | Optional _ -> "optional params"
 
@@ -923,10 +925,11 @@ module ``Argu Tests Main Primitive`` =
     [<Fact>]
     let ``Simple command line parsing`` () =
         let args = 
-            [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ; 
+            [| "--first-parameter" ; "bar" ; "--CamelCasedArg"; "string" ; "--mandatory-arg" ; "true" ; "-D" ; 
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
-        let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
+        let expected_outcome = [ First_Parameter "bar" ; CamelCasedArg "string"
+                                 Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
         let results = parser.ParseCommandLine args
 
         test <@ results.GetAllResults() = expected_outcome @>
@@ -934,6 +937,16 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
         test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        
+    [<Fact>]
+    let ``CamelCasedArg accepted regardless of case`` () =
+        let args = 
+            [| "--mandatory-arg" ; "true" ; "--CamelCasedArg"; "string" |]
+
+        let expected_outcome = [ Mandatory_Arg true ; CamelCasedArg "string" ]
+        let results = parser.ParseCommandLine args
+
+        test <@ results.GetAllResults() = expected_outcome @>
 
     [<Fact>]
     let ``Help String`` () =

@@ -50,8 +50,8 @@ type CliTokenReader(inputs : string[]) =
         | token ->
             let mutable prefix = null
             let mutable case = Unchecked.defaultof<_>
-            if argInfo.CliParamIndex.Value.TryGetPrefix(token, &prefix, &case) then
-                if token = prefix then CliParam(token, prefix, case, NoAssignment) |> kont
+            if argInfo.CliParamIndex.Value.TryGetCaseInsensitivePrefix(token, &prefix, &case) then
+                if token.ToLower() = prefix.ToLower() then CliParam(token, prefix, case, NoAssignment) |> kont
                 elif case.IsCustomAssignment then
                     match case.AssignmentParser.Value token with
                     | NoAssignment -> tryExtractGroupedSwitches token
