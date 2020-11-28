@@ -69,17 +69,18 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
         let rec searchSub caseInfo =
             match caseInfo.ParameterInfo.Value with
             | SubCommand (_, unionArg, __) -> 
-                unionArg.Cases.Value 
-                |> Array.collect (fun case -> 
+                match unionArg.Cases.Value with
+                | [| case |] ->
                     if case.IsMandatory.Value && not ignoreMissingMandatory then
                         [|(error unionArg ErrorCode.PostProcess "missing parameter '%s'." case.Name.Value)|]
                     else 
-                        searchSub case)
+                        searchSub case
+                | _ -> [||]
             | _ -> [||]
 
         match combined with
         | [| sub |] -> 
-            match searchSub (sub.CaseInfo) with
+            match searchSub sub.CaseInfo with
             | [|head::_|] -> head
             | _ -> combined
 
