@@ -104,9 +104,9 @@ let primitiveParsers = lazy(
         mkParser "char" Char.Parse string
         mkParser "string" id id
 
-        mkParser "float" Single.Parse string
-        mkParser "double" Double.Parse string
-        mkParser "decimal" Decimal.Parse string
+        mkParser "float" float32 string
+        mkParser "double" float string
+        mkParser "decimal" decimal string
         mkParser "bigint" System.Numerics.BigInteger.Parse string
         mkParser "guid" Guid string
         mkParser "base64" Convert.FromBase64String Convert.ToBase64String

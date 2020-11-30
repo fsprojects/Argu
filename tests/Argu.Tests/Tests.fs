@@ -4,6 +4,7 @@
 
 open System
 open System.IO
+open System.Globalization
 open Xunit
 open Swensen.Unquote
 
@@ -72,6 +73,9 @@ module ``Argu Tests Main List`` =
         | [<MainCommand; Last; Unique>] Main of chars:char list
         | [<Inherit>] Data of int * byte []
         | Log_Level of int
+        | Float32_Arg of float32
+        | Float64_Arg of float
+        | Decimal_Arg of decimal
         | [<AltCommandLine("/D", "-D", "-z")>] Detach
         | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
         | [<ColonAssignment>] Assignment of string
@@ -110,6 +114,9 @@ module ``Argu Tests Main List`` =
                 | Flex_Equals_Assignment_With_Option _ -> "Flex_Equals_Assignment but with optional parameter type"
                 | Flex_Colon_Assignment _ -> "A colon assignment which can also be used with a space separator"
                 | Log_Level _ -> "set the log level."
+                | Float32_Arg _ -> "Some float32"
+                | Float64_Arg _ -> "Some float64"
+                | Decimal_Arg _ -> "Some decimal"
                 | Detach _ -> "detach daemon from console."
                 | Assignment _ -> "assign with colon operation."
                 | Enum _ -> "assign from three possible values."
@@ -130,6 +137,22 @@ module ``Argu Tests Main List`` =
 
     let parser = ArgumentParser.Create<Argument> (programName = "gadget")
     let parseFunc ignoreMissing f = parser.ParseConfiguration(ConfigurationReader.FromFunction f, ignoreMissing)
+
+    [<Fact>]
+    let ``Numberic decimal separators parsing is culture invariant``() =
+        CultureInfo.CurrentUICulture <- CultureInfo.CurrentUICulture.Clone() :?> CultureInfo
+        CultureInfo.CurrentUICulture.NumberFormat.NumberDecimalSeparator <- ","
+
+        let args =
+            [| "--float32-arg"; "1.2"
+               "--float64-arg"; "2.3"
+               "--decimal-arg"; "3.4"
+               "--mandatory-arg"; "true" |]
+
+        let expected = [ Float32_Arg 1.2f; Float64_Arg 2.3; Decimal_Arg 3.4m; Mandatory_Arg true ]
+        let results = parser.ParseCommandLine args
+
+        test <@ results.GetAllResults() = expected @>
 
     [<Fact>]
     let ``Simple command line parsing`` () =
