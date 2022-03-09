@@ -11,7 +11,7 @@
     <Copyright>2019</Copyright>
     <PackageTags>F#, argument, parser</PackageTags>
     <RepositoryUrl>https://github.com/fsprojects/Argu/</RepositoryUrl>
-    <PackageProjectUrl>http://fsprojects.github.io/Argu/</PackageProjectUrl>
+    <PackageProjectUrl>https://fsprojects.github.io/Argu/</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <!-- SourceLink Options -->
