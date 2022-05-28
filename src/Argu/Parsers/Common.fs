@@ -3,7 +3,9 @@ module internal Argu.CommonParsers
 
 type KeyValueParseResult = Choice<UnionCaseParseResult [], exn>
 
+[<NoComparison; NoEquality>]
 exception ParseError of message:string * code:ErrorCode * argInfo:UnionArgInfo
+[<NoComparison; NoEquality>]
 exception HelpText of subcommand:UnionArgInfo
 
 let inline error argInfo code fmt =

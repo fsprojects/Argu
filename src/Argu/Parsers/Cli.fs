@@ -1,6 +1,7 @@
 ﻿[<AutoOpen>]
 module internal Argu.CliParser
 
+[<NoComparison; NoEquality>]
 type CliParseToken =
     | EndOfStream
     | CliParam of token:string * switch:string * caseInfo:UnionCaseArgInfo * assignment:Assignment
@@ -147,7 +148,7 @@ and CliParseResultAggregatorStack (context : UnionArgInfo) =
         stack.Add agg
         agg
 
-
+[<NoComparison; NoEquality>]
 type CliParseState =
     {
         ProgramName : string

@@ -122,7 +122,7 @@ with
     member inline __.IsCommandLineArg = match __.CommandLineNames.Value with [] -> __.IsMainCommand | _ -> true
     member inline __.IsCustomAssignment = Option.isSome __.CustomAssignmentSeparator.Value
 
-and ParameterInfo =
+and [<NoComparison; NoEquality>] ParameterInfo =
     | Primitives of FieldParserInfo []
     | OptionalParam of Existential * FieldParserInfo
     | ListParam of Existential * FieldParserInfo

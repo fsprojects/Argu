@@ -17,6 +17,7 @@ type KeyValueParseResults (argInfo : UnionArgInfo) =
 
     member __.Results : KeyValueParseResult [] = results
 
+[<NoComparison; NoEquality>]
 type KeyValueParseState =
     {
         ArgInfo : UnionArgInfo
