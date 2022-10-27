@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.408
+        dotnet-version: 6.0.402
     - name: Build
       run: .\build.cmd -t Bundle
       
@@ -36,6 +36,6 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100
+        dotnet-version: 6.0.402
     - name: Build
       run: ./build.sh -t Bundle
