@@ -2,8 +2,14 @@
 // FAKE build script 
 // --------------------------------------------------------------------------------------
 
-#r "paket: groupref build //"
-#load "./.fake/build.fsx/intellisense.fsx"
+#r "nuget: System.Reactive        ,5.0.0"
+#r "nuget: Fake.Core.UserInput    ,5.23.1"
+#r "nuget: Fake.Core.ReleaseNotes ,5.23.1"
+#r "nuget: Fake.Core.Target       ,5.23.1"
+#r "nuget: Fake.IO.FileSystem     ,5.23.1"
+#r "nuget: Fake.DotNet.Cli        ,5.23.1"
+#r "nuget: Fake.Tools.Git         ,5.23.1"
+#r "nuget: Fake.Api.Github        ,5.23.1"
 
 open Fake.Core
 open Fake.Core.TargetOperators
@@ -14,6 +20,15 @@ open Fake.IO.Globbing.Operators
 open Fake.Tools
 open Fake.Api
 open System
+
+#if !FAKE
+Environment.GetCommandLineArgs()
+|> Array.skip 2
+|> Array.toList
+|> Fake.Core.Context.FakeExecutionContext.Create false __SOURCE_FILE__
+|> Fake.Core.Context.RuntimeContext.Fake
+|> Fake.Core.Context.setExecutionContext
+#endif
 
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
@@ -183,7 +198,7 @@ Target.create "Release" ignore
 "Default"
   ==> "PrepareRelease"
   ==> "NuGet.Pack"
-  ==> "NuGet.ValidateSourceLink"
+//   ==> "NuGet.ValidateSourceLink"
   ==> "GenerateDocs"
   ==> "Bundle"
 

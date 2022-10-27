@@ -4,34 +4,16 @@ storage: none
 
 nuget FSharp.Core >= 4.3.2 lowest_matching:true
 nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
-nuget Microsoft.SourceLink.GitHub prerelease copy_local:true
+nuget Microsoft.SourceLink.GitHub ~> 1.1 copy_local:true
 
 group Tests
   source https://api.nuget.org/v3/index.json
-  framework: net5.0
+  framework: net6.0
   storage: none
 
-  nuget FSharp.Core ~> 5.0
-  nuget Microsoft.NET.Test.Sdk ~> 16.0
+  nuget FSharp.Core ~> 6.0
+  nuget Microsoft.NET.Test.Sdk ~> 17.0
   nuget xunit ~> 2.4
   nuget xunit.runner.visualstudio ~> 2.4.0 version_in_path: true
-  nuget Unquote ~> 4.0
+  nuget Unquote ~> 6.0
   nuget FsCheck ~> 3.0 prerelease
-
-group Build
-  source https://api.nuget.org/v3/index.json
-  generate_load_scripts: true
-  framework: netstandard2.0
-  storage: none
-
-  nuget Fake.Core.UserInput	    ~> 5.20.0
-  nuget Fake.Core.ReleaseNotes  ~> 5.20.0
-  nuget Fake.Core.Target        ~> 5.20.0
-  nuget Fake.IO.FileSystem      ~> 5.20.0
-  nuget Fake.DotNet.Cli	        ~> 5.20.0
-  nuget Fake.Tools.Git          ~> 5.20.0
-  nuget Fake.Api.Github         ~> 5.20.0
-  nuget MSBuild.StructuredLogger ~> 2.1.472
-  nuget Microsoft.Build ~> 16.10
-  nuget Microsoft.Build.Framework ~> 16.10
-  
