@@ -31,3 +31,7 @@ group Build
   nuget Fake.DotNet.Cli	        ~> 5.20.0
   nuget Fake.Tools.Git          ~> 5.20.0
   nuget Fake.Api.Github         ~> 5.20.0
+  nuget MSBuild.StructuredLogger ~> 2.1.472
+  nuget Microsoft.Build ~> 16.10
+  nuget Microsoft.Build.Framework ~> 16.10
+  
