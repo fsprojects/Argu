@@ -1,5 +1,8 @@
 name: Build & Tests
 
+env:
+  DOTNET_NOLOGO: true
+
 on:
   workflow_dispatch:
   push:
@@ -8,34 +11,27 @@ on:
     branches: [ master ]
 
 jobs:
-  Windows:
-    runs-on: windows-latest
+  Build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.402
-    - name: Build
-      run: .\build.cmd -t Bundle
-      
-  Linux:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      run: ./docker-build.sh -t Bundle
-
-  MacOS:
-    runs-on: macos-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.402
     - name: Build
       run: ./build.sh -t Bundle
+      shell: bash
+
+  Docker:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: ./docker-build.sh -t Bundle
