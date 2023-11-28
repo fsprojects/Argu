@@ -84,7 +84,7 @@ with
             | Ignore_Backups -> "do not list implied entries ending with ~"
             | Color _ -> "colorize the output; WHEN can be 'always' (default\nif omitted), 'auto', or 'never'"
             | Directory -> "list directories themselves, not their contents"
-            | Dired _ -> "generate output designed for Emacs' dired mode"
+            | Dired -> "generate output designed for Emacs' dired mode"
             | F -> "do not sort, enable -aU, disable -ls --color"
             | Format _ -> "append indicator (one of */=>@|) to entries"
             | Group_Directories_First -> "group directories before files;\ncan be augmented with a --sort option, but any\nuse of --sort=none (-U) disables grouping"

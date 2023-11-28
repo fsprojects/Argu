@@ -128,7 +128,7 @@ module ``Argu Tests Main List`` =
         interface IArgParserTemplate with
             member a.Usage =
                 match a with
-                | Verbose _ -> "be verbose."
+                | Verbose -> "be verbose."
                 | Working_Directory _ -> "specify a working directory."
                 | Listener _ -> "specify a listener."
                 | Mandatory_Arg _ -> "a mandatory argument."
@@ -143,7 +143,7 @@ module ``Argu Tests Main List`` =
                 | Float32_Arg _ -> "Some float32"
                 | Float64_Arg _ -> "Some float64"
                 | Decimal_Arg _ -> "Some decimal"
-                | Detach _ -> "detach daemon from console."
+                | Detach -> "detach daemon from console."
                 | Assignment _ -> "assign with colon operation."
                 | Enum _ -> "assign from three possible values."
                 | Enumeration _ -> "assign from three possible values."
@@ -167,7 +167,7 @@ module ``Argu Tests Main List`` =
     let parseFunc ignoreMissing f = parser.ParseConfiguration(ConfigurationReader.FromFunction f, ignoreMissing)
 
     [<Fact>]
-    let ``Numberic decimal separators parsing is culture invariant``() =
+    let ``Numeric decimal separators parsing is culture invariant``() =
         CultureInfo.CurrentUICulture <- CultureInfo.CurrentUICulture.Clone() :?> CultureInfo
         CultureInfo.CurrentUICulture.NumberFormat.NumberDecimalSeparator <- ","
 
@@ -219,9 +219,9 @@ module ``Argu Tests Main List`` =
         let xmlSource = parser.PrintAppSettingsArguments args
         let usages = List.map (fun a -> (a :> IArgParserTemplate).Usage) args
         
-        test <@ xmlSource.Contains usages.[0] = true @>
-        test <@ xmlSource.Contains usages.[1] = true @>
-        test <@ xmlSource.Contains usages.[2] = true @>
+        test <@ xmlSource.Contains usages[0] = true @>
+        test <@ xmlSource.Contains usages[1] = true @>
+        test <@ xmlSource.Contains usages[2] = true @>
 
     [<Fact>]
     let ``AppSettings CSV parsing`` () =
@@ -284,7 +284,7 @@ module ``Argu Tests Main List`` =
     let ``CLIArguments Locale`` () =
         let originalCulture = System.Threading.Thread.CurrentThread.CurrentCulture
         try
-            System.Threading.Thread.CurrentThread.CurrentCulture <- new System.Globalization.CultureInfo("tr-TR")
+            System.Threading.Thread.CurrentThread.CurrentCulture <- CultureInfo("tr-TR")
             let parser2 = ArgumentParser.Create<LocaleTurkish> (programName = "gadget")
             let result = parser2.ParseCommandLine([| "--install"; "true" |], ignoreMissing = true)
             test <@ result.GetResult <@ Install @> @>
@@ -302,7 +302,7 @@ module ``Argu Tests Main List`` =
                                         (fun e -> <@ e.Message.Contains "more than once" @>)
 
     [<Fact>]
-    let ``First Parameter not placed at beggining`` () =
+    let ``First Parameter not placed at beginning`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
                                         (fun e -> <@ e.Message.Contains "should precede all other" @>)
                                         
@@ -712,7 +712,7 @@ module ``Argu Tests Main List`` =
         | Nested of ParseResults<CleanArgs>
     with
         interface IArgParserTemplate with
-            member __.Usage = "not tested"
+            member _.Usage = "not tested"
 
     type RecursiveArgument1 =
         | Rec1 of ParseResults<RecursiveArgument2>
@@ -888,7 +888,7 @@ module ``Argu Tests Main List`` =
     let ``Fail on malformed case constructors`` () =
         let result = parser.ToParseResults []
         let wrapper = List
-        raises<ArgumentException> <@ result.Contains <@ fun (y : string) -> Log_Level 42 @> @>
+        raises<ArgumentException> <@ result.Contains <@ fun (_y : string) -> Log_Level 42 @> @>
         raises<ArgumentException> <@ result.Contains <@ fun (y, x) -> Data(x,y) @> @>
         raises<ArgumentException> <@ result.Contains <@ fun x -> () ; Log_Level x @> @>
         raises<ArgumentException> <@ result.Contains <@ let wrapper = List in wrapper @> @>
@@ -910,7 +910,7 @@ module ``Argu Tests Main List`` =
             member this.Usage =
                 match this with
                 | BaseParameter -> "will be hidden"
-                | Sub(_) -> "subcommand"
+                | Sub _ -> "subcommand"
 
     [<Fact>]
     let ``Hidden parameters are not printed in help text`` () =
@@ -926,10 +926,6 @@ module ``Argu Tests Main List`` =
             test <@ r.Parser.PrintUsage().Contains "will be shown" @>
             test <@ r.Parser.PrintUsage().Contains "will be hidden" |> not @>
         | _ -> failwithf "never should get here"
-
-
-
-
 
 module ``Argu Tests Main Primitive`` =
 
@@ -960,7 +956,7 @@ module ``Argu Tests Main Primitive`` =
       interface IArgParserTemplate with
           member a.Usage =
               match a with
-              | Verbose _ -> "be verbose."
+              | Verbose -> "be verbose."
               | Working_Directory _ -> "specify a working directory."
               | Listener _ -> "specify a listener."
               | Mandatory_Arg _ -> "a mandatory argument."
@@ -969,7 +965,7 @@ module ``Argu Tests Main Primitive`` =
               | Data _ -> "pass raw data in base64 format."
               | Dir _ -> "Project directory to place the config & database in."
               | Log_Level _ -> "set the log level."
-              | Detach _ -> "detach daemon from console."
+              | Detach -> "detach daemon from console."
               | Assignment _ -> "assign with colon operation."
               | Env _ -> "assign environment variables."
               | Main _ -> "main command."
@@ -1004,7 +1000,7 @@ module ``Argu Tests Main Primitive`` =
                                         (fun e -> <@ e.Message.Contains "USAGE:" @>)
     
     [<Fact>]
-    let ``First Parameter not placed at beggining`` () =
+    let ``First Parameter not placed at beginning`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
                                         (fun e -> <@ e.Message.Contains "should precede all other" @>)
 

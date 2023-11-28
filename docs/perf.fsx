@@ -10,7 +10,7 @@ type Arguments =
     | Argument
 with
     interface IArgParserTemplate with
-        member __.Usage =
+        member _.Usage =
             "Usage"
 
 type FactAttribute () = inherit System.Attribute()

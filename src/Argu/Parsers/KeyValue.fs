@@ -9,13 +9,13 @@ type KeyValueParseResult = Choice<UnionCaseParseResult [], exn>
 type KeyValueParseResults (argInfo : UnionArgInfo) =
     let emptyResult = Choice1Of2 [||]
     let results = Array.init argInfo.Cases.Value.Length (fun _ -> emptyResult)
-    member __.AddResults (case : UnionCaseArgInfo) (ts : UnionCaseParseResult []) =
-        results.[case.Tag] <- Choice1Of2 ts
+    member _.AddResults (case : UnionCaseArgInfo) (ts : UnionCaseParseResult []) =
+        results[case.Tag] <- Choice1Of2 ts
 
-    member __.AddException (case : UnionCaseArgInfo) exn =
-        results.[case.Tag] <- Choice2Of2 exn
+    member _.AddException (case : UnionCaseArgInfo) exn =
+        results[case.Tag] <- Choice2Of2 exn
 
-    member __.Results : KeyValueParseResult [] = results
+    member _.Results : KeyValueParseResult [] = results
 
 [<NoComparison; NoEquality>]
 type KeyValueParseState =
@@ -57,7 +57,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
                     let parseNext (parser : FieldParserInfo) =
                         if !pos < tokens.Length then
                             try
-                                let tok = tokens.[!pos]
+                                let tok = tokens[!pos]
                                 incr pos
                                 parser.Parser tok
 
@@ -105,6 +105,6 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
 ///     Parse a given key/value configuration
 /// </summary>
 let parseKeyValueConfig (configReader : IConfigurationReader) (argInfo : UnionArgInfo) =
-    let state = { ArgInfo = argInfo ; Reader = configReader ; Results = new KeyValueParseResults(argInfo) }
+    let state = { ArgInfo = argInfo ; Reader = configReader ; Results = KeyValueParseResults(argInfo) }
     for caseInfo in argInfo.Cases.Value do parseKeyValuePartial state caseInfo
     state.Results.Results
