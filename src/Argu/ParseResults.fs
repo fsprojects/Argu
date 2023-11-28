@@ -123,7 +123,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="defThunk">Function used to default if no parameter has been specified.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, defThunk : unit -> 'Fields, ?source : ParseSource) : 'Fields =
-        s.TryGetResult expr)
+        s.TryGetResult(expr, ?source = source)
         |> Option.defaultWith defThunk
 
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
