@@ -100,7 +100,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="defaultValue">Return this of no parameter of specific kind has been specified.</param>
+    /// <param name="defaultValue">Return this if no parameter of specific kind has been specified.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Template>, ?defaultValue : 'Template, ?source : ParseSource) : 'Template =
         match defaultValue with
@@ -110,12 +110,21 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="defaultValue">Return this of no parameter of specific kind has been specified.</param>
+    /// <param name="defaultValue">Return this if no parameter of specific kind has been specified.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?defaultValue : 'Fields , ?source : ParseSource) : 'Fields =
+    member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?defaultValue : 'Fields, ?source : ParseSource) : 'Fields =
         match defaultValue with
         | None -> let r = getResult source expr in r.FieldContents :?> 'Fields
-        | Some def -> defaultArg (s.TryGetResult expr) def
+        | Some def -> defaultArg (s.TryGetResult(expr, ?source = source)) def
+
+    /// <summary>Returns the *last* specified parameter of given type.
+    ///          Command line parameters have precedence over AppSettings parameters.</summary>
+    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
+    /// <param name="defThunk">Function used to default if no parameter has been specified.</param>
+    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, defThunk : unit -> 'Fields, ?source : ParseSource) : 'Fields =
+        s.TryGetResult expr)
+        |> Option.defaultWith defThunk
 
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
