@@ -9,17 +9,9 @@
     <Description>A declarative command line and XML configuration parser for F# applications.</Description>
     <Authors>Eirik Tsarpalis</Authors>
     <Copyright>2019</Copyright>
-    <PackageTags>F#, argument, parser</PackageTags>
-    <RepositoryUrl>https://github.com/fsprojects/Argu/</RepositoryUrl>
+    <PackageTags>F#, argument, commandline, parser</PackageTags>
     <PackageProjectUrl>https://fsprojects.github.io/Argu/</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <!-- SourceLink Options -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <!--<IncludeSymbols>true</IncludeSymbols>-->
-    <!--<SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
   </PropertyGroup>
   
   <!-- FsDocs -->
