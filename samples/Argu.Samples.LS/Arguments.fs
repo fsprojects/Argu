@@ -72,7 +72,6 @@ type LsArguments =
     | [<AltCommandLine("-Z")>] Context
     | [<CustomCommandLine("-1")>] List_One
     | Version
-with
     interface IArgParserTemplate with
         member arg.Usage =
             match arg with

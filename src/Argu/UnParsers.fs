@@ -312,7 +312,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
         | OptionalParam(existential, parser) ->
             let optional =
                 existential.Accept { new IFunc<obj option> with
-                    member __.Invoke<'T> () = fields[0] :?> 'T option |> Option.map box }
+                    member _.Invoke<'T> () = fields[0] :?> 'T option |> Option.map box }
 
             match optional with
             | None -> yield clName()
@@ -395,7 +395,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
 
             | ListParam(ex,fp) ->
                 ex.Accept { new IFunc<XNode []> with
-                    member __.Invoke<'T> () =
+                    member _.Invoke<'T> () =
                         let values =
                             getFields().[0] :?> 'T list
                             |> Seq.map (fun t -> fp.UnParser (t :> _))
@@ -407,7 +407,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
 
             | OptionalParam(ex,fp) ->
                 ex.Accept { new IFunc<XNode []> with
-                    member __.Invoke<'T> () =
+                    member _.Invoke<'T> () =
                         let value =
                             match getFields().[0] :?> 'T option with
                             | None -> ""

@@ -264,10 +264,10 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
         |> Array.unzip
 
     /// Gets the value corresponding to supplied key
-    member __.Item(key : string) =
+    member x.Item(key : string) =
         let mutable kr = null
         let mutable vr = Unchecked.defaultof<_>
-        if __.TryGetPrefix(key, &kr, &vr) && kr = key then vr
+        if x.TryGetPrefix(key, &kr, &vr) && kr = key then vr
         else
             raise <| KeyNotFoundException(key)
 

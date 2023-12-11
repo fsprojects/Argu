@@ -13,8 +13,8 @@ open Argu
 module ``Argu Tests Main List`` =
 
     type Exception with
-        member inline __.FirstLine = 
-            __.Message.Split([|Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries).[0]
+        member inline x.FirstLine = 
+            x.Message.Split([|Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries).[0]
 
     [<Flags>]
     type Enum =
@@ -30,7 +30,6 @@ module ``Argu Tests Main List`` =
     type PushArgs =
         | [<AltCommandLine("-f")>] Force
         | [<MainCommand("COMMAND"); ExactlyOnce>] Remote of repo_name:string * branch_name:string
-    with
         interface IArgParserTemplate with
             member this.Usage = 
                 match this with
@@ -39,7 +38,6 @@ module ``Argu Tests Main List`` =
 
     type NewArgs =
         | [<Mandatory>] Name of string
-    with
         interface IArgParserTemplate with
             member this.Usage = 
                 match this with
@@ -47,7 +45,6 @@ module ``Argu Tests Main List`` =
 
     type TagArgs =
         | New of ParseResults<NewArgs>
-    with
         interface IArgParserTemplate with
             member this.Usage = 
                 match this with
@@ -55,7 +52,6 @@ module ``Argu Tests Main List`` =
 
     type CheckoutArgs =
         | [<Mandatory>] Branch of string
-    with
         interface IArgParserTemplate with
             member this.Usage = 
                 match this with
@@ -66,7 +62,6 @@ module ``Argu Tests Main List`` =
         | D
         | F
         | X
-    with
         interface IArgParserTemplate with
             member this.Usage = "clean"
 
@@ -75,7 +70,6 @@ module ``Argu Tests Main List`` =
         | Foo
         | [<CliPrefix(CliPrefix.None)>] Sub of ParseResults<CleanArgs>
         | [<SubCommand; CliPrefix(CliPrefix.None)>] Null_Sub
-    with
         interface IArgParserTemplate with
             member this.Usage = "required"
 
@@ -83,7 +77,6 @@ module ``Argu Tests Main List`` =
         | Switch1
         | Switch2
         | [<GatherUnrecognized; Hidden>] Unrec of values:string
-    with
         interface IArgParserTemplate with
             member this.Usage = "gus"
 
@@ -124,7 +117,6 @@ module ``Argu Tests Main List`` =
         | [<CliPrefix(CliPrefix.None)>] Required of ParseResults<RequiredSubcommand>
         | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResults<GatherUnrecognizedSubcommand>
         | [<SubCommand; CliPrefix(CliPrefix.None)>] Nullary_Sub
-    with
         interface IArgParserTemplate with
             member a.Usage =
                 match a with
@@ -276,7 +268,6 @@ module ``Argu Tests Main List`` =
     // will incorrectly
     type LocaleTurkish =
         | Install of bool
-    with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
 
@@ -394,7 +385,6 @@ module ``Argu Tests Main List`` =
     
     type DisallowedAssignmentArgs =
     | [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
-    with
         interface IArgParserTemplate with
             member a.Usage =
                 match a with
@@ -406,7 +396,6 @@ module ``Argu Tests Main List`` =
         
     type DisallowedArityWithAssignmentOrSpaced =
     | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string * int
-    with
         interface IArgParserTemplate with
             member a.Usage =
                 match a with
@@ -696,45 +685,38 @@ module ``Argu Tests Main List`` =
     type ConflictingCliNames =
         | [<CustomCommandLine "foo">] Foo of int
         | [<AltCommandLine "foo">] Bar of string
-    with
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
     type ConflictingAppSettingsNames =
         | [<CustomAppSettings "foo">]Foo of int
         | [<CustomAppSettings "foo">] Bar of string
-    with
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
     type ConflictingInheritedCliName =
         | [<AltCommandLine("-f"); Inherit>] Force
         | Nested of ParseResults<CleanArgs>
-    with
         interface IArgParserTemplate with
             member _.Usage = "not tested"
 
     type RecursiveArgument1 =
         | Rec1 of ParseResults<RecursiveArgument2>
-    with
         interface IArgParserTemplate with
             member a.Usage = "foo"
 
     and RecursiveArgument2 =
         | Rec2 of ParseResults<RecursiveArgument3>
-    with
         interface IArgParserTemplate with
             member a.Usage = "bar"
 
     and RecursiveArgument3 =
         | Rec3 of ParseResults<RecursiveArgument1>
-    with
         interface IArgParserTemplate with
             member a.Usage = "baz"
 
     type GenericArgument<'T> =
         | Bar of 'T
-    with
         interface IArgParserTemplate with
             member a.Usage = "baz"
 
@@ -768,7 +750,6 @@ module ``Argu Tests Main List`` =
     type ArgumentSingleDash =
         | Argument of string
         | Levels_Deep of int
-    with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
 
@@ -792,7 +773,6 @@ module ``Argu Tests Main List`` =
     type ArgumentNoDash =
         | Argument of string
         | Levels_Deep of int
-    with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
 
@@ -837,7 +817,6 @@ module ``Argu Tests Main List`` =
     type ArgumentWithAltHelp =
         | AltHelp1 of string
         | AltHelp2 of int
-    with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
 
@@ -845,7 +824,6 @@ module ``Argu Tests Main List`` =
     type NoHelp =
         | NoHelp1 of string
         | NoHelp2 of int
-    with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
 
@@ -875,7 +853,6 @@ module ``Argu Tests Main List`` =
     [<DisableHelpFlags>]
     type NestedInherited =
         | [<Inherit>] Nested of ParseResults<NoHelp>
-    with
         interface IArgParserTemplate with
             member a.Usage = "not tested here"
 
@@ -896,7 +873,6 @@ module ``Argu Tests Main List`` =
 
     type SubCommand =
         | SubParameter
-    with
         interface IArgParserTemplate with
             member this.Usage =
                 match this with
@@ -905,7 +881,6 @@ module ``Argu Tests Main List`` =
     type BaseCommand =
         | [<Inherit;Hidden>] BaseParameter
         | [<CustomCommandLine("sub")>] Sub of ParseResults<SubCommand>
-    with
         interface IArgParserTemplate with
             member this.Usage =
                 match this with
@@ -930,8 +905,8 @@ module ``Argu Tests Main List`` =
 module ``Argu Tests Main Primitive`` =
 
     type Exception with
-        member inline __.FirstLine = 
-            __.Message.Split([|Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries).[0]
+        member inline x.FirstLine = 
+            x.Message.Split([|Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries).[0]
 
     type ArgumentPrimitive =
       | [<AltCommandLine("-v"); Inherit>] Verbose
@@ -952,7 +927,6 @@ module ``Argu Tests Main Primitive`` =
       | [<Last>] Last_Parameter of string
       | Optional of int option
       | List of int list
-    with
       interface IArgParserTemplate with
           member a.Usage =
               match a with

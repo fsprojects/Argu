@@ -47,7 +47,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         |> Seq.toList
 
     interface IParseResult with
-        member __.GetAllResults () = __.GetAllResults() |> Seq.map box
+        member x.GetAllResults () = x.GetAllResults() |> Seq.map box
 
     member _.ErrorHandler = exiter
     member internal _.ProgramName = programName

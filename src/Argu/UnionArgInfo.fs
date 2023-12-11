@@ -118,9 +118,9 @@ type UnionCaseArgInfo =
         GatherAllSources : Lazy<bool>
     }
 with
-    member inline __.IsMainCommand = Option.isSome __.MainCommandName.Value
-    member inline __.IsCommandLineArg = match __.CommandLineNames.Value with [] -> __.IsMainCommand | _ -> true
-    member inline __.IsCustomAssignment = Option.isSome __.CustomAssignmentSeparator.Value
+    member inline x.IsMainCommand = Option.isSome x.MainCommandName.Value
+    member inline x.IsCommandLineArg = match x.CommandLineNames.Value with [] -> x.IsMainCommand | _ -> true
+    member inline x.IsCustomAssignment = Option.isSome x.CustomAssignmentSeparator.Value
 
 and [<NoComparison; NoEquality>] ParameterInfo =
     | Primitives of FieldParserInfo []
@@ -189,10 +189,9 @@ type UnionCaseParseResult =
         /// parse source
         Source : ParseSource
     }
-with
-    member inline __.Tag = __.CaseInfo.Tag
-    member inline __.Value = __.CaseInfo.CaseCtor.Value __.Fields
-    member inline __.FieldContents = __.CaseInfo.FieldCtor.Value __.Fields
+    member inline x.Tag = x.CaseInfo.Tag
+    member inline x.Value = x.CaseInfo.CaseCtor.Value x.Fields
+    member inline x.FieldContents = x.CaseInfo.FieldCtor.Value x.Fields
 
 [<NoEquality; NoComparison>]
 type UnionParseResults =

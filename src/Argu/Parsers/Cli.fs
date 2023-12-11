@@ -110,10 +110,10 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
 
         agg.Add result
 
-    member __.AppendResult caseInfo context arguments =
+    member x.AppendResult caseInfo context arguments =
         let result = mkUnionCase caseInfo resultCount ParseSource.CommandLine context arguments
         if result.CaseInfo.Depth = argInfo.Depth then
-            __.AppendResultInner(result)
+            x.AppendResultInner(result)
         else
             // this parse result corresponds to an inherited parameter
             // from a parent syntax. Use the ResultAggregator stack to
@@ -123,11 +123,11 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
 
     member _.AppendUnrecognized(token:string) = unrecognized.Add token
 
-    member __.ToUnionParseResults() =
+    member x.ToUnionParseResults() =
         { Cases = results.Value |> Array.map (fun c -> c.ToArray()) ;
           UnrecognizedCliParams = Seq.toList unrecognized ;
           UnrecognizedCliParseResults = Seq.toList unrecognizedParseResults ;
-          IsUsageRequested = __.IsUsageRequested }
+          IsUsageRequested = x.IsUsageRequested }
 
 // this rudimentary stack implementation assumes that only one subcommand
 // can occur within any particular context; no need implement popping etc.
