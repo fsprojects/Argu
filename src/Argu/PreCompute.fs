@@ -56,7 +56,7 @@ let generateAppSettingsName (uci : UnionCaseInfo) =
 let generateCommandName (uci : UnionCaseInfo) =
     uci.Name.ToUpperInvariant().Replace('_', ' ')
 
-let private defaultLabelRegex = lazy(new Regex(@"^Item[0-9]*$", RegexOptions.Compiled))
+let private defaultLabelRegex = lazy Regex(@"^Item[0-9]*$", RegexOptions.Compiled)
 /// Generates an argument label name from given PropertyInfo
 let tryExtractUnionParameterLabel (p : PropertyInfo) =
     if defaultLabelRegex.Value.IsMatch p.Name then None
@@ -146,7 +146,7 @@ let tryGetDuEnumerationParser label (t : Type) =
     let ucis = FSharpType.GetUnionCases(t, allBindings)
     if ucis |> Array.exists (fun uci -> uci.GetFields().Length > 0) then None else
 
-    let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, allBindings))
+    let tagReader = lazy FSharpValue.PreComputeUnionTagReader(t, allBindings)
     let extractUciInfo (uci : UnionCaseInfo) =
         let name =
             match tryGetAttribute<CustomCommandLineAttribute> (uci.GetCustomAttributes()) with
@@ -166,7 +166,7 @@ let tryGetDuEnumerationParser label (t : Type) =
 
     let unparser (value : obj) =
         let tag = tagReader.Value value
-        let id,_ = index.[tag]
+        let id,_ = index[tag]
         id
 
     Some {
@@ -196,7 +196,7 @@ let getPrimitiveParserByType label (t : Type) =
         | List _ -> arguExn "F# List parameters can only occur as standalone parameters in union constructors."
         | _ -> arguExn "template contains unsupported field of type '%O'." t
 
-let private validCliParamRegex = new Regex(@"\S+", RegexOptions.Compiled)
+let private validCliParamRegex = Regex(@"\S+", RegexOptions.Compiled)
 let validateCliParam (name : string) =
     if name = null || not <| validCliParamRegex.IsMatch name then
         arguExn "CLI parameter '%s' contains invalid characters." name
@@ -204,8 +204,8 @@ let validateCliParam (name : string) =
 let validSeparatorChars = [|'=' ; ':' ; '.' ; '#' ; '+' ; '^' ; '&' ; '?' ; '%' ; '$' ; '~' ; '@'|]
 let private validSeparatorRegex =
     lazy(
-        let escapedChars = new String(validSeparatorChars) |> Regex.Escape
-        new Regex(@"[" + escapedChars + "]+" , RegexOptions.Compiled))
+        let escapedChars = String(validSeparatorChars) |> Regex.Escape
+        Regex(@"[" + escapedChars + "]+" , RegexOptions.Compiled))
 
 let validateSeparator (uci : UnionCaseInfo) (sep : string) =
     if sep = null || not <| validSeparatorRegex.Value.IsMatch sep then
@@ -232,8 +232,8 @@ module Helpers =
                 |> Seq.append inheritedParams.Value
                 |> Seq.collect (fun c -> c.CommandLineNames.Value)
                 |> Seq.append helpParam.Flags
-                |> Seq.filter (fun name -> name.Length = 2 && name.[0] = '-' && Char.IsLetterOrDigit name.[1])
-                |> Seq.map (fun name -> name.[1])
+                |> Seq.filter (fun name -> name.Length = 2 && name[0] = '-' && Char.IsLetterOrDigit name[1])
+                |> Seq.map (fun name -> name[1])
                 |> Seq.distinct
                 |> Seq.toArray
                 |> String
@@ -248,19 +248,19 @@ module Helpers =
             match regexString.Value with
             | None -> (fun _ -> [||])
             | Some regexString ->
-                let regex = new Regex(regexString, RegexOptions.Compiled)
+                let regex = Regex(regexString, RegexOptions.Compiled)
                 (fun (arg : string) ->
                     if not <| regex.IsMatch arg then [||]
-                    else Array.init (arg.Length - 1) (fun i -> String([|'-'; arg.[i + 1]|]))))
+                    else Array.init (arg.Length - 1) (fun i -> String([|'-'; arg[i + 1]|]))))
 
-    let caseCtor uci = lazy(FSharpValue.PreComputeUnionConstructor(uci, allBindings))
-    let fieldReader uci = lazy(FSharpValue.PreComputeUnionReader(uci, allBindings))
+    let caseCtor uci = lazy FSharpValue.PreComputeUnionConstructor(uci, allBindings)
+    let fieldReader uci = lazy FSharpValue.PreComputeUnionReader(uci, allBindings)
 
     let tupleConstructor (types: Type[]) =
         lazy(
             match types.Length with
             | 0 -> fun _ -> arguExn "internal error: attempting to call tuple constructor on nullary case."
-            | 1 -> fun (o:obj[]) -> o.[0]
+            | 1 -> fun (o:obj[]) -> o[0]
             | _ ->
                 let tupleType = FSharpType.MakeTupleType types
                 FSharpValue.PreComputeTupleConstructor tupleType)
@@ -271,10 +271,10 @@ module Helpers =
             | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
             | Some {Separator = sep} ->
                 let pattern = @"^(.+)" + (Regex.Escape sep) + "(.+)$"
-                let regex = new Regex(pattern, RegexOptions.RightToLeft ||| RegexOptions.Compiled)
+                let regex = Regex(pattern, RegexOptions.RightToLeft ||| RegexOptions.Compiled)
                 fun token ->
                     let m = regex.Match token
-                    if m.Success then Assignment(m.Groups.[1].Value, sep, m.Groups.[2].Value)
+                    if m.Success then Assignment(m.Groups[1].Value, sep, m.Groups[2].Value)
                     else NoAssignment)
 
 /// generate argument parsing schema from given UnionCaseInfo
@@ -296,8 +296,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let current = ref None
     let tryGetCurrent = fun () -> !current
 
-    let attributes = lazy(uci.GetCustomAttributes())
-    let declaringTypeAttributes = lazy(uci.DeclaringType.GetCustomAttributes(true))
+    let attributes = lazy uci.GetCustomAttributes()
+    let declaringTypeAttributes = lazy uci.DeclaringType.GetCustomAttributes(true)
 
     let isNoCommandLine = lazy(hasAttribute2<NoCommandLineAttribute> attributes.Value declaringTypeAttributes.Value)
     let isAppSettingsCSV = lazy(hasAttribute<ParseCSVAttribute> attributes.Value)
@@ -418,7 +418,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
             let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt
             let shape = ShapeArgumentTemplate.FromType prt
-            SubCommand(shape, argInfo, tryExtractUnionParameterLabel fields.[0])
+            SubCommand(shape, argInfo, tryExtractUnionParameterLabel fields[0])
 
         | [|Optional t|] ->
             if isRest.Value then
@@ -427,7 +427,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             if isMainCommand.Value then
                 arguExn "MainCommand attribute in '%O' not supported in optional parameters." uci
 
-            let label = tryExtractUnionParameterLabel fields.[0]
+            let label = tryExtractUnionParameterLabel fields[0]
 
             OptionalParam(Existential.FromType t, getPrimitiveParserByType label t)
 
@@ -438,7 +438,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             if isRest.Value then
                 arguExn "Rest attribute in '%O' not supported for list parameters." uci
 
-            let label = tryExtractUnionParameterLabel fields.[0]
+            let label = tryExtractUnionParameterLabel fields[0]
 
             ListParam(Existential.FromType t, getPrimitiveParserByType label t)
 
@@ -509,7 +509,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let uai = {
         Tag = uci.Tag
-        UnionCaseInfo = lazy(uci)
+        UnionCaseInfo = lazy uci
         Arity = fields.Length
         Depth = List.length stack - 1
         CaseCtor = caseCtor
@@ -592,7 +592,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
             |> Seq.append pInfo.InheritedParams.Value
             |> Seq.toArray)
 
-    let tagReader = lazy(FSharpValue.PreComputeUnionTagReader(t, allBindings))
+    let tagReader = lazy FSharpValue.PreComputeUnionTagReader(t, allBindings)
 
     let cliIndex = lazy(
         caseInfo.Value
@@ -620,7 +620,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     let groupedSwitchRegex = Helpers.groupedSwitchRegex caseInfo inheritedParams helpParam
 
     let result = {
-        Type = lazy(t)
+        Type = lazy t
         Depth = List.length stack
         TryGetParent = tryGetParent
         Cases = caseInfo
@@ -650,7 +650,7 @@ let checkUnionArgInfo (result: UnionArgInfo) =
         argInfo.Cases.Value
         |> Seq.append argInfo.InheritedParams.Value // this will only have been populated post-construction
         |> Seq.collect (fun arg -> arg.CommandLineNames.Value |> Seq.map (fun cliName -> cliName, arg))
-        |> Seq.map (fun ((name, arg) as t) ->
+        |> Seq.map (fun (name, arg as t) ->
             if argInfo.HelpParam.IsHelpFlag name then
                 arguExn "parameter '%O' using CLI identifier '%s' which is reserved for help parameters." arg.UnionCaseInfo name
             t)
@@ -659,7 +659,7 @@ let checkUnionArgInfo (result: UnionArgInfo) =
         |> Option.iter (fun (name,args) ->
             let conflicts = args |> Seq.map snd |> Seq.toArray
             arguExn "parameters '%O' and '%O' using conflicting CLI identifier '%s'."
-                conflicts.[0].UnionCaseInfo conflicts.[1].UnionCaseInfo name)
+                conflicts[0].UnionCaseInfo conflicts[1].UnionCaseInfo name)
 
         // check for conflicting AppSettings identifiers
         if argInfo.Depth = 0 then
@@ -670,7 +670,7 @@ let checkUnionArgInfo (result: UnionArgInfo) =
             |> Option.iter (fun (name,args) ->
                 let conflicts = args |> Seq.map snd |> Seq.toArray
                 arguExn "parameters '%O' and '%O' using conflicting AppSettings identifier '%s'."
-                    conflicts.[0].UnionCaseInfo conflicts.[1].UnionCaseInfo name)
+                    conflicts[0].UnionCaseInfo conflicts[1].UnionCaseInfo name)
 
         // Evaluate every lazy property to ensure that their checks run
         for case in argInfo.Cases.Value do

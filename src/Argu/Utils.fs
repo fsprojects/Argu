@@ -5,24 +5,22 @@ open System
 open System.Collections.Generic
 open System.Reflection
 open System.Text
-open System.Text.RegularExpressions
 
-open FSharp.Reflection
 open FSharp.Quotations
 open FSharp.Quotations.Patterns
 open System.Collections
 
 let allBindings = BindingFlags.NonPublic ||| BindingFlags.Public ||| BindingFlags.Static ||| BindingFlags.Instance
 
-let inline arguExn fmt = Printf.ksprintf(fun msg -> raise <| new ArguException(msg)) fmt
+let inline arguExn fmt = Printf.ksprintf(fun msg -> raise <| ArguException(msg)) fmt
 
-let inline arguExnChain exn fmt = Printf.ksprintf(fun msg -> raise <| new ArguException(msg, exn)) fmt
+let inline arguExnChain exn fmt = Printf.ksprintf(fun msg -> raise <| ArguException(msg, exn)) fmt
 
 /// get CL arguments from environment
 let getEnvironmentCommandLineArgs () =
-    match System.Environment.GetCommandLineArgs() with
+    match Environment.GetCommandLineArgs() with
     | [||] -> [||]
-    | args -> args.[1..]
+    | args -> args[1..]
 
 [<RequireQualifiedAccess>]
 module Enum =
@@ -35,12 +33,12 @@ module Array =
     let last (ts : 'T[]) =
         match ts.Length with
         | 0 -> invalidArg "xs" "input array is empty."
-        | n -> ts.[n - 1]
+        | n -> ts[n - 1]
 
     let tryLast (ts : 'T[]) =
         match ts.Length with
         | 0 -> None
-        | n -> Some ts.[n-1]
+        | n -> Some ts[n-1]
 
 [<RequireQualifiedAccess>]
 module List =
@@ -78,7 +76,7 @@ module Seq =
 
 [<RequireQualifiedAccess>]
 module String =
-    let inline mkWhiteSpace (length : int) = new String(' ', length)
+    let inline mkWhiteSpace (length : int) = String(' ', length)
 
 [<AbstractClass>]
 type Existential internal () =
@@ -91,8 +89,8 @@ type Existential internal () =
 
 and Existential<'T> () =
     inherit Existential()
-    override __.Type = typeof<'T>
-    override __.Accept func = func.Invoke<'T>()
+    override _.Type = typeof<'T>
+    override _.Accept func = func.Invoke<'T>()
 
 and IFunc<'R> =
     abstract Invoke<'T> : unit -> 'R
@@ -108,8 +106,8 @@ type ShapeArgumentTemplate() =
 
 and ShapeArgumentTemplate<'Template when 'Template :> IArgParserTemplate>() =
     inherit ShapeArgumentTemplate()
-    override __.Type = typeof<'Template>
-    override __.Accept func = func.Invoke<'Template>()
+    override _.Type = typeof<'Template>
+    override _.Accept func = func.Invoke<'Template>()
 
 and ITemplateFunc<'R> =
     abstract Invoke<'Template when 'Template :> IArgParserTemplate> : unit -> 'R
@@ -119,7 +117,7 @@ type Unchecked =
     static member UntypedDefaultOf(t : Type) =
         Existential.FromType(t).Accept {
             new IFunc<obj> with
-                member __.Invoke<'T> () = Unchecked.defaultof<'T> :> obj
+                member _.Invoke<'T> () = Unchecked.defaultof<'T> :> obj
             }
 
 type MemberInfo with
@@ -137,7 +135,7 @@ type IDictionary<'K,'V> with
         if ok then Some found
         else None
 
-let currentProgramName = lazy(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName)
+let currentProgramName = lazy System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName
 
 /// recognize exprs that strictly contain DU constructors
 /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
@@ -198,7 +196,7 @@ let escapeCliString (value : string) =
                             * N backslashes ==> N backslashes
                         *)
                         let nextCharAfterBackslashes = value |> Seq.skip (i + 1) |> Seq.filter (fun c -> c <> '\\') |> Seq.tryFirst
-                        if nextCharAfterBackslashes = Some ('"') || nextCharAfterBackslashes = None then
+                        if nextCharAfterBackslashes = Some '"' || nextCharAfterBackslashes = None then
                             yield '\\'
                             yield '\\'
                         else
@@ -222,32 +220,32 @@ let flattenCliTokens (tokens : seq<string>) =
 type StringExpr<'T> = StringBuilder -> 'T
 
 type StringExprBuilder () =
-    member __.Zero () : StringExpr<unit> = ignore
-    member __.Bind(f : StringExpr<'T>, g : 'T -> StringExpr<'S>) : StringExpr<'S> =
+    member _.Zero () : StringExpr<unit> = ignore
+    member _.Bind(f : StringExpr<'T>, g : 'T -> StringExpr<'S>) : StringExpr<'S> =
         fun sb -> g (f sb) sb
 
-    member __.Yield (txt : string) : StringExpr<unit> = fun b -> b.Append txt |> ignore
-    member __.Yield (c : char) : StringExpr<unit> = fun b -> b.Append c |> ignore
-    member __.YieldFrom (f : StringExpr<unit>) = f
+    member _.Yield (txt : string) : StringExpr<unit> = fun b -> b.Append txt |> ignore
+    member _.Yield (c : char) : StringExpr<unit> = fun b -> b.Append c |> ignore
+    member _.YieldFrom (f : StringExpr<unit>) = f
 
-    member __.Combine(f : StringExpr<unit>, g : StringExpr<'T>) : StringExpr<'T> = fun b -> f b; g b
-    member __.Delay (f : unit -> StringExpr<'T>) : StringExpr<'T> = fun b -> f () b
+    member _.Combine(f : StringExpr<unit>, g : StringExpr<'T>) : StringExpr<'T> = fun b -> f b; g b
+    member _.Delay (f : unit -> StringExpr<'T>) : StringExpr<'T> = fun b -> f () b
 
-    member __.For (xs : 'a seq, f : 'a -> StringExpr<unit>) : StringExpr<unit> =
+    member _.For (xs : 'a seq, f : 'a -> StringExpr<unit>) : StringExpr<unit> =
         fun b ->
             use e = xs.GetEnumerator ()
             while e.MoveNext() do f e.Current b
 
-    member __.While (p : unit -> bool, f : StringExpr<unit>) : StringExpr<unit> =
+    member _.While (p : unit -> bool, f : StringExpr<unit>) : StringExpr<unit> =
         fun b -> while p () do f b
 
-let stringExpr = new StringExprBuilder ()
+let stringExpr = StringExprBuilder()
 
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module StringExpr =
     let build (f : StringExpr<unit>) =
-        let b = new StringBuilder ()
+        let b = StringBuilder()
         do f b
         b.ToString ()
 
@@ -266,21 +264,21 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
         |> Array.unzip
 
     /// Gets the value corresponding to supplied key
-    member __.Item(key : string) =
+    member x.Item(key : string) =
         let mutable kr = null
         let mutable vr = Unchecked.defaultof<_>
-        if __.TryGetPrefix(key, &kr, &vr) && kr = key then vr
+        if x.TryGetPrefix(key, &kr, &vr) && kr = key then vr
         else
-            raise <| new KeyNotFoundException(key)
+            raise <| KeyNotFoundException(key)
 
     /// Look up best matching key entry by prefix
-    member __.TryGetPrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =
+    member _.TryGetPrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =
         // Just iterate through all the keys, picking the matching prefix
         // with the maximal length
         let mutable maxPos = -1
         let mutable maxLen = -1
         for i = 0 to keys.Length - 1 do
-            let key = keys.[i]
+            let key = keys[i]
             let pLength =
                 if value.StartsWith(key, StringComparison.Ordinal) then key.Length
                 else -1
@@ -290,12 +288,12 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
                 maxLen <- pLength
 
         if maxPos < 0 then false
-        else kresult <- keys.[maxPos] ; vresult <- values.[maxPos] ; true
+        else kresult <- keys[maxPos] ; vresult <- values[maxPos] ; true
 
-    member __.Count with get(): int = keys.Length
+    member _.Count with get(): int = keys.Length
     interface IEnumerable<string * 'Value> with
-        member __.GetEnumerator() = keyVals.GetEnumerator()
-        member __.GetEnumerator() = keyVals.GetEnumerator() :> IEnumerator
+        member _.GetEnumerator() = keyVals.GetEnumerator()
+        member _.GetEnumerator() = keyVals.GetEnumerator() :> IEnumerator
 
 /// Gets the default width of the current console window,
 /// if available.
@@ -307,14 +305,14 @@ let wordwrap (width:int) (inputText:string) =
     let breakLine (text:string) (pos:int) (max:int) =
         // Find last whitespace in line
         let mutable i = max - 1
-        while i >= 0 && not (Char.IsWhiteSpace text.[pos + i]) do
+        while i >= 0 && not (Char.IsWhiteSpace text[pos + i]) do
             i <- i - 1
 
         if i < 0 then
             max // No whitespace found; break at maximum length
         else
             // Find start of whitespace
-            while i >= 0 && Char.IsWhiteSpace text.[pos + i] do
+            while i >= 0 && Char.IsWhiteSpace text[pos + i] do
                 i <- i - 1
             // Return length of text before whitespace
             i + 1
@@ -322,7 +320,7 @@ let wordwrap (width:int) (inputText:string) =
     if width < 1 then invalidArg "width" "Must be positive number."
 
     let inputText = inputText.Replace("\r\n","\n").Replace("\r","\n")
-    let lines = new ResizeArray<string>()
+    let lines = ResizeArray<string>()
     // Parse each line of text
     let mutable pos = 0
     let mutable next = 0
@@ -345,12 +343,12 @@ let wordwrap (width:int) (inputText:string) =
                 if len > width then
                     len <- breakLine inputText pos width
 
-                inputText.[pos .. pos + len - 1] |> lines.Add
+                inputText[pos .. pos + len - 1] |> lines.Add
 
                 // Trim whitespace following break
                 pos <- pos + len
 
-                while pos < eol && Char.IsWhiteSpace inputText.[pos] do
+                while pos < eol && Char.IsWhiteSpace inputText[pos] do
                     pos <- pos + 1
 
         pos <- next

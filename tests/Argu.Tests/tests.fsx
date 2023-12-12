@@ -1,10 +1,9 @@
-﻿#I "../../bin/Debug/net40/"
+﻿#I "bin/Debug/net6.0/"
 #r "Argu.dll"
 #r "Argu.Tests.dll"
 
 open System
 open Argu
-open Argu.Tests
 
 type MyEnum =
     | First

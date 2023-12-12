@@ -1,6 +1,7 @@
 ﻿[<AutoOpen>]
 module internal Argu.CliParser
 
+[<NoComparison; NoEquality>]
 type CliParseToken =
     | EndOfStream
     | CliParam of token:string * switch:string * caseInfo:UnionCaseArgInfo * assignment:Assignment
@@ -14,15 +15,15 @@ type CliTokenReader(inputs : string[]) =
     let mutable isPeekedValue = false
     let mutable peekedValue = Unchecked.defaultof<CliParseToken>
 
-    member __.BeginCliSegment() =
+    member _.BeginCliSegment() =
         segmentStartPos <- position
 
     /// returns the substring that corresponds to the current argument being parsed
     /// e.g "-port 2" from "-Cf -port 2 -bar"
-    member __.CurrentSegment =
-        inputs.[segmentStartPos .. position - 1] |> flattenCliTokens
+    member _.CurrentSegment =
+        inputs[segmentStartPos .. position - 1] |> flattenCliTokens
 
-    member __.GetNextToken (peekOnly : bool) (argInfo : UnionArgInfo) =
+    member _.GetNextToken (peekOnly : bool) (argInfo : UnionArgInfo) =
         // continuation which decides how to consume parsed token
         let inline kont result =
             if peekOnly then
@@ -43,7 +44,7 @@ type CliTokenReader(inputs : string[]) =
         if isPeekedValue then kont peekedValue
         elif position = inputs.Length then kont EndOfStream else
 
-        let token = inputs.[position]
+        let token = inputs[position]
 
         match token with
         | token when argInfo.HelpParam.IsHelpFlag token -> HelpArgument token |> kont
@@ -62,30 +63,30 @@ type CliTokenReader(inputs : string[]) =
             else
                 tryExtractGroupedSwitches token |> kont
 
-    member __.MoveNext() =
+    member _.MoveNext() =
         if position < inputs.Length then
             position <- position + 1
             isPeekedValue <- false
             peekedValue <- Unchecked.defaultof<_>
 
-    member __.IsCompleted = position = inputs.Length
+    member _.IsCompleted = position = inputs.Length
 
 type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParseResultAggregatorStack) =
     let mutable resultCount = 0
     let mutable isSubCommandDefined = false
     let mutable isMainCommandDefined = false
     let mutable lastResult : UnionCaseParseResult option = None
-    let unrecognized = new ResizeArray<string>()
-    let unrecognizedParseResults = new ResizeArray<obj>()
-    let results = lazy(argInfo.Cases.Value |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult> ()))
+    let unrecognized = ResizeArray<string>()
+    let unrecognizedParseResults = ResizeArray<obj>()
+    let results = lazy(argInfo.Cases.Value |> Array.map (fun _ -> ResizeArray<UnionCaseParseResult>()))
 
     member val IsUsageRequested = false with get,set
 
-    member __.ResultCount = resultCount
-    member __.IsSubCommandDefined = isSubCommandDefined
-    member __.IsMainCommandDefined = isMainCommandDefined
+    member _.ResultCount = resultCount
+    member _.IsSubCommandDefined = isSubCommandDefined
+    member _.IsMainCommandDefined = isMainCommandDefined
 
-    member __.AppendResultInner(result : UnionCaseParseResult) =
+    member _.AppendResultInner(result : UnionCaseParseResult) =
         if result.CaseInfo.IsFirst && resultCount > 0 then
             error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." result.ParseContext
 
@@ -98,7 +99,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
         if result.CaseInfo.IsMainCommand then isMainCommandDefined <- true
 
         resultCount <- resultCount + 1
-        let agg = results.Value.[result.Tag]
+        let agg = results.Value[result.Tag]
         if result.CaseInfo.IsUnique.Value && agg.Count > 0 then
             error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name.Value
 
@@ -109,10 +110,10 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
 
         agg.Add result
 
-    member __.AppendResult caseInfo context arguments =
+    member x.AppendResult caseInfo context arguments =
         let result = mkUnionCase caseInfo resultCount ParseSource.CommandLine context arguments
         if result.CaseInfo.Depth = argInfo.Depth then
-            __.AppendResultInner(result)
+            x.AppendResultInner(result)
         else
             // this parse result corresponds to an inherited parameter
             // from a parent syntax. Use the ResultAggregator stack to
@@ -120,34 +121,34 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
             if stack.TryDispatchResult result then ()
             else unrecognizedParseResults.Add result.Value
 
-    member __.AppendUnrecognized(token:string) = unrecognized.Add token
+    member _.AppendUnrecognized(token:string) = unrecognized.Add token
 
-    member __.ToUnionParseResults() =
+    member x.ToUnionParseResults() =
         { Cases = results.Value |> Array.map (fun c -> c.ToArray()) ;
           UnrecognizedCliParams = Seq.toList unrecognized ;
           UnrecognizedCliParseResults = Seq.toList unrecognizedParseResults ;
-          IsUsageRequested = __.IsUsageRequested }
+          IsUsageRequested = x.IsUsageRequested }
 
 // this rudimentary stack implementation assumes that only one subcommand
 // can occur within any particular context; no need implement popping etc.
-// Note that inheritting subcommands is explicitly prohibited by the library.
+// Note that inheriting subcommands is explicitly prohibited by the library.
 and CliParseResultAggregatorStack (context : UnionArgInfo) =
     let offset = context.Depth
-    let stack = new ResizeArray<CliParseResultAggregator>(capacity = 2)
+    let stack = ResizeArray<CliParseResultAggregator>(capacity = 2)
 
-    member __.TryDispatchResult(result : UnionCaseParseResult) =
+    member _.TryDispatchResult(result : UnionCaseParseResult) =
         if result.CaseInfo.Depth < offset then false
         else
-            stack.[result.CaseInfo.Depth - offset].AppendResultInner result
+            stack[result.CaseInfo.Depth - offset].AppendResultInner result
             true
 
     member self.CreateNextAggregator(argInfo : UnionArgInfo) =
         assert(stack.Count = argInfo.Depth - offset)
-        let agg = new CliParseResultAggregator(argInfo, self)
+        let agg = CliParseResultAggregator(argInfo, self)
         stack.Add agg
         agg
 
-
+[<NoComparison; NoEquality>]
 type CliParseState =
     {
         ProgramName : string
@@ -186,8 +187,8 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                 // we need a way to backtrack in case of a parse error.
                 // In that case, we pass any accumulated tokens to the regular
                 // unrecognized argument resolution logic
-                let tokens = new ResizeArray<string>(5)
-                let fields = new ResizeArray<obj>(5)
+                let tokens = ResizeArray<string>(5)
+                let fields = ResizeArray<obj>(5)
                 let handleUnrecognized =
                     state.IgnoreUnrecognizedArgs ||
                     Option.isSome argInfo.UnrecognizedGatherParam.Value
@@ -196,7 +197,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     tokens.Clear(); fields.Clear()
                     let rec aux i =
                         if i = parsers.Length then () else
-                        let p = parsers.[i]
+                        let p = parsers[i]
                         let isFirst = isFirst && i = 0
                         let nextToken =
                             if isFirst then UnrecognizedOrArgument token
@@ -249,7 +250,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
             | ListParam(existential, field) ->
                 ignore <| existential.Accept { new IFunc<bool> with
-                    member __.Invoke<'T>() =
+                    member _.Invoke<'T>() =
                         let rec gather isFirst args =
                             let nextToken =
                                 if isFirst then UnrecognizedOrArgument token
@@ -293,7 +294,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
     | GroupedParams(_, switches) ->
         for sw in switches do
-            let caseInfo = argInfo.CliParamIndex.Value.[sw]
+            let caseInfo = argInfo.CliParamIndex.Value[sw]
             match caseInfo.ParameterInfo.Value with
             | Primitives [||] -> aggregator.AppendResult caseInfo sw [||]
             | OptionalParam _ -> aggregator.AppendResult caseInfo sw [|None|]
@@ -372,7 +373,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
         | OptionalParam(existential, field) when caseInfo.IsCustomAssignment ->
             let optArgument = existential.Accept { new IFunc<obj> with
-                member __.Invoke<'T> () =
+                member _.Invoke<'T> () =
                     match assignment with
                     | NoAssignment ->
                         parseOptionalWithoutAssignment<'T> field state argInfo
@@ -389,14 +390,14 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
         | OptionalParam(existential, field) ->
             let optArgument = existential.Accept { new IFunc<obj> with
-                member __.Invoke<'T> () =
+                member _.Invoke<'T> () =
                     parseOptionalWithoutAssignment<'T> field state argInfo }
 
             aggregator.AppendResult caseInfo name [| optArgument |]
 
         | ListParam(existential, field) ->
             let listArg = existential.Accept { new IFunc<obj> with
-                member __.Invoke<'T>() =
+                member _.Invoke<'T>() =
                     let args = new ResizeArray<'T> ()
                     let rec gather () =
                         match state.Reader.GetNextToken true argInfo with
@@ -419,7 +420,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
             let nestedResults = parseCommandLineInner state nestedUnion
             let result =
                 existential.Accept { new ITemplateFunc<obj> with
-                    member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
+                    member _.Invoke<'Template when 'Template :> IArgParserTemplate> () =
                         new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
 
             aggregator.AppendResult caseInfo name [|result|]
@@ -440,9 +441,9 @@ and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInf
 and parseCommandLine (argInfo : UnionArgInfo) (programName : string) (description : string option) (width : int) (exiter : IExiter)
                         (raiseOnUsage : bool) (ignoreUnrecognized : bool) (inputs : string []) =
     let state = {
-        Reader = new CliTokenReader(inputs)
+        Reader = CliTokenReader(inputs)
         ProgramName = programName
-        ResultStack = new CliParseResultAggregatorStack(argInfo)
+        ResultStack = CliParseResultAggregatorStack(argInfo)
         Description = description
         UsageStringCharWidth = width
         RaiseOnUsage = raiseOnUsage

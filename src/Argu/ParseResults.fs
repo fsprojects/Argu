@@ -21,15 +21,15 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         let flags = defaultArg flags ParseSource.All
         fun x -> Enum.hasFlag flags x.Source
 
-    let getResults rs (e : Expr) = results.Cases.[expr2Uci(e).Tag] |> Seq.filter (restrictF rs)
+    let getResults rs (e : Expr) = results.Cases[expr2Uci(e).Tag] |> Seq.filter (restrictF rs)
     let containsResult rs (e : Expr) = e |> getResults rs |> Seq.isEmpty |> not
     let tryGetResult rs (e : Expr) = e |> getResults rs |> Seq.tryLast
     let getResult rs (e : Expr) =
         let id = expr2Uci e
-        let results = results.Cases.[id.Tag]
+        let results = results.Cases[id.Tag]
         match Array.tryLast results with
         | None ->
-            let aI = argInfo.Cases.Value.[id.Tag]
+            let aI = argInfo.Cases.Value[id.Tag]
             errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name.Value
         | Some r when restrictF rs r -> r
         | Some r -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name.Value
@@ -47,54 +47,54 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         |> Seq.toList
 
     interface IParseResult with
-        member __.GetAllResults () = __.GetAllResults() |> Seq.map box
+        member x.GetAllResults () = x.GetAllResults() |> Seq.map box
 
-    member __.ErrorHandler = exiter
-    member internal __.ProgramName = programName
-    member internal __.Description = description
-    member internal __.ArgInfo = argInfo
-    member internal __.CharacterWidth = usageStringCharWidth
+    member _.ErrorHandler = exiter
+    member internal _.ProgramName = programName
+    member internal _.Description = description
+    member internal _.ArgInfo = argInfo
+    member internal _.CharacterWidth = usageStringCharWidth
 
     /// Returns true if '--help' parameter has been specified in the command line.
-    member __.IsUsageRequested = results.IsUsageRequested
+    member _.IsUsageRequested = results.IsUsageRequested
 
     /// Gets all unrecognized CLI parameters which
     /// accumulates if parsed with 'ignoreUnrecognized = true'
-    member __.UnrecognizedCliParams = results.UnrecognizedCliParams
+    member _.UnrecognizedCliParams = results.UnrecognizedCliParams
 
     /// Gets all parse results that are not part of the current parsing context
     /// This is only applicable to subcommand parsing operations
-    member __.UnrecognizedCliParseResults = results.UnrecognizedCliParseResults
+    member _.UnrecognizedCliParseResults = results.UnrecognizedCliParseResults
 
     /// <summary>Query parse results for parameterless argument.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetResults ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template list =
+    member _.GetResults ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template list =
         expr |> getResults source |> Seq.map (fun r -> r.Value :?> 'Template) |> Seq.toList
 
     /// <summary>Query parse results for argument with parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetResults ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields list =
+    member _.GetResults ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields list =
         expr |> getResults source |> Seq.map (fun r -> r.FieldContents :?> 'Fields) |> Seq.toList
 
     /// <summary>Gets all parse results.</summary>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.GetAllResults (?source : ParseSource) : 'Template list =
+    member _.GetAllResults (?source : ParseSource) : 'Template list =
         getAllResults source
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template option =
+    member _.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : 'Template option =
         expr |> tryGetResult source |> Option.map (fun r -> r.Value :?> 'Template)
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields option =
+    member _.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields option =
         expr |> tryGetResult source |> Option.map (fun r -> r.FieldContents :?> 'Fields)
 
     /// <summary>Returns the *last* specified parameter of given type.
@@ -120,17 +120,17 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.Contains ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : bool = containsResult source expr
+    member _.Contains ([<ReflectedDefinition>] expr : Expr<'Template>, ?source : ParseSource) : bool = containsResult source expr
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member __.Contains ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
+    member _.Contains ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
 
     /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="msg">The error message to be displayed.</param>
     /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member __.Raise (msg : string, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
+    member _.Raise (msg : string, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
         let errorCode = defaultArg errorCode ErrorCode.PostProcess
         let showUsage = defaultArg showUsage true
         error (not showUsage) errorCode msg

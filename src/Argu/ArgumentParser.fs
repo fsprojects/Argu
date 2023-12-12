@@ -14,32 +14,32 @@ type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, hel
         if _usageStringCharacterWidth < 1 then invalidArg "usageStringCharacterWidth" "Must be positive value."
 
     /// Gets the help flags specified for the CLI parser
-    member __.HelpFlags = argInfo.HelpParam.Flags
+    member _.HelpFlags = argInfo.HelpParam.Flags
     /// Gets the help description specified for the CLI parser
-    member __.HelpDescription = argInfo.HelpParam.Description
+    member _.HelpDescription = argInfo.HelpParam.Description
     /// Gets the message that will be displayed at the top of the help text
-    member __.HelpTextMessage = helpTextMessage
+    member _.HelpTextMessage = helpTextMessage
     /// Returns true if parser corresponds to a subcommand
-    member __.IsSubCommandParser = argInfo.TryGetParent() |> Option.isSome
+    member _.IsSubCommandParser = argInfo.TryGetParent() |> Option.isSome
     /// If subcommand parser, gets parent argument metadata
-    member __.ParentInfo = argInfo.TryGetParent() |> Option.map (fun p -> p.ToArgumentCaseInfo())
+    member _.ParentInfo = argInfo.TryGetParent() |> Option.map (fun p -> p.ToArgumentCaseInfo())
     /// Gets the default error handler used by the instance
-    member __.ErrorHandler = errorHandler
+    member _.ErrorHandler = errorHandler
 
     /// Gets metadata for all union cases used by parser
-    member __.GetArgumentCases() =
+    member _.GetArgumentCases() =
         argInfo.Cases.Value
         |> Seq.map (fun p -> p.ToArgumentCaseInfo())
         |> Seq.toList
 
     /// Gets all subcommand parsers for given parser
-    member __.GetSubCommandParsers() =
+    member _.GetSubCommandParsers() =
         argInfo.Cases.Value
         |> Seq.choose (fun cs -> match cs.ParameterInfo.Value with SubCommand(e,nu,_) -> Some(e,nu) | _ -> None)
         |> Seq.map (fun (e,nu) ->
             e.Accept {
                 new ITemplateFunc<ArgumentParser> with
-                    member __.Invoke<'Template when 'Template :> IArgParserTemplate> () =
+                    member _.Invoke<'Template when 'Template :> IArgParserTemplate> () =
                         new ArgumentParser<'Template>(nu, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler) :> _
             })
         |> Seq.toList
@@ -49,7 +49,7 @@ type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, hel
     /// <param name="programName">Override the default program name settings.</param>
     /// <param name="hideSyntax">Do not display 'USAGE: [syntax]' at top of usage string. Defaults to false.</param>
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
-    member __.PrintUsage (?message : string, ?programName : string, ?hideSyntax : bool, ?usageStringCharacterWidth : int) : string =
+    member _.PrintUsage (?message : string, ?programName : string, ?hideSyntax : bool, ?usageStringCharacterWidth : int) : string =
         let programName = defaultArg programName _programName
         let hideSyntax = defaultArg hideSyntax false
         let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
@@ -60,7 +60,7 @@ type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, hel
     /// </summary>
     /// <param name="programName">Program name identifier placed at start of syntax string</param>
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
-    member __.PrintCommandLineSyntax (?programName : string, ?usageStringCharacterWidth : int) : string =
+    member _.PrintCommandLineSyntax (?programName : string, ?usageStringCharacterWidth : int) : string =
         let programName = defaultArg programName _programName
         let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
         mkCommandLineSyntax argInfo "" usageStringCharacterWidth programName |> StringExpr.build
@@ -107,7 +107,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     new (?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter, ?checkStructure: bool) =
         let usageStringCharacterWidth = match usageStringCharacterWidth with None -> getDefaultCharacterWidth() | Some w -> w
         let programName = match programName with Some pn -> pn | None -> currentProgramName.Value
-        let errorHandler = match errorHandler with Some e -> e  | None -> new ExceptionExiter() :> _
+        let errorHandler = match errorHandler with Some e -> e  | None -> ExceptionExiter() :> _
 
         let argInfo =
             match checkStructure with
@@ -124,7 +124,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
-    member __.ParseCommandLine (?inputs : string [], ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
+    member _.ParseCommandLine (?inputs : string [], ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
@@ -142,7 +142,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <summary>Parse arguments using specified configuration reader only. This defaults to the AppSettings configuration of the current process.</summary>
     /// <param name="configurationReader">Configuration reader used to source the arguments. Defaults to the AppSettings configuration of the current process.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    member __.ParseConfiguration (configurationReader : IConfigurationReader, ?ignoreMissing : bool) : ParseResults<'Template> =
+    member _.ParseConfiguration (configurationReader : IConfigurationReader, ?ignoreMissing : bool) : ParseResults<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
 
         try
@@ -160,7 +160,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
     /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
     /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
-    member __.Parse (?inputs : string [], ?configurationReader : IConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
+    member _.Parse (?inputs : string [], ?configurationReader : IConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : ParseResults<'Template> =
         let ignoreMissing = defaultArg ignoreMissing false
         let ignoreUnrecognized = defaultArg ignoreUnrecognized false
         let raiseOnUsage = defaultArg raiseOnUsage true
@@ -183,16 +183,16 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     ///     Converts a sequence of template argument inputs into a ParseResults instance
     /// </summary>
     /// <param name="inputs">Argument input sequence.</param>
-    member __.ToParseResults (inputs : seq<'Template>) : ParseResults<'Template> =
+    member _.ToParseResults (inputs : seq<'Template>) : ParseResults<'Template> =
         mkParseResultFromValues argInfo errorHandler _usageStringCharacterWidth _programName helpTextMessage inputs
 
     /// <summary>
     ///     Gets a subparser associated with specific subcommand instance
     /// </summary>
     /// <param name="expr">Expression providing the subcommand union constructor.</param>
-    member __.GetSubCommandParser ([<ReflectedDefinition>] expr : Expr<ParseResults<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
+    member _.GetSubCommandParser ([<ReflectedDefinition>] expr : Expr<ParseResults<'SubTemplate> -> 'Template>) : ArgumentParser<'SubTemplate> =
         let uci = expr2Uci expr
-        let case = argInfo.Cases.Value.[uci.Tag]
+        let case = argInfo.Cases.Value[uci.Tag]
         match case.ParameterInfo.Value with
         | SubCommand (_,nestedUnion,_) ->
             new ArgumentParser<'SubTemplate>(nestedUnion, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
@@ -202,40 +202,40 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     ///     Gets the F# union tag representation for given argument
     /// </summary>
     /// <param name="value">Argument instance.</param>
-    member __.GetTag(value : 'Template) : int =
+    member _.GetTag(value : 'Template) : int =
         argInfo.TagReader.Value (value :> obj)
 
     /// <summary>
     ///     Gets argument metadata for given argument instance.
     /// </summary>
     /// <param name="value">Argument instance.</param>
-    member __.GetArgumentCaseInfo(value : 'Template) : ArgumentCaseInfo =
+    member _.GetArgumentCaseInfo(value : 'Template) : ArgumentCaseInfo =
         let tag = argInfo.TagReader.Value (value :> obj)
-        argInfo.Cases.Value.[tag].ToArgumentCaseInfo()
+        argInfo.Cases.Value[tag].ToArgumentCaseInfo()
 
     /// <summary>
     ///     Gets argument metadata for given union case constructor
     /// </summary>
     /// <param name="ctorExpr">Quoted union case constructor.</param>
-    member __.GetArgumentCaseInfo([<ReflectedDefinition>] ctorExpr : Expr<'Fields -> 'Template>) : ArgumentCaseInfo =
+    member _.GetArgumentCaseInfo([<ReflectedDefinition>] ctorExpr : Expr<'Fields -> 'Template>) : ArgumentCaseInfo =
         let uci = expr2Uci ctorExpr
-        argInfo.Cases.Value.[uci.Tag].ToArgumentCaseInfo()
+        argInfo.Cases.Value[uci.Tag].ToArgumentCaseInfo()
 
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
-    member __.PrintCommandLineArguments (args : 'Template list) : string [] =
+    member _.PrintCommandLineArguments (args : 'Template list) : string [] =
         mkCommandLineArgs argInfo (Seq.cast args) |> Seq.toArray
 
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
-    member __.PrintCommandLineArgumentsFlat (args : 'Template list) : string =
-        __.PrintCommandLineArguments args |> flattenCliTokens
+    member ap.PrintCommandLineArgumentsFlat (args : 'Template list) : string =
+        ap.PrintCommandLineArguments args |> flattenCliTokens
 
     /// <summary>Prints parameters in App.Config format.</summary>
     /// <param name="args">The parameters that fill out the XML document.</param>
     /// <param name="printComments">Print XML comments over every configuration entry.</param>
-    member __.PrintAppSettingsArguments (args : 'Template list, ?printComments : bool) : string =
+    member _.PrintAppSettingsArguments (args : 'Template list, ?printComments : bool) : string =
         let printComments = defaultArg printComments true
         let xmlDoc = mkAppSettingsDocument argInfo printComments args
-        use writer = { new System.IO.StringWriter() with member __.Encoding = System.Text.Encoding.UTF8 }
+        use writer = { new System.IO.StringWriter() with member _.Encoding = System.Text.Encoding.UTF8 }
         xmlDoc.Save writer
         writer.Flush()
         writer.ToString()

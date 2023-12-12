@@ -35,7 +35,7 @@ type ExactlyOnceAttribute () = inherit Attribute ()
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type InheritAttribute() = inherit Attribute()
 
-/// Denotes that the given argument should accummulate any unrecognized arguments it encounters.
+/// Denotes that the given argument should accumulate any unrecognized arguments it encounters.
 /// Must contain a single field of type string
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type GatherUnrecognizedAttribute() = inherit Attribute()
@@ -61,7 +61,7 @@ type NoAppSettingsAttribute () = inherit Attribute ()
 [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
 type HelpFlagsAttribute ([<ParamArray>] names : string []) = 
     inherit Attribute()
-    member __.Names = names
+    member _.Names = names
 
 /// Specifies that Help/Usage switches should be disabled for the CLI.
 [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
@@ -71,13 +71,13 @@ type DisableHelpFlagsAttribute () = inherit HelpFlagsAttribute ()
 [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
 type HelpDescriptionAttribute (description : string) =
     inherit Attribute()
-    member __.Description = description
+    member _.Description = description
 
 /// Declares that argument should be placed at specific position.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type CliPositionAttribute(position : CliPosition) =
     inherit Attribute()
-    member __.Position = position
+    member _.Position = position
 
 /// Declares that argument can only be placed at the beginning of the CLI syntax.
 /// A parse exception will be raised if that is not the case.
@@ -101,8 +101,8 @@ type SubCommandAttribute () = inherit Attribute()
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type MainCommandAttribute (argumentName : string) = 
     inherit Attribute()
-    new () = new MainCommandAttribute(null)
-    member __.ArgumentName = argumentName
+    new () = MainCommandAttribute(null)
+    member _.ArgumentName = argumentName
 
 /// Print F# 3.1 field labels in usage string. OBSOLETE
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
@@ -116,7 +116,7 @@ type PrintLabelsAttribute () = inherit Attribute ()
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type CustomAssignmentAttribute (separator : string) = 
     inherit Attribute ()
-    member __.Separator = separator
+    member _.Separator = separator
 
 /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
@@ -138,7 +138,7 @@ type ColonAssignmentAttribute () =
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type CustomAssignmentOrSpacedAttribute (separator : string) =
     inherit Attribute ()
-    member __.Separator = separator
+    member _.Separator = separator
 
 /// Use '--param=arg' assignment syntax in CLI.
 /// Parameters can also be assigned using space as separator e.g. '--param arg'
@@ -159,8 +159,8 @@ type ColonAssignmentOrSpacedAttribute () =
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type CustomCommandLineAttribute (name : string, [<ParamArray>]altNames : string []) =
     inherit Attribute ()
-    member __.Name = name
-    member __.AltNames = altNames
+    member _.Name = name
+    member _.AltNames = altNames
 
 /// Declares a set of secondary CLI identifiers for the current parameter.
 /// Does not replace the default identifier which is either auto-generated
@@ -168,27 +168,27 @@ type CustomCommandLineAttribute (name : string, [<ParamArray>]altNames : string 
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = true)>]
 type AltCommandLineAttribute ([<ParamArray>] names : string []) = 
     inherit Attribute ()
-    member __.Names = names
+    member _.Names = names
 
 /// Declares a custom key identifier for the current parameter in AppSettings parsing.
 /// Replaces the auto-generated identifier name.
 [<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type CustomAppSettingsAttribute (name : string) =
     inherit Attribute ()
-    member __.Name = name
+    member _.Name = name
 
 /// Specify a custom value separator in AppSettings parsing parameters.
 /// Used in CSV or list-based parameter parsing.
 [<AttributeUsage(AttributeTargets.Class ||| AttributeTargets.Property, AllowMultiple = false)>]
 type AppSettingsSeparatorAttribute ([<ParamArray>] separators : string [], splitOptions : StringSplitOptions) =
     inherit Attribute()
-    new (separator : char) = new AppSettingsSeparatorAttribute([|string separator|], StringSplitOptions.None)
-    member __.Separators = separators
-    member __.SplitOptions = splitOptions
+    new (separator : char) = AppSettingsSeparatorAttribute([|string separator|], StringSplitOptions.None)
+    member _.Separators = separators
+    member _.SplitOptions = splitOptions
 
 /// Specifies a custom prefix for auto-generated CLI names.
 /// This defaults to double dash ('--').
 [<AttributeUsage(AttributeTargets.Property ||| AttributeTargets.Class, AllowMultiple = false)>]
 type CliPrefixAttribute(prefix : string) = 
     inherit Attribute() 
-    member __.Prefix = prefix
+    member _.Prefix = prefix

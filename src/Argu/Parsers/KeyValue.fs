@@ -9,14 +9,15 @@ type KeyValueParseResult = Choice<UnionCaseParseResult [], exn>
 type KeyValueParseResults (argInfo : UnionArgInfo) =
     let emptyResult = Choice1Of2 [||]
     let results = Array.init argInfo.Cases.Value.Length (fun _ -> emptyResult)
-    member __.AddResults (case : UnionCaseArgInfo) (ts : UnionCaseParseResult []) =
-        results.[case.Tag] <- Choice1Of2 ts
+    member _.AddResults (case : UnionCaseArgInfo) (ts : UnionCaseParseResult []) =
+        results[case.Tag] <- Choice1Of2 ts
 
-    member __.AddException (case : UnionCaseArgInfo) exn =
-        results.[case.Tag] <- Choice2Of2 exn
+    member _.AddException (case : UnionCaseArgInfo) exn =
+        results[case.Tag] <- Choice2Of2 exn
 
-    member __.Results : KeyValueParseResult [] = results
+    member _.Results : KeyValueParseResult [] = results
 
+[<NoComparison; NoEquality>]
 type KeyValueParseState =
     {
         ArgInfo : UnionArgInfo
@@ -56,7 +57,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
                     let parseNext (parser : FieldParserInfo) =
                         if !pos < tokens.Length then
                             try
-                                let tok = tokens.[!pos]
+                                let tok = tokens[!pos]
                                 incr pos
                                 parser.Parser tok
 
@@ -76,7 +77,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
 
                 | OptionalParam (existential, fp) ->
                     let parsed = existential.Accept { new IFunc<obj> with
-                        member __.Invoke<'T>() =
+                        member _.Invoke<'T>() =
                             try fp.Parser entry :?> 'T |> Some :> obj
                             with _ -> error state.ArgInfo ErrorCode.AppSettings "AppSettings entry '%s' is not <%s>." name fp.Description }
 
@@ -86,7 +87,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
                 | ListParam (existential, fp) ->
                     let tokens = entry.Split(caseInfo.AppSettingsSeparators, caseInfo.AppSettingsSplitOptions)
                     let results = existential.Accept { new IFunc<obj> with
-                        member __.Invoke<'T>() =
+                        member _.Invoke<'T>() =
                             tokens |> Seq.map (fun t -> fp.Parser t :?> 'T) |> Seq.toList :> _ }
 
                     let case = mkUnionCase caseInfo caseInfo.Tag ParseSource.AppSettings name [|results|]
@@ -104,6 +105,6 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
 ///     Parse a given key/value configuration
 /// </summary>
 let parseKeyValueConfig (configReader : IConfigurationReader) (argInfo : UnionArgInfo) =
-    let state = { ArgInfo = argInfo ; Reader = configReader ; Results = new KeyValueParseResults(argInfo) }
+    let state = { ArgInfo = argInfo ; Reader = configReader ; Results = KeyValueParseResults(argInfo) }
     for caseInfo in argInfo.Cases.Value do parseKeyValuePartial state caseInfo
     state.Results.Results

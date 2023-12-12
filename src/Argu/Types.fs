@@ -47,7 +47,7 @@ type ArguException internal (message : string, exn : Exception) =
 /// Parse exception raised by Argu
 type ArguParseException internal (message : string, errorCode : ErrorCode) =
     inherit ArguException(message)
-    member __.ErrorCode = errorCode
+    member _.ErrorCode = errorCode
 
 /// An interface for error handling in the argument parser
 type IExiter =
@@ -59,8 +59,8 @@ type IExiter =
 /// Handles argument parser errors by raising an exception
 type ExceptionExiter() =
     interface IExiter with
-        member __.Name = "ArguException Exiter"
-        member __.Exit(msg, errorCode) = raise (new ArguParseException(msg, errorCode))
+        member _.Name = "ArguException Exiter"
+        member _.Exit(msg, errorCode) = raise (ArguParseException(msg, errorCode))
 
 /// Handles argument parser errors by exiting the process
 /// after printing a parse error.
@@ -71,15 +71,15 @@ type ProcessExiter(colorizerOption : (ErrorCode -> ConsoleColor option) option) 
         | Some color ->
             let previous = Console.ForegroundColor
             Console.ForegroundColor <- color
-            { new IDisposable with member __.Dispose() = Console.ForegroundColor <- previous }
+            { new IDisposable with member _.Dispose() = Console.ForegroundColor <- previous }
 
     // Note: this ctor is required to preserve binary compatibility with < 3.7
     new () = ProcessExiter(None)
-    new (colorizer : (ErrorCode -> ConsoleColor option)) = ProcessExiter(Some colorizer)
+    new (colorizer : ErrorCode -> ConsoleColor option) = ProcessExiter(Some colorizer)
 
     interface IExiter with
-        member __.Name = "Process Exiter"
-        member __.Exit(msg : string, errorCode : ErrorCode) =
+        member _.Name = "Process Exiter"
+        member _.Exit(msg : string, errorCode : ErrorCode) =
             let writer = if errorCode = ErrorCode.HelpText then Console.Out else Console.Error
             do
                 use _d = colorize errorCode

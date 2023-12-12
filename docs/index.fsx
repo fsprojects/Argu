@@ -14,7 +14,7 @@ type Args =
     | Detach
 with
     interface IArgParserTemplate with
-        member __.Usage = ""
+        member _.Usage = ""
 
 (**
 
