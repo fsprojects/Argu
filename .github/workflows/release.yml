@@ -2,9 +2,16 @@ name: Release
 
 env:
   DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   Release:
@@ -19,3 +26,4 @@ jobs:
         shell: bash
         env:
           NUGET_KEY: ${{ secrets.NUGET_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
