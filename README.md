@@ -11,4 +11,9 @@ A package of the library is available on [Nuget](http://www.nuget.org/packages/A
 
 All documentation and related material can be found [here](http://fsprojects.github.io/Argu/).
 
-Originally created by [Eirik Tsarpalis](https://twitter.com/eiriktsarpalis), maintainer wanted.
+Originally created by [Eirik Tsarpalis](https://twitter.com/eiriktsarpalis)
+
+## Maintainers
+
+* [@bartelink](https://github.com/bartelink)
+* [@nojaf](https://github.com/nojaf)
