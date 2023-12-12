@@ -2,11 +2,7 @@
 module internal Argu.UnParsers
 
 open System
-open System.Text
-open System.Xml
 open System.Xml.Linq
-
-open FSharp.Reflection
 
 /// Number of spaces to be inserted before a cli switch name in the usage string
 let [<Literal>] switchOffset = 4
@@ -17,7 +13,7 @@ let [<Literal>] descriptionOffset = 26
 ///     print the command line syntax
 /// </summary>
 let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : int) (programName : string) = stringExpr {
-    do if maxWidth < 1 then raise <| new ArgumentOutOfRangeException("maxWidth", "must be positive value.")
+    do if maxWidth < 1 then raise <| ArgumentOutOfRangeException("maxWidth", "must be positive value.")
     let! length0 = StringExpr.currentLength
     yield prefix
     yield programName
@@ -67,10 +63,10 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
             | Primitives parsers ->
                 match aI.CustomAssignmentSeparator.Value with
                 | Some {Separator = sep} when parsers.Length = 1 ->
-                    yield sprintf "%s<%s>" sep parsers.[0].Description
+                    yield sprintf "%s<%s>" sep parsers[0].Description
                 | Some {Separator = sep} ->
                     assert(parsers.Length = 2)
-                    yield sprintf " <%s>%s<%s>" parsers.[0].Description sep parsers.[1].Description
+                    yield sprintf " <%s>%s<%s>" parsers[0].Description sep parsers[1].Description
                 | None ->
                     for p in parsers do
                         yield sprintf " <%s>" p.Description
@@ -113,9 +109,9 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
             match mc.ParameterInfo.Value with
             | Primitives parsers ->
                 assert(parsers.Length > 0)
-                yield sprintf "<%s>" parsers.[0].Description
+                yield sprintf "<%s>" parsers[0].Description
                 for i = 1 to parsers.Length - 1 do
-                    yield sprintf " <%s>" parsers.[i].Description
+                    yield sprintf " <%s>" parsers[i].Description
 
             | ListParam(_, parser) ->
                 yield sprintf "<%s>..." parser.Description
@@ -140,19 +136,19 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     match aI.ParameterInfo.Value with
     | Primitives parsers when aI.IsMainCommand ->
         assert(parsers.Length > 0)
-        yield sprintf "<%s>" parsers.[0].Description
+        yield sprintf "<%s>" parsers[0].Description
         for i = 1 to parsers.Length - 1 do
-            yield sprintf " <%s>" parsers.[i].Description
+            yield sprintf " <%s>" parsers[i].Description
 
         if aI.IsRest.Value then yield "..."
 
     | Primitives parsers ->
         match aI.CustomAssignmentSeparator.Value with
         | Some {Separator = sep} when parsers.Length = 1 ->
-            yield sprintf "%s<%s>" sep parsers.[0].Description
+            yield sprintf "%s<%s>" sep parsers[0].Description
         | Some {Separator = sep} ->
             assert (parsers.Length = 2)
-            yield sprintf " <%s>%s<%s>" parsers.[0].Description sep parsers.[1].Description
+            yield sprintf " <%s>%s<%s>" parsers[0].Description sep parsers[1].Description
         | None ->
             for p in parsers do
                 yield sprintf " <%s>" p.Description
@@ -298,7 +294,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 
         match aI.ParameterInfo.Value with
         | Primitives parsers ->
-            let inline unpars i = parsers.[i].UnParser fields.[i]
+            let inline unpars i = parsers[i].UnParser fields[i]
             match aI.CustomAssignmentSeparator.Value with
             | Some {Separator = sep} when parsers.Length = 1 ->
                 yield sprintf "%s%s%s" (clName()) sep (unpars 0)
@@ -316,7 +312,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
         | OptionalParam(existential, parser) ->
             let optional =
                 existential.Accept { new IFunc<obj option> with
-                    member __.Invoke<'T> () = fields.[0] :?> 'T option |> Option.map box }
+                    member _.Invoke<'T> () = fields[0] :?> 'T option |> Option.map box }
 
             match optional with
             | None -> yield clName()
@@ -327,18 +323,18 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 
         | ListParam(_, parser) ->
             if not aI.IsMainCommand then yield clName()
-            let objSeq = fields.[0] |> unbox<System.Collections.IEnumerable> |> Seq.cast<obj>
+            let objSeq = fields[0] |> unbox<System.Collections.IEnumerable> |> Seq.cast<obj>
             for obj in objSeq do yield parser.UnParser obj
 
         | SubCommand (_, nested, _) ->
             if not aI.IsMainCommand then yield clName()
-            let nestedResult = fields.[0] :?> IParseResult
+            let nestedResult = fields[0] :?> IParseResult
             yield! mkCommandLineArgs nested (nestedResult.GetAllResults())
         | NullarySubCommand -> yield clName()
         }
 
     args
-    |> Seq.map (fun o -> let tag = argInfo.TagReader.Value o in argInfo.Cases.Value.[tag], o)
+    |> Seq.map (fun o -> let tag = argInfo.TagReader.Value o in argInfo.Cases.Value[tag], o)
     |> Seq.sortBy (fun (aI,_) -> aI.CliPosition.Value)
     |> Seq.collect (fun (aI,o) -> mkEntry aI o)
 
@@ -348,7 +344,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Template list) =
     let mkArgumentEntry (t : 'Template) : XNode [] =
         let tag = argInfo.TagReader.Value (t :> _)
-        let aI = argInfo.Cases.Value.[tag]
+        let aI = argInfo.Cases.Value[tag]
         let getFields () = aI.FieldReader.Value (t :> _)
 
         let mkElem (mkComment : unit -> string) (key : string) (value : string) : XNode [] =
@@ -375,7 +371,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
                     | fields ->
                         (fields, parsers)
                         ||> Seq.map2 (fun f p -> p.UnParser f)
-                        |> String.concat aI.AppSettingsSeparators.[0]
+                        |> String.concat aI.AppSettingsSeparators[0]
 
                 let mkComment () =
                     stringExpr {
@@ -388,7 +384,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
                             yield " : "
                             yield first.Description
                             for p in rest do
-                                yield aI.AppSettingsSeparators.[0]
+                                yield aI.AppSettingsSeparators[0]
                                 yield p.Description
 
                         yield ' '
@@ -399,11 +395,11 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
 
             | ListParam(ex,fp) ->
                 ex.Accept { new IFunc<XNode []> with
-                    member __.Invoke<'T> () =
+                    member _.Invoke<'T> () =
                         let values =
                             getFields().[0] :?> 'T list
                             |> Seq.map (fun t -> fp.UnParser (t :> _))
-                            |> String.concat aI.AppSettingsSeparators.[0]
+                            |> String.concat aI.AppSettingsSeparators[0]
 
                         let mkComment () = sprintf " %s : %s ..." aI.Description.Value fp.Description
 
@@ -411,7 +407,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
 
             | OptionalParam(ex,fp) ->
                 ex.Accept { new IFunc<XNode []> with
-                    member __.Invoke<'T> () =
+                    member _.Invoke<'T> () =
                         let value =
                             match getFields().[0] :?> 'T option with
                             | None -> ""

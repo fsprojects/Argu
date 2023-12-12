@@ -3,7 +3,9 @@ module internal Argu.CommonParsers
 
 type KeyValueParseResult = Choice<UnionCaseParseResult [], exn>
 
+[<NoComparison; NoEquality>]
 exception ParseError of message:string * code:ErrorCode * argInfo:UnionArgInfo
+[<NoComparison; NoEquality>]
 exception HelpText of subcommand:UnionArgInfo
 
 let inline error argInfo code fmt =
@@ -24,15 +26,15 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : in
                             (programName : string) (description : string option)
                             (values : seq<'Template>) =
 
-    let agg = info.Cases.Value |> Array.map (fun _ -> new ResizeArray<UnionCaseParseResult>())
+    let agg = info.Cases.Value |> Array.map (fun _ -> ResizeArray<UnionCaseParseResult>())
     let mutable i = 0
     for value in values do
         let value = value :> obj
         let tag = info.TagReader.Value value
-        let case = info.Cases.Value.[tag]
+        let case = info.Cases.Value[tag]
         let fields = case.FieldReader.Value value
         let result = mkUnionCase case i ParseSource.None case.Name.Value fields
-        agg.[tag].Add result
+        agg[tag].Add result
         i <- i + 1
 
     let results =
@@ -55,8 +57,8 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
 
     let emptyResult = Choice1Of2 [||]
     let combineSingle (caseInfo : UnionCaseArgInfo) =
-        let acr = match appSettingsResults with None -> emptyResult | Some ar -> ar.[caseInfo.Tag]
-        let clr = match commandLineResults with None -> [||] | Some cl -> cl.Cases.[caseInfo.Tag]
+        let acr = match appSettingsResults with None -> emptyResult | Some ar -> ar[caseInfo.Tag]
+        let clr = match commandLineResults with None -> [||] | Some cl -> cl.Cases[caseInfo.Tag]
 
         let combined =
             match acr, clr with
