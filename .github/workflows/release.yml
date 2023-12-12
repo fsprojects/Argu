@@ -1,0 +1,29 @@
+name: Release
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+      - name: Build
+        run: ./build.sh -t Release
+        shell: bash
+        env:
+          NUGET_KEY: ${{ secrets.NUGET_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

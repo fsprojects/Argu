@@ -1,3 +1,7 @@
+### 6.1.2
+* Fix Mandatory arguments in nested subcommands. [#116](https://github.com/fsprojects/Argu/issues/116)
+* Fix Consistent handling of numeric decimal separators using invariant culture. [#159](https://github.com/fsprojects/Argu/issues/159)
+
 ### 6.1.1
 * Fix CustomAssignmentOrSpacedAttribute interop with optional fields.
 
