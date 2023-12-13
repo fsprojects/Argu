@@ -1,5 +1,5 @@
 ### 6.1.4
-* Fix: remove incorrect `ReproducibleBuilds` reference [introduced in `6.1.3`](https://github.com/fsprojects/Argu/pull/174)
+* Fix: remove incorrect `ReproducibleBuilds` reference [introduced in `6.1.3`](https://github.com/fsprojects/Argu/pull/174) [#202](https://github.com/fsprojects/Argu/pull/202)
 
 ### 6.1.3 (Unlisted)
 * Add ParseResults.GetResult(expr, unit -> 'T) helper for Catch [#187](https://github.com/fsprojects/Argu/pull/187)
