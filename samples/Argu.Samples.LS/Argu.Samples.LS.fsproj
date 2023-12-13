@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>ls</AssemblyName>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Arguments.fs" />
