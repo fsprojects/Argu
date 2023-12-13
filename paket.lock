@@ -2,24 +2,24 @@ STORAGE: NONE
 RESTRICTION: == netstandard2.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    DotNet.ReproducibleBuilds (1.1.1)
+    DotNet.ReproducibleBuilds (1.1.1) - copy_local: true
       Microsoft.SourceLink.AzureRepos.Git (>= 1.1.1)
       Microsoft.SourceLink.Bitbucket.Git (>= 1.1.1)
       Microsoft.SourceLink.GitHub (>= 1.1.1)
       Microsoft.SourceLink.GitLab (>= 1.1.1)
     FSharp.Core (4.3.2)
-    Microsoft.Build.Tasks.Git (8.0)
-    Microsoft.SourceLink.AzureRepos.Git (8.0)
+    Microsoft.Build.Tasks.Git (8.0) - copy_local: true
+    Microsoft.SourceLink.AzureRepos.Git (8.0) - copy_local: true
       Microsoft.Build.Tasks.Git (>= 8.0)
       Microsoft.SourceLink.Common (>= 8.0)
-    Microsoft.SourceLink.Bitbucket.Git (8.0)
+    Microsoft.SourceLink.Bitbucket.Git (8.0) - copy_local: true
       Microsoft.Build.Tasks.Git (>= 8.0)
       Microsoft.SourceLink.Common (>= 8.0)
-    Microsoft.SourceLink.Common (8.0)
-    Microsoft.SourceLink.GitHub (1.1.1)
+    Microsoft.SourceLink.Common (8.0) - copy_local: true
+    Microsoft.SourceLink.GitHub (1.1.1) - copy_local: true
       Microsoft.Build.Tasks.Git (>= 1.1.1)
       Microsoft.SourceLink.Common (>= 1.1.1)
-    Microsoft.SourceLink.GitLab (8.0)
+    Microsoft.SourceLink.GitLab (8.0) - copy_local: true
       Microsoft.Build.Tasks.Git (>= 8.0)
       Microsoft.SourceLink.Common (>= 8.0)
     System.Buffers (4.5.1)

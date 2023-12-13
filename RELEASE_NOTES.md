@@ -1,5 +1,9 @@
-### 6.1.3
+### 6.1.4
+* Fix: remove incorrect `ReproducibleBuilds` reference [introduced in `6.1.3`](https://github.com/fsprojects/Argu/pull/174)
+
+### 6.1.3 (Unlisted)
 * Add ParseResults.GetResult(expr, unit -> 'T) helper for Catch [#187](https://github.com/fsprojects/Argu/pull/187)
+* Use [`Dotnet.ReproducibleBuilds`](https://github.com/dotnet/reproducible-builds) [#174](https://github.com/fsprojects/Argu/pull/174)
 
 ### 6.1.2
 * Fix Mandatory arguments in nested subcommands. [#116](https://github.com/fsprojects/Argu/issues/116) [@chestercodes](https://github.com/chestercodes) 
