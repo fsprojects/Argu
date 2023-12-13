@@ -120,11 +120,15 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
-    /// <param name="defThunk">Function used to default if no parameter has been specified.</param>
+    /// <param name="defThunk">Function used to default if no parameter has been specified.
+    ///     Any resulting Exception will be trapped, and the Exception's <c>.Message</c> will be used as the Failure Message as per <c>Raise</c> and <c>Catch</c>.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, defThunk : unit -> 'Fields, ?source : ParseSource) : 'Fields =
-        s.TryGetResult(expr, ?source = source)
-        |> Option.defaultWith defThunk
+    /// <param name="errorCode">The error code to be returned.</param>
+    /// <param name="showUsage">Print usage together with error message.</param>
+    member s.GetResult([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, defThunk : unit -> 'Fields, ?source : ParseSource, ?errorCode, ?showUsage) : 'Fields  =
+        match s.TryGetResult(expr, ?source = source) with
+        | Some x -> x
+        | None -> s.Catch(defThunk, ?errorCode = errorCode, ?showUsage = showUsage)
 
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
@@ -139,7 +143,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="msg">The error message to be displayed.</param>
     /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member _.Raise (msg : string, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
+    member _.Raise<'T>(msg : string, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
         let errorCode = defaultArg errorCode ErrorCode.PostProcess
         let showUsage = defaultArg showUsage true
         error (not showUsage) errorCode msg
@@ -148,15 +152,15 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="error">The error to be displayed.</param>
     /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member r.Raise (error : exn, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
-        r.Raise (error.Message, ?errorCode = errorCode, ?showUsage = showUsage)
+    member r.Raise<'T>(error : exn, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
+        r.Raise(error.Message, ?errorCode = errorCode, ?showUsage = showUsage)
 
-    /// <summary>Handles any raised exception through the argument parser's exiter mechanism. Display usage optionally.</summary>
+    /// <summary>Handles any raised exception through the argument parser's exiter mechanism.</summary>
     /// <param name="f">The operation to be executed.</param>
     /// <param name="errorCode">The error code to be returned.</param>
-    /// <param name="showUsage">Print usage together with error message.</param>
-    member r.Catch (f : unit -> 'T, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
-        try f () with e -> r.Raise(e.Message, ?errorCode = errorCode, ?showUsage = showUsage)
+    /// <param name="showUsage">Print usage together with error message. Defaults to <c>true</c></param>
+    member r.Catch<'T>(f : unit -> 'T, ?errorCode : ErrorCode, ?showUsage : bool) : 'T =
+        try f () with e -> r.Raise(e, ?errorCode = errorCode, ?showUsage = showUsage)
 
     /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.

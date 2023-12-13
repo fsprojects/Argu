@@ -1,5 +1,5 @@
 ### 6.1.3
-* Add ParseResults.GetResult(expr, defaultThunk) [#187](https://github.com/fsprojects/Argu/pull/187)
+* Add ParseResults.GetResult(expr, unit -> 'T) helper for Catch [#187](https://github.com/fsprojects/Argu/pull/187)
 
 ### 6.1.2
 * Fix Mandatory arguments in nested subcommands. [#116](https://github.com/fsprojects/Argu/issues/116) [@chestercodes](https://github.com/chestercodes) 
