@@ -1,6 +1,5 @@
-﻿group Tests
-  FSharp.Core
-  xunit
-  xunit.runner.visualstudio
+group Tests
   Microsoft.NET.Test.Sdk
   Unquote
+  xunit
+  xunit.runner.visualstudio

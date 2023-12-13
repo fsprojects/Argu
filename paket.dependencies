@@ -1,9 +1,11 @@
 source https://api.nuget.org/v3/index.json
 framework: netstandard2.0
+strategy: min # take the minimum possible for transitive references
+lowest_matching: true # take the minimum as specified for the direct references
 storage: none
 
-nuget FSharp.Core >= 4.3.2 lowest_matching:true
-nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
+nuget FSharp.Core >= 4.3.2
+nuget System.Configuration.ConfigurationManager >= 4.0 
 
 group Tests
   source https://api.nuget.org/v3/index.json
