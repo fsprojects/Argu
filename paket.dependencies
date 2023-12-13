@@ -4,7 +4,7 @@ storage: none
 
 nuget FSharp.Core >= 4.3.2 lowest_matching:true
 nuget System.Configuration.ConfigurationManager >= 4.0 lowest_matching:true
-nuget Microsoft.SourceLink.GitHub ~> 1.1 copy_local:true
+nuget DotNet.ReproducibleBuilds
 
 group Tests
   source https://api.nuget.org/v3/index.json
