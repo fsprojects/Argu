@@ -4,4 +4,3 @@
   xunit.runner.visualstudio
   Microsoft.NET.Test.Sdk
   Unquote
-  FsCheck

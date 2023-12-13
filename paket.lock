@@ -20,9 +20,7 @@ STORAGE: NONE
 RESTRICTION: == net6.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    FsCheck (3.0.0-beta2)
-      FSharp.Core (>= 4.5)
-    FSharp.Core (6.0.6)
+    FSharp.Core (6.0.7)
     Microsoft.CodeCoverage (17.3.2)
     Microsoft.NET.Test.Sdk (17.3.2)
       Microsoft.CodeCoverage (>= 17.3.2)
