@@ -123,21 +123,7 @@ Target.create "NuGet.Push" (fun _ ->
 
 Target.create "GenerateDocs" (fun _ ->
    Shell.cleanDir ".fsdocs"
-   DotNet.exec id "fsdocs" "build --clean --strict --property Configuration=Release" |> ignore
-)
-
-Target.create "ReleaseDocs" (fun _ ->
-    let tempDocsDir = "temp/gh-pages"
-    let outputDocsDir = "output/"
-
-    Directory.ensure outputDocsDir
-
-    Shell.cleanDir tempDocsDir
-    Git.Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
-    Shell.copyRecursive outputDocsDir tempDocsDir true |> Trace.tracefn "%A"
-    Git.Staging.stageAll tempDocsDir
-    Git.Commit.exec tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
-    Git.Branches.push tempDocsDir
+   DotNet.exec id "fsdocs" "build --clean --strict --properties Configuration=Release" |> ignore
 )
 
 // Github Releases
@@ -203,7 +189,6 @@ Target.create "Release" ignore
   ==> "Bundle"
 
 "Bundle"
-  ==> "ReleaseDocs"
   ==> "ReleaseGitHub"
   ==> "NuGet.Push"
   ==> "Release"

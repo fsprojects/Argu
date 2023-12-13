@@ -31,3 +31,17 @@ jobs:
         env:
           NUGET_KEY: ${{ secrets.NUGET_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Upload the static files
+      - name: Upload documentation
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./output
+
+  # GitHub Actions recommends deploying in a separate job.
+  DeployDocs:
+    runs-on: ubuntu-latest
+    needs: Release
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

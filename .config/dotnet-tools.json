@@ -20,8 +20,8 @@
         "sourcelink"
       ]
     },
-    "fsharp.formatting.commandtool": {
-      "version": "7.2.9",
+    "fsdocs-tool": {
+      "version": "20.0.0-alpha-016",
       "commands": [
         "fsdocs"
       ]
