@@ -2,33 +2,33 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2002
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu", "src\Argu\Argu.fsproj", "{D3E958F9-5FFF-462E-BDC7-A03272A9F5D9}" 
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu", "src\Argu\Argu.fsproj", "{D3E958F9-5FFF-462E-BDC7-A03272A9F5D9}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Samples.LS", "samples\Argu.Samples.LS\Argu.Samples.LS.fsproj", "{E0563A30-4451-4DF2-9D21-26C76EB85C22}" 
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Samples.LS", "samples\Argu.Samples.LS\Argu.Samples.LS.fsproj", "{E0563A30-4451-4DF2-9D21-26C76EB85C22}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{8E234746-5098-4400-98F1-62C77AB91711}" 
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Argu.Tests", "tests\Argu.Tests\Argu.Tests.fsproj", "{8E234746-5098-4400-98F1-62C77AB91711}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{6CAC8891-E2B6-4CC8-AACF-0AAA4F2A49D0}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{6CAC8891-E2B6-4CC8-AACF-0AAA4F2A49D0}"
 	ProjectSection(SolutionItems) = preProject
 		.config\dotnet-tools.json = .config\dotnet-tools.json
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{83FE66F8-6E59-4178-8962-11117B51F39C}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{83FE66F8-6E59-4178-8962-11117B51F39C}"
 	ProjectSection(SolutionItems) = preProject
 		.github\ISSUE_TEMPLATE.md = .github\ISSUE_TEMPLATE.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{EE42293D-9398-4EF4-B151-9DE992EBB85A}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{EE42293D-9398-4EF4-B151-9DE992EBB85A}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{306D68AD-1E01-4367-9498-EF4CEDE0AF38}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{306D68AD-1E01-4367-9498-EF4CEDE0AF38}"
 	ProjectSection(SolutionItems) = preProject
 		.paket\Paket.Restore.targets = .paket\Paket.Restore.targets
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2687163A-E0EA-4EC6-A388-430314AA8C85}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2687163A-E0EA-4EC6-A388-430314AA8C85}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		.gitignore = .gitignore
@@ -50,30 +50,29 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C9E28045-41C6-422E-9928-4220EF3FF19B}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C9E28045-41C6-422E-9928-4220EF3FF19B}"
 	ProjectSection(SolutionItems) = preProject
-		docs\_template.html = docs\_template.html
 		docs\index.fsx = docs\index.fsx
 		docs\perf.fsx = docs\perf.fsx
 		docs\tutorial.fsx = docs\tutorial.fsx
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "img", "img", "{10ED3503-22F2-42EF-8B35-C979A5B700D0}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "img", "img", "{10ED3503-22F2-42EF-8B35-C979A5B700D0}"
 	ProjectSection(SolutionItems) = preProject
 		docs\img\logo.pdn = docs\img\logo.pdn
 		docs\img\logo.png = docs\img\logo.png
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resource", "resource", "{B1E24C6F-9B2C-4102-B99A-9065B5745E6F}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resource", "resource", "{B1E24C6F-9B2C-4102-B99A-9065B5745E6F}"
 	ProjectSection(SolutionItems) = preProject
 		resource\logo.png = resource\logo.png
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{A15390A5-BC39-433F-BA25-8775B4C2E329}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{A15390A5-BC39-433F-BA25-8775B4C2E329}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{93AB3CBB-7714-49DD-9C6F-40E153A66E8F}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{93AB3CBB-7714-49DD-9C6F-40E153A66E8F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E40F0B06-703E-4541-826F-3B8AED67AF7B}" 
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E40F0B06-703E-4541-826F-3B8AED67AF7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -21,4 +21,10 @@
     <!--<IncludeSymbols>true</IncludeSymbols>-->
     <!--<SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
   </PropertyGroup>
+  
+  <!-- FsDocs -->
+  <PropertyGroup>
+    <FsDocsLicenseLink>https://github.com/fsprojects/Argu/blob/master/LICENSE.md</FsDocsLicenseLink>
+    <FsDocsReleaseNotesLink>https://github.com/fsprojects/Argu/blob/master/RELEASE_NOTES.md</FsDocsReleaseNotesLink>
+  </PropertyGroup>
 </Project>
