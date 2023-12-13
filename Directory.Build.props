@@ -10,6 +10,8 @@
     <Authors>Eirik Tsarpalis</Authors>
     <Copyright>2019</Copyright>
     <PackageTags>F#, argument, commandline, parser</PackageTags>
+    <!-- NOTE while ReproducibleBuilds/SourceLink derives the same value, other stuff in the FAKE fsx require this explicitly-->
+    <RepositoryUrl>https://github.com/fsprojects/Argu/</RepositoryUrl>
     <PackageProjectUrl>https://fsprojects.github.io/Argu/</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
