@@ -487,7 +487,7 @@ module ``Argu Tests Main List`` =
         test <@ nested.Contains <@ Force @> @>
 
     [<Fact>]
-    let ``Main command parsing should not permit intermittent arguments`` () =
+    let ``Main command parsing should not permit interstitial arguments`` () =
         let args = [|"push" ; "origin" ; "-f" ; "master"|]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
                                     (fun e -> <@ e.FirstLine.Contains "but was '-f'" @>)
@@ -1007,3 +1007,15 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.UnrecognizedCliParams = ["foobar"] @>
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Main @> = "main" @>
+        
+    [<Fact>]
+    let ``Trap defaulting function exceptions`` () =
+        let results = parser.ParseCommandLine [| "--mandatory-arg" ; "true"; "command" |]
+        let defThunk (): string = failwith "Defaulting Failed"
+        raisesWith<ArguParseException>
+            <@ results.GetResult(Working_Directory, defThunk, showUsage = false) @>
+            <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+        raisesWith<ArguParseException>
+            <@ results.GetResult(Working_Directory, defThunk)  @>
+            (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
+ 
