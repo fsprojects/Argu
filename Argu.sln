@@ -21,31 +21,23 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{EE42293D-9398-4EF4-B151-9DE992EBB85A}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{306D68AD-1E01-4367-9498-EF4CEDE0AF38}"
-	ProjectSection(SolutionItems) = preProject
-		.paket\Paket.Restore.targets = .paket\Paket.Restore.targets
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2687163A-E0EA-4EC6-A388-430314AA8C85}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".project", ".project", "{2687163A-E0EA-4EC6-A388-430314AA8C85}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
-		.tfignore = .tfignore
-		.travis.yml = .travis.yml
-		appveyor.yml = appveyor.yml
-		Argu.sln = Argu.sln
 		build.cmd = build.cmd
 		build.fsx = build.fsx
 		build.sh = build.sh
 		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
 		docker-build.sh = docker-build.sh
 		Dockerfile = Dockerfile
 		global.json = global.json
 		LICENSE.md = LICENSE.md
-		paket.dependencies = paket.dependencies
-		paket.lock = paket.lock
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
@@ -69,10 +61,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resource", "resource", "{B1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{A15390A5-BC39-433F-BA25-8775B4C2E329}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{93AB3CBB-7714-49DD-9C6F-40E153A66E8F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E40F0B06-703E-4541-826F-3B8AED67AF7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -100,8 +88,6 @@ Global
 		{EE42293D-9398-4EF4-B151-9DE992EBB85A} = {83FE66F8-6E59-4178-8962-11117B51F39C}
 		{10ED3503-22F2-42EF-8B35-C979A5B700D0} = {C9E28045-41C6-422E-9928-4220EF3FF19B}
 		{E0563A30-4451-4DF2-9D21-26C76EB85C22} = {A15390A5-BC39-433F-BA25-8775B4C2E329}
-		{D3E958F9-5FFF-462E-BDC7-A03272A9F5D9} = {93AB3CBB-7714-49DD-9C6F-40E153A66E8F}
-		{8E234746-5098-4400-98F1-62C77AB91711} = {E40F0B06-703E-4541-826F-3B8AED67AF7B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99215464-9AB5-4BC3-A033-92EA250F8FC1}

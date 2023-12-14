@@ -10,3 +10,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "FSharp.Core"
+      - dependency-name: "System.Configuration.ConfigurationManager"

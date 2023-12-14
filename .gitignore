@@ -187,7 +187,6 @@ nuget/*.nupkg
 release.cmd
 release.sh
 localpackages/
-paket-files
 *.orig
 docs/content/license.md
 docs/content/release-notes.md
@@ -200,8 +199,6 @@ launchSettings.json
 
 # Deploy artifacts
 /artifacts/
-/paket-files/
-/.paket/load/
 /tools/
 
 # Ionide

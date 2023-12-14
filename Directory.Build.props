@@ -2,6 +2,7 @@
   <PropertyGroup>
     <WarningLevel>5</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
   </PropertyGroup>
 
   <!-- NuGet Metadata -->
@@ -15,7 +16,7 @@
     <PackageProjectUrl>https://fsprojects.github.io/Argu/</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
-  
+
   <!-- FsDocs -->
   <PropertyGroup>
     <FsDocsLicenseLink>https://github.com/fsprojects/Argu/blob/master/LICENSE.md</FsDocsLicenseLink>
