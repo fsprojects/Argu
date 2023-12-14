@@ -11,6 +11,8 @@ end_of_line = lf
 # Project files
 [*.{csproj,fsproj,props}]
 indent_size = 2
+# Rider does not implement this yet (https://youtrack.jetbrains.com/issue/RIDER-25867) so for now no space before
+# resharper_space_before_self_closing = true
 
 # YAML files
 [*.yml]
