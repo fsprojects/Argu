@@ -19,12 +19,12 @@
     <Compile Include="Parsers\Cli.fs" />
     <Compile Include="Parsers\KeyValue.fs" />
     <Compile Include="ArgumentParser.fs" />
-    <None Include="paket.references" />
     <None Include="..\..\resource\logo.png" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" />
     <!-- SourceLink etc -->
-    <PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="All" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
