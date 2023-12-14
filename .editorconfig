@@ -1,7 +1,7 @@
 root = true
 
 # Source files
-[*.fs]
+[*.{fs,fsx}]
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
@@ -9,7 +9,7 @@ insert_final_newline = true
 end_of_line = lf
 
 # Project files
-[*.{csproj,fsproj}]
+[*.{csproj,fsproj,props}]
 indent_size = 2
 
 # YAML files

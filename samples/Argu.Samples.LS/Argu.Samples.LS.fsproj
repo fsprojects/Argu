@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <OutputType>Exe</OutputType>
-        <AssemblyName>ls</AssemblyName>
-        <!-- NOTE required as EXEs by default are treated as packable by the FAKE Release fsx   -->
-        <IsPackable>false</IsPackable>
-    </PropertyGroup>
-    <ItemGroup>
-        <Compile Include="Arguments.fs"/>
-        <Compile Include="Program.fs"/>
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
-    </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>ls</AssemblyName>
+    <!-- NOTE required as EXEs by default are treated as packable by the FAKE Release fsx   -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Arguments.fs"/>
+    <Compile Include="Program.fs"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
+  </ItemGroup>
 </Project>
