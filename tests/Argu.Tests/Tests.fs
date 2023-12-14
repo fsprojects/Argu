@@ -13,7 +13,7 @@ open Argu
 module ``Argu Tests Main List`` =
 
     type Exception with
-        member inline x.FirstLine = 
+        member inline x.FirstLine =
             x.Message.Split([|Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries).[0]
 
     [<Flags>]
@@ -31,7 +31,7 @@ module ``Argu Tests Main List`` =
         | [<AltCommandLine("-f")>] Force
         | [<MainCommand("COMMAND"); ExactlyOnce>] Remote of repo_name:string * branch_name:string
         interface IArgParserTemplate with
-            member this.Usage = 
+            member this.Usage =
                 match this with
                 | Force -> "force changes in remote repo"
                 | Remote _ -> "push changes to remote repository and branch"
@@ -39,21 +39,21 @@ module ``Argu Tests Main List`` =
     type NewArgs =
         | [<Mandatory>] Name of string
         interface IArgParserTemplate with
-            member this.Usage = 
+            member this.Usage =
                 match this with
                 | Name _ -> "New name"
 
     type TagArgs =
         | New of ParseResults<NewArgs>
         interface IArgParserTemplate with
-            member this.Usage = 
+            member this.Usage =
                 match this with
                 | New _ -> "New tag"
 
     type CheckoutArgs =
         | [<Mandatory>] Branch of string
         interface IArgParserTemplate with
-            member this.Usage = 
+            member this.Usage =
                 match this with
                 | Branch _ -> "push changes to remote repository and branch"
 
@@ -176,8 +176,8 @@ module ``Argu Tests Main List`` =
 
     [<Fact>]
     let ``Simple command line parsing`` () =
-        let args = 
-            [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ; 
+        let args =
+            [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ;
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
         let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
@@ -210,7 +210,7 @@ module ``Argu Tests Main List`` =
         let args = [ Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
         let xmlSource = parser.PrintAppSettingsArguments args
         let usages = List.map (fun a -> (a :> IArgParserTemplate).Usage) args
-        
+
         test <@ xmlSource.Contains usages[0] = true @>
         test <@ xmlSource.Contains usages[1] = true @>
         test <@ xmlSource.Contains usages[2] = true @>
@@ -251,7 +251,7 @@ module ``Argu Tests Main List`` =
     let ``AppSettings List param single`` () =
         let results = parseFunc true (function "list" -> Some "42" | _ -> None)
         test <@ results.GetResult List = [42] @>
-        
+
 
     [<Fact>]
     let ``Help String`` () =
@@ -296,7 +296,7 @@ module ``Argu Tests Main List`` =
     let ``First Parameter not placed at beginning`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
                                         (fun e -> <@ e.Message.Contains "should precede all other" @>)
-                                        
+
 
     [<Fact>]
     let ``Rest Parameter`` () =
@@ -356,21 +356,21 @@ module ``Argu Tests Main List`` =
     let ``Parse equals assignment 2`` () =
         let result = parser.Parse([|"--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Dir = "=foo" @>
-        
+
     [<Fact>]
     let ``Parse equals or space assignment with equals`` () =
         let result = parser.Parse([|"--flex-equals-assignment=../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
-        
+
     [<Fact>]
     let ``Parse equals or space assignment with colon fails`` () =
         raises<ArguParseException> <@ parser.Parse([|"--flex-equals-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true) @>
-        
+
     [<Fact>]
     let ``Parse equals or space assignment with space`` () =
         let result = parser.Parse([|"--flex-equals-assignment"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
-        
+
     [<Fact>]
     let ``Parse equals or space assignment with space and optional type`` () =
         let result = parser.Parse([|"--flex-equals-assignment-with-option"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
@@ -382,7 +382,7 @@ module ``Argu Tests Main List`` =
         // EitherSpaceOrColonAssignmentAttribute share the same underlying implementation.
         let result = parser.Parse([|"--flex-colon-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
         test <@ result.GetResult Flex_Colon_Assignment = "../../my-relative-path" @>
-    
+
     type DisallowedAssignmentArgs =
     | [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
         interface IArgParserTemplate with
@@ -393,7 +393,7 @@ module ``Argu Tests Main List`` =
     [<Fact>]
     let ``Disallowed equals assignment combination throws`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedAssignmentArgs> (programName = "gadget") @>
-        
+
     type DisallowedArityWithAssignmentOrSpaced =
     | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string * int
         interface IArgParserTemplate with
@@ -404,7 +404,7 @@ module ``Argu Tests Main List`` =
     [<Fact>]
     let ``EqualsAssignmentOrSpaced and arity not one combination throws`` () =
         raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedArityWithAssignmentOrSpaced> (programName = "gadget1") @>
-    
+
     [<Fact>]
     let ``Should fail on incorrect assignment 1`` () =
         raises<ArguParseException> <@ parser.Parse([|"--dir:foo"|], ignoreMissing = true) @>
@@ -412,8 +412,8 @@ module ``Argu Tests Main List`` =
 
     [<Fact>]
     let ``Ignore Unrecognized parameters`` () =
-        let args = 
-            [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ; 
+        let args =
+            [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ;
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
         let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
@@ -759,7 +759,7 @@ module ``Argu Tests Main List`` =
     [<Fact>]
     let ``Use single dash prefix as default`` () =
         let parser = ArgumentParser.Create<ArgumentSingleDash>("usage string")
-        let args = 
+        let args =
             [| "-argument" ; "bar" ; "-levels-deep" ; "3" |]
 
         let expected_outcome = set [ Argument "bar" ; Levels_Deep 3 ]
@@ -801,7 +801,7 @@ module ``Argu Tests Main List`` =
         let args = [| "--mandatory-arg" ; "true" ; "/D" |]
         let results = parser.ParseCommandLine args
         test <@ results.Contains <@ Detach @> @>
-    
+
     [<Fact>]
     let ``Should fail when Usage, Mandatory and raiseOnUsage = true`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true) @>
@@ -905,7 +905,7 @@ module ``Argu Tests Main List`` =
 module ``Argu Tests Main Primitive`` =
 
     type Exception with
-        member inline x.FirstLine = 
+        member inline x.FirstLine =
             x.Message.Split([|Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries).[0]
 
     type ArgumentPrimitive =
@@ -955,8 +955,8 @@ module ``Argu Tests Main Primitive`` =
 
     [<Fact>]
     let ``Simple command line parsing`` () =
-        let args = 
-            [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ; 
+        let args =
+            [| "--first-parameter" ; "bar" ; "--mandatory-arg" ; "true" ; "-D" ;
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
         let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
@@ -972,7 +972,7 @@ module ``Argu Tests Main Primitive`` =
     let ``Help String`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--help" |] @>
                                         (fun e -> <@ e.Message.Contains "USAGE:" @>)
-    
+
     [<Fact>]
     let ``First Parameter not placed at beginning`` () =
         raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
@@ -980,8 +980,8 @@ module ``Argu Tests Main Primitive`` =
 
     [<Fact>]
     let ``Ignore Unrecognized parameters`` () =
-        let args = 
-            [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ; 
+        let args =
+            [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ;
                 "--listener" ; "localhost" ; "8080" ; "--log-level" ; "2" |]
 
         let expected_outcome = [ First_Parameter "bar" ; Mandatory_Arg true ; Detach ; Listener ("localhost", 8080) ; Log_Level 2 ]
@@ -1007,7 +1007,7 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.UnrecognizedCliParams = ["foobar"] @>
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Main @> = "main" @>
-        
+
     [<Fact>]
     let ``Trap defaulting function exceptions`` () =
         let results = parser.ParseCommandLine [| "--mandatory-arg" ; "true"; "command" |]
@@ -1018,4 +1018,3 @@ module ``Argu Tests Main Primitive`` =
         raisesWith<ArguParseException>
             <@ results.GetResult(Working_Directory, defThunk)  @>
             (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
- 
