@@ -3,13 +3,17 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
     <ItemGroup>
+        <!-- Build deps -->
+        <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.1.1" />
+        
+        <!-- Impl deps -->
         <PackageVersion Include="FSharp.Core" Version="4.3.2" />
         <PackageVersion Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
+        
+        <!-- Test deps -->
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
         <PackageVersion Include="xunit" Version="2.4.2" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5" />
         <PackageVersion Include="Unquote" Version="6.1.0" />
-        <PackageVersion Include="FsCheck" Version="3.0.0-rc1" />
-        <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.1.1" />
     </ItemGroup>
 </Project>
