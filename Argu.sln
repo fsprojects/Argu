@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".project", ".project", "{26
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 		Directory.Packages.props = Directory.Packages.props
+		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C9E28045-41C6-422E-9928-4220EF3FF19B}"
