@@ -447,8 +447,9 @@ module ``Argu Tests Main List`` =
     let ``Simple subcommand parsing 1`` () =
         let args = [|"push" ; "-f" ; "origin" ; "master"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
-        let nested = results.GetResult <@ Push @>
-        test <@ match results.TryGetSubCommand() with Some (Push _) -> true | _ -> false @>
+        let nested = trap <@ match results.GetSubCommand() with Push x -> x | _ -> failwith "unexpected" @>
+        let nested2 = results.GetResult <@ Push @>
+        test <@ obj.ReferenceEquals(nested, nested2) @>
         test <@ nested.GetResults <@ Remote @> = [("origin", "master")] @>
         test <@ nested.Contains <@ Force @> @>
 
@@ -456,8 +457,9 @@ module ``Argu Tests Main List`` =
     let ``Simple subcommand parsing 2`` () =
         let args = [|"clean"; "-fdx"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
-        let nested = results.GetResult Clean
-        test <@ match results.TryGetSubCommand() with Some (Clean _) -> true | _ -> false @>
+        let nested = trap <@ match results.GetSubCommand() with Clean a -> a | _ -> failwith "unexpected" @>
+        let nested2 = results.GetResult Clean
+        test <@ obj.ReferenceEquals(nested, nested2) @>
         test <@ nested.GetAllResults() = [F; D; X] @>
 
     [<Fact>]
@@ -516,7 +518,7 @@ module ``Argu Tests Main List`` =
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested  = results.GetResult <@ Required @>
         let nested' = nested.GetResult <@ Sub @>
-        test <@ nested'.Contains <@ F @> @>
+        test <@ nested'.Contains F @>
 
     [<Fact>]
     let ``Required subcommand attribute should fail on missing subcommand`` () =
@@ -531,17 +533,17 @@ module ``Argu Tests Main List`` =
         test <@ results.TryGetSubCommand() = Some Nullary_Sub @>
 
     [<Fact>]
-    let ``Required subcommand should succeed on nullary subcommand`` () =
+    let ``Required subcommand nullary subcommand can be parsed`` () =
         let args = [|"required"; "null-sub"|]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested = results.GetResult <@ Required @>
-        test <@ nested.TryGetSubCommand() = Some Null_Sub @>
+        test <@ nested.GetSubCommand() = Null_Sub @>
 
     [<Fact>]
-    let ``Calling both a nullary subcommand a normal one should fail`` () =
+    let ``Calling multiple sibling subcommands is not permitted`` () =
         let args = [|"required"; "null-sub"; "sub"; "-fdx"|]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
-                                        (fun e -> <@ e.FirstLine.Contains "subcommand" @>)
+                                        (fun e -> <@ e.FirstLine.Contains "cannot run multiple subcommands" @>)
 
     [<Fact>]
     let ``GatherUnrecognized attribute`` () =
@@ -896,11 +898,9 @@ module ``Argu Tests Main List`` =
     let ``Hidden inherited parameters are not printed in help text with subcommand`` () =
         let parser = ArgumentParser.Create<BaseCommand>()
         let results = parser.ParseCommandLine([|"sub"|])
-        match results.GetSubCommand() with
-        | Sub r ->
-            test <@ r.Parser.PrintUsage().Contains "will be shown" @>
-            test <@ r.Parser.PrintUsage().Contains "will be hidden" |> not @>
-        | _ -> failwithf "never should get here"
+        let r = trap <@ results.GetSubCommand() |> function Sub r -> r | _ -> failwith "unexpected" @>
+        test <@ r.Parser.PrintUsage().Contains "will be shown" @>
+        test <@ r.Parser.PrintUsage().Contains "will be hidden" |> not @>
 
 module ``Argu Tests Main Primitive`` =
 
