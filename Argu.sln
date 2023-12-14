@@ -27,19 +27,19 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".project", ".project", "{2687163A-E0EA-4EC6-A388-430314AA8C85}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		build.cmd = build.cmd
 		build.fsx = build.fsx
 		build.sh = build.sh
 		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
 		docker-build.sh = docker-build.sh
 		Dockerfile = Dockerfile
 		global.json = global.json
 		LICENSE.md = LICENSE.md
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
-		Directory.Packages.props = Directory.Packages.props
-		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C9E28045-41C6-422E-9928-4220EF3FF19B}"
