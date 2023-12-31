@@ -14,7 +14,8 @@
     <Compile Include="SeparatorAttributeTests.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
+    <ProjectReference Include="..\..\src\Argu.ConfigurationManager\Argu.ConfigurationManager.fsproj" />
+    <ProjectReference Include="..\..\src\Argu\Argu.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core"/>
