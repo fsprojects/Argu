@@ -473,6 +473,20 @@ module ``Argu Tests Main List`` =
                                     (fun e -> <@ e.FirstLine.Contains "--branch" @>)
 
     [<Fact>]
+    let ``Main command parsing should not fail on missing mandatory sub command parameter if ignoreMissing`` () =
+        let args = [|"--mandatory-arg" ; "true" ; "checkout"  |]
+        let results = parser.ParseCommandLine(args, ignoreMissing = true)
+        let nested = results.GetResult <@ Checkout @>
+        test <@ nested.Contains <@ Branch @> |> not @>
+
+    [<Fact>]
+    let ``Main command parsing should allow sub command if not missing mandatory parameter`` () =
+        let args = [|"--mandatory-arg" ; "true" ; "checkout"; "--branch"; "origin"  |]
+        let results = parser.ParseCommandLine(args)
+        let nested = results.GetResult <@ Checkout @>
+        test <@ nested.GetResults <@ Branch @> = ["origin"] @>
+
+    [<Fact>]
     let ``Main command parsing should fail on missing mandatory sub command's sub command parameter`` () =
         let args = [|"--mandatory-arg"; "true"; "tag"; "--new"; |]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>

@@ -204,6 +204,7 @@ type UnionParseResults =
         UnrecognizedCliParseResults : obj list
         /// Usage string requested by the caller
         IsUsageRequested : bool
+        MissingMandatoryCases: UnionCaseArgInfo list
     }
 
 type UnionCaseArgInfo with

@@ -43,6 +43,7 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : in
             UnrecognizedCliParams = []
             UnrecognizedCliParseResults = []
             Cases = agg |> Array.map (fun rs -> rs.ToArray())
+            MissingMandatoryCases = []
         }
 
     new ParseResults<'Template>(info, results, programName, description, width, exiter)
@@ -68,25 +69,11 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
             | Choice1Of2 ts, ts' when caseInfo.GatherAllSources.Value -> Array.append ts ts'
             | _, ts' -> ts'
 
-        let rec searchCaseInfoForError caseInfo =
-            match caseInfo.ParameterInfo.Value with
-            | SubCommand (_, unionArg, __) -> 
-                match unionArg.Cases.Value with
-                | [| case |] ->
-                    if case.IsMandatory.Value && not ignoreMissingMandatory then
-                        Some (error unionArg ErrorCode.PostProcess "missing parameter '%s'." case.Name.Value)
-                    else 
-                        searchCaseInfoForError case
-                | _ -> None
-            | _ -> None
+        match combined, commandLineResults with
+        | _, Some { MissingMandatoryCases = missingCase::_ } when not ignoreMissingMandatory ->
+            error argInfo ErrorCode.PostProcess "missing parameter '%s'." missingCase.Name.Value
 
-        match combined with
-        | [| sub |] -> 
-            match searchCaseInfoForError sub.CaseInfo with
-            | Some error -> error
-            | _ -> combined
-
-        | [||] when caseInfo.IsMandatory.Value && not ignoreMissingMandatory ->
+        | [||], _ when caseInfo.IsMandatory.Value && not ignoreMissingMandatory ->
             error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name.Value
         | _ -> combined
 
@@ -95,4 +82,5 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
         UnrecognizedCliParams = match commandLineResults with Some clr -> clr.UnrecognizedCliParams | None -> []
         UnrecognizedCliParseResults = match commandLineResults with Some clr -> clr.UnrecognizedCliParseResults | None -> []
         IsUsageRequested = commandLineResults |> Option.exists (fun r -> r.IsUsageRequested)
+        MissingMandatoryCases = commandLineResults |> Option.map (fun c -> c.MissingMandatoryCases) |> Option.defaultValue []
     }
