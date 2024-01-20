@@ -477,7 +477,7 @@ module ``Argu Tests Main List`` =
         let args = [|"--mandatory-arg" ; "true" ; "checkout"  |]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
         let nested = results.GetResult <@ Checkout @>
-        test <@ nested.Contains <@ Branch @> |> not @>
+        test <@ not (nested.Contains <@ Branch @>) @>
 
     [<Fact>]
     let ``Main command parsing should allow sub command if not missing mandatory parameter`` () =
