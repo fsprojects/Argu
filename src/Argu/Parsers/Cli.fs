@@ -122,7 +122,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
             if stack.TryDispatchResult result then ()
             else unrecognizedParseResults.Add result.Value
 
-    member x.AppendResultWithNestedResults caseInfo context arguments nestedResults =
+    member x.AppendResultWithNestedResults(caseInfo, context, arguments, nestedResults) =
         missingMandatoryCasesOfNestedResults.AddRange(nestedResults.MissingMandatoryCases)
         x.AppendResult caseInfo context arguments
 
@@ -433,7 +433,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     member _.Invoke<'Template when 'Template :> IArgParserTemplate> () =
                         new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
 
-            aggregator.AppendResultWithNestedResults caseInfo name [|result|] nestedResults
+            aggregator.AppendResultWithNestedResults(caseInfo, name, [|result|], nestedResults)
 
         | NullarySubCommand ->
             aggregator.AppendResult caseInfo name [||]
