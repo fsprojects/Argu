@@ -133,15 +133,10 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
           UnrecognizedCliParams = Seq.toList unrecognized ;
           UnrecognizedCliParseResults = Seq.toList unrecognizedParseResults ;
           IsUsageRequested = x.IsUsageRequested
-          MissingMandatoryCases =
-                argInfo.Cases.Value
-                |> Seq.choose (fun case ->
-                    if case.IsMandatory.Value && results.Value[case.Tag].Count = 0
-                    then Some case
-                    else None
-                )
-                |> Seq.append missingMandatoryCasesOfNestedResults
-                |> Seq.toList
+          MissingMandatoryCases = [
+              yield! missingMandatoryCasesOfNestedResults
+              yield! argInfo.Cases.Value |> Seq.filter (fun case -> case.IsMandatory.Value && results.Value[case.Tag].Count = 0)
+          ]
         }
 
 // this rudimentary stack implementation assumes that only one subcommand
