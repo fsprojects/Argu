@@ -79,6 +79,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
     let unrecognized = ResizeArray<string>()
     let unrecognizedParseResults = ResizeArray<obj>()
     let results = lazy(argInfo.Cases.Value |> Array.map (fun _ -> ResizeArray<UnionCaseParseResult>()))
+    let missingMandatoryCasesOfNestedResults = ResizeArray<UnionCaseArgInfo>()
 
     member val IsUsageRequested = false with get,set
 
@@ -121,13 +122,22 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
             if stack.TryDispatchResult result then ()
             else unrecognizedParseResults.Add result.Value
 
+    member x.AppendResultWithNestedResults(caseInfo, context, arguments, nestedResults) =
+        missingMandatoryCasesOfNestedResults.AddRange(nestedResults.MissingMandatoryCases)
+        x.AppendResult caseInfo context arguments
+
     member _.AppendUnrecognized(token:string) = unrecognized.Add token
 
     member x.ToUnionParseResults() =
         { Cases = results.Value |> Array.map (fun c -> c.ToArray()) ;
           UnrecognizedCliParams = Seq.toList unrecognized ;
           UnrecognizedCliParseResults = Seq.toList unrecognizedParseResults ;
-          IsUsageRequested = x.IsUsageRequested }
+          IsUsageRequested = x.IsUsageRequested
+          MissingMandatoryCases = [
+              yield! missingMandatoryCasesOfNestedResults
+              yield! argInfo.Cases.Value |> Seq.filter (fun case -> case.IsMandatory.Value && results.Value[case.Tag].Count = 0)
+          ]
+        }
 
 // this rudimentary stack implementation assumes that only one subcommand
 // can occur within any particular context; no need implement popping etc.
@@ -423,7 +433,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                     member _.Invoke<'Template when 'Template :> IArgParserTemplate> () =
                         new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
 
-            aggregator.AppendResult caseInfo name [|result|]
+            aggregator.AppendResultWithNestedResults(caseInfo, name, [|result|], nestedResults)
 
         | NullarySubCommand ->
             aggregator.AppendResult caseInfo name [||]

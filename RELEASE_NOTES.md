@@ -1,3 +1,6 @@
+### 6.1.5
+* Fix the regression of the [#127](https://github.com/fsprojects/Argu/pull/127) merged in 6.1.2 and fix Mandatory arguments in nested subcommands. [#220](https://github.com/fsprojects/Argu/issues/220) [@fpellet](https://github.com/fpellet)
+
 ### 6.1.4
 * Fix: remove incorrect `ReproducibleBuilds` reference [introduced in `6.1.3`](https://github.com/fsprojects/Argu/pull/174) [#202](https://github.com/fsprojects/Argu/pull/202)
 
