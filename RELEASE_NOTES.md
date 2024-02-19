@@ -1,3 +1,6 @@
+### 6.2.1
+* Fix `ParseResults.ProgramName` - make it public (cut and paste error in [#229](https://github.com/fsprojects/Argu/pull/229)) [#231](https://github.com/fsprojects/Argu/pull/231)
+
 ### 6.2.0
 * Add `ParseResults.ProgramName` [#229](https://github.com/fsprojects/Argu/pull/229)
 

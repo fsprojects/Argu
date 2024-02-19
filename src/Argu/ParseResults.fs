@@ -50,7 +50,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         member x.GetAllResults () = x.GetAllResults() |> Seq.map box
 
     member _.ErrorHandler = exiter
-    member internal _.ProgramName = programName
+    member _.ProgramName = programName
     member internal _.Description = description
     member internal _.ArgInfo = argInfo
     member internal _.CharacterWidth = usageStringCharWidth
