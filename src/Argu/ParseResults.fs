@@ -142,7 +142,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message. Defaults to <c>true</c></param>
-    member r.GetResult([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, defThunk : unit -> 'Field, parser : 'Field -> 'R, ?source : ParseSource, ?errorCode, ?showUsage) : 'R  =
+    member r.GetResult([<ReflectedDefinition>] expr: Expr<'Field -> 'Template>, defThunk: unit -> 'Field, parser: 'Field -> 'R, ?source: ParseSource, ?errorCode, ?showUsage) : 'R  =
         match expr |> tryGetResult source |> Option.map (parseResult parser) with
         | Some x -> x
         | None -> r.Catch(defThunk >> parser, ?errorCode = errorCode, ?showUsage = showUsage)
@@ -156,7 +156,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member r.GetResult([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, defaultValue : 'Field, parser : 'Field -> 'R, ?source, ?errorCode : ErrorCode, ?showUsage : bool) : 'R =
+    member r.GetResult([<ReflectedDefinition>] expr: Expr<'Field -> 'Template>, defaultValue: 'Field, parser: 'Field -> 'R, ?source, ?errorCode : ErrorCode, ?showUsage : bool) : 'R =
         match expr |> tryGetResult source |> Option.map (parseResult parser) with
         | Some x -> x
         | None -> r.Catch((fun () -> parser defaultValue), ?errorCode = errorCode, ?showUsage = showUsage)
