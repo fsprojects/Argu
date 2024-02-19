@@ -187,7 +187,7 @@ module ``Argu Tests Main List`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Simple AppSettings parsing`` () =
@@ -203,7 +203,7 @@ module ``Argu Tests Main List`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Simple AppSettings contains usage comments`` () =
@@ -423,7 +423,7 @@ module ``Argu Tests Main List`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults Log_Level = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult(Log_Level, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Fail on misplaced First parameter`` () =
@@ -980,7 +980,7 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult(<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Help String`` () =
@@ -1005,7 +1005,7 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults Log_Level = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult(<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Unrecognized CLI params`` () =
@@ -1022,13 +1022,48 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Main @> = "main" @>
 
-    [<Fact>]
-    let ``Trap defaulting function exceptions`` () =
+    module ``Traps for defaulting and or post-processing functions`` =
         let results = parser.ParseCommandLine [| "--mandatory-arg" ; "true"; "command" |]
-        let defThunk (): string = failwith "Defaulting Failed"
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, defThunk, showUsage = false) @>
-            <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, defThunk)  @>
-            (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
+
+        [<Fact>]
+        let ``Trap defaulting function exceptions`` () =
+            let failingDefThunk (): string = failwith "Defaulting Failed"
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, failingDefThunk, showUsage = false) @>
+                <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, failingDefThunk) @>
+                (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
+
+        [<Fact>]
+        let ``Trap defaulting function exceptions (for overloads with parse functions)`` () =
+            let parser (_ : string): string = failwith "should not be triggered"
+            let failingDefThunk (): string = failwith "Defaulting Failed"
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, failingDefThunk, parser, showUsage = false) @>
+                <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, failingDefThunk, parser)  @>
+                (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
+
+        [<Fact>]
+        let ``Trap post processing exceptions for GetResult overloads with defaulting functions`` () =
+            let parser value: string = if value = "default" then failwith "Parse Failed" else failwith "unexpected"
+            let okDefThunk (): string = "default"
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, okDefThunk, parser, showUsage = false) @>
+                <| fun e -> <@ e.Message = "Parse Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, okDefThunk, parser)  @>
+                (fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>)
+
+        [<Fact>]
+        let ``Trap post processing exceptions for GetResult overloads with default values`` () =
+            let def: string = "default"
+            let parser value: string = if value = "default" then failwith "Parse Failed" else failwith "unexpected"
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, def, parser, showUsage = false) @>
+                <| fun e -> <@ e.Message = "Parse Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, def, parser)  @>
+                (fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>)
