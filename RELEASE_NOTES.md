@@ -1,7 +1,6 @@
 ### 6.2.0
 * Add `ParseResults.ProgramName` [#229](https://github.com/fsprojects/Argu/pull/229)
 * Add `ParseResults.GetResult(expr, 'Field -> 'R): 'R` as alias for `PostProcessResult`, `ParseResults.GetResults(expr, 'Field -> 'R): 'R list` as alias for `PostProcessResults`, `ParseResults.TryGetResult(expr, 'Field -> 'R): 'R option` as aliases for `TryPostProcessResult` [#230](https://github.com/fsprojects/Argu/pull/230)
-* Add `ParseResults.GetResult(expr, 'Field -> 'R): 'R` as alias for `PostProcessResult`, `ParseResults.GetResults(expr, 'Field -> 'R): 'R list` as alias for `PostProcessResults`, `ParseResults.TryGetResult(expr, 'Field -> 'R): 'R option` as aliases for `TryPostProcessResult` [#230](https://github.com/fsprojects/Argu/pull/230)
 * Add `ParseResults.GetResult(expr, unit -> 'Field, 'Field -> 'R): 'R` and `ParseResults.GetResults(expr, 'Field, ''Field -> 'R): 'R` which trap parse exceptions and map them to exit messages [#230](https://github.com/fsprojects/Argu/pull/230)
 
 ### 6.1.5
