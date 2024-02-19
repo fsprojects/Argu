@@ -33,7 +33,7 @@ By default Argu checks that the discriminated union is well formed and only cont
 This incur both the cost of the checks themselves but also the cost of materializing the whole argument graph that could
 be loaded only if the corresponding arguments are used.
 
-This check can easilly be bypassed either only in release builds :
+This check can easily be bypassed either only in release builds :
 
 *)
 

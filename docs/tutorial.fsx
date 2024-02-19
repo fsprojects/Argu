@@ -19,9 +19,9 @@ For instance:
 *)
 
 type Arguments =
-    | Working_Directory of path:string
-    | Listener of host:string * port:int
-    | Log_Level of level:int
+    | Working_Directory of path: string
+    | Listener of host: string * port: int
+    | Log_Level of level: int
     | Detach
 
 (**
@@ -64,11 +64,11 @@ A minimal parser based on the above example can be created as follows:
 open Argu
 
 type CliArguments =
-    | Working_Directory of path:string
-    | Listener of host:string * port:int
-    | Data of base64:byte[]
-    | Port of tcp_port:int
-    | Log_Level of level:int
+    | Working_Directory of path: string
+    | Listener of host: string * port: int
+    | Data of base64: byte[]
+    | Port of tcp_port: int
+    | Log_Level of level: int
     | Detach
 
     interface IArgParserTemplate with
@@ -79,7 +79,7 @@ type CliArguments =
             | Data _ -> "binary data in base64 encoding."
             | Port _ -> "specify a primary port."
             | Log_Level _ -> "set the log level."
-            | Detach _ -> "detach daemon from console."
+            | Detach -> "detach daemon from console."
 
 (** We extract the argument parser from the template using the following command: *)
 
@@ -111,11 +111,11 @@ To parse a command line input:
 
 *)
 
-let results = parser.Parse [| "--detach" ; "--listener" ; "localhost" ; "8080" |]
+let results = parser.Parse [| "--detach"; "--listener"; "localhost" ; "8080" |]
 
 (** which gives *)
 
-let all = results.GetAllResults() // [ Detach ; Listener ("localhost", 8080) ]
+let all = results.GetAllResults() // [ Detach; Listener ("localhost", 8080) ]
 
 (**
 
@@ -132,7 +132,7 @@ let listener = results.GetResults Listener
 (** The following methods return the last observed result for given argument case *)
 
 let dataOpt = results.TryGetResult Data
-let logLevel = results.GetResult (Log_Level, defaultValue = 0)
+let logLevel = results.GetResult(Log_Level, defaultValue = 0)
 
 (**
 
@@ -147,12 +147,12 @@ can be customized by fixing attributes to the union cases:
 *)
 
 type Argument =
-    | [<Mandatory>] Cache_Path of path:string
-    | [<NoCommandLine>] Connection_String of conn:string
-    | [<Unique>] Listener of host:string * port:int
-    | [<EqualsAssignment>] Assignment of value:string
-    | [<EqualsAssignmentOrSpaced>] AssignmentOrSpace of value:string
-    | [<AltCommandLine("-p")>] Primary_Port of tcp_port:int
+    | [<Mandatory>] Cache_Path of path: string
+    | [<NoCommandLine>] Connection_String of conn: string
+    | [<Unique>] Listener of host: string * port: int
+    | [<EqualsAssignment>] Assignment of value: string
+    | [<EqualsAssignmentOrSpaced>] AssignmentOrSpace of value: string
+    | [<AltCommandLine("-p")>] Primary_Port of tcp_port: int
 
 (**
 
@@ -202,8 +202,8 @@ Additionally, it is possible to specify argument parameters that are either opti
 *)
 
 type VariadicParameters =
-    | [<EqualsAssignment>] Enable_Logging of path:string option
-    | Tcp_Ports of port:int list
+    | [<EqualsAssignment>] Enable_Logging of path: string option
+    | Tcp_Ports of port: int list
 
 (**
 
@@ -261,7 +261,7 @@ These arguments can be passed without the need to specify a switch identifier.
 type WGetArguments =
     | Quiet
     | No_Check_Certificate
-    | [<MainCommand; ExactlyOnce; Last>] Urls of url:string list
+    | [<MainCommand; ExactlyOnce; Last>] Urls of url: string list
 
 (**
 
@@ -306,7 +306,7 @@ type CleanArgs =
 and CommitArgs =
     | Amend
     | [<AltCommandLine("-p")>] Patch
-    | [<AltCommandLine("-m")>] Message of msg:string
+    | [<AltCommandLine("-m")>] Message of msg: string
 
     interface IArgParserTemplate with
         member this.Usage =
@@ -339,9 +339,8 @@ and the following console app entrypoint
 let main argv =
     try
         parser.ParseCommandLine(inputs = argv, raiseOnUsage = true) |> ignore
-    with e ->
-        printfn "%s" e.Message
-    0
+        0
+    with :? ArguParseException as e -> eprintfn "%s" e.Message; 1
 
 (**
 
@@ -406,7 +405,9 @@ which would make the aforementioned syntax valid.
 It should be noted here that arbitrary unions are not supported by the parser.
 Union cases can only contain fields of primitive types. This means that user-defined
 parsers are not supported. For configuration inputs that are non-trivial,
-a post-process facility is provided.
+a post-process facility is provided
+
+NOTE prior to version 6.2.0, these methods were called PostProcessResult, PostProcessResults, TryPostProcessResult
 *)
 
 let parsePort p =
@@ -414,7 +415,7 @@ let parsePort p =
         failwith "invalid port number."
     else p
 
-let ports = results.GetResults(<@ Port @>, parsePort)
+let ports = results.GetResults(Port, parsePort)
 
 (**
 
@@ -427,7 +428,7 @@ Argu is convenient when it comes to automated process spawning:
 
 open System.Diagnostics
 
-let arguments = parser.PrintCommandLineArgumentsFlat [ Port 42 ; Working_Directory "temp" ]
+let arguments = parser.PrintCommandLineArgumentsFlat [ Port 42; Working_Directory "temp" ]
 
 Process.Start("foo.exe", arguments)
 
@@ -435,7 +436,7 @@ Process.Start("foo.exe", arguments)
 It can also be used to auto-generate a suitable `AppSettings` configuration file:
 *)
 
-let xml = parser.PrintAppSettingsArguments [ Port 42 ; Working_Directory "/tmp" ]
+let xml = parser.PrintAppSettingsArguments [ Port 42; Working_Directory "/tmp" ]
 
 (**
 which would yield the following:
