@@ -75,8 +75,8 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <summary>Query parse results for argument with parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member _.GetResults ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields list =
-        expr |> getResults source |> Seq.map (fun r -> r.FieldContents :?> 'Fields) |> Seq.toList
+    member _.GetResults ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, ?source : ParseSource) : 'Field list =
+        expr |> getResults source |> Seq.map (fun r -> r.FieldContents :?> 'Field) |> Seq.toList
 
     /// <summary>Gets all parse results.</summary>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
@@ -94,8 +94,8 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member _.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : 'Fields option =
-        expr |> tryGetResult source |> Option.map (fun r -> r.FieldContents :?> 'Fields)
+    member _.TryGetResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, ?source : ParseSource) : 'Field option =
+        expr |> tryGetResult source |> Option.map (fun r -> r.FieldContents :?> 'Field)
 
     /// <summary>Returns the *last* specified parameter of given type.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
@@ -112,12 +112,13 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="defaultValue">Return this if no parameter of specific kind has been specified.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?defaultValue : 'Fields, ?source : ParseSource) : 'Fields =
+    member s.GetResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, ?defaultValue : 'Field, ?source : ParseSource) : 'Field =
         match defaultValue with
-        | None -> let r = getResult source expr in r.FieldContents :?> 'Fields
-        | Some def -> defaultArg (s.TryGetResult(expr, ?source = source)) def
+        | None -> let r = getResult source expr in r.FieldContents :?> 'Field
+        | Some def -> s.TryGetResult(expr, ?source = source) |> Option.defaultValue def
 
-    /// <summary>Returns the *last* specified parameter of given type.
+    /// <summary>Returns the *last* specified parameter of given type,
+    ///          trapping exceptions from the <c>defThunk</c> used if no argument has been supplied.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="defThunk">Function used to default if no parameter has been specified.
@@ -125,10 +126,40 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     /// <param name="errorCode">The error code to be returned.</param>
     /// <param name="showUsage">Print usage together with error message.</param>
-    member s.GetResult([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, defThunk : unit -> 'Fields, ?source : ParseSource, ?errorCode, ?showUsage) : 'Fields  =
-        match s.TryGetResult(expr, ?source = source) with
+    member r.GetResult([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, defThunk : unit -> 'Field, ?source : ParseSource, ?errorCode, ?showUsage) : 'Field  =
+        match r.TryGetResult(expr, ?source = source) with
         | Some x -> x
-        | None -> s.Catch(defThunk, ?errorCode = errorCode, ?showUsage = showUsage)
+        | None -> r.Catch(defThunk, ?errorCode = errorCode, ?showUsage = showUsage)
+
+    /// <summary>Returns the *last* specified parameter of given type,
+    ///          trapping exceptions from the <c>defThunk</c> used if no argument has been supplied.
+    ///          Results are passed to a post-processing function <c>parse</c> that is error handled by the parser.
+    ///          Command line parameters have precedence over AppSettings parameters.</summary>
+    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
+    /// <param name="defThunk">Function used to default if no parameter has been specified.
+    ///     Any resulting Exception will be trapped, and the Exception's <c>.Message</c> will be used as the Failure Message as per <c>Raise</c> and <c>Catch</c>.</param>
+    /// <param name="parser">The post-processing parser.</param>
+    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    /// <param name="errorCode">The error code to be returned.</param>
+    /// <param name="showUsage">Print usage together with error message. Defaults to <c>true</c></param>
+    member r.GetResult([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, defThunk : unit -> 'Field, parser : 'Field -> 'R, ?source : ParseSource, ?errorCode, ?showUsage) : 'R  =
+        match expr |> tryGetResult source |> Option.map (parseResult parser) with
+        | Some x -> x
+        | None -> r.Catch(defThunk >> parser, ?errorCode = errorCode, ?showUsage = showUsage)
+
+    /// <summary>Returns the *last* specified parameter of given type.
+    ///          Results are passed to a post-processing function <c>parse</c> that is error handled by the parser.
+    ///          Command line parameters have precedence over AppSettings parameters.</summary>
+    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
+    /// <param name="defaultValue">Use this if no parameter of specific kind has been specified.</param>
+    /// <param name="parser">The post-processing parser.</param>
+    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    /// <param name="errorCode">The error code to be returned.</param>
+    /// <param name="showUsage">Print usage together with error message.</param>
+    member r.GetResult([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, defaultValue : 'Field, parser : 'Field -> 'R, ?source, ?errorCode : ErrorCode, ?showUsage : bool) : 'R =
+        match expr |> tryGetResult source |> Option.map (parseResult parser) with
+        | Some x -> x
+        | None -> r.Catch((fun () -> parser defaultValue), ?errorCode = errorCode, ?showUsage = showUsage)
 
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
@@ -137,7 +168,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <summary>Checks if parameter of specific kind has been specified.</summary>
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member _.Contains ([<ReflectedDefinition>] expr : Expr<'Fields -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
+    member _.Contains ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, ?source : ParseSource) : bool = containsResult source expr
 
     /// <summary>Raise an error through the argument parser's exiter mechanism. Display usage optionally.</summary>
     /// <param name="msg">The error message to be displayed.</param>
