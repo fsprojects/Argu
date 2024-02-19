@@ -1022,47 +1022,47 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Main @> = "main" @>
 
-    [<Fact>]
-    let ``Trap defaulting function exceptions`` () =
+    module ``Defaulting`` =
         let results = parser.ParseCommandLine [| "--mandatory-arg" ; "true"; "command" |]
-        let defThunk (): string = failwith "Defaulting Failed"
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, defThunk, showUsage = false) @>
-            <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, defThunk)  @>
-            (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
-
-    [<Fact>]
-    let ``Trap post processing exceptions and/or defaulting function exceptions`` () =
-        let results = parser.ParseCommandLine [| "--mandatory-arg" ; "true"; "command" |]
-        let parser value: string = if value = "default" then failwith "Parse Failed" else failwith "unexpected"
-
         let failingDefThunk (): string = failwith "Defaulting Failed"
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, failingDefThunk, parser, showUsage = false) @>
-            <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, failingDefThunk, parser)  @>
-            (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
 
-        let okDefThunk (): string = "default"
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, okDefThunk, parser, showUsage = false) @>
-            <| fun e -> <@ e.Message = "Parse Failed" && e.ErrorCode = ErrorCode.PostProcess @>
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, okDefThunk)  @>
-            (fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>)
+        [<Fact>]
+        let ``Trap defaulting function exceptions`` () =
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, failingDefThunk, showUsage = false) @>
+                <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+            raisesWith<ArguParseException>
+                <@ results.GetResult(Working_Directory, failingDefThunk)  @>
+                (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
 
-    [<Fact>]
-    let ``Trap post processing exceptions for default values`` () =
-        let results = parser.ParseCommandLine [| "--mandatory-arg" ; "true"; "command" |]
-        let parse value: string = if value = "default" then failwith "Parse Failed" else failwith "unexpected"
+        module ``Trap defaulting function exceptions and parse exceptions`` =
 
-        let def: string = "default"
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, def, parse, showUsage = false) @>
-            <| fun e -> <@ e.Message = "Parse Failed" && e.ErrorCode = ErrorCode.PostProcess @>
-        raisesWith<ArguParseException>
-            <@ results.GetResult(Working_Directory, def, parse)  @>
-            (fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>)
+            let results = parser.ParseCommandLine [| "--mandatory-arg" ; "true"; "command" |]
+            let parser value: string = if value = "default" then failwith "Parse Failed" else failwith "unexpected"
+
+            [<Fact>]
+            let ``Trap post processing exceptions and/or defaulting function exceptions`` () =
+                raisesWith<ArguParseException>
+                    <@ results.GetResult(Working_Directory, failingDefThunk, parser, showUsage = false) @>
+                    <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+                raisesWith<ArguParseException>
+                    <@ results.GetResult(Working_Directory, failingDefThunk, parser)  @>
+                    (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
+
+                let okDefThunk (): string = "default"
+                raisesWith<ArguParseException>
+                    <@ results.GetResult(Working_Directory, okDefThunk, parser, showUsage = false) @>
+                    <| fun e -> <@ e.Message = "Parse Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+                raisesWith<ArguParseException>
+                    <@ results.GetResult(Working_Directory, okDefThunk, parser)  @>
+                    (fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>)
+
+            [<Fact>]
+            let ``Trap post processing exceptions for default values`` () =
+                let def: string = "default"
+                raisesWith<ArguParseException>
+                    <@ results.GetResult(Working_Directory, def, parser, showUsage = false) @>
+                    <| fun e -> <@ e.Message = "Parse Failed" && e.ErrorCode = ErrorCode.PostProcess @>
+                raisesWith<ArguParseException>
+                    <@ results.GetResult(Working_Directory, def, parser)  @>
+                    (fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>)
