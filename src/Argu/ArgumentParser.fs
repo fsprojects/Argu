@@ -115,6 +115,9 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
             | _ -> argInfoWithCheck.Value
         new ArgumentParser<'Template>(argInfo, programName, helpTextMessage, usageStringCharacterWidth, errorHandler)
 
+    /// <summary>The Program Name, as used when rendering help messages. Can be overridden via the <c>programName</c> constructor argument.</summary>
+    member val ProgramName = _programName
+
     /// <summary>Force a check of the discriminated union structure.</summary>
     static member CheckStructure() =
         argInfoWithCheck.Value |> ignore
