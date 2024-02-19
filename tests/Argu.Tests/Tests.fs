@@ -187,7 +187,7 @@ module ``Argu Tests Main List`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Simple AppSettings parsing`` () =
@@ -203,7 +203,7 @@ module ``Argu Tests Main List`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Simple AppSettings contains usage comments`` () =
@@ -423,7 +423,7 @@ module ``Argu Tests Main List`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults Log_Level = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult(Log_Level, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Fail on misplaced First parameter`` () =
@@ -980,7 +980,7 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults <@ Log_Level @> = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult(<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Help String`` () =
@@ -1005,7 +1005,7 @@ module ``Argu Tests Main Primitive`` =
         test <@ results.Contains <@ Detach @> @>
         test <@ results.GetResult <@ Listener @> = ("localhost", 8080) @>
         test <@ results.GetResults Log_Level = [2] @>
-        test <@ results.PostProcessResult (<@ Log_Level @>, fun x -> x + 1) = 3 @>
+        test <@ results.GetResult(<@ Log_Level @>, fun x -> x + 1) = 3 @>
 
     [<Fact>]
     let ``Unrecognized CLI params`` () =

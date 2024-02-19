@@ -169,6 +169,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: GetResult")>]
     member r.PostProcessResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R =
         expr |> getResult source |> parseResult parser
 
@@ -179,6 +180,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: GetResults")>]
     member r.PostProcessResults ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R list =
         expr |> getResults source |> Seq.map (parseResult parser) |> Seq.toList
 
@@ -189,7 +191,38 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: TryGetResult")>]
     member r.TryPostProcessResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R option =
+        expr |> tryGetResult source |> Option.map (parseResult parser)
+
+    /// <summary>Returns the *last* specified parameter of given type.
+    ///          Command line parameters have precedence over AppSettings parameters.
+    ///          Results are passed to a post-processing function that is error handled by the parser.
+    /// </summary>
+    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
+    /// <param name="parser">The post-processing parser.</param>
+    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    member r.GetResult([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R =
+        expr |> getResult source |> parseResult parser
+
+    /// <summary>Query parse results for given argument kind.
+    ///          Command line parameters have precedence over AppSettings parameters.
+    ///          Results are passed to a post-processing function that is error handled by the parser.
+    /// </summary>
+    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
+    /// <param name="parser">The post-processing parser.</param>
+    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    member r.GetResults([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R list =
+        expr |> getResults source |> Seq.map (parseResult parser) |> Seq.toList
+
+    /// <summary>Returns the *last* specified parameter of given type.
+    ///          Command line parameters have precedence over AppSettings parameters.
+    ///          Results are passed to a post-processing function that is error handled by the parser.
+    /// </summary>
+    /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
+    /// <param name="parser">The post-processing parser.</param>
+    /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
+    member r.TryGetResult([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R option =
         expr |> tryGetResult source |> Option.map (parseResult parser)
 
     /// <summary>
@@ -239,30 +272,30 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
 
     // used by StructuredFormatDisplay attribute
     member private r.StructuredFormatDisplay = r.ToString()
-    
+
     // used by EqualityConditionalOn attribute
     // used by ComparisonConditionalOn attribute
     member val private CachedAllResults = lazy (getAllResults None) with get
 
     // used by EqualityConditionalOn attribute
-    override r.Equals (other : obj) = 
+    override r.Equals (other : obj) =
         match other with
-        | :? ParseResults<'Template> as other -> 
-            Unchecked.equals 
+        | :? ParseResults<'Template> as other ->
+            Unchecked.equals
                 r.CachedAllResults.Value
                 other.CachedAllResults.Value
         | _ -> false
 
     // used by EqualityConditionalOn attribute
-    override r.GetHashCode () = 
+    override r.GetHashCode () =
         Unchecked.hash r.CachedAllResults.Value
-        
+
     // used by ComparisonConditionalOn attribute
-    interface System.IComparable with   
+    interface System.IComparable with
         member r.CompareTo other =
             match other with
-            | :? ParseResults<'Template> as other -> 
-                Unchecked.compare 
-                    r.CachedAllResults.Value 
+            | :? ParseResults<'Template> as other ->
+                Unchecked.compare
+                    r.CachedAllResults.Value
                     other.CachedAllResults.Value
             | _ -> invalidArg "other" "cannot compare values of different types"

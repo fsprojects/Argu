@@ -1,5 +1,6 @@
 ### 6.2.0
 * Add `ParseResults.ProgramName` [#229](https://github.com/fsprojects/Argu/pull/229)
+* Add `ParseResults.GetResult(expr, 'Field -> 'R): 'R` as alias for `PostProcessResult`, `ParseResults.GetResults(expr, 'Field -> 'R): 'R list` as alias for `PostProcessResults`, `ParseResults.TryGetResult(expr, 'Field -> 'R): 'R option` as aliases for `TryPostProcessResult` [#999](https://github.com/fsprojects/Argu/pull/999)
 
 ### 6.1.5
 * Fix the regression of the [#127](https://github.com/fsprojects/Argu/pull/127) merged in 6.1.2 and fix Mandatory arguments in nested subcommands. [#220](https://github.com/fsprojects/Argu/issues/220) [@fpellet](https://github.com/fpellet)

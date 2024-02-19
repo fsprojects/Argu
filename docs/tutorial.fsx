@@ -165,7 +165,7 @@ In this case,
   * [`AltCommandLine`](reference/argu-arguattributes-altcommandlineattribute.html): specifies an alternative command line switch.
 
   * [`EqualsAssignment`](reference/argu-arguattributes-equalsassignmentattribute.html) : enforces `--assignment=value` and `--assignment key=value` CLI syntax.
-  
+
   * [`EqualsAssignmentOrSpaced`](reference/argu-arguattributes-equalsassignmentorspacedattribute.html) : enforces `--assignment=value` and `--assignment value` CLI syntax.
 
   * [`Unique`](reference/argu-arguattributes-uniqueattribute.html) : parser will fail if CLI provides this argument more than once.
@@ -414,7 +414,7 @@ let parsePort p =
         failwith "invalid port number."
     else p
 
-let ports = results.PostProcessResults (<@ Port @>, parsePort)
+let ports = results.GetResults(<@ Port @>, parsePort)
 
 (**
 
