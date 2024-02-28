@@ -99,7 +99,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <summary>
     ///     Creates a new parser instance based on supplied F# union template.
     /// </summary>
-    /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
+    /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current running executable per <c>Assembly.GetEntryAssembly()</c>.</param>
     /// <param name="helpTextMessage">Message that will be displayed at the top of the help text.</param>
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>

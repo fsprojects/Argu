@@ -135,7 +135,10 @@ type IDictionary<'K,'V> with
         if ok then Some found
         else None
 
-let currentProgramName = lazy System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName
+// NOTE: Prior to 6.2.2, this was System.Diagnostics.Process.GetCurrentProcess()
+//       That previous approach derives `dotnet` when you `dotnet run` a program
+//       (or you invoke via `dotnet tool run` and/or if your IDE wraps the invocation etc)
+let currentProgramName = lazy Assembly.GetEntryAssembly().GetName().Name
 
 /// recognize exprs that strictly contain DU constructors
 /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
