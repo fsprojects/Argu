@@ -80,7 +80,7 @@ Furthermore, you can parse environment variables, by supplying the an `Environme
 
 let argv = [| "--log-level"; "3" |]
 let reader = EnvironmentVariableConfigurationReader() :> IConfigurationReader
-let parser =  ArgumentParser.Create<Args>(programName = "rutta")
+let parser = ArgumentParser.Create<Args>(programName = "rutta")
 // pass the reader to the Parse call
 let results = parser.Parse(argv, configurationReader = reader)
 

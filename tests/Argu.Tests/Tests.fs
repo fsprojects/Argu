@@ -761,6 +761,31 @@ module ``Argu Tests Main List`` =
         raisesWith<ArguException> <@ ArgumentParser.Create<GenericArgument<string>>() @>
                                     (fun e -> <@ e.FirstLine.Contains "generic" @>)
 
+    type NestedDuplicatesAreOk =
+        | [<AltCommandLine("-f")>] Force
+        | [<AltCommandLine("-N"); CliPrefix(CliPrefix.None)>] Nested of ParseResults<NestedSimilar>
+        interface IArgParserTemplate with
+            member _.Usage = "not tested"
+    and NestedSimilar =
+        | [<AltCommandLine("-f")>] Force
+        interface IArgParserTemplate with
+            member this.Usage = "clean"
+
+    // repro attempt for confusing "ERROR: unrecognized argument:" messages
+    // Actual solution: replace `dotnet toolname commandline -d ` with `dotnet tool run toolname commandline -d`
+    // (The `-d` was being interpreted as a switch for the `dotnet` exe)
+    // see https://github.com/dotnet/sdk/issues/14626
+    let aliases = [|
+        [| "-f" ; "nested" ; "--force" |]
+        [| "--force" ; "nested" ; "--force" |]
+        [| "-f" ; "nested" ; "-f" |]
+        [| "-f" ; "-N" ; "-f" |] |] |> Seq.map Array.singleton
+    [<Theory; MemberData(nameof aliases)>]
+    let ``Nested aliased names are fine`` (args: string[]) =
+        let results = ArgumentParser.Create<NestedDuplicatesAreOk>().ParseCommandLine args
+        test <@ results.Contains NestedDuplicatesAreOk.Force @>
+        let nested = results.GetResult Nested
+        test <@ nested.Contains Force @>
 
     [<CliPrefix(CliPrefix.Dash)>]
     type ArgumentSingleDash =
