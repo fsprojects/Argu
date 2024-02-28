@@ -1,10 +1,9 @@
 (*** hide ***)
-// This block of code is omitted in the generated HTML documentation. Use 
+// This block of code is omitted in the generated HTML documentation. Use
 // it to define helpers that you do not want to show in the documentation.
 #I "../src/Argu/bin/Release/netstandard2.0"
 #r "Argu.dll"
 
-open System
 open Argu
 
 type Args =
@@ -35,8 +34,8 @@ It can be installed using <a href="https://nuget.org/packages/Argu">NuGet</a>.
 
 ## Basic Concepts
 
-The library is based on the simple observation that 
-configuration parameters can be naturally described using discriminated unions. 
+The library is based on the simple observation that
+configuration parameters can be naturally described using discriminated unions.
 For instance:
 
 *)
@@ -49,8 +48,8 @@ type Arguments =
 
 (**
 
-Argu takes such discriminated unions and generates 
-a corresponding argument parsing scheme. 
+Argu takes such discriminated unions and generates
+a corresponding argument parsing scheme.
 For example, a parser generated from the above template would
 take the following command line input
 
@@ -80,7 +79,7 @@ Furthermore, you can parse environment variables, by supplying the an `Environme
 
 let argv = [| "--log-level"; "3" |]
 let reader = EnvironmentVariableConfigurationReader() :> IConfigurationReader
-let parser =  ArgumentParser.Create<Args>(programName = "rutta")
+let parser = ArgumentParser.Create<Args>(programName = "rutta")
 // pass the reader to the Parse call
 let results = parser.Parse(argv, configurationReader=reader)
 
@@ -88,27 +87,27 @@ let results = parser.Parse(argv, configurationReader=reader)
 ## Who uses Argu?
 
   * [MBrace](http://m-brace.net/)
-  
+
   * [FAKE](http://fsharp.github.io/FAKE/)
-  
+
   * [Paket](http://fsprojects.github.io/Paket/)
-  
+
   * [Logary](https://logary.tech)
 
 ## Documentation
 
   * [Tutorial](tutorial.html) A short walkthrough of Argu features.
 
-  * [API Reference](reference/index.html) contains automatically generated documentation for all types, 
+  * [API Reference](reference/index.html) contains automatically generated documentation for all types,
     modules and functions in the library.
 
 ## Contributing and copyright
 
-The project is hosted on [GitHub][gh] where you can [report issues][issues], fork 
+The project is hosted on [GitHub][gh] where you can [report issues][issues], fork
 the project and submit pull requests.
 
-The library is available under the MIT License. 
-For more information see the [License file][license] in the GitHub repository. 
+The library is available under the MIT License.
+For more information see the [License file][license] in the GitHub repository.
 
   [gh]: https://github.com/fsprojects/Argu
   [issues]: https://github.com/fsprojects/Argu/issues
