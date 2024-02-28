@@ -1,3 +1,6 @@
+### 6.2.2
+* Fix default `programName` when invoking via a wrapper such as `dotnet.exe` [#233](https://github.com/fsprojects/Argu/pull/233)
+
 ### 6.2.1
 * Fix `ParseResults.ProgramName` - make it public (cut and paste error in [#229](https://github.com/fsprojects/Argu/pull/229)) [#231](https://github.com/fsprojects/Argu/pull/231)
 
