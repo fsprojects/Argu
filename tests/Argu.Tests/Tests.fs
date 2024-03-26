@@ -80,6 +80,20 @@ module ``Argu Tests Main List`` =
         interface IArgParserTemplate with
             member this.Usage = "gus"
 
+    type SeveralMandatoriesSubCommand =
+        | [<Mandatory>] ValueA of int
+        | [<Mandatory>] ValueB of int
+        | [<Mandatory>] ValueC of int
+        | ValueD of int
+        with
+            interface IArgParserTemplate with
+                member this.Usage =
+                    match this with
+                    | ValueA _ -> "Value a"
+                    | ValueB _ -> "Value b"
+                    | ValueC _ -> "Value c"
+                    | ValueD _ -> "Value d"
+
     type Argument =
         | [<AltCommandLine("-v"); Inherit>] Verbose
         | Working_Directory of string
@@ -116,6 +130,7 @@ module ``Argu Tests Main List`` =
         | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
         | [<CliPrefix(CliPrefix.None)>] Required of ParseResults<RequiredSubcommand>
         | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResults<GatherUnrecognizedSubcommand>
+        | [<CliPrefix(CliPrefix.None)>] Several_Mandatories of ParseResults<SeveralMandatoriesSubCommand>
         | [<SubCommand; CliPrefix(CliPrefix.None)>] Nullary_Sub
         interface IArgParserTemplate with
             member a.Usage =
@@ -150,6 +165,7 @@ module ``Argu Tests Main List`` =
                 | Clean _ -> "clean state"
                 | Required _ -> "required subcommand"
                 | Unrecognized _ -> "unrecognized subcommand"
+                | Several_Mandatories _ -> "several mandatories subcommand"
                 | Nullary_Sub -> "nullary subcommand"
                 | List _ -> "variadic params"
                 | Optional _ -> "optional params"
@@ -661,7 +677,7 @@ module ``Argu Tests Main List`` =
     [<Fact>]
     let ``Get all subcommand parsers`` () =
         let subcommands = parser.GetSubCommandParsers()
-        test <@ subcommands.Length = 6 @>
+        test <@ subcommands.Length = 7 @>
         test <@ subcommands |> List.forall (fun sc -> sc.IsSubCommandParser) @>
 
     [<Fact>]
