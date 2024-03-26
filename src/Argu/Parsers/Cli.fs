@@ -135,7 +135,11 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
           IsUsageRequested = x.IsUsageRequested
           MissingMandatoryCases = [
               yield! missingMandatoryCasesOfNestedResults
-              yield argInfo, (argInfo.Cases.Value |> Seq.filter (fun case -> case.IsMandatory.Value && results.Value[case.Tag].Count = 0) |> Seq.toList)
+
+              match argInfo.Cases.Value |> Seq.filter (fun case -> case.IsMandatory.Value && results.Value[case.Tag].Count = 0) |> Seq.toList with
+              | [] -> ()
+              | missingCases ->
+                yield argInfo, missingCases
           ]
         }
 
