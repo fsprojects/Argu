@@ -491,6 +491,12 @@ module ``Argu Tests Main List`` =
                                     (fun e -> <@ e.FirstLine.Contains "--branch" @>)
 
     [<Fact>]
+    let ``Main command parsing should fail and display all missing mandatories sub command parameters`` () =
+        let args = [|"--mandatory-arg" ; "true" ;  "several-mandatories" ; "--valuea"; "5"|]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, raiseOnUsage = true) @>
+                                        (fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'." @>)
+
+    [<Fact>]
     let ``Main command parsing should not fail on missing mandatory sub command parameter if ignoreMissing`` () =
         let args = [|"--mandatory-arg" ; "true" ; "checkout"  |]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
