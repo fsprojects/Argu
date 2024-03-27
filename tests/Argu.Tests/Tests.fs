@@ -130,7 +130,7 @@ module ``Argu Tests Main List`` =
         | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
         | [<CliPrefix(CliPrefix.None)>] Required of ParseResults<RequiredSubcommand>
         | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResults<GatherUnrecognizedSubcommand>
-        | [<CliPrefix(CliPrefix.None)>] Several_Mandatories of ParseResults<SeveralMandatoriesSubCommand>
+        | [<CliPrefix(CliPrefix.None)>] Multiple_Mandatories of ParseResults<MultipleMandatoriesSubCommand>
         | [<SubCommand; CliPrefix(CliPrefix.None)>] Nullary_Sub
         interface IArgParserTemplate with
             member a.Usage =
@@ -165,7 +165,7 @@ module ``Argu Tests Main List`` =
                 | Clean _ -> "clean state"
                 | Required _ -> "required subcommand"
                 | Unrecognized _ -> "unrecognized subcommand"
-                | Several_Mandatories _ -> "several mandatories subcommand"
+                | Multiple_Mandatories _ -> "multiple mandatories subcommand"
                 | Nullary_Sub -> "nullary subcommand"
                 | List _ -> "variadic params"
                 | Optional _ -> "optional params"
@@ -492,7 +492,7 @@ module ``Argu Tests Main List`` =
 
     [<Fact>]
     let ``Main command parsing should fail and display all missing mandatories sub command parameters`` () =
-        let args = [|"--mandatory-arg" ; "true" ;  "several-mandatories" ; "--valuea"; "5"|]
+        let args = [|"--mandatory-arg" ; "true" ;  "multiple-mandatories" ; "--valuea"; "5"|]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, raiseOnUsage = true) @>
                                         (fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'." @>)
 
@@ -876,7 +876,7 @@ module ``Argu Tests Main List`` =
 
     [<Fact>]
     let ``Required subcommand attribute should fail on missing subcommand2`` () =
-        let args = [|"--mandatory-arg" ; "true" ;  "several-mandatories" ; "--valuea"; "5"|]
+        let args = [|"--mandatory-arg" ; "true" ;  "multiple-mandatories" ; "--valuea"; "5"|]
         raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, raiseOnUsage = true) @>
                                         (fun e -> <@ e.Message.Contains "valuec" && e.Message.Contains "valuea" @>)
 
