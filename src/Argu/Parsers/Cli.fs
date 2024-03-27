@@ -79,7 +79,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
     let unrecognized = ResizeArray<string>()
     let unrecognizedParseResults = ResizeArray<obj>()
     let results = lazy(argInfo.Cases.Value |> Array.map (fun _ -> ResizeArray<UnionCaseParseResult>()))
-    let missingMandatoryCasesOfNestedResults = ResizeArray<UnionArgInfo * (UnionCaseArgInfo list)>()
+    let missingMandatoryCasesOfNestedResults = ResizeArray<UnionArgInfo * UnionCaseArgInfo list>()
 
     member val IsUsageRequested = false with get,set
 
