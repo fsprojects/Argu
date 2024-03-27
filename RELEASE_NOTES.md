@@ -1,4 +1,4 @@
-### 6.3.0
+### 6.2.3
 * Improve error message on missing cases on a subcommands (display all missing cases) [#236](https://github.com/fsprojects/Argu/pull/236) [@fpellet](https://github.com/fpellet)
 * Fix the regression of the [#127](https://github.com/fsprojects/Argu/pull/127) merged in 6.1.2 and fix usage display when there are missing case in subcommands. [#236](https://github.com/fsprojects/Argu/pull/236) [@fpellet](https://github.com/fpellet)
 
