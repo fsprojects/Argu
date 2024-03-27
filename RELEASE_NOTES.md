@@ -1,6 +1,6 @@
 ### 6.3.0
 * Improve error message on missing cases on a subcommands (display all missing cases) [#236](https://github.com/fsprojects/Argu/pull/236)
-* Fix the regression of the [#127](https://github.com/fsprojects/Argu/pull/127) merged in 6.1.2 and fix usage display when there are missing case in subcommands. [#236](https://github.com/fsprojects/Argu/pull/236)
+* Fix the regression of the [#127](https://github.com/fsprojects/Argu/pull/127) merged in 6.1.2 and fix usage display when there are missing case in subcommands. [#236](https://github.com/fsprojects/Argu/pull/236) [@fpellet](https://github.com/fpellet)
 
 ### 6.2.2
 * Fix default `programName` when invoking via a wrapper such as `dotnet.exe` [#233](https://github.com/fsprojects/Argu/pull/233)
