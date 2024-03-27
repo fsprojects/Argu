@@ -85,14 +85,7 @@ module ``Argu Tests Main List`` =
         | [<Mandatory>] ValueB of int
         | [<Mandatory>] ValueC of int
         | ValueD of int
-        with
-            interface IArgParserTemplate with
-                member this.Usage =
-                    match this with
-                    | ValueA _ -> "Value a"
-                    | ValueB _ -> "Value b"
-                    | ValueC _ -> "Value c"
-                    | ValueD _ -> "Value d"
+        interface IArgParserTemplate with member this.Usage = "multiple mandatories subcommand arg"
 
     type Argument =
         | [<AltCommandLine("-v"); Inherit>] Verbose
