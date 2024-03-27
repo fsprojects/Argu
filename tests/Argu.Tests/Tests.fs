@@ -870,7 +870,7 @@ module ``Argu Tests Main List`` =
     [<Fact>]
     let ``Required subcommand attribute should fail on missing subcommand and display usage of subcommand and not main command`` () =
         let args = [|"--mandatory-arg" ; "true" ;  "multiple-mandatories" ; "--valuea"; "5"|]
-        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args) @>
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
                                         (fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'"
                                                       && e.Message.Contains $"USAGE: {parser.ProgramName} multiple-mandatories [--help] --valuea <int>" @>)
 
