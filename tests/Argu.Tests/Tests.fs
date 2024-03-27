@@ -80,7 +80,7 @@ module ``Argu Tests Main List`` =
         interface IArgParserTemplate with
             member this.Usage = "gus"
 
-    type SeveralMandatoriesSubCommand =
+    type MultipleMandatoriesSubCommand =
         | [<Mandatory>] ValueA of int
         | [<Mandatory>] ValueB of int
         | [<Mandatory>] ValueC of int
