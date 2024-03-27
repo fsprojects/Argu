@@ -875,10 +875,10 @@ module ``Argu Tests Main List`` =
         test <@ results.IsUsageRequested @>
 
     [<Fact>]
-    let ``Required subcommand attribute should fail on missing subcommand2`` () =
+    let ``Required subcommand attribute should fail on missing subcommand and display usage of subcommand and not main command`` () =
         let args = [|"--mandatory-arg" ; "true" ;  "multiple-mandatories" ; "--valuea"; "5"|]
-        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, raiseOnUsage = true) @>
-                                        (fun e -> <@ e.Message.Contains "valuec" && e.Message.Contains "valuea" @>)
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine(args) @>
+                                        (fun e -> <@ e.Message.Contains $"USAGE: {parser.ProgramName} multiple-mandatories [--help] --valuea <int>" @>)
 
     [<HelpFlags("--my-help")>]
     [<HelpDescription("waka jawaka")>]
