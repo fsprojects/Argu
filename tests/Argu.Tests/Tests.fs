@@ -80,6 +80,13 @@ module ``Argu Tests Main List`` =
         interface IArgParserTemplate with
             member this.Usage = "gus"
 
+    type MultipleMandatoriesSubCommand =
+        | [<Mandatory>] ValueA of int
+        | [<Mandatory>] ValueB of int
+        | [<Mandatory>] ValueC of int
+        | ValueD of int
+        interface IArgParserTemplate with member this.Usage = "multiple mandatories subcommand arg"
+
     type Argument =
         | [<AltCommandLine("-v"); Inherit>] Verbose
         | Working_Directory of string
@@ -116,6 +123,7 @@ module ``Argu Tests Main List`` =
         | [<CliPrefix(CliPrefix.None)>] Clean of ParseResults<CleanArgs>
         | [<CliPrefix(CliPrefix.None)>] Required of ParseResults<RequiredSubcommand>
         | [<CliPrefix(CliPrefix.None)>] Unrecognized of ParseResults<GatherUnrecognizedSubcommand>
+        | [<CliPrefix(CliPrefix.None)>] Multiple_Mandatories of ParseResults<MultipleMandatoriesSubCommand>
         | [<SubCommand; CliPrefix(CliPrefix.None)>] Nullary_Sub
         interface IArgParserTemplate with
             member a.Usage =
@@ -150,6 +158,7 @@ module ``Argu Tests Main List`` =
                 | Clean _ -> "clean state"
                 | Required _ -> "required subcommand"
                 | Unrecognized _ -> "unrecognized subcommand"
+                | Multiple_Mandatories _ -> "multiple mandatories subcommand"
                 | Nullary_Sub -> "nullary subcommand"
                 | List _ -> "variadic params"
                 | Optional _ -> "optional params"
@@ -475,6 +484,12 @@ module ``Argu Tests Main List`` =
                                     (fun e -> <@ e.FirstLine.Contains "--branch" @>)
 
     [<Fact>]
+    let ``Main command parsing should fail and display all missing mandatories sub command parameters`` () =
+        let args = [|"--mandatory-arg" ; "true" ;  "multiple-mandatories" ; "--valuea"; "5"|]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
+                                        (fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'." @>)
+
+    [<Fact>]
     let ``Main command parsing should not fail on missing mandatory sub command parameter if ignoreMissing`` () =
         let args = [|"--mandatory-arg" ; "true" ; "checkout"  |]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
@@ -661,7 +676,7 @@ module ``Argu Tests Main List`` =
     [<Fact>]
     let ``Get all subcommand parsers`` () =
         let subcommands = parser.GetSubCommandParsers()
-        test <@ subcommands.Length = 6 @>
+        test <@ subcommands.Length = 7 @>
         test <@ subcommands |> List.forall (fun sc -> sc.IsSubCommandParser) @>
 
     [<Fact>]
@@ -852,6 +867,12 @@ module ``Argu Tests Main List`` =
         let results = parser.ParseCommandLine (args, raiseOnUsage = false)
         test <@ results.IsUsageRequested @>
 
+    [<Fact>]
+    let ``Should fail if mandatory case is missing on a subcommand and display usage of subcommand and not main command`` () =
+        let args = [|"--mandatory-arg" ; "true" ;  "multiple-mandatories" ; "--valuea"; "5"|]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
+                                        (fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'"
+                                                      && e.Message.Contains $"USAGE: {parser.ProgramName} multiple-mandatories [--help] --valuea <int>" @>)
 
     [<HelpFlags("--my-help")>]
     [<HelpDescription("waka jawaka")>]
