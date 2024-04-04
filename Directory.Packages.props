@@ -7,13 +7,13 @@
     <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.1.1"/>
 
     <!-- Impl deps -->
-    <PackageVersion Include="FSharp.Core" Version="4.3.2"/>
+    <PackageVersion Include="FSharp.Core" Version="8.0.100"/>
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="4.4.0"/>
 
     <!-- Test deps -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0"/>
     <PackageVersion Include="xunit" Version="2.7.0"/>
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.7"/>
-    <PackageVersion Include="Unquote" Version="6.1.0"/>
+    <PackageVersion Include="Unquote" Version="7.0.0"/>
   </ItemGroup>
 </Project>
