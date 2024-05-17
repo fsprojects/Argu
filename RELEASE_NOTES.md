@@ -1,3 +1,6 @@
+### 6.2.4
+* Add `AttributeUsage` targets for methods which will be required in .NET 8.0.300 [#243](https://github.com/fsprojects/Argu/pull/243) [@dlidstrom](https://github.com/dlidstrom)
+
 ### 6.2.3
 * Improve error message on missing cases on a subcommands (display all missing cases) [#236](https://github.com/fsprojects/Argu/pull/236) [@fpellet](https://github.com/fpellet)
 * Fix the regression of the [#127](https://github.com/fsprojects/Argu/pull/127) merged in 6.1.2 and fix usage display when there are missing case in subcommands. [#236](https://github.com/fsprojects/Argu/pull/236) [@fpellet](https://github.com/fpellet)
@@ -24,7 +27,7 @@
 * Use [`Dotnet.ReproducibleBuilds`](https://github.com/dotnet/reproducible-builds) [#174](https://github.com/fsprojects/Argu/pull/174)
 
 ### 6.1.2
-* Fix Mandatory arguments in nested subcommands. [#116](https://github.com/fsprojects/Argu/issues/116) [@chestercodes](https://github.com/chestercodes) 
+* Fix Mandatory arguments in nested subcommands. [#116](https://github.com/fsprojects/Argu/issues/116) [@chestercodes](https://github.com/chestercodes)
 * Fix Consistent handling of numeric decimal separators using invariant culture. [#159](https://github.com/fsprojects/Argu/issues/159) [@stmax82](https://github.com/stmax82)
 
 ### 6.1.1
@@ -194,5 +197,5 @@
 * Fix packaging issue.
 
 #### 0.5.8
-* Include optional BindingFlags parameter. 
+* Include optional BindingFlags parameter.
 * Include support for all primitive types.
