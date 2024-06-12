@@ -25,7 +25,5 @@
     <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="All"/>
 
     <PackageReference Include="FSharp.Core"/>
-
-    <PackageReference Include="System.Configuration.ConfigurationManager"/>
   </ItemGroup>
 </Project>
