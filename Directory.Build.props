@@ -13,7 +13,10 @@
     <PackageTags>F#, argument, commandline, parser</PackageTags>
     <!-- NOTE while ReproducibleBuilds/SourceLink derives the same value, other stuff in the FAKE fsx require this explicitly-->
     <RepositoryUrl>https://github.com/fsprojects/Argu/</RepositoryUrl>
+    <RepositoryBranch>master</RepositoryBranch>
     <PackageProjectUrl>https://fsprojects.github.io/Argu/</PackageProjectUrl>
+    <!-- fsdocs is SUPPOSED to be able to derive this from RepositoryUrl+RepositoryBranch, but I can't get it to work... -->
+    <FsDocsSourceRepository>https://github.com/fsprojects/Argu/tree/$(RepositoryBranch)</FsDocsSourceRepository>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
