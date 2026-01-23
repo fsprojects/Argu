@@ -25,6 +25,8 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
       - name: Build
         run: ./build.sh -t Release
         shell: bash
