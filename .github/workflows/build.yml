@@ -3,12 +3,7 @@ name: Build & Tests
 env:
   DOTNET_NOLOGO: true
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   Build:
