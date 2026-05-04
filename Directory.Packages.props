@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Build deps -->
-    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.25"/>
+    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.2"/>
 
     <!-- Impl deps -->
     <PackageVersion Include="FSharp.Core" Version="6.0.0"/>
