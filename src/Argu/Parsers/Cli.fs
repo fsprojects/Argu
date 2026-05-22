@@ -92,7 +92,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
             error argInfo ErrorCode.CommandLine "argument '%s' should precede all other arguments." result.ParseContext
 
         match lastResult with
-        | Some lr when not (lr.Tag = result.CaseInfo.Tag && lr.CaseInfo.IsRest.Value) ->
+        | Some lr when not (lr.Tag = result.CaseInfo.Tag && lr.CaseInfo.IsRest) ->
             error argInfo ErrorCode.CommandLine "parameter '%s' should appear after all other arguments." lr.ParseContext
         | _ -> ()
 
@@ -101,7 +101,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
 
         resultCount <- resultCount + 1
         let agg = results.Value[result.Tag]
-        if result.CaseInfo.IsUnique.Value && agg.Count > 0 then
+        if result.CaseInfo.IsUnique && agg.Count > 0 then
             error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name.Value
 
         if result.CaseInfo.ArgumentType = ArgumentType.SubCommand then
@@ -136,7 +136,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
           MissingMandatoryCases = [
               yield! missingMandatoryCasesOfNestedResults
 
-              match argInfo.Cases.Value |> Seq.filter (fun case -> case.IsMandatory.Value && results.Value[case.Tag].Count = 0) |> Seq.toList with
+              match argInfo.Cases.Value |> Seq.filter (fun case -> case.IsMandatory && results.Value[case.Tag].Count = 0) |> Seq.toList with
               | [] -> ()
               | missingCases ->
                 yield argInfo, missingCases
@@ -194,7 +194,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | HelpArgument _ -> aggregator.IsUsageRequested <- true
     | UnrecognizedOrArgument token ->
         match argInfo.MainCommandParam.Value with
-        | Some mcp when not (mcp.IsUnique.Value && aggregator.IsMainCommandDefined) ->
+        | Some mcp when not (mcp.IsUnique && aggregator.IsMainCommandDefined) ->
             match mcp.ParameterInfo.Value with
             | Primitives parsers ->
                 // since main command syntax deals with a degree of implicitness
@@ -259,7 +259,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
                         false
 
-                if parseSingleParameter true && mcp.IsRest.Value then
+                if parseSingleParameter true && mcp.IsRest then
                     while not state.Reader.IsCompleted && parseSingleParameter false do ()
 
             | ListParam(existential, field) ->
@@ -381,7 +381,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
         | Primitives fields ->
             parseSingleParameter fields
-            if caseInfo.IsRest.Value then
+            if caseInfo.IsRest then
                 while not state.Reader.IsCompleted do
                     parseSingleParameter fields
 

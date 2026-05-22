@@ -300,18 +300,22 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let declaringTypeAttributes = lazy uci.DeclaringType.GetCustomAttributes(true)
 
     let isNoCommandLine = lazy(hasAttribute2<NoCommandLineAttribute> attributes.Value declaringTypeAttributes.Value)
+    // These boolean flags were previously each wrapped in `Lazy<bool>`. They are
+    // derived strictly from already-cached attribute arrays (or each other), so
+    // the lazy wrapper added an allocation per case without any deferral benefit.
+    // Compute them eagerly.
 #nowarn "44" // ParseCSV and Rest attribute is [<Obsolete>]; we still parse them for backwards compatibility
-    let isAppSettingsCSV = lazy(hasAttribute<ParseCSVAttribute> attributes.Value)
+    let isAppSettingsCSV = hasAttribute<ParseCSVAttribute> attributes.Value
 #warnon "44"
-    let isExactlyOnce = lazy(hasAttribute2<ExactlyOnceAttribute> attributes.Value declaringTypeAttributes.Value)
-    let isMandatory = lazy(isExactlyOnce.Value || hasAttribute2<MandatoryAttribute> attributes.Value declaringTypeAttributes.Value)
-    let isUnique = lazy(isExactlyOnce.Value || hasAttribute2<UniqueAttribute> attributes.Value declaringTypeAttributes.Value)
-    let isInherited = lazy(hasAttribute<InheritAttribute> attributes.Value)
-    let isGatherAll = lazy(hasAttribute<GatherAllSourcesAttribute> attributes.Value)
+    let isExactlyOnce = hasAttribute2<ExactlyOnceAttribute> attributes.Value declaringTypeAttributes.Value
+    let isMandatory = isExactlyOnce || hasAttribute2<MandatoryAttribute> attributes.Value declaringTypeAttributes.Value
+    let isUnique = isExactlyOnce || hasAttribute2<UniqueAttribute> attributes.Value declaringTypeAttributes.Value
+    let isInherited = hasAttribute<InheritAttribute> attributes.Value
+    let isGatherAll = hasAttribute<GatherAllSourcesAttribute> attributes.Value
 #nowarn "44"  // Rest attribute is [<Obsolete>]; we still parse them for backwards compatibility
-    let isRest = lazy(hasAttribute<RestAttribute> attributes.Value)
+    let isRest = hasAttribute<RestAttribute> attributes.Value
 #warnon "44"
-    let isHidden = lazy(hasAttribute<HiddenAttribute> attributes.Value)
+    let isHidden = hasAttribute<HiddenAttribute> attributes.Value
     let isExplicitSubCommand = lazy(hasAttribute<SubCommandAttribute> attributes.Value)
 
     let mainCommandName = lazy(
@@ -347,7 +351,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
                 arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 only." uci attributeName types.Length
             if types.Length <> 1 && types.Length <> 2 then
                 arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 or 2." uci attributeName types.Length
-            elif isRest.Value then
+            elif isRest then
                 arguExn "parameter '%O' contains incompatible attributes '%s' and 'Rest'." uci attributeName
         match customAssignment, spaceOrCustomAssignment with
         | Some customAssignment, None ->
@@ -406,13 +410,13 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let checkSubCommand() =
         if Option.isSome customAssignmentSeparator.Value then
             arguExn "CustomAssignment in '%O' not supported in subcommands." uci
-        if isRest.Value then
+        if isRest then
             arguExn "Rest attribute in '%O' not supported in subcommands." uci
-        if isMandatory.Value then
+        if isMandatory then
             arguExn "Mandatory attribute in '%O' not supported in subcommands." uci
         if isMainCommand.Value then
             arguExn "MainCommand attribute in '%O' not supported in subcommands." uci
-        if isInherited.Value then
+        if isInherited then
             arguExn "Inherit attribute in '%O' not supported in subcommands." uci
 
     let parsers = lazy(
@@ -425,7 +429,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             SubCommand(shape, argInfo, tryExtractUnionParameterLabel fields[0])
 
         | [|Optional t|] ->
-            if isRest.Value then
+            if isRest then
                 arguExn "Rest attribute in '%O' not supported in optional parameters." uci
 
             if isMainCommand.Value then
@@ -439,7 +443,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             if Option.isSome customAssignmentSeparator.Value then
                 arguExn "CustomAssignment in '%O' not supported for list parameters." uci
 
-            if isRest.Value then
+            if isRest then
                 arguExn "Rest attribute in '%O' not supported for list parameters." uci
 
             let label = tryExtractUnionParameterLabel fields[0]
@@ -493,7 +497,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             match parsers.Value with
             | Primitives ps ->
                 let name = ps |> Seq.map (fun p -> "<" + p.Description + ">" ) |> String.concat " "
-                if isRest.Value then name + "..." else name
+                if isRest then name + "..." else name
             | ListParam(_,p) -> "<" + p.Description + ">..."
             | _ -> arguExn "internal error in argu parser representation %O." uci
         | _ when Option.isSome appSettingsName.Value -> appSettingsName.Value.Value
@@ -503,7 +507,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let fieldCtor = Helpers.tupleConstructor types
     let assignParser = Helpers.assignParser customAssignmentSeparator
 
-    if isAppSettingsCSV.Value && fields.Length <> 1 then
+    if isAppSettingsCSV && fields.Length <> 1 then
         arguExn "CSV attribute is only compatible with branches of unary fields."
 
     // extract the description string for given union case
@@ -594,7 +598,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         | Some parent ->
             let pInfo = parent.GetParent()
             pInfo.Cases.Value
-            |> Seq.filter (fun cI -> cI.IsInherited.Value)
+            |> Seq.filter (fun cI -> cI.IsInherited)
             |> Seq.append pInfo.InheritedParams.Value
             |> Seq.toArray)
 
@@ -678,23 +682,17 @@ let checkUnionArgInfo (result: UnionArgInfo) =
                 arguExn "parameters '%O' and '%O' using conflicting AppSettings identifier '%s'."
                     conflicts[0].UnionCaseInfo conflicts[1].UnionCaseInfo name)
 
-        // Evaluate every lazy property to ensure that their checks run
+        // Evaluate every remaining lazy property to ensure that their checks run.
+        // (Strict boolean fields no longer need forcing here.)
         for case in argInfo.Cases.Value do
             case.Name.Value |> ignore
             case.CommandLineNames.Value |> ignore
             case.AppSettingsName.Value |> ignore
             case.ParameterInfo.Value |> ignore
-            case.AppSettingsCSV.Value |> ignore
             case.MainCommandName.Value |> ignore
-            case.IsMandatory.Value |> ignore
-            case.IsUnique.Value |> ignore
-            case.IsInherited.Value |> ignore
-            case.GatherAllSources.Value |> ignore
-            case.IsRest.Value |> ignore
             case.CliPosition.Value |> ignore
             case.CustomAssignmentSeparator.Value |> ignore
             case.IsGatherUnrecognized.Value |> ignore
-            case.IsHidden.Value |> ignore
             case.CaseCtor.Value |> ignore
             case.Description.Value |> ignore
 
