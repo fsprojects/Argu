@@ -138,7 +138,13 @@ type IDictionary<'K,'V> with
 // NOTE: Prior to 6.2.2, this was System.Diagnostics.Process.GetCurrentProcess()
 //       That previous approach derives `dotnet` when you `dotnet run` a program
 //       (or you invoke via `dotnet tool run` and/or if your IDE wraps the invocation etc)
-let currentProgramName = lazy Assembly.GetEntryAssembly().GetName().Name
+// GetEntryAssembly() returns null in unmanaged hosts, some test runners, and
+// hosting models without a CLR-defined entry point; fall back to the
+// AppDomain friendly name (always populated) rather than NRE.
+let currentProgramName = lazy(
+    match Assembly.GetEntryAssembly() with
+    | null -> AppDomain.CurrentDomain.FriendlyName
+    | a -> a.GetName().Name)
 
 /// recognize exprs that strictly contain DU constructors
 /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
