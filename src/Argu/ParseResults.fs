@@ -19,7 +19,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     // restriction predicate based on optional parse source
     let restrictF flags : UnionCaseParseResult -> bool =
         let flags = defaultArg flags ParseSource.All
-        fun x -> Enum.hasFlag flags x.Source
+        fun x -> flags.HasFlag(x.Source)
 
     let getResults rs (e : Expr) = results.Cases[expr2Uci(e).Tag] |> Seq.filter (restrictF rs)
     let containsResult rs (e : Expr) = e |> getResults rs |> Seq.isEmpty |> not
