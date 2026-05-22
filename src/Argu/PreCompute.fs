@@ -290,9 +290,13 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
         caseCtor.Value dummyFields :?> IArgParserTemplate)
 
-    // use ref cell for late binding of parent argInfo
-    let current = ref None
-    let tryGetCurrent = fun () -> !current
+    // Late binding of parent argInfo: children captured during construction
+    // need a back-reference to this `UnionCaseArgInfo`, but we don't have it
+    // until after we've built `uai` below. Invariant: written exactly once,
+    // immediately after `uai` is constructed; children read it via the
+    // `tryGetCurrent` closure.
+    let mutable current : UnionCaseArgInfo option = None
+    let tryGetCurrent = fun () -> current
 
     let attributes = lazy uci.GetCustomAttributes()
     let declaringTypeAttributes = lazy uci.DeclaringType.GetCustomAttributes(true)
@@ -540,7 +544,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         IsHidden = isHidden
     }
 
-    current := Some uai // assign result to children
+    current <- Some uai // assign result to children
     uai
 
 and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpParam option) (tryGetParent : unit -> UnionCaseArgInfo option) (t : Type) : UnionArgInfo =
@@ -569,9 +573,11 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
 
             { Flags = helpSwitches ; Description = description }
 
-    // use ref cell for late binding of parent argInfo
-    let current = ref Unchecked.defaultof<_>
-    let getCurrent = fun () -> !current
+    // Late binding of parent argInfo: see comment on the equivalent slot in
+    // preComputeUnionCaseArgInfo. Invariant: written exactly once at the end
+    // of this function; children read it via the `getCurrent` closure.
+    let mutable current : UnionArgInfo = Unchecked.defaultof<_>
+    let getCurrent = fun () -> current
 
     let caseInfo = lazy(
         FSharpType.GetUnionCases(t, allBindings)
@@ -639,7 +645,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         MainCommandParam = mainCommandParam
     }
 
-    current := result // assign result to children
+    current <- result // assign result to children
     result
 
 and preComputeUnionArgInfo<'Template when 'Template :> IArgParserTemplate> () =
