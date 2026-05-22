@@ -148,14 +148,18 @@ let expr2Uci (e : Expr) =
         if vars.Length = exprs.Length then Some vars
         else None
 
-    let rec aux (tupledArg : Var option) vars (e : Expr) =
-        match tupledArg, e with
+    let rec aux (tupledArg : Var option) vars (e' : Expr) =
+        match tupledArg, e' with
         | None, Lambda(arg, b) -> aux (Some arg) vars b
         | Some arg, Let(x, TupleGet(Var varg, _), b) when arg = varg -> aux tupledArg (x :: vars) b
         | None, NewUnionCase(u, []) -> u
         | Some a, NewUnionCase(u, [Var x]) when a = x -> u
         | Some _, NewUnionCase(u, Vars args) when vars.Length > 0 && List.rev vars = args -> u
-        | _ -> invalidArg "expr" "Only union constructors are permitted in expression based queries."
+        | _ ->
+            let rendered =
+                let s = sprintf "%A" e
+                if s.Length > 200 then s.Substring(0, 200) + "…" else s
+            invalidArg "expr" (sprintf "Only union constructors are permitted in expression based queries. Got: %s" rendered)
 
     aux None [] e
 
