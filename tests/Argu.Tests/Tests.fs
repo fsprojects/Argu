@@ -490,6 +490,16 @@ module ``Argu Tests Main List`` =
                                         (fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'." @>)
 
     [<Fact>]
+    let ``Missing mandatories at parent and subcommand levels are reported together`` () =
+        // Subcommand mandatories are missing; the parent's --mandatory-arg is also missing.
+        // The error must surface all four names in a single message, not just one group.
+        let args = [|"multiple-mandatories" ; "--valuea"; "5"|]
+        raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
+                                        (fun e -> <@ e.FirstLine.Contains "--valueb"
+                                                    && e.FirstLine.Contains "--valuec"
+                                                    && e.FirstLine.Contains "--mandatory-arg" @>)
+
+    [<Fact>]
     let ``Main command parsing should not fail on missing mandatory sub command parameter if ignoreMissing`` () =
         let args = [|"--mandatory-arg" ; "true" ; "checkout"  |]
         let results = parser.ParseCommandLine(args, ignoreMissing = true)
