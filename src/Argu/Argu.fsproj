@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Types.fs"/>
     <Compile Include="Attributes.fs"/>
+    <Compile Include="ObsoleteHelpers.fs"/>
     <Compile Include="Utils.fs"/>
     <Compile Include="ConfigReaders.fs"/>
     <Compile Include="UnionArgInfo.fs"/>

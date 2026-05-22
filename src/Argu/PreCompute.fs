@@ -1,8 +1,6 @@
 ﻿[<AutoOpen>]
 module internal Argu.PreCompute
 
-#nowarn "44"
-
 open System
 open System.Reflection
 open System.Text.RegularExpressions
@@ -300,13 +298,13 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let declaringTypeAttributes = lazy uci.DeclaringType.GetCustomAttributes(true)
 
     let isNoCommandLine = lazy(hasAttribute2<NoCommandLineAttribute> attributes.Value declaringTypeAttributes.Value)
-    let isAppSettingsCSV = lazy(hasAttribute<ParseCSVAttribute> attributes.Value)
+    let isAppSettingsCSV = lazy(ObsoleteHelpers.hasParseCsvAttribute attributes.Value)
     let isExactlyOnce = lazy(hasAttribute2<ExactlyOnceAttribute> attributes.Value declaringTypeAttributes.Value)
     let isMandatory = lazy(isExactlyOnce.Value || hasAttribute2<MandatoryAttribute> attributes.Value declaringTypeAttributes.Value)
     let isUnique = lazy(isExactlyOnce.Value || hasAttribute2<UniqueAttribute> attributes.Value declaringTypeAttributes.Value)
     let isInherited = lazy(hasAttribute<InheritAttribute> attributes.Value)
     let isGatherAll = lazy(hasAttribute<GatherAllSourcesAttribute> attributes.Value)
-    let isRest = lazy(hasAttribute<RestAttribute> attributes.Value)
+    let isRest = lazy(ObsoleteHelpers.hasRestAttribute attributes.Value)
     let isHidden = lazy(hasAttribute<HiddenAttribute> attributes.Value)
     let isExplicitSubCommand = lazy(hasAttribute<SubCommandAttribute> attributes.Value)
 
