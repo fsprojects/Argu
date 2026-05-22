@@ -3,6 +3,16 @@
 open FSharp.Quotations
 
 /// Argument parsing result holder.
+///
+/// <remarks>
+/// Equality, hashing and comparison are computed over the in-order sequence of
+/// parsed cases (as returned by <c>GetAllResults()</c>). Two <c>ParseResults</c>
+/// containing the same arguments in a different order will <em>not</em> compare
+/// equal. The <c>EqualityConditionalOn</c>/<c>ComparisonConditionalOn</c>
+/// attributes on the <c>'Template</c> parameter only control whether the
+/// corresponding F# type-class constraint flows through; they do not change
+/// the order-sensitive semantics implemented here.
+/// </remarks>
 [<Sealed; AutoSerializable(false); StructuredFormatDisplay("{StructuredFormatDisplay}")>]
 type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template when 'Template :> IArgParserTemplate>
     internal (argInfo : UnionArgInfo, results : UnionParseResults, programName : string, description : string option, usageStringCharWidth : int, exiter : IExiter) =
