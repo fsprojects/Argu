@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Description>Microsoft.Extensions.Configuration adapter for Argu — exposes any IConfiguration source as an Argu IConfigurationReader.</Description>
+    <PackageTags>F#, argument, commandline, parser, configuration</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ConfigurationReader.fs"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Argu\Argu.fsproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
+  </ItemGroup>
+</Project>
