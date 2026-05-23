@@ -334,6 +334,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None -> CliPosition.Unspecified)
 
     let customAssignmentSeparator : Lazy<CustomAssignmentSeparator option> = lazy(
+        let unified = tryGetAttribute2<AssignmentAttribute> attributes.Value declaringTypeAttributes.Value
         let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value
         let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attributes.Value declaringTypeAttributes.Value
         let validateCustomAssignmentAttributes attributeName tolerateSpacedArguments =
@@ -345,8 +346,18 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
                 arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 or 2." uci attributeName types.Length
             elif isRest.Value then
                 arguExn "parameter '%O' contains incompatible attributes '%s' and 'Rest'." uci attributeName
-        match customAssignment, spaceOrCustomAssignment with
-        | Some customAssignment, None ->
+        match unified, customAssignment, spaceOrCustomAssignment with
+        // The new unified attribute wins; mixing it with the legacy ones is rejected so
+        // we don't have to define a merge policy.
+        | Some unified, None, None ->
+            let tolerateSpacedArguments = unified.AllowSpaced
+            validateCustomAssignmentAttributes "Assignment" tolerateSpacedArguments
+            validateSeparator uci unified.Separator
+            { Separator = unified.Separator; TolerateSpacedArguments = tolerateSpacedArguments }
+            |> Some
+        | Some _, _, _ ->
+            arguExn "parameter '%O' mixes the new 'Assignment' attribute with one of the legacy 'CustomAssignment*' attributes. Use one or the other, not both." uci
+        | None, Some customAssignment, None ->
             let tolerateSpacedArguments = false
             validateCustomAssignmentAttributes "CustomAssignment" tolerateSpacedArguments
             validateSeparator uci customAssignment.Separator
@@ -355,18 +366,18 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
                 TolerateSpacedArguments = tolerateSpacedArguments
             }
             |> Some
-        | Some _, Some _ ->
+        | None, Some _, Some _ ->
             arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
-        | None, Some spaceOrCustomAssignment ->
+        | None, None, Some spaceOrCustomAssignment ->
             let tolerateSpacedArguments = true
-            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" tolerateSpacedArguments 
+            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" tolerateSpacedArguments
             validateSeparator uci spaceOrCustomAssignment.Separator
             {
                 Separator = spaceOrCustomAssignment.Separator
                 TolerateSpacedArguments = tolerateSpacedArguments
             }
             |> Some
-        | None, None -> None
+        | None, None, None -> None
         )
 
     let isGatherUnrecognized = lazy(
