@@ -78,11 +78,13 @@ type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, hel
     /// <param name="programName">Override the default program name settings.</param>
     /// <param name="hideSyntax">Do not display 'USAGE: [syntax]' at top of usage string. Defaults to false.</param>
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
-    member _.PrintUsage (?message : string, ?programName : string, ?hideSyntax : bool, ?usageStringCharacterWidth : int) : string =
+    /// <param name="usageStrings">Localisable labels printed by the renderer. Defaults to <c>UsageStrings.Default</c> (English).</param>
+    member _.PrintUsage (?message : string, ?programName : string, ?hideSyntax : bool, ?usageStringCharacterWidth : int, ?usageStrings : UsageStrings) : string =
         let programName = defaultArg programName _programName
         let hideSyntax = defaultArg hideSyntax false
         let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
-        mkUsageString argInfo programName hideSyntax usageStringCharacterWidth message |> StringExpr.build
+        let usageStrings = defaultArg usageStrings UsageStrings.Default
+        mkUsageStringWithLabels argInfo programName hideSyntax usageStringCharacterWidth usageStrings message |> StringExpr.build
 
     /// <summary>
     ///     Prints command line syntax. Useful for generating documentation.
