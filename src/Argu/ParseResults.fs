@@ -299,6 +299,37 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         | Some sc -> sc
         | None -> error false ErrorCode.PostProcess "no valid subcommand has been specified."
 
+    /// <summary>
+    ///     Begin a fluent query for the given parameter. Compose with
+    ///     <c>.FromCli()</c>, <c>.FromAppSettings()</c>, <c>.PostProcess(parser)</c>,
+    ///     then call a terminal method like <c>.Get()</c>, <c>.TryGet()</c>,
+    ///     <c>.GetAll()</c>, <c>.GetOrDefault(default)</c>, or <c>.Count()</c>.
+    /// </summary>
+    /// <param name="expr">The name of the parameter, expressed as a quotation of its DU constructor.</param>
+    member r.Query<'Field> ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>) : ParseResultsQuery<'Template, 'Field> =
+        ParseResultsQuery<'Template, 'Field>(r, expr, None)
+
+    // Non-reflected internal accessors used by the fluent builder. The public
+    // GetResult / TryGetResult / GetResults methods carry a
+    // [<ReflectedDefinition>] attribute which auto-quotes the call site, so
+    // callers that already hold an Expr value cannot pass it through.
+    member internal _.GetResultByExpr<'Field>(expr : Expr<'Field -> 'Template>, ?source : ParseSource) : 'Field =
+        (getResult source expr).FieldContents :?> 'Field
+    member internal _.TryGetResultByExpr<'Field>(expr : Expr<'Field -> 'Template>, ?source : ParseSource) : 'Field option =
+        tryGetResult source expr |> Option.map (fun r -> r.FieldContents :?> 'Field)
+    member internal r.GetResultOrDefaultByExpr<'Field>(expr : Expr<'Field -> 'Template>, defaultValue : 'Field, ?source : ParseSource) : 'Field =
+        r.TryGetResultByExpr(expr, ?source = source) |> Option.defaultValue defaultValue
+    member internal _.GetResultsByExpr<'Field>(expr : Expr<'Field -> 'Template>, ?source : ParseSource) : 'Field list =
+        getResults source expr |> Seq.map (fun r -> r.FieldContents :?> 'Field) |> Seq.toList
+    member internal _.ContainsByExpr<'Field>(expr : Expr<'Field -> 'Template>, ?source : ParseSource) : bool =
+        containsResult source expr
+    member internal _.GetParsedResultByExpr<'Field, 'R>(expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source : ParseSource) : 'R =
+        getResult source expr |> parseResult parser
+    member internal _.TryGetParsedResultByExpr<'Field, 'R>(expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source : ParseSource) : 'R option =
+        tryGetResult source expr |> Option.map (parseResult parser)
+    member internal _.GetParsedResultsByExpr<'Field, 'R>(expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source : ParseSource) : 'R list =
+        getResults source expr |> Seq.map (parseResult parser) |> Seq.toList
+
     override r.ToString() = sprintf "%A" (r.GetAllResults())
 
     // used by StructuredFormatDisplay attribute
@@ -330,3 +361,89 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
                     r.CachedAllResults.Value
                     other.CachedAllResults.Value
             | _ -> invalidArg "other" "cannot compare values of different types"
+
+/// <summary>
+///     Fluent builder for a parse-result query. Chain
+///     <see cref="FromCli"/> / <see cref="FromAppSettings"/> /
+///     <see cref="PostProcess"/> to narrow the query, then call a
+///     terminal method to obtain the value(s).
+/// </summary>
+and [<Sealed; NoEquality; NoComparison>]
+    ParseResultsQuery<'Template, 'Field when 'Template :> IArgParserTemplate>
+        internal (results : ParseResults<'Template>, expr : Expr<'Field -> 'Template>, source : ParseSource option) =
+
+    /// Restrict the query to command-line parse results only.
+    member _.FromCli () : ParseResultsQuery<'Template, 'Field> =
+        ParseResultsQuery<'Template, 'Field>(results, expr, Some ParseSource.CommandLine)
+
+    /// Restrict the query to AppSettings parse results only.
+    member _.FromAppSettings () : ParseResultsQuery<'Template, 'Field> =
+        ParseResultsQuery<'Template, 'Field>(results, expr, Some ParseSource.AppSettings)
+
+    /// Restrict the query to a specific <see cref="ParseSource"/>.
+    member _.FromSource (source : ParseSource) : ParseResultsQuery<'Template, 'Field> =
+        ParseResultsQuery<'Template, 'Field>(results, expr, Some source)
+
+    /// Attach a post-processing parser; the resulting query yields <c>'R</c> values.
+    member _.PostProcess (parser : 'Field -> 'R) : ParseResultsParsedQuery<'Template, 'Field, 'R> =
+        ParseResultsParsedQuery<'Template, 'Field, 'R>(results, expr, source, parser)
+
+    /// Terminal: returns the last specified value. Raises through the
+    /// parser's exiter if no result is present.
+    member _.Get () : 'Field =
+        results.GetResultByExpr(expr, ?source = source)
+
+    /// Terminal: returns the last specified value, falling back to
+    /// <paramref name="defaultValue"/> when no result is present.
+    member _.GetOrDefault (defaultValue : 'Field) : 'Field =
+        results.GetResultOrDefaultByExpr(expr, defaultValue, ?source = source)
+
+    /// Terminal: returns <c>Some</c> of the last specified value, or <c>None</c> if absent.
+    member _.TryGet () : 'Field option =
+        results.TryGetResultByExpr(expr, ?source = source)
+
+    /// Terminal: returns every parsed value of this parameter, in order.
+    member _.GetAll () : 'Field list =
+        results.GetResultsByExpr(expr, ?source = source)
+
+    /// Terminal: returns the number of parsed values of this parameter.
+    member q.Count () : int =
+        q.GetAll().Length
+
+    /// Terminal: returns <c>true</c> when at least one parse result is present.
+    member _.Exists () : bool =
+        results.ContainsByExpr(expr, ?source = source)
+
+/// <summary>
+///     Stage of the fluent query after <see cref="ParseResultsQuery.PostProcess"/>
+///     has been applied. Terminal methods now produce values of <c>'R</c>.
+/// </summary>
+and [<Sealed; NoEquality; NoComparison>]
+    ParseResultsParsedQuery<'Template, 'Field, 'R when 'Template :> IArgParserTemplate>
+        internal (results : ParseResults<'Template>, expr : Expr<'Field -> 'Template>,
+                    source : ParseSource option, parser : 'Field -> 'R) =
+
+    /// Restrict the query to command-line parse results only.
+    member _.FromCli () : ParseResultsParsedQuery<'Template, 'Field, 'R> =
+        ParseResultsParsedQuery<'Template, 'Field, 'R>(results, expr, Some ParseSource.CommandLine, parser)
+
+    /// Restrict the query to AppSettings parse results only.
+    member _.FromAppSettings () : ParseResultsParsedQuery<'Template, 'Field, 'R> =
+        ParseResultsParsedQuery<'Template, 'Field, 'R>(results, expr, Some ParseSource.AppSettings, parser)
+
+    /// Restrict the query to a specific <see cref="ParseSource"/>.
+    member _.FromSource (source : ParseSource) : ParseResultsParsedQuery<'Template, 'Field, 'R> =
+        ParseResultsParsedQuery<'Template, 'Field, 'R>(results, expr, Some source, parser)
+
+    /// Terminal: returns the last specified value passed through the post-processor.
+    /// Raises through the parser's exiter if no result is present.
+    member _.Get () : 'R =
+        results.GetParsedResultByExpr(expr, parser, ?source = source)
+
+    /// Terminal: <c>Some (parser v)</c> for the last specified value, or <c>None</c>.
+    member _.TryGet () : 'R option =
+        results.TryGetParsedResultByExpr(expr, parser, ?source = source)
+
+    /// Terminal: every parsed value passed through the post-processor, in order.
+    member _.GetAll () : 'R list =
+        results.GetParsedResultsByExpr(expr, parser, ?source = source)
