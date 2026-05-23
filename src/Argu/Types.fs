@@ -47,6 +47,7 @@ type ArguException internal (message : string, exn : Exception) =
 /// Parse exception raised by Argu
 type ArguParseException internal (message : string, errorCode : ErrorCode) =
     inherit ArguException(message)
+    /// The <see cref="ErrorCode"/> categorising this parse failure.
     member _.ErrorCode = errorCode
 
 /// An interface for error handling in the argument parser
@@ -102,7 +103,9 @@ type ArgumentType =
 /// Describes the permitted separators between arguments and their values
 type CustomAssignmentSeparator =
     {
+        /// The separator string between the parameter name and its value (e.g. "=" or ":").
         Separator : string
+        /// When <c>true</c>, the spaced form (<c>--param value</c>) is also accepted alongside the separator form.
         TolerateSpacedArguments : bool
     }
 
