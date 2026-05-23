@@ -5,6 +5,7 @@ open System.IO
 open System.Configuration
 open System.Collections.Generic
 open System.Reflection
+open System.Threading.Tasks
 
 /// Abstract key/value configuration reader
 type IConfigurationReader =
@@ -12,6 +13,19 @@ type IConfigurationReader =
     abstract Name : string
     /// Gets value corresponding to supplied key
     abstract GetValue : key:string -> string | null
+
+/// Asynchronous flavour of <see cref="IConfigurationReader"/>. Use when
+/// the underlying source is genuinely async (remote config server,
+/// secrets vault, etc.); a sync <see cref="IConfigurationReader"/> can
+/// also be exposed through <see cref="ConfigurationReader.AsAsync"/>
+/// when the parser already takes async readers.
+type IAsyncConfigurationReader =
+    /// Configuration reader identifier
+    abstract Name : string
+    /// Asynchronously gets the value corresponding to the supplied key.
+    /// Implementations should return <c>null</c> for missing keys (same
+    /// contract as <see cref="IConfigurationReader.GetValue"/>).
+    abstract GetValueAsync : key:string -> Task<string>
 
 /// Configuration reader that never returns a value
 type NullConfigurationReader() =
@@ -109,3 +123,31 @@ type ConfigurationReader =
             |> invalidArg assembly.FullName
 
         AppSettingsConfigurationFileReader.Create(path + ".config") :> IConfigurationReader
+
+    /// <summary>
+    ///     Wraps a synchronous <see cref="IConfigurationReader"/> as an
+    ///     <see cref="IAsyncConfigurationReader"/>. <c>GetValueAsync</c>
+    ///     returns a completed Task; useful for adapting existing readers
+    ///     into an async pipeline.
+    /// </summary>
+    static member AsAsync(reader : IConfigurationReader) : IAsyncConfigurationReader =
+        { new IAsyncConfigurationReader with
+            member _.Name = reader.Name
+            member _.GetValueAsync(key : string) = Task.FromResult(reader.GetValue key) }
+
+    /// <summary>
+    ///     Create an <see cref="IAsyncConfigurationReader"/> from an
+    ///     F# async function. The function returns <c>None</c> for missing keys.
+    /// </summary>
+    static member FromAsyncFunction(reader : string -> Async<string option>, ?name : string) : IAsyncConfigurationReader =
+        let name = defaultArg name "Async function configuration reader."
+        { new IAsyncConfigurationReader with
+            member _.Name = name
+            member _.GetValueAsync(key : string) =
+                task {
+                    let! v = reader key
+                    return
+                        match v with
+                        | None -> null
+                        | Some v -> v
+                } }
