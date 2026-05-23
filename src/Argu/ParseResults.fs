@@ -39,12 +39,23 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         with e -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
 
     let getAllResults source =
-        results.Cases
-        |> Seq.concat
-        |> Seq.filter (restrictF source)
-        |> Seq.sortBy (fun r -> ((int r.Source) <<< 16) + r.Index)
-        |> Seq.map (fun r -> r.Value :?> 'Template)
-        |> Seq.toList
+        // Direct ResizeArray build avoids the chain of intermediate
+        // Seq.concat / filter / sortBy / map / toList wrappers. Each
+        // step in the old pipeline allocated an enumerator + closure;
+        // a single buffer + System.Array.Sort cuts that down to two
+        // arrays total. Behaviour is byte-identical.
+        let filter = restrictF source
+        let buffer = ResizeArray<UnionCaseParseResult>()
+        for cs in results.Cases do
+            for r in cs do
+                if filter r then buffer.Add r
+        let arr = buffer.ToArray()
+        System.Array.Sort(arr, System.Comparison(fun a b ->
+            compare (((int a.Source) <<< 16) + a.Index) (((int b.Source) <<< 16) + b.Index)))
+        let projected = Array.zeroCreate<'Template> arr.Length
+        for i = 0 to arr.Length - 1 do
+            projected[i] <- arr[i].Value :?> 'Template
+        Array.toList projected
 
     interface IParseResult with
         member x.GetAllResults () = x.GetAllResults() |> Seq.map box
