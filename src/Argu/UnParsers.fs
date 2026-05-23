@@ -223,13 +223,13 @@ let mkHelpParamUsage width (hp : HelpParam) = stringExpr {
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
-let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax width (message : string option) = stringExpr {
+let mkUsageStringWithLabels (argInfo : UnionArgInfo) (programName : string) hideSyntax width (labels : UsageStrings) (message : string option) = stringExpr {
     match message with
     | Some msg -> yield msg; yield Environment.NewLine
     | None -> ()
 
     if not hideSyntax then
-        yield! mkCommandLineSyntax argInfo "USAGE: " width programName
+        yield! mkCommandLineSyntax argInfo labels.Usage width programName
         yield Environment.NewLine
 
     let options, subcommands =
@@ -251,7 +251,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
     if subcommands.Length > 0 then
         let! length = StringExpr.currentLength
         if length > 0 then yield Environment.NewLine
-        yield "SUBCOMMANDS:"
+        yield labels.Subcommands
         yield Environment.NewLine; yield Environment.NewLine
 
         for aI in subcommands do yield! mkArgUsage width aI
@@ -261,7 +261,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
         | helpflag :: _ ->
             yield Environment.NewLine
             let wrappedList =
-                sprintf "Use '%s <subcommand> %s' for additional information." programName helpflag
+                System.String.Format(labels.SubcommandHelpHint, programName, helpflag)
                 |> wordwrap (max (width - switchOffset) 1)
 
             for line in wrappedList do
@@ -272,7 +272,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
     if options.Length > 0 || argInfo.UsesHelpParam then
         let! length = StringExpr.currentLength
         if length > 0 then yield Environment.NewLine
-        yield "OPTIONS:"
+        yield labels.Options
         yield Environment.NewLine; yield Environment.NewLine
 
         for aI in options do yield! mkArgUsage width aI
@@ -280,6 +280,10 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
 
         yield! mkHelpParamUsage width argInfo.HelpParam
 }
+
+/// Back-compat wrapper: renders with <c>UsageStrings.Default</c> (English).
+let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax width (message : string option) =
+    mkUsageStringWithLabels argInfo programName hideSyntax width UsageStrings.Default message
 
 /// <summary>
 ///     print a command line argument for a set of parameters
