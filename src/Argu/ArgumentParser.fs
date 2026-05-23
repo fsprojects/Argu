@@ -272,6 +272,22 @@ type ArgumentParser with
     static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter, ?checkStructure: bool) =
         new ArgumentParser<'Template>(?programName = programName, ?helpTextMessage = helpTextMessage, ?errorHandler = errorHandler, ?usageStringCharacterWidth = usageStringCharacterWidth, ?checkStructure = checkStructure)
 
+    /// <summary>
+    ///     Like <see cref="Create"/>, but returns any schema-validation exception
+    ///     as <c>Result.Error</c> instead of throwing. Useful for hosts that surface
+    ///     parser-construction failures through their own error channel.
+    /// </summary>
+    /// <param name="programName">Program identifier, e.g. 'cat'. Defaults to the current executable name.</param>
+    /// <param name="helpTextMessage">Message that will be displayed at the top of the help text.</param>
+    /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
+    /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
+    /// <param name="checkStructure">Indicate if the structure of the arguments discriminated union should be checked for errors.</param>
+    static member TryCreate<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter, ?checkStructure: bool) : Result<ArgumentParser<'Template>, exn> =
+        try
+            new ArgumentParser<'Template>(?programName = programName, ?helpTextMessage = helpTextMessage, ?errorHandler = errorHandler, ?usageStringCharacterWidth = usageStringCharacterWidth, ?checkStructure = checkStructure)
+            |> Ok
+        with e -> Error e
+
 
 [<AutoOpen>]
 module ArgumentParserUtils =
