@@ -9,6 +9,7 @@
     <Compile Include="CoverageTests.fs"/>
     <Compile Include="ParseConfigTests.fs"/>
     <Compile Include="UsageStringsTests.fs"/>
+    <Compile Include="AssignmentAttributeTests.fs"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
