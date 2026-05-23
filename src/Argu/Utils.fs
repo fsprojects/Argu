@@ -229,15 +229,52 @@ module StringExpr =
 
     let whiteSpace len : StringExpr<unit> = fun sb -> ignore(sb.Append(String.mkWhiteSpace len))
 
+/// A single trie node used by <see cref="PrefixDictionary`1"/>.
+/// Each node optionally carries a terminal (key, value) pair; child
+/// edges are keyed by their next character.
+type private PrefixTrieNode<'Value>() =
+    let children = Dictionary<char, PrefixTrieNode<'Value>>()
+    let mutable hasValue = false
+    let mutable terminalKey : string = null
+    let mutable terminalValue : 'Value = Unchecked.defaultof<_>
+
+    member _.HasValue = hasValue
+    member _.TerminalKey = terminalKey
+    member _.TerminalValue = terminalValue
+
+    member _.TryGetChild(c : char) =
+        let ok, child = children.TryGetValue c
+        if ok then ValueSome child else ValueNone
+
+    member _.GetOrAddChild(c : char) =
+        match children.TryGetValue c with
+        | true, child -> child
+        | false, _ ->
+            let n = PrefixTrieNode<'Value>()
+            children[c] <- n
+            n
+
+    member _.SetTerminal(key, value) =
+        hasValue <- true
+        terminalKey <- key
+        terminalValue <- value
+
 /// Dictionary enabling lookups by string prefix
 /// e.g. the string '--foo=bar' can be used to look up the key '--foo'
+///
+/// Backed by a char-keyed trie: lookup is O(L) in the length of the
+/// queried prefix rather than O(N * L) in the number of registered keys
+/// times the query length. The public surface (Item, TryGetPrefix, Count,
+/// IEnumerable) is unchanged.
 type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
-    // could probably use a trie here, but cli arg names are relatively few
-    // with relatively flat structure to get any real perf benefits
-    let keys, values =
-        keyVals
-        |> Seq.toArray
-        |> Array.unzip
+    let entries = keyVals |> Seq.toArray
+    let root = PrefixTrieNode<'Value>()
+    do
+        for k, v in entries do
+            let mutable node = root
+            for c in k do
+                node <- node.GetOrAddChild c
+            node.SetTerminal(k, v)
 
     /// Gets the value corresponding to supplied key
     member x.Item(key : string) =
@@ -247,29 +284,41 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
         else
             raise <| KeyNotFoundException(key)
 
-    /// Look up best matching key entry by prefix
+    /// Look up best matching key entry by prefix. Returns the longest
+    /// registered key that is a prefix of <paramref name="value"/>.
     member _.TryGetPrefix(value : string, kresult : byref<string>, vresult : byref<'Value>) : bool =
-        // Just iterate through all the keys, picking the matching prefix
-        // with the maximal length
-        let mutable maxPos = -1
-        let mutable maxLen = -1
-        for i = 0 to keys.Length - 1 do
-            let key = keys[i]
-            let pLength =
-                if value.StartsWith(key, StringComparison.Ordinal) then key.Length
-                else -1
+        let mutable node = root
+        let mutable bestKey : string = null
+        let mutable bestValue : 'Value = Unchecked.defaultof<_>
+        let mutable found = false
+        // Empty-string keys (unusual, but possible) terminate at root.
+        if root.HasValue then
+            found <- true
+            bestKey <- root.TerminalKey
+            bestValue <- root.TerminalValue
+        let mutable i = 0
+        let mutable keepGoing = true
+        while keepGoing && i < value.Length do
+            match node.TryGetChild(value[i]) with
+            | ValueSome child ->
+                node <- child
+                if node.HasValue then
+                    found <- true
+                    bestKey <- node.TerminalKey
+                    bestValue <- node.TerminalValue
+                i <- i + 1
+            | ValueNone ->
+                keepGoing <- false
+        if found then
+            kresult <- bestKey
+            vresult <- bestValue
+            true
+        else false
 
-            if pLength > maxLen then
-                maxPos <- i
-                maxLen <- pLength
-
-        if maxPos < 0 then false
-        else kresult <- keys[maxPos] ; vresult <- values[maxPos] ; true
-
-    member _.Count with get(): int = keys.Length
+    member _.Count with get(): int = entries.Length
     interface IEnumerable<string * 'Value> with
-        member _.GetEnumerator() = keyVals.GetEnumerator()
-        member _.GetEnumerator() = keyVals.GetEnumerator() :> IEnumerator
+        member _.GetEnumerator() = (entries :> seq<_>).GetEnumerator()
+        member _.GetEnumerator() = (entries :> IEnumerable).GetEnumerator()
 
 /// Gets the default width of the current console window,
 /// if available.
