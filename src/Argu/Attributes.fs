@@ -2,6 +2,12 @@
 [<AutoOpen>]
 module Argu.ArguAttributes
 
+// Several attributes in this file are deprecated but kept as functional
+// wrappers for source-compat (e.g. EqualsAssignmentAttribute inherits from
+// the now-obsolete CustomAssignmentAttribute). #nowarn 44 silences the
+// resulting FS0044 inside this file; callers still see the warning.
+#nowarn "44"
+
 open System
 
 /// Parse multiple parameters in AppSettings as comma separated values. OBSOLETE
@@ -113,11 +119,31 @@ type MainCommandAttribute (argumentName : string) =
 [<Obsolete("Argu 3.0 prints union labels by default. Please remove this attribute.")>]
 type PrintLabelsAttribute () = inherit Attribute ()
 
+/// <summary>
+///     Single assignment-attribute that subsumes the six legacy
+///     <c>CustomAssignment</c> / <c>EqualsAssignment</c> /
+///     <c>ColonAssignment</c> / <c>*OrSpaced</c> attributes.
+///     Provide the literal separator string (e.g. <c>"="</c>) and a flag
+///     indicating whether spaced form (<c>--param value</c>) should also
+///     be accepted. When <paramref name="allowSpaced"/> is <c>true</c>,
+///     the parameter must have arity 1. Otherwise arity 1 or 2 are both
+///     supported.
+/// </summary>
+[<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
+type AssignmentAttribute (separator : string, allowSpaced : bool) =
+    inherit Attribute ()
+    new (separator : string) = AssignmentAttribute(separator, false)
+    /// The assignment separator string (e.g. "=" or ":").
+    member _.Separator = separator
+    /// When <c>true</c>, the spaced form is also accepted alongside the separator form.
+    member _.AllowSpaced = allowSpaced
+
 /// Use a custom separator for parameter assignment.
 /// e.g. '--param<separator>arg' or '--param key<separator>value'.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
 /// Can be used to specify any assignment separator.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<Obsolete("Use [<Assignment(separator)>] instead.")>]
 type CustomAssignmentAttribute (separator : string) =
     inherit Attribute ()
     /// The assignment separator string (e.g. "=" or ":").
@@ -126,12 +152,14 @@ type CustomAssignmentAttribute (separator : string) =
 /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<Obsolete("Use [<Assignment(\"=\")>] instead.")>]
 type EqualsAssignmentAttribute () =
     inherit CustomAssignmentAttribute("=")
 
 /// Use '--param:arg' or '--param key:value' assignment syntax in CLI.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<Obsolete("Use [<Assignment(\":\")>] instead.")>]
 type ColonAssignmentAttribute () =
     inherit CustomAssignmentAttribute(":")
 
@@ -141,6 +169,7 @@ type ColonAssignmentAttribute () =
 /// Requires that the argument should have parameters of arity 1 only.
 /// Can be used to specify any assignment separator.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<Obsolete("Use [<Assignment(separator, allowSpaced = true)>] instead.")>]
 type CustomAssignmentOrSpacedAttribute (separator : string) =
     inherit Attribute ()
     /// The assignment separator string (e.g. "=" or ":"). Spaced form is also accepted.
@@ -150,6 +179,7 @@ type CustomAssignmentOrSpacedAttribute (separator : string) =
 /// Parameters can also be assigned using space as separator e.g. '--param arg'
 /// Requires that the argument should have parameters of arity 1 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<Obsolete("Use [<Assignment(\"=\", allowSpaced = true)>] instead.")>]
 type EqualsAssignmentOrSpacedAttribute () =
     inherit CustomAssignmentOrSpacedAttribute("=")
 
@@ -157,6 +187,7 @@ type EqualsAssignmentOrSpacedAttribute () =
 /// Parameters can also be assigned using space as separator e.g. '--param arg'
 /// Requires that the argument should have parameters of arity 1 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<Obsolete("Use [<Assignment(\":\", allowSpaced = true)>] instead.")>]
 type ColonAssignmentOrSpacedAttribute () =
     inherit CustomAssignmentOrSpacedAttribute(":")
 
