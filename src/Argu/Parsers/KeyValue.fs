@@ -32,7 +32,7 @@ let private parseKeyValuePartial (state : KeyValueParseState) (caseInfo : UnionC
     let inline success ts = state.Results.AddResults caseInfo ts
 
     try
-        match caseInfo.AppSettingsName.Value with
+        match caseInfo.AppSettingsName with
         | Some name ->
             match (try state.Reader.GetValue name with _ -> null) with
             | null | "" -> ()

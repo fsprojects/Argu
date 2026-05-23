@@ -33,7 +33,7 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : in
         let tag = info.TagReader.Value value
         let case = info.Cases.Value[tag]
         let fields = case.FieldReader.Value value
-        let result = mkUnionCase case i ParseSource.None case.Name.Value fields
+        let result = mkUnionCase case i ParseSource.None case.Name fields
         agg[tag].Add result
         i <- i + 1
 
@@ -71,11 +71,11 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
 
         match combined, commandLineResults with
         | _, Some { MissingMandatoryCases = (caseArgInfo, missingCases)::_ } when not ignoreMissingMandatory  ->
-            let allCasesFormatted = missingCases |> Seq.map (fun c -> c.Name.Value) |> fun v -> System.String.Join("', '", v)
+            let allCasesFormatted = missingCases |> Seq.map (fun c -> c.Name) |> fun v -> System.String.Join("', '", v)
             error caseArgInfo ErrorCode.PostProcess "missing parameter '%s'." allCasesFormatted
 
         | [||], _ when caseInfo.IsMandatory.Value && not ignoreMissingMandatory ->
-            error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name.Value
+            error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name
         | _ -> combined
 
     {

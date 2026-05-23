@@ -228,7 +228,7 @@ module Helpers =
             let chars =
                 caseInfo.Value
                 |> Seq.append inheritedParams.Value
-                |> Seq.collect (fun c -> c.CommandLineNames.Value)
+                |> Seq.collect (fun c -> c.CommandLineNames)
                 |> Seq.append helpParam.Flags
                 |> Seq.filter (fun name -> name.Length = 2 && name[0] = '-' && Char.IsLetterOrDigit name[1])
                 |> Seq.map (fun name -> name[1])
@@ -457,7 +457,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
             Array.map getParser fields |> Primitives)
 
-    let commandLineArgs = lazy(
+    let commandLineArgs =
         if isMainCommand.Value || isNoCommandLine.Value then []
         else
             let cliNames = [
@@ -472,20 +472,20 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
             for name in cliNames do validateCliParam name
 
-            cliNames)
+            cliNames
 
-    let appSettingsName = lazy(
+    let appSettingsName =
         if hasAttribute2<NoAppSettingsAttribute> attributes.Value declaringTypeAttributes.Value then None
         else
             match tryGetAttribute<CustomAppSettingsAttribute> attributes.Value with
             | None -> Some <| generateAppSettingsName uci
             | Some _ when parsers.Value.Type = ArgumentType.SubCommand -> arguExn "CustomAppSettings in %O not supported in subcommands." uci
             | Some attr when not <| String.IsNullOrWhiteSpace attr.Name -> Some attr.Name
-            | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name)
+            | Some attr -> arguExn "AppSettings parameter '%s' contains invalid characters." attr.Name
 
     /// gets the default name of the argument
-    let defaultName = lazy(
-        match commandLineArgs.Value with
+    let defaultName =
+        match commandLineArgs with
         | h :: _ -> h
         | [] when isMainCommand.Value ->
             match parsers.Value with
@@ -494,8 +494,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
                 if isRest.Value then name + "..." else name
             | ListParam(_,p) -> "<" + p.Description + ">..."
             | _ -> arguExn "internal error in argu parser representation %O." uci
-        | _ when Option.isSome appSettingsName.Value -> appSettingsName.Value.Value
-        | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci)
+        | _ when Option.isSome appSettingsName -> appSettingsName.Value
+        | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci
 
     let fieldReader = Helpers.fieldReader uci
     let fieldCtor = Helpers.tupleConstructor types
@@ -599,12 +599,12 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     let cliIndex = lazy(
         caseInfo.Value
         |> Seq.append inheritedParams.Value
-        |> Seq.collect (fun cs -> cs.CommandLineNames.Value |> Seq.map (fun name -> name, cs))
+        |> Seq.collect (fun cs -> cs.CommandLineNames |> Seq.map (fun name -> name, cs))
         |> PrefixDictionary)
 
     let appSettingsIndex = lazy(
         caseInfo.Value
-        |> Array.choose (fun cs -> match cs.AppSettingsName.Value with Some name -> Some(name, cs) | None -> None)
+        |> Array.choose (fun cs -> match cs.AppSettingsName with Some name -> Some(name, cs) | None -> None)
         |> dict)
 
     let unrecognizedParam = lazy(
@@ -651,7 +651,7 @@ let checkUnionArgInfo (result: UnionArgInfo) =
         // check for conflicting CLI identifiers
         argInfo.Cases.Value
         |> Seq.append argInfo.InheritedParams.Value // this will only have been populated post-construction
-        |> Seq.collect (fun arg -> arg.CommandLineNames.Value |> Seq.map (fun cliName -> cliName, arg))
+        |> Seq.collect (fun arg -> arg.CommandLineNames |> Seq.map (fun cliName -> cliName, arg))
         |> Seq.map (fun (name, arg as t) ->
             if argInfo.HelpParam.IsHelpFlag name then
                 arguExn "parameter '%O' using CLI identifier '%s' which is reserved for help parameters." arg.UnionCaseInfo name
@@ -666,7 +666,7 @@ let checkUnionArgInfo (result: UnionArgInfo) =
         // check for conflicting AppSettings identifiers
         if argInfo.Depth = 0 then
             argInfo.Cases.Value
-            |> Seq.choose(fun arg -> arg.AppSettingsName.Value |> Option.map (fun name -> name, arg))
+            |> Seq.choose(fun arg -> arg.AppSettingsName |> Option.map (fun name -> name, arg))
             |> Seq.groupBy fst
             |> Seq.tryFind(fun (_,args) -> Seq.length args > 1)
             |> Option.iter (fun (name,args) ->
@@ -676,9 +676,8 @@ let checkUnionArgInfo (result: UnionArgInfo) =
 
         // Evaluate every lazy property to ensure that their checks run
         for case in argInfo.Cases.Value do
-            case.Name.Value |> ignore
-            case.CommandLineNames.Value |> ignore
-            case.AppSettingsName.Value |> ignore
+            // Name / CommandLineNames / AppSettingsName are now strict (no lazy)
+            // so they no longer need force-evaluation here.
             case.ParameterInfo.Value |> ignore
             case.AppSettingsCSV.Value |> ignore
             case.MainCommandName.Value |> ignore

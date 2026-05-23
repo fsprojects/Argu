@@ -102,7 +102,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
         resultCount <- resultCount + 1
         let agg = results.Value[result.Tag]
         if result.CaseInfo.IsUnique.Value && agg.Count > 0 then
-            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name.Value
+            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name
 
         if result.CaseInfo.ArgumentType = ArgumentType.SubCommand then
             if isSubCommandDefined then
@@ -249,7 +249,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
                     do aux 0
                     if fields.Count = parsers.Length then
-                        aggregator.AppendResult mcp mcp.Name.Value (fields.ToArray())
+                        aggregator.AppendResult mcp mcp.Name (fields.ToArray())
                         true
                     else
                         match argInfo.UnrecognizedGatherParam.Value with
@@ -295,7 +295,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                         let gathered = gather true [] |> List.rev                        
                         match gathered with
                         | [] -> () ; false
-                        | list -> aggregator.AppendResult mcp mcp.Name.Value [| List.map (fun arg -> field.Parser arg  :?> 'T) list |] ; true }
+                        | list -> aggregator.AppendResult mcp mcp.Name [| List.map (fun arg -> field.Parser arg  :?> 'T) list |] ; true }
 
             | paramInfo -> arguExn "internal error. MainCommand has param representation %A" paramInfo
 
@@ -370,14 +370,14 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
                 | NoAssignment ->
                     error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
-                        caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
+                        caseInfo.Name kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
 
             | CliParam(token,name,_,Assignment _) ->
                 error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key name '%s' in '%s'."
                     state.Reader.CurrentSegment name token
             | _ ->
                 error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
-                    caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
+                    caseInfo.Name kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
 
         | Primitives fields ->
             parseSingleParameter fields
