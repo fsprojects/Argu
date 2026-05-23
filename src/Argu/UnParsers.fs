@@ -8,6 +8,9 @@ open System.Xml.Linq
 let [<Literal>] switchOffset = 4
 /// Number of spaces to be inserted before a cli switch description text
 let [<Literal>] descriptionOffset = 26
+/// Minimum width reserved for the description column when wrapping.
+/// Guards against extreme wrap (1 char per line) when terminal width <= descriptionOffset.
+let [<Literal>] minDescriptionWrapWidth = 20
 
 /// <summary>
 ///     print the command line syntax
@@ -177,7 +180,7 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     else
         yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-    let lines = wordwrap (max (width - descriptionOffset) 1) aI.Description.Value
+    let lines = wordwrap (max (width - descriptionOffset) minDescriptionWrapWidth) aI.Description.Value
 
     match lines with
     | [] -> ()
@@ -208,7 +211,7 @@ let mkHelpParamUsage width (hp : HelpParam) = stringExpr {
         else
             yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-        let lines = wordwrap (max (width - descriptionOffset) 1) hp.Description
+        let lines = wordwrap (max (width - descriptionOffset) minDescriptionWrapWidth) hp.Description
         match lines with
         | [] -> ()
         | h :: tail ->

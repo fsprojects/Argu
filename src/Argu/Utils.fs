@@ -299,9 +299,17 @@ type PrefixDictionary<'Value>(keyVals : seq<string * 'Value>) =
         member _.GetEnumerator() = keyVals.GetEnumerator() :> IEnumerator
 
 /// Gets the default width of the current console window,
-/// if available.
+/// if available. Falls back to 80 when stdout is redirected,
+/// when the host has no console (e.g. some IDE test runners),
+/// or when the detected width is smaller than 80.
 let getDefaultCharacterWidth() =
-    max (try Console.WindowWidth - 1 with _ -> 80) 80
+    let detected =
+        try Console.WindowWidth - 1
+        with
+        | :? System.IO.IOException -> 80
+        | :? PlatformNotSupportedException -> 80
+        | _ -> 80
+    max detected 80
 
 // Wordwrap implementation kindly provided by @forki
 let wordwrap (width:int) (inputText:string) =
