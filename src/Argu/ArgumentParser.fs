@@ -1,6 +1,8 @@
 ﻿namespace Argu
 
 open FSharp.Quotations
+open System.Diagnostics.CodeAnalysis
+
 open Argu.UnionArgInfo
 
 /// Configuration record for <see cref="ArgumentParser`1.Parse(ParseConfig)"/>.
@@ -31,6 +33,14 @@ type ParseConfig =
             IgnoreMissing = false
             IgnoreUnrecognized = false
             RaiseOnUsage = true }
+
+module internal TrimMessages =
+    [<Literal>]
+    let aot =
+        "Argu reflects over the supplied F# discriminated union via MakeGenericType / Activator.CreateInstance to build its schema. This is not safe under publish-AOT; consider a hand-written parser for AOT scenarios."
+    [<Literal>]
+    let trim =
+        "Argu walks the union schema via System.Reflection (FSharpType.GetUnionCases and friends). The trimmer cannot keep referenced union cases unless the consumer's root sees them; pin the template type with DynamicDependency or DynamicallyAccessedMembers attributes when trimming."
 
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
@@ -313,6 +323,8 @@ type ArgumentParser with
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
     /// <param name="checkStructure">Indicate if the structure of the arguments discriminated union should be checked for errors.</param>
+    [<RequiresDynamicCode(TrimMessages.aot)>]
+    [<RequiresUnreferencedCode(TrimMessages.trim)>]
     static member Create<'Template when 'Template :> IArgParserTemplate>(?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter, ?checkStructure: bool) =
         new ArgumentParser<'Template>(?programName = programName, ?helpTextMessage = helpTextMessage, ?errorHandler = errorHandler, ?usageStringCharacterWidth = usageStringCharacterWidth, ?checkStructure = checkStructure)
 
