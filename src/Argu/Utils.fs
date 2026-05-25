@@ -83,6 +83,12 @@ type MemberInfo with
     member m.ContainsAttribute<'T when 'T :> Attribute> () : bool=
         m.GetCustomAttributes(typeof<'T>, true) |> Seq.isEmpty |> not
 
+    /// Returns the matching attribute of type 'T, or None.
+    /// When the member has multiple matching attributes (including any inherited
+    /// from declaring types), the *last* attribute in reflection order is returned.
+    /// Callers relying on inherited declaring-type attributes via `hasAttribute2`
+    /// should be aware that an attribute on the case can be overridden by a later
+    /// attribute on the same case, not by an attribute on the declaring type.
     member m.TryGetAttribute<'T when 'T :> Attribute> () : 'T option =
         match m.GetCustomAttributes(typeof<'T>, true) |> Seq.toArray with
         | [||] -> None
