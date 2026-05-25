@@ -23,50 +23,9 @@ let getEnvironmentCommandLineArgs () =
     | args -> args[1..]
 
 [<RequireQualifiedAccess>]
-module Enum =
-
-    let inline hasFlag (flag : ^Enum) (value : ^Enum) = flag &&& value = value
-
-[<RequireQualifiedAccess>]
-module Array =
-
-    let last (ts : 'T[]) =
-        match ts.Length with
-        | 0 -> invalidArg "xs" "input array is empty."
-        | n -> ts[n - 1]
-
-    let tryLast (ts : 'T[]) =
-        match ts.Length with
-        | 0 -> None
-        | n -> Some ts[n-1]
-
-[<RequireQualifiedAccess>]
-module List =
-
-    /// try fetching last element of a list
-    let rec tryLast xs =
-        match xs with
-        | [] -> None
-        | [x] -> Some x
-        | _ :: rest -> tryLast rest
-
-[<RequireQualifiedAccess>]
 module Seq =
 
-    /// try fetching first element of a sequence
-    let tryFirst (xs : seq<'T>) =
-        let en = xs.GetEnumerator()
-        if en.MoveNext() then Some en.Current
-        else None
-
-    /// try fetching last element of a sequence
-    let tryLast (xs : seq<'T>) =
-        let mutable isAccessed = false
-        let mutable current = Unchecked.defaultof<'T>
-        for x in xs do isAccessed <- true; current <- x
-        if isAccessed then Some current else None
-
-    /// partition sequence according to predicate
+    /// partition sequence according to predicate; materialises both branches into arrays
     let partition (predicate : 'T -> bool) (ts : seq<'T>) =
         let l,r = new ResizeArray<'T>(), new ResizeArray<'T>()
         for t in ts do
@@ -124,6 +83,12 @@ type MemberInfo with
     member m.ContainsAttribute<'T when 'T :> Attribute> () : bool=
         m.GetCustomAttributes(typeof<'T>, true) |> Seq.isEmpty |> not
 
+    /// Returns the matching attribute of type 'T, or None.
+    /// When the member has multiple matching attributes (including any inherited
+    /// from declaring types), the *last* attribute in reflection order is returned.
+    /// Callers relying on inherited declaring-type attributes via `hasAttribute2`
+    /// should be aware that an attribute on the case can be overridden by a later
+    /// attribute on the same case, not by an attribute on the declaring type.
     member m.TryGetAttribute<'T when 'T :> Attribute> () : 'T option =
         match m.GetCustomAttributes(typeof<'T>, true) |> Seq.toArray with
         | [||] -> None
@@ -198,7 +163,7 @@ let escapeCliString (value : string) =
                             * 2N+1 backslashes + " ==> N backslashes + literal "
                             * N backslashes ==> N backslashes
                         *)
-                        let nextCharAfterBackslashes = value |> Seq.skip (i + 1) |> Seq.filter (fun c -> c <> '\\') |> Seq.tryFirst
+                        let nextCharAfterBackslashes = value |> Seq.skip (i + 1) |> Seq.filter (fun c -> c <> '\\') |> Seq.tryHead
                         if nextCharAfterBackslashes = Some '"' || nextCharAfterBackslashes = None then
                             yield '\\'
                             yield '\\'
