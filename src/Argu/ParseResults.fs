@@ -3,6 +3,16 @@
 open FSharp.Quotations
 
 /// Argument parsing result holder.
+///
+/// <remarks>
+/// Equality, hashing and comparison are computed over the in-order sequence of
+/// parsed cases (as returned by <c>GetAllResults()</c>). Two <c>ParseResults</c>
+/// containing the same arguments in a different order will <em>not</em> compare
+/// equal. The <c>EqualityConditionalOn</c>/<c>ComparisonConditionalOn</c>
+/// attributes on the <c>'Template</c> parameter only control whether the
+/// corresponding F# type-class constraint flows through; they do not change
+/// the order-sensitive semantics implemented here.
+/// </remarks>
 [<Sealed; AutoSerializable(false); StructuredFormatDisplay("{StructuredFormatDisplay}")>]
 type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template when 'Template :> IArgParserTemplate>
     internal (argInfo : UnionArgInfo, results : UnionParseResults, programName : string, description : string option, usageStringCharWidth : int, exiter : IExiter) =
@@ -19,7 +29,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     // restriction predicate based on optional parse source
     let restrictF flags : UnionCaseParseResult -> bool =
         let flags = defaultArg flags ParseSource.All
-        fun x -> Enum.hasFlag flags x.Source
+        fun x -> flags.HasFlag(x.Source)
 
     let getResults rs (e : Expr) = results.Cases[expr2Uci(e).Tag] |> Seq.filter (restrictF rs)
     let containsResult rs (e : Expr) = e |> getResults rs |> Seq.isEmpty |> not
@@ -47,9 +57,12 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         |> Seq.toList
 
     interface IParseResult with
+        /// Returns all parse results as <c>obj</c>, for callers that do not know the template type.
         member x.GetAllResults () = x.GetAllResults() |> Seq.map box
 
+    /// The <see cref="IExiter"/> used to surface parse and post-process errors.
     member _.ErrorHandler = exiter
+    /// The program name used when rendering usage messages.
     member _.ProgramName = programName
     member internal _.Description = description
     member internal _.ArgInfo = argInfo
@@ -330,6 +343,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     member internal _.GetParsedResultsByExpr<'Field, 'R>(expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source : ParseSource) : 'R list =
         getResults source expr |> Seq.map (parseResult parser) |> Seq.toList
 
+    /// Renders the parse results as a debug-friendly string via F#'s structured formatter.
     override r.ToString() = sprintf "%A" (r.GetAllResults())
 
     // used by StructuredFormatDisplay attribute
