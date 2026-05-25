@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Tests.fs"/>
-    <Compile Include="TryCreateTests.fs"/>
+    <Compile Include="CoverageTests.fs"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
