@@ -57,9 +57,12 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         |> Seq.toList
 
     interface IParseResult with
+        /// Returns all parse results as <c>obj</c>, for callers that do not know the template type.
         member x.GetAllResults () = x.GetAllResults() |> Seq.map box
 
+    /// The <see cref="IExiter"/> used to surface parse and post-process errors.
     member _.ErrorHandler = exiter
+    /// The program name used when rendering usage messages.
     member _.ProgramName = programName
     member internal _.Description = description
     member internal _.ArgInfo = argInfo
@@ -309,6 +312,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         | Some sc -> sc
         | None -> error false ErrorCode.PostProcess "no valid subcommand has been specified."
 
+    /// Renders the parse results as a debug-friendly string via F#'s structured formatter.
     override r.ToString() = sprintf "%A" (r.GetAllResults())
 
     // used by StructuredFormatDisplay attribute
