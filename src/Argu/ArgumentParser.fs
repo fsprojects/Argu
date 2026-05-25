@@ -288,6 +288,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         writer.ToString()
 
 
+    /// Accepts an <see cref="IArgumentParserVisitor`1"/> so callers can recover the typed parser from the untyped base.
     override self.Accept visitor = visitor.Visit self
 
 /// Rank-2 function used for accessing typed APIs of untyped parsers

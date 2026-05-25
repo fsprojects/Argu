@@ -61,6 +61,7 @@ type NoAppSettingsAttribute () = inherit Attribute ()
 [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
 type HelpFlagsAttribute ([<ParamArray>] names : string []) =
     inherit Attribute()
+    /// CLI switches that trigger help text rendering.
     member _.Names = names
 
 /// Specifies that Help/Usage switches should be disabled for the CLI.
@@ -71,12 +72,14 @@ type DisableHelpFlagsAttribute () = inherit HelpFlagsAttribute ()
 [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false)>]
 type HelpDescriptionAttribute (description : string) =
     inherit Attribute()
+    /// The custom description rendered next to the help switches in the usage string.
     member _.Description = description
 
 /// Declares that argument should be placed at specific position.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
 type CliPositionAttribute(position : CliPosition) =
     inherit Attribute()
+    /// The mandated CLI position (First, Last, or Unspecified).
     member _.Position = position
 
 /// Declares that argument can only be placed at the beginning of the CLI syntax.
@@ -102,6 +105,7 @@ type SubCommandAttribute () = inherit Attribute()
 type MainCommandAttribute (argumentName : string) =
     inherit Attribute()
     new () = MainCommandAttribute(null)
+    /// Optional label used in the rendered usage string. <c>null</c> means use the auto-generated name.
     member _.ArgumentName = argumentName
 
 /// Print F# 3.1 field labels in usage string. OBSOLETE
@@ -116,6 +120,7 @@ type PrintLabelsAttribute () = inherit Attribute ()
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
 type CustomAssignmentAttribute (separator : string) =
     inherit Attribute ()
+    /// The assignment separator string (e.g. "=" or ":").
     member _.Separator = separator
 
 /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
@@ -138,6 +143,7 @@ type ColonAssignmentAttribute () =
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
 type CustomAssignmentOrSpacedAttribute (separator : string) =
     inherit Attribute ()
+    /// The assignment separator string (e.g. "=" or ":"). Spaced form is also accepted.
     member _.Separator = separator
 
 /// Use '--param=arg' assignment syntax in CLI.
@@ -159,7 +165,9 @@ type ColonAssignmentOrSpacedAttribute () =
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
 type CustomCommandLineAttribute (name : string, [<ParamArray>]altNames : string []) =
     inherit Attribute ()
+    /// The primary CLI identifier, replacing the auto-generated name.
     member _.Name = name
+    /// Additional alias names accepted on the CLI alongside <see cref="Name"/>.
     member _.AltNames = altNames
 
 /// Declares a set of secondary CLI identifiers for the current parameter.
@@ -168,6 +176,7 @@ type CustomCommandLineAttribute (name : string, [<ParamArray>]altNames : string 
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = true)>]
 type AltCommandLineAttribute ([<ParamArray>] names : string []) =
     inherit Attribute ()
+    /// Secondary CLI identifiers accepted alongside the primary name.
     member _.Names = names
 
 /// Declares a custom key identifier for the current parameter in AppSettings parsing.
@@ -175,6 +184,7 @@ type AltCommandLineAttribute ([<ParamArray>] names : string []) =
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
 type CustomAppSettingsAttribute (name : string) =
     inherit Attribute ()
+    /// The AppSettings key identifier, replacing the auto-generated name.
     member _.Name = name
 
 /// Specify a custom value separator in AppSettings parsing parameters.
@@ -183,7 +193,9 @@ type CustomAppSettingsAttribute (name : string) =
 type AppSettingsSeparatorAttribute ([<ParamArray>] separators : string [], splitOptions : StringSplitOptions) =
     inherit Attribute()
     new (separator : char) = AppSettingsSeparatorAttribute([|string separator|], StringSplitOptions.None)
+    /// The separator strings used to split AppSettings list/CSV values.
     member _.Separators = separators
+    /// Split options applied during AppSettings list/CSV value separation.
     member _.SplitOptions = splitOptions
 
 /// Specifies a custom prefix for auto-generated CLI names.
@@ -191,4 +203,5 @@ type AppSettingsSeparatorAttribute ([<ParamArray>] separators : string [], split
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property ||| AttributeTargets.Class, AllowMultiple = false)>]
 type CliPrefixAttribute(prefix : string) =
     inherit Attribute()
+    /// The auto-generation prefix (e.g. "--", "-", or empty).
     member _.Prefix = prefix
