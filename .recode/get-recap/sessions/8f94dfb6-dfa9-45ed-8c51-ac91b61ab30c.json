@@ -1,0 +1,26 @@
+{
+  "SchemaVersion": 1,
+  "SessionId": "8f94dfb6-dfa9-45ed-8c51-ac91b61ab30c",
+  "Machine": "CJC-2021-TECH-1",
+  "Account": "mathew.burkitt",
+  "Cwd": null,
+  "GitBranch": null,
+  "ParentSessionId": null,
+  "MessageCount": 0,
+  "UserMessages": 0,
+  "AssistantMessages": 0,
+  "FirstTimestamp": null,
+  "LastTimestamp": null,
+  "FirstUserPrompt": null,
+  "LastPrompt": null,
+  "AiTitle": null,
+  "CustomTitle": null,
+  "Summary": null,
+  "AiSummary": null,
+  "AiSummaryGeneratedAt": null,
+  "Tokens": {
+    "Input": 0,
+    "Output": 0,
+    "CacheRead": 0
+  }
+}
