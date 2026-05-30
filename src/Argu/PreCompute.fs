@@ -1,8 +1,6 @@
 ﻿[<AutoOpen>]
 module internal Argu.PreCompute
 
-#nowarn "44"
-
 open System
 open System.Reflection
 open System.Text.RegularExpressions
@@ -300,13 +298,17 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let declaringTypeAttributes = lazy uci.DeclaringType.GetCustomAttributes(true)
 
     let isNoCommandLine = lazy(hasAttribute2<NoCommandLineAttribute> attributes.Value declaringTypeAttributes.Value)
+#nowarn "44" // ParseCSV and Rest attribute is [<Obsolete>]; we still parse them for backwards compatibility
     let isAppSettingsCSV = lazy(hasAttribute<ParseCSVAttribute> attributes.Value)
+#warnon "44"
     let isExactlyOnce = lazy(hasAttribute2<ExactlyOnceAttribute> attributes.Value declaringTypeAttributes.Value)
     let isMandatory = lazy(isExactlyOnce.Value || hasAttribute2<MandatoryAttribute> attributes.Value declaringTypeAttributes.Value)
     let isUnique = lazy(isExactlyOnce.Value || hasAttribute2<UniqueAttribute> attributes.Value declaringTypeAttributes.Value)
     let isInherited = lazy(hasAttribute<InheritAttribute> attributes.Value)
     let isGatherAll = lazy(hasAttribute<GatherAllSourcesAttribute> attributes.Value)
+#nowarn "44"  // Rest attribute is [<Obsolete>]; we still parse them for backwards compatibility
     let isRest = lazy(hasAttribute<RestAttribute> attributes.Value)
+#warnon "44"
     let isHidden = lazy(hasAttribute<HiddenAttribute> attributes.Value)
     let isExplicitSubCommand = lazy(hasAttribute<SubCommandAttribute> attributes.Value)
 
@@ -359,7 +361,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
         | None, Some spaceOrCustomAssignment ->
             let tolerateSpacedArguments = true
-            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" tolerateSpacedArguments 
+            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" tolerateSpacedArguments
             validateSeparator uci spaceOrCustomAssignment.Separator
             {
                 Separator = spaceOrCustomAssignment.Separator
