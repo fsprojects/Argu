@@ -8,6 +8,7 @@
 **/*.suo
 **/*.user
 **/*.sln.docstates
+**/*.slnx.docstates
 
 # Xamarin Studio / monodevelop user-specific
 **/*.userprefs

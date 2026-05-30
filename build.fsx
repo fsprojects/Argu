@@ -43,6 +43,9 @@ let gitHome = "https://github.com/" + gitOwner
 let configuration = Environment.environVarOrDefault "Configuration" "Release"
 
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
+let libraryProject = __SOURCE_DIRECTORY__ @@ "src" @@ "Argu" @@ "Argu.fsproj"
+let testProject = __SOURCE_DIRECTORY__ @@ "tests" @@ "Argu.Tests" @@ "Argu.Tests.fsproj"
+let sampleProject = __SOURCE_DIRECTORY__ @@ "samples" @@ "Argu.Samples.LS" @@ "Argu.Samples.LS.fsproj"
 
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script 
@@ -63,16 +66,18 @@ Target.create "Clean" (fun _ ->
 // Build library & test project
 
 Target.create "Build" (fun _ ->
-    DotNet.build (fun c ->
-        { c with
-            Configuration = DotNet.BuildConfiguration.fromString configuration
+    [ libraryProject; testProject; sampleProject ]
+    |> List.iter (fun project ->
+        DotNet.build (fun c ->
+            { c with
+                Configuration = DotNet.BuildConfiguration.fromString configuration
 
-            MSBuildParams =
-            { c.MSBuildParams with
-                Properties = [("Version", release.NugetVersion)]
-                DisableInternalBinLog = true }
+                MSBuildParams =
+                { c.MSBuildParams with
+                    Properties = [("Version", release.NugetVersion)]
+                    DisableInternalBinLog = true }
 
-        }) __SOURCE_DIRECTORY__
+            }) project)
 )
 
 
@@ -88,7 +93,7 @@ Target.create "RunTests" (fun _ ->
             MSBuildParams =
             { c.MSBuildParams with
                 DisableInternalBinLog = true }
-        }) __SOURCE_DIRECTORY__
+        }) testProject
 )
 
 
