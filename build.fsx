@@ -85,15 +85,9 @@ Target.create "Build" (fun _ ->
 // Run the unit tests 
 
 Target.create "RunTests" (fun _ ->
-    DotNet.test (fun c ->
-        { c with
-            Configuration = DotNet.BuildConfiguration.fromString configuration
-            NoBuild = true
-            Blame = true
-            MSBuildParams =
-            { c.MSBuildParams with
-                DisableInternalBinLog = true }
-        }) testProject
+    let command = sprintf "test --project %s --configuration %s --no-build" testProject configuration
+    let result = DotNet.exec id command ""
+    if not result.OK then failwith "failed to run tests"
 )
 
 
