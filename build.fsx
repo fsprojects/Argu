@@ -84,7 +84,6 @@ Target.create "RunTests" (fun _ ->
         { c with
             Configuration = DotNet.BuildConfiguration.fromString configuration
             NoBuild = true
-            Blame = true
             MSBuildParams =
             { c.MSBuildParams with
                 DisableInternalBinLog = true }
