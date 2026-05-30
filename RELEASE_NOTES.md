@@ -1,9 +1,9 @@
 ### 6.2.6
-* Fix NRE in derivation of programName introduced in 6.2.2 [@dimension-zero](https://github.com/dimension-zero)
+* Fix NRE in derivation of programName introduced in 6.2.2 [#292](https://github.com/SwensenSoftware/unquote/pull/292) [@dimension-zero](https://github.com/dimension-zero)
 
 ### 6.2.5
 * Drop Package `FSharp.Core` dependency to `6.0.0` [#264](https://github.com/SwensenSoftware/unquote/pull/264)
-* target Unquote 7.0.1 now that it has [reduced `FSharp.Core` dependencies](https://github.com/SwensenSoftware/unquote/pull/172) [#264](https://github.com/SwensenSoftware/unquote/pull/264) [@stmax82](https://github.com/stmax82)
+* target Unquote 7.0.1 now that it has [reduced `FSharp.Core` dependencies](https://github.com/SwensenSoftware/unquote/pull/172) [#264](https://github.com/SwensenSoftware/unquote/pull/264)
   
 ### 6.2.4
 * Add `AttributeUsage` targets for methods which will be required in .NET 8.0.300 [#243](https://github.com/fsprojects/Argu/pull/243) [@dlidstrom](https://github.com/dlidstrom)
