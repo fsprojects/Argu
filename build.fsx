@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------
-// FAKE build script 
+// FAKE build script
 // --------------------------------------------------------------------------------------
 
 #r "nuget: System.Reactive        ,5.0.0"
@@ -45,7 +45,7 @@ let configuration = Environment.environVarOrDefault "Configuration" "Release"
 let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
 
 // --------------------------------------------------------------------------------------
-// The rest of the code is standard F# build script 
+// The rest of the code is standard F# build script
 // --------------------------------------------------------------------------------------
 
 // Read additional information from the release notes document
@@ -77,18 +77,19 @@ Target.create "Build" (fun _ ->
 
 
 // ------------------
-// Run the unit tests 
+// Run the unit tests
+
+// NOTE: Using DotNet.exec rather than DotNet.test because SDK 10 requires --project flag
+// (not positional path) and FAKE's DotNet.TestOptions doesn't support --project yet.
+// Track https://github.com/fsprojects/FAKE/pull/2897 — migrate to DotNet.test once merged.
 
 Target.create "RunTests" (fun _ ->
-    DotNet.test (fun c ->
-        { c with
-            Configuration = DotNet.BuildConfiguration.fromString configuration
-            NoBuild = true
-            Blame = true
-            MSBuildParams =
-            { c.MSBuildParams with
-                DisableInternalBinLog = true }
-        }) __SOURCE_DIRECTORY__
+    let result =
+        DotNet.exec
+            (fun o -> { o with WorkingDirectory = __SOURCE_DIRECTORY__ })
+            "test"
+            (sprintf "--project tests/Argu.Tests/Argu.Tests.fsproj -c %s --no-build" configuration)
+    if result.ExitCode <> 0 then failwithf "'dotnet test' failed with exit code %d" result.ExitCode
 )
 
 
@@ -103,7 +104,7 @@ Target.create "NuGet.Pack" (fun _ ->
             Configuration = DotNet.BuildConfiguration.Release
             MSBuildParams =
                 { pack.MSBuildParams with
-                    Properties = 
+                    Properties =
                         [("Version", release.NugetVersion)
                          ("PackageReleaseNotes", releaseNotes)]
                     DisableInternalBinLog = true }
@@ -149,7 +150,7 @@ Target.create "ReleaseGitHub" (fun _ ->
 
     let client =
         match Environment.GetEnvironmentVariable "GITHUB_TOKEN" with
-        | null -> 
+        | null ->
             let user =
                 match Environment.environVarOrDefault "github-user" "" with
                 | s when not (String.IsNullOrWhiteSpace s) -> s
