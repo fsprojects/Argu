@@ -1,5 +1,6 @@
 ### 6.2.6
 * Fix NRE in derivation of programName introduced in 6.2.2 [#292](https://github.com/SwensenSoftware/unquote/pull/292) [@dimension-zero](https://github.com/dimension-zero)
+* Clarify exception in expr2Uci [#293](https://github.com/SwensenSoftware/unquote/pull/293) [@dimension-zero](https://github.com/dimension-zero)
 
 ### 6.2.5
 * Drop Package `FSharp.Core` dependency to `6.0.0` [#264](https://github.com/SwensenSoftware/unquote/pull/264)

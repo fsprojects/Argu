@@ -36,6 +36,7 @@ module Seq =
 [<RequireQualifiedAccess>]
 module String =
     let inline mkWhiteSpace (length : int) = String(' ', length)
+    let trimWithEllipsis len (s: string) = if s.Length > len then s.Substring(0, len) + "…" else s
 
 [<AbstractClass>]
 type Existential internal () =
@@ -114,6 +115,7 @@ let currentProgramName () =
 /// recognize exprs that strictly contain DU constructors
 /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
 let expr2Uci (e : Expr) =
+    let originalExprExcerpt () = sprintf "%A" e |> String.trimWithEllipsis 200
     let (|Vars|_|) (exprs : Expr list) =
         let vars = exprs |> List.choose (|Var|_|)
         if vars.Length = exprs.Length then Some vars
@@ -126,7 +128,7 @@ let expr2Uci (e : Expr) =
         | None, NewUnionCase(u, []) -> u
         | Some a, NewUnionCase(u, [Var x]) when a = x -> u
         | Some _, NewUnionCase(u, Vars args) when vars.Length > 0 && List.rev vars = args -> u
-        | _ -> invalidArg "expr" "Only union constructors are permitted in expression based queries."
+        | _ -> invalidArg (nameof e) (sprintf "Only union constructors are permitted in expression based queries. Got: %s" <| originalExprExcerpt ())
 
     aux None [] e
 
