@@ -14,7 +14,7 @@
 
     <PackageReference Include="Microsoft.NET.Test.Sdk"/>
     <PackageReference Include="Unquote"/>
-    <PackageReference Include="xunit"/>
+    <PackageReference Include="xunit.v3.mtp-v2"/>
     <PackageReference Include="xunit.runner.visualstudio"/>
   </ItemGroup>
 </Project>
