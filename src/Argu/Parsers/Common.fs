@@ -71,15 +71,13 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
 
         match combined, commandLineResults with
         | _, Some { MissingMandatoryCases = (firstCaseArgInfo, _) :: _ as allGroups } when not ignoreMissingMandatory  ->
-            // Walk every group across the parsed tree so the user sees all missing
-            // parameters in one error, not just the first group's. Saves a round trip
-            // when both the top level and a subcommand have unmet mandatories.
-            let allMissingNames =
-                allGroups
-                |> Seq.collect (fun (_, missingCases) -> missingCases |> Seq.map (fun c -> c.Name.Value))
-                |> Seq.toArray
-            let allCasesFormatted = System.String.Join("', '", allMissingNames)
-            error firstCaseArgInfo ErrorCode.PostProcess "missing parameter '%s'." allCasesFormatted
+            // Note we walk every group across the parsed tree so the user learns all missing params in one error
+            // (as opposed to having to fix level by level with multiple runs)
+            let allMissingNames = seq {
+                for _, missingCases in allGroups do
+                    for c in missingCases -> c.Name.Value }
+            let casesFormatted = String.concat "', '" allMissingNames
+            error firstCaseArgInfo ErrorCode.PostProcess "missing parameter '%s'." casesFormatted
 
         | [||], _ when caseInfo.IsMandatory.Value && not ignoreMissingMandatory ->
             error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name.Value
