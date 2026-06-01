@@ -97,6 +97,24 @@ type ConfigurationReader =
     static member FromEnvironmentVariables() =
         EnvironmentVariableConfigurationReader() :> IConfigurationReader
 
+    /// <summary>
+    ///     Create a configuration reader that reads environment variables
+    ///     with a fixed prefix prepended to the requested key. Useful for
+    ///     mapping <c>--foo-bar</c> arguments onto <c>MYAPP_FOO_BAR</c>
+    ///     environment variables without renaming the schema. Reads
+    ///     Process, then User, then Machine targets (same order as
+    ///     <see cref="FromEnvironmentVariables()"/>).
+    /// </summary>
+    /// <param name="prefix">String prepended to each requested key (e.g. <c>"MYAPP_"</c>).</param>
+    static member FromEnvironmentVariables(prefix : string) =
+        let inner = EnvironmentVariableConfigurationReader() :> IConfigurationReader
+        let read (key : string) =
+            match inner.GetValue(prefix + key) with
+            | null -> None
+            | v -> Some v
+        FunctionConfigurationReader(read, name = sprintf "Environment Variables (prefix=%s)" prefix)
+        :> IConfigurationReader
+
     /// Create a configuration reader instance using the application's resident AppSettings configuration
     static member FromAppSettings() = AppSettingsConfigurationReader() :> IConfigurationReader
     /// Create a configuration reader instance using a local xml App.Config file
