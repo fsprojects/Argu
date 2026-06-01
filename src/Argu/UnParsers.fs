@@ -26,17 +26,17 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
     let offset = length1 - length0
 
     let insertToken =
-        let startOfCurrentLine = ref length0
-        let isFirstToken = ref true
+        let mutable startOfCurrentLine = length0
+        let mutable isFirstToken = true
         fun (token:string) -> stringExpr {
             let! currLength = StringExpr.currentLength
-            let currLineLength = currLength - !startOfCurrentLine
-            if not !isFirstToken && currLineLength + token.Length > maxWidth then
+            let currLineLength = currLength - startOfCurrentLine
+            if not isFirstToken && currLineLength + token.Length > maxWidth then
                 yield Environment.NewLine
                 yield! StringExpr.whiteSpace offset
-                startOfCurrentLine := currLength + Environment.NewLine.Length
+                startOfCurrentLine <- currLength + Environment.NewLine.Length
             yield token
-            isFirstToken := false
+            isFirstToken <- false
         }
 
     let printedCases =
