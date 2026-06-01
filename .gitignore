@@ -540,3 +540,6 @@ FodyWeavers.xsd
 *.swp
 *.swo
 
+# Recode tooling
+.recode/
+
