@@ -59,9 +59,9 @@ type UnionCaseArgInfo =
         /// Numbers of parameters in the given union case
         Arity : int
         /// Same as UnionCaseInfo.Tag
-        Tag: int
+        Tag : int
         /// UCI identifier
-        UnionCaseInfo : Lazy<UnionCaseInfo>
+        UnionCaseInfo : UnionCaseInfo
         /// Field parser definitions or nested union argument
         ParameterInfo : Lazy<ParameterInfo>
 
@@ -141,7 +141,7 @@ and [<NoEquality; NoComparison>]
   UnionArgInfo =
     {
         /// Union Case Argument Info
-        Type : Lazy<Type>
+        Type : Type
         /// Contextual depth of current argument w.r.t subcommands
         Depth : int
         /// If subcommand, attempt to retrieve the parent record
@@ -215,7 +215,7 @@ type UnionCaseArgInfo with
         {
             Name = ucai.Name
             ArgumentType = ucai.ArgumentType
-            UnionCaseInfo = ucai.UnionCaseInfo.Value
+            UnionCaseInfo = ucai.UnionCaseInfo
             CommandLineNames = ucai.CommandLineNames
             AppSettingsName = ucai.AppSettingsName
             Description = ucai.Description

@@ -290,13 +290,11 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
         caseCtor.Value dummyFields :?> IArgParserTemplate)
 
-    // Late binding of parent argInfo: children captured during construction
-    // need a back-reference to this `UnionCaseArgInfo`, but we don't have it
-    // until after we've built `uai` below. Invariant: written exactly once,
-    // immediately after `uai` is constructed; children read it via the
-    // `tryGetCurrent` closure.
+    // Children need access to parent levels, but parent levels can't be created until child layers visited ...
     let mutable current : UnionCaseArgInfo option = None
-    let tryGetCurrent = fun () -> current
+    // ... protocol is that access to parent levels is deferred via delaying calls to `getCurrent` via Lazy
+    // i.e. if this get fails, it;s because the protocol ahs not been honored
+    let getCurrent () = Option.get current
 
     let attributes = lazy uci.GetCustomAttributes()
     let declaringTypeAttributes = lazy uci.DeclaringType.GetCustomAttributes(true)
@@ -422,7 +420,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | [|NestedParseResults prt|] ->
             checkSubCommand()
 
-            let argInfo = preComputeUnionArgInfoInner stack helpParam tryGetCurrent prt
+            let argInfo = preComputeUnionArgInfoInner stack helpParam (getCurrent >> Some) prt
             let shape = ShapeArgumentTemplate.FromType prt
             SubCommand(shape, argInfo, tryExtractUnionParameterLabel fields[0])
 
@@ -515,7 +513,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let uai = {
         Tag = uci.Tag
-        UnionCaseInfo = lazy uci
+        UnionCaseInfo = uci
         Arity = fields.Length
         Depth = List.length stack - 1
         CaseCtor = caseCtor
@@ -544,7 +542,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         IsHidden = isHidden
     }
 
-    current <- Some uai // assign result to children
+    current <- Some uai // See above; make fully built model available to child computations
     uai
 
 and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpParam option) (tryGetParent : unit -> UnionCaseArgInfo option) (t : Type) : UnionArgInfo =
@@ -573,11 +571,11 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
 
             { Flags = helpSwitches ; Description = description }
 
-    // Late binding of parent argInfo: see comment on the equivalent slot in
-    // preComputeUnionCaseArgInfo. Invariant: written exactly once at the end
-    // of this function; children read it via the `getCurrent` closure.
-    let mutable current : UnionArgInfo = Unchecked.defaultof<_>
-    let getCurrent = fun () -> current
+    // Children need access to parent levels, but parent levels can't be created until child layers visited ...
+    let mutable current : UnionArgInfo option = None
+    // ... protocol is that access to parent levels is deferred via delaying calls to `getCurrent` via Lazy
+    // i.e. if this get fails, it;s because the protocol ahs not been honored
+    let getCurrent () = Option.get current
 
     let caseInfo = lazy(
         FSharpType.GetUnionCases(t, allBindings)
@@ -591,7 +589,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     // need to delay this computation since it depends
     // on completed process of any potential parents
     let inheritedParams = lazy(
-        match tryGetParent() with
+        match tryGetParent () with
         | None -> [||]
         | Some parent ->
             let pInfo = parent.GetParent()
@@ -628,7 +626,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     let groupedSwitchRegex = Helpers.groupedSwitchRegex caseInfo inheritedParams helpParam
 
     let result = {
-        Type = lazy t
+        Type = t
         Depth = List.length stack
         TryGetParent = tryGetParent
         Cases = caseInfo
@@ -645,7 +643,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         MainCommandParam = mainCommandParam
     }
 
-    current <- result // assign result to children
+    current <- Some result // See above; make fully built model available to child computations
     result
 
 and preComputeUnionArgInfo<'Template when 'Template :> IArgParserTemplate> () =
