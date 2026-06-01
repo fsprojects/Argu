@@ -101,21 +101,21 @@ type UnionCaseArgInfo =
         /// Specifies that this argument is the main CLI command
         MainCommandName : Lazy<string option>
         /// If specified, should consume remaining tokens from the CLI
-        IsRest : Lazy<bool>
+        IsRest : bool
         /// If specified, multiple parameters can be added in Configuration in CSV form.
-        AppSettingsCSV : Lazy<bool>
+        AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
-        IsMandatory : Lazy<bool>
+        IsMandatory : bool
         /// Indicates that argument should be inherited in the scope of any sibling subcommands.
-        IsInherited : Lazy<bool>
+        IsInherited : bool
         /// Specifies that argument should be specified at most once in CLI
-        IsUnique : Lazy<bool>
+        IsUnique : bool
         /// Hide from Usage
-        IsHidden : Lazy<bool>
+        IsHidden : bool
         /// Declares that the parameter should gather any unrecognized CLI params
         IsGatherUnrecognized : Lazy<bool>
         /// Combine AppSettings with CLI inputs
-        GatherAllSources : Lazy<bool>
+        GatherAllSources : bool
     }
 with
     member inline x.IsMainCommand = Option.isSome x.MainCommandName.Value
@@ -211,24 +211,27 @@ type UnionCaseArgInfo with
     member inline ucai.IsFirst = ucai.CliPosition.Value = CliPosition.First
     member inline ucai.IsLast = ucai.CliPosition.Value = CliPosition.Last
 
+    /// Maps from `internal` type to `public` API Types
     member ucai.ToArgumentCaseInfo() : ArgumentCaseInfo =
+        // Internal types are minimal and/or can be changed at will
+        // Here we map those to the stable external API contract, which won't be changed until next major ver
         {
             Name = ucai.Name
             ArgumentType = ucai.ArgumentType
-            UnionCaseInfo = ucai.UnionCaseInfo
+            UnionCaseInfo = lazy ucai.UnionCaseInfo
             CommandLineNames = ucai.CommandLineNames
             AppSettingsName = ucai.AppSettingsName
             Description = ucai.Description
             AppSettingsSeparators = Array.toList ucai.AppSettingsSeparators
             AppSettingsSplitOptions = ucai.AppSettingsSplitOptions
             IsMainCommand = ucai.IsMainCommand
-            IsRest = ucai.IsRest
+            IsRest = lazy ucai.IsRest
             CliPosition = ucai.CliPosition
             CustomAssignmentSeparator = ucai.CustomAssignmentSeparator
-            AppSettingsCSV = ucai.AppSettingsCSV
-            IsMandatory = ucai.IsMandatory
-            IsUnique = ucai.IsUnique
-            IsHidden = ucai.IsHidden
+            AppSettingsCSV = lazy ucai.AppSettingsCSV
+            IsMandatory = lazy ucai.IsMandatory
+            IsUnique = lazy ucai.IsUnique
+            IsHidden = lazy ucai.IsHidden
             IsGatherUnrecognized = ucai.IsGatherUnrecognized
-            GatherAllSources = ucai.GatherAllSources
+            GatherAllSources = lazy ucai.GatherAllSources
         }

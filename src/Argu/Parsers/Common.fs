@@ -65,8 +65,8 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
             match acr, clr with
             | Choice1Of2 ts, [||] -> ts
             | Choice2Of2 e, [||] -> raise e
-            | Choice2Of2 e, _ when caseInfo.GatherAllSources.Value -> raise e
-            | Choice1Of2 ts, ts' when caseInfo.GatherAllSources.Value -> Array.append ts ts'
+            | Choice2Of2 e, _ when caseInfo.GatherAllSources -> raise e
+            | Choice1Of2 ts, ts' when caseInfo.GatherAllSources -> Array.append ts ts'
             | _, ts' -> ts'
 
         match combined, commandLineResults with
@@ -77,7 +77,7 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
                 |> String.concat "', '"
             error firstCaseArgInfo ErrorCode.PostProcess "missing parameter '%s'." allMissingParamNames
 
-        | [||], _ when caseInfo.IsMandatory.Value && not ignoreMissingMandatory ->
+        | [||], _ when caseInfo.IsMandatory && not ignoreMissingMandatory ->
             error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name.Value
         | _ -> combined
 
