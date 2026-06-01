@@ -6,6 +6,7 @@
   <ItemGroup>
     <Compile Include="Tests.fs"/>
     <Compile Include="CoverageTests.fs"/>
+    <Compile Include="UsageStringsTests.fs"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
