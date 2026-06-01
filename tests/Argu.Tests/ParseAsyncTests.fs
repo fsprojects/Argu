@@ -75,6 +75,18 @@ module ``Argu Tests ParseAsync`` =
         test <@ r.GetResult(TagKey) = "from-async" @>
 
     [<Fact>]
+    let ``ParseAsync treats faulted GetValueAsync as missing`` () =
+        let parser = ArgumentParser.Create<Args>(programName = "app")
+        let reader =
+            { new IAsyncConfigurationReader with
+                member _.Name = "faulting-reader"
+                member _.GetValueAsync(_key) =
+                    Task.FromException<string>(System.Exception "vault unavailable") }
+        // Faulted reader must not throw; CLI args still parsed normally
+        let r = parser.ParseAsync(inputs = [| "--tagkey"; "v1" |], configurationReader = reader).Result
+        test <@ r.GetResult(TagKey) = "v1" @>
+
+    [<Fact>]
     let ``ParseAsync passes ignoreUnrecognized through`` () =
         let parser = ArgumentParser.Create<Args>(programName = "app")
         let reader = ConfigurationReader.AsAsync(ConfigurationReader.NullReader)

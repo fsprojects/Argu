@@ -209,7 +209,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
             for case in argInfo.Cases.Value do
                 match case.AppSettingsName.Value with
                 | Some key when not (prefetched.ContainsKey key) ->
-                    let! v = reader.GetValueAsync key
+                    let! v = task { try return! reader.GetValueAsync key with _ -> return null }
                     prefetched[key] <- v
                 | _ -> ()
             let syncReader =
