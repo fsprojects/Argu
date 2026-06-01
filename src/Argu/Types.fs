@@ -99,7 +99,7 @@ type ArgumentType =
     | List       = 3
     /// Argument specifies a subcommand
     | SubCommand = 4
-    
+
 /// Describes the permitted separators between arguments and their values
 type CustomAssignmentSeparator =
     {
@@ -116,7 +116,7 @@ type ArgumentCaseInfo =
         /// Human readable name identifier
         Name : Lazy<string>
         /// Union case reflection identifier
-        UnionCaseInfo : UnionCaseInfo
+        UnionCaseInfo : Lazy<UnionCaseInfo>
         /// Type of argument parser
         ArgumentType : ArgumentType
 

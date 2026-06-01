@@ -251,7 +251,7 @@ module Helpers =
                     if not <| regex.IsMatch arg then [||]
                     else Array.init (arg.Length - 1) (fun i -> String([|'-'; arg[i + 1]|]))))
 
-    let caseCtor uci = lazy FSharpValue.PreComputeUnionConstructor(uci, allBindings)
+    let caseCtor uci = FSharpValue.PreComputeUnionConstructor(uci, allBindings)
     let fieldReader uci = lazy FSharpValue.PreComputeUnionReader(uci, allBindings)
 
     let tupleConstructor (types: Type[]) =
@@ -277,51 +277,33 @@ module Helpers =
 
 /// generate argument parsing schema from given UnionCaseInfo
 let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : HelpParam option)
-                                            (getParent : unit -> UnionArgInfo)
-                                            (uci : UnionCaseInfo) : UnionCaseArgInfo =
-
+        // NOTE MUST not be called within body as parent can't be built until this returns
+        (getParent : unit -> UnionArgInfo)
+        (uci : UnionCaseInfo) : UnionCaseArgInfo =
     let fields = uci.GetFields()
-    let types = fields |> Array.map (fun f -> f.PropertyType)
+    let types = fields |> Array.map _.PropertyType
+    let attrs = uci.GetCustomAttributes()
+    let declaringTypeAttrs = uci.DeclaringType.GetCustomAttributes true
 
-    let caseCtor = Helpers.caseCtor uci
-
-    // create a dummy instance for given union case
-    let dummy = lazy(
-        let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
-        caseCtor.Value dummyFields :?> IArgParserTemplate)
-
-    // Children need access to parent levels, but parent levels can't be created until child layers visited ...
-    let mutable current : UnionCaseArgInfo option = None
-    // ... protocol is that access to parent levels is deferred via delaying calls to `getCurrent` via Lazy
-    // i.e. if this get fails, it;s because the protocol ahs not been honored
-    let getCurrent () = Option.get current
-
-    let attributes = lazy uci.GetCustomAttributes()
-    let declaringTypeAttributes = lazy uci.DeclaringType.GetCustomAttributes(true)
-
-    let isNoCommandLine = lazy(hasAttribute2<NoCommandLineAttribute> attributes.Value declaringTypeAttributes.Value)
-    // These boolean flags were previously each wrapped in `Lazy<bool>`. They are
-    // derived strictly from already-cached attribute arrays (or each other), so
-    // the lazy wrapper added an allocation per case without any deferral benefit.
-    // Compute them eagerly.
+    let isNoCommandLine = hasAttribute2<NoCommandLineAttribute> attrs declaringTypeAttrs
 #nowarn "44" // ParseCSV and Rest attribute is [<Obsolete>]; we still parse them for backwards compatibility
-    let isAppSettingsCSV = hasAttribute<ParseCSVAttribute> attributes.Value
+    let isAppSettingsCSV = hasAttribute<ParseCSVAttribute> attrs
 #warnon "44"
-    let isExactlyOnce = hasAttribute2<ExactlyOnceAttribute> attributes.Value declaringTypeAttributes.Value
-    let isMandatory = isExactlyOnce || hasAttribute2<MandatoryAttribute> attributes.Value declaringTypeAttributes.Value
-    let isUnique = isExactlyOnce || hasAttribute2<UniqueAttribute> attributes.Value declaringTypeAttributes.Value
-    let isInherited = hasAttribute<InheritAttribute> attributes.Value
-    let isGatherAll = hasAttribute<GatherAllSourcesAttribute> attributes.Value
+    let isExactlyOnce = hasAttribute2<ExactlyOnceAttribute> attrs declaringTypeAttrs
+    let isMandatory = isExactlyOnce || hasAttribute2<MandatoryAttribute> attrs declaringTypeAttrs
+    let isUnique = isExactlyOnce || hasAttribute2<UniqueAttribute> attrs declaringTypeAttrs
+    let isInherited = hasAttribute<InheritAttribute> attrs
+    let isGatherAll = hasAttribute<GatherAllSourcesAttribute> attrs
 #nowarn "44"  // Rest attribute is [<Obsolete>]; we still parse them for backwards compatibility
-    let isRest = hasAttribute<RestAttribute> attributes.Value
+    let isRest = hasAttribute<RestAttribute> attrs
 #warnon "44"
-    let isHidden = hasAttribute<HiddenAttribute> attributes.Value
-    let isExplicitSubCommand = lazy(hasAttribute<SubCommandAttribute> attributes.Value)
+    let isHidden = hasAttribute<HiddenAttribute> attrs
+    let isExplicitSubCommand = hasAttribute<SubCommandAttribute> attrs
 
     let mainCommandName = lazy(
-        match tryGetAttribute<MainCommandAttribute> attributes.Value with
+        match tryGetAttribute<MainCommandAttribute> attrs with
         | None -> None
-        | Some _ when isNoCommandLine.Value -> arguExn "parameter '%O' contains conflicting attributes 'MainCommand' and 'NoCommandLine'." uci
+        | Some _ when isNoCommandLine -> arguExn "parameter '%O' contains conflicting attributes 'MainCommand' and 'NoCommandLine'." uci
         | Some _ when types.Length = 0 -> arguExn "parameter '%O' contains MainCommand attribute but has unsupported arity 0." uci
         | Some attr ->
             match attr.ArgumentName with
@@ -332,7 +314,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isMainCommand = lazy(Option.isSome mainCommandName.Value)
 
     let cliPosition = lazy(
-        match tryGetAttribute<CliPositionAttribute> attributes.Value with
+        match tryGetAttribute<CliPositionAttribute> attrs with
         | Some attr ->
             match attr.Position with
             | CliPosition.Unspecified
@@ -342,8 +324,8 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None -> CliPosition.Unspecified)
 
     let customAssignmentSeparator : Lazy<CustomAssignmentSeparator option> = lazy(
-        let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attributes.Value declaringTypeAttributes.Value
-        let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attributes.Value declaringTypeAttributes.Value
+        let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attrs declaringTypeAttrs
+        let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attrs declaringTypeAttrs
         let validateCustomAssignmentAttributes attributeName tolerateSpacedArguments =
             if isMainCommand.Value && types.Length = 1 then
                 arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
@@ -378,7 +360,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         )
 
     let isGatherUnrecognized = lazy(
-        if hasAttribute<GatherUnrecognizedAttribute> attributes.Value then
+        if hasAttribute<GatherUnrecognizedAttribute> attrs then
             match types with
             | _ when isMainCommand.Value -> arguExn "parameter '%O' contains incompatible combination of attributes 'MainCommand' and 'GatherUnrecognized'." uci
             | [|t|] when t = typeof<string> -> true
@@ -387,7 +369,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             false)
 
     let appSettingsSeparators, appSettingsSplitOptions =
-        match tryGetAttribute2<AppSettingsSeparatorAttribute> attributes.Value declaringTypeAttributes.Value with
+        match tryGetAttribute2<AppSettingsSeparatorAttribute> attrs declaringTypeAttrs with
         | None -> [|","|], StringSplitOptions.None
         | Some attr when attr.Separators.Length = 0 ->
             arguExn "parameter '%O' specifies a null or empty AppSettings separator." uci
@@ -404,7 +386,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | [|NestedParseResults _|] -> ArgumentType.SubCommand
         | [|Optional _|] -> ArgumentType.Optional
         | [|List _|] -> ArgumentType.List
-        | _ when isExplicitSubCommand.Value -> ArgumentType.SubCommand
+        | _ when isExplicitSubCommand -> ArgumentType.SubCommand
         | _ -> ArgumentType.Primitive
 
     let checkSubCommand() =
@@ -419,11 +401,18 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         if isInherited then
             arguExn "Inherit attribute in '%O' not supported in subcommands." uci
 
+    // Children need access to parent levels, but parent levels can't be created until child layers visited ...
+    let mutable current : UnionCaseArgInfo option = None
+    // ... protocol is that access to parent levels is deferred via delaying calls to `getCurrent` via Lazy
+    // i.e. if this get fails, it;s because the protocol has not been honored
+    let getCurrent () = Option.get current
     let parsers = lazy(
         match types with
         | [|NestedParseResults prt|] ->
             checkSubCommand()
 
+            // NOTE see above; must be `lazy`
+            // `getCurrent` MUST NOT be invoked by `preComputeUnionArgInfoInner` until `current` assigned
             let argInfo = preComputeUnionArgInfoInner stack helpParam (getCurrent >> Some) prt
             let shape = ShapeArgumentTemplate.FromType prt
             SubCommand(shape, argInfo, tryExtractUnionParameterLabel fields[0])
@@ -451,7 +440,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             ListParam(Existential.FromType t, getPrimitiveParserByType label t)
 
         | _ ->
-            if isExplicitSubCommand.Value then
+            if isExplicitSubCommand then
                 if not (Array.isEmpty fields) then
                     arguExn "SubCommand in '%O' not supported for parameters other than ParseResults<_>." uci
                 checkSubCommand()
@@ -464,15 +453,15 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             Array.map getParser fields |> Primitives)
 
     let commandLineArgs = lazy(
-        if isMainCommand.Value || isNoCommandLine.Value then []
+        if isMainCommand.Value || isNoCommandLine then []
         else
             let cliNames = [
-                match tryGetAttribute<CustomCommandLineAttribute> attributes.Value with
-                | None -> yield generateOptionName uci attributes.Value declaringTypeAttributes.Value
+                match tryGetAttribute<CustomCommandLineAttribute> attrs with
+                | None -> yield generateOptionName uci attrs declaringTypeAttrs
                 | Some attr -> yield attr.Name ; yield! attr.AltNames
 
                 yield!
-                    attributes.Value
+                    attrs
                     |> Array.collect(function | :? AltCommandLineAttribute as a -> a.Names | _ -> [||])
             ]
 
@@ -481,9 +470,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
             cliNames)
 
     let appSettingsName = lazy(
-        if hasAttribute2<NoAppSettingsAttribute> attributes.Value declaringTypeAttributes.Value then None
+        if hasAttribute2<NoAppSettingsAttribute> attrs declaringTypeAttrs then None
         else
-            match tryGetAttribute<CustomAppSettingsAttribute> attributes.Value with
+            match tryGetAttribute<CustomAppSettingsAttribute> attrs with
             | None -> Some <| generateAppSettingsName uci
             | Some _ when parsers.Value.Type = ArgumentType.SubCommand -> arguExn "CustomAppSettings in %O not supported in subcommands." uci
             | Some attr when not <| String.IsNullOrWhiteSpace attr.Name -> Some attr.Name
@@ -510,6 +499,11 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     if isAppSettingsCSV && fields.Length <> 1 then
         arguExn "CSV attribute is only compatible with branches of unary fields."
 
+    let caseCtor = lazy (uci |> Helpers.caseCtor)
+    // create a dummy instance for given union case
+    let dummy = lazy(
+        let dummyFields = types |> Array.map Unchecked.UntypedDefaultOf
+        caseCtor.Value dummyFields :?> IArgParserTemplate)
     // extract the description string for given union case
     let description = lazy(
         try dummy.Value.Usage
@@ -549,7 +543,10 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     current <- Some uai // See above; make fully built model available to child computations
     uai
 
-and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpParam option) (tryGetParent : unit -> UnionCaseArgInfo option) (t : Type) : UnionArgInfo =
+and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpParam option)
+    // NOTE per protocol cannot be invoked until after function has returned, i.e. calls to this must be wrapped in lazy
+    (tryGetParent : unit -> UnionCaseArgInfo option)
+    (t : Type) : UnionArgInfo =
     if not <| FSharpType.IsUnion(t, allBindings) then
         arguExn "template type '%O' is not an F# union." t
     elif stack |> List.exists ((=) t) then
@@ -578,9 +575,8 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
     // Children need access to parent levels, but parent levels can't be created until child layers visited ...
     let mutable current : UnionArgInfo option = None
     // ... protocol is that access to parent levels is deferred via delaying calls to `getCurrent` via Lazy
-    // i.e. if this get fails, it;s because the protocol ahs not been honored
+    // i.e. if this get fails, it;s because the protocol has not been honored
     let getCurrent () = Option.get current
-
     let caseInfo = lazy(
         FSharpType.GetUnionCases(t, allBindings)
         |> Seq.map (preComputeUnionCaseArgInfo (t :: stack) (Some helpParam) getCurrent)

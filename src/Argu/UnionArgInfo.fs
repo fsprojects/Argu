@@ -211,14 +211,14 @@ type UnionCaseArgInfo with
     member inline ucai.IsFirst = ucai.CliPosition.Value = CliPosition.First
     member inline ucai.IsLast = ucai.CliPosition.Value = CliPosition.Last
 
+    /// Maps from `internal` type to `public` API Types
     member ucai.ToArgumentCaseInfo() : ArgumentCaseInfo =
-        // Several `UnionCaseArgInfo` fields are now strict `bool` (cheap to
-        // compute eagerly), but `ArgumentCaseInfo` keeps `Lazy<bool>` for
-        // public binary compatibility — wrap with `lazy` here.
+        // Internal types are minimal and/or can be changed at will
+        // Here we map those to the stable external API contract, which won't be changed until next major ver
         {
             Name = ucai.Name
             ArgumentType = ucai.ArgumentType
-            UnionCaseInfo = ucai.UnionCaseInfo
+            UnionCaseInfo = lazy ucai.UnionCaseInfo
             CommandLineNames = ucai.CommandLineNames
             AppSettingsName = ucai.AppSettingsName
             Description = ucai.Description
