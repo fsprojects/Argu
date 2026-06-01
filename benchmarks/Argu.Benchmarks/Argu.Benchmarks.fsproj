@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Benchmarks.fs"/>
+    <Compile Include="Program.fs"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core"/>
+    <PackageReference Include="BenchmarkDotNet"/>
+  </ItemGroup>
+</Project>
