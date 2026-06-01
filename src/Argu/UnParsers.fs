@@ -20,7 +20,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
 
     for command in getHierarchy argInfo do
         yield ' '
-        yield command.Name.Value
+        yield command.Name
 
     let! length1 = StringExpr.currentLength
     let offset = length1 - length0
@@ -50,7 +50,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
     | _ -> ()
 
     for aI in printedCases do
-        match aI.CommandLineNames.Value with
+        match aI.CommandLineNames with
         | [] -> ()
         | name :: _ ->
 
@@ -131,7 +131,7 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     if not aI.IsCommandLineArg then () else
     let! start = StringExpr.currentLength
     yield! StringExpr.whiteSpace switchOffset
-    yield String.concat ", " aI.CommandLineNames.Value
+    yield String.concat ", " aI.CommandLineNames
 
     match aI.ParameterInfo.Value with
     | Primitives parsers when aI.IsMainCommand ->
@@ -290,7 +290,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 
         let fields = aI.FieldReader.Value t
 
-        let clName() = List.head aI.CommandLineNames.Value
+        let clName() = List.head aI.CommandLineNames
 
         match aI.ParameterInfo.Value with
         | Primitives parsers ->
@@ -358,7 +358,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
             else
                 [|xelem|]
 
-        match aI.AppSettingsName.Value with
+        match aI.AppSettingsName with
         | None -> [||]
         | Some key ->
             match aI.ParameterInfo.Value with

@@ -40,9 +40,9 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         match Array.tryLast results with
         | None ->
             let aI = argInfo.Cases.Value[id.Tag]
-            errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name.Value
+            errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name
         | Some r when restrictF rs r -> r
-        | Some r -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name.Value
+        | Some r -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name
 
     let parseResult (f : 'F -> 'S) (r : UnionCaseParseResult) =
         try f (r.FieldContents :?> 'F)
