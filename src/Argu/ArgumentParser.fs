@@ -1,5 +1,8 @@
 ﻿namespace Argu
 
+open System.Collections.Generic
+open System.Threading.Tasks
+
 open FSharp.Quotations
 open Argu.UnionArgInfo
 
@@ -181,6 +184,47 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
             new ParseResults<'Template>(argInfo, results, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
+
+    /// <summary>Parse both command line args and an async configuration reader.
+    ///          The async reader is fully drained before the synchronous parse runs:
+    ///          the parser pre-fetches a value for every AppSettings-mapped union
+    ///          case in the schema, awaits each, then runs the regular sync parse
+    ///          against a snapshot. This keeps the parser purely synchronous below
+    ///          this method, at the cost of one round-trip per AppSettings key.</summary>
+    /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
+    /// <param name="configurationReader">Async configuration reader. If not supplied, the synchronous default AppSettings reader is used.</param>
+    /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
+    /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
+    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
+    member ap.ParseAsync (?inputs : string [], ?configurationReader : IAsyncConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : Task<ParseResults<'Template>> =
+        task {
+            let reader =
+                match configurationReader with
+                | Some r -> r
+                | None -> ConfigurationReader.AsAsync(ConfigurationReader.FromAppSettings())
+            // Pre-fetch every AppSettings key the top-level schema references.
+            // The sync parser walks subcommand-local schemas separately, so only
+            // top-level keys are reached on this pass.
+            let prefetched = Dictionary<string, string>()
+            for case in argInfo.Cases.Value do
+                match case.AppSettingsName.Value with
+                | Some key when not (prefetched.ContainsKey key) ->
+                    let! v = task { try return! reader.GetValueAsync key with _ -> return null }
+                    prefetched[key] <- v
+                | _ -> ()
+            let syncReader =
+                { new IConfigurationReader with
+                    member _.Name = reader.Name
+                    member _.GetValue key =
+                        let ok, v = prefetched.TryGetValue key
+                        if ok then v else null }
+            return ap.Parse(
+                ?inputs = inputs,
+                configurationReader = syncReader,
+                ?ignoreMissing = ignoreMissing,
+                ?ignoreUnrecognized = ignoreUnrecognized,
+                ?raiseOnUsage = raiseOnUsage)
+        }
 
     /// <summary>
     ///     Converts a sequence of template argument inputs into a ParseResults instance
