@@ -286,17 +286,17 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let declaringTypeAttrs = uci.DeclaringType.GetCustomAttributes true
 
     let isNoCommandLine = hasAttribute2<NoCommandLineAttribute> attrs declaringTypeAttrs
-#nowarn "44" // ParseCSV and Rest attribute is [<Obsolete>]; we still parse them for backwards compatibility
+#nowarn 44 // ParseCSV attribute is [<Obsolete>]; we still parse it for backwards compatibility
     let isAppSettingsCSV = hasAttribute<ParseCSVAttribute> attrs
-#warnon "44"
+#warnon 44
     let isExactlyOnce = hasAttribute2<ExactlyOnceAttribute> attrs declaringTypeAttrs
     let isMandatory = isExactlyOnce || hasAttribute2<MandatoryAttribute> attrs declaringTypeAttrs
     let isUnique = isExactlyOnce || hasAttribute2<UniqueAttribute> attrs declaringTypeAttrs
     let isInherited = hasAttribute<InheritAttribute> attrs
     let isGatherAll = hasAttribute<GatherAllSourcesAttribute> attrs
-#nowarn "44"  // Rest attribute is [<Obsolete>]; we still parse them for backwards compatibility
+#nowarn 44  // Rest attribute is [<Obsolete>]; we still parse it for backwards compatibility
     let isRest = hasAttribute<RestAttribute> attrs
-#warnon "44"
+#warnon 44
     let isHidden = hasAttribute<HiddenAttribute> attrs
     let isExplicitSubCommand = hasAttribute<SubCommandAttribute> attrs
 
