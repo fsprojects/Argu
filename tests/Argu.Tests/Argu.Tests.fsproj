@@ -4,10 +4,9 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Shared.fs"/>
+    <Compile Include="PrimitiveTests.fs" />
     <Compile Include="Tests.fs"/>
     <Compile Include="CoverageTests.fs"/>
-    <Compile Include="PrimitiveTests.fs"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
