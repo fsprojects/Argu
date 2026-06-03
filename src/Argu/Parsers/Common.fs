@@ -33,7 +33,7 @@ let mkParseResultFromValues (info : UnionArgInfo) (exiter : IExiter) (width : in
         let tag = info.TagReader.Value value
         let case = info.Cases.Value[tag]
         let fields = case.FieldReader.Value value
-        let result = mkUnionCase case i ParseSource.None case.Name.Value fields
+        let result = mkUnionCase case i ParseSource.None case.Name fields
         agg[tag].Add result
         i <- i + 1
 
@@ -73,12 +73,12 @@ let postProcessResults (argInfo : UnionArgInfo) (ignoreMissingMandatory : bool)
         | _, Some { MissingMandatoryCases = (firstCaseArgInfo, _) :: _ as allGroups } when not ignoreMissingMandatory  ->
             // NOTE also need to convey missing child / trailing args, not just flag first problem
             let allMissingParamNames =
-                seq { for _, missing in allGroups do for m in missing -> m.Name.Value }
+                seq { for _, missing in allGroups do for m in missing -> m.Name }
                 |> String.concat "', '"
             error firstCaseArgInfo ErrorCode.PostProcess "missing parameter '%s'." allMissingParamNames
 
         | [||], _ when caseInfo.IsMandatory && not ignoreMissingMandatory ->
-            error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name.Value
+            error argInfo ErrorCode.PostProcess "missing parameter '%s'." caseInfo.Name
         | _ -> combined
 
     {

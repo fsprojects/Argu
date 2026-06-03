@@ -102,7 +102,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
         resultCount <- resultCount + 1
         let agg = results.Value[result.Tag]
         if result.CaseInfo.IsUnique && agg.Count > 0 then
-            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name.Value
+            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name
 
         if result.CaseInfo.ArgumentType = ArgumentType.SubCommand then
             if isSubCommandDefined then
@@ -228,10 +228,10 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                                 | _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'."
                                                     state.Reader.CurrentSegment p.Description token
 
-                            if success then   
+                            if success then
                                 // Might be a MainCommand, but if the main type is string, then might not
                                 // If we're ignoring unrecognized, then it's better to parse as unrecognized than an out-of-position MainCommand
-                                if mcp.IsLast && state.IgnoreUnrecognizedArgs && not state.Reader.IsCompleted then 
+                                if mcp.IsLast && state.IgnoreUnrecognizedArgs && not state.Reader.IsCompleted then
                                     aggregator.AppendUnrecognized tok
                                 else
                                     tokens.Add tok ; fields.Add result
@@ -249,7 +249,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
                     do aux 0
                     if fields.Count = parsers.Length then
-                        aggregator.AppendResult mcp mcp.Name.Value (fields.ToArray())
+                        aggregator.AppendResult mcp mcp.Name (fields.ToArray())
                         true
                     else
                         match argInfo.UnrecognizedGatherParam.Value with
@@ -284,18 +284,18 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
                                     | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
                                     args
                                 else args
-                            | CliParam _ -> 
-                                // If the main type is string, then the gathered arguments here might not be main commands. 
+                            | CliParam _ ->
+                                // If the main type is string, then the gathered arguments here might not be main commands.
                                 // Can detect this by observing a subsequent argument that IS recognized
-                                if mcp.IsLast && state.IgnoreUnrecognizedArgs 
-                                then List.iter aggregator.AppendUnrecognized args; [] 
+                                if mcp.IsLast && state.IgnoreUnrecognizedArgs
+                                then List.iter aggregator.AppendUnrecognized args; []
                                 else args
                             | _ -> args
 
-                        let gathered = gather true [] |> List.rev                        
+                        let gathered = gather true [] |> List.rev
                         match gathered with
                         | [] -> () ; false
-                        | list -> aggregator.AppendResult mcp mcp.Name.Value [| List.map (fun arg -> field.Parser arg  :?> 'T) list |] ; true }
+                        | list -> aggregator.AppendResult mcp mcp.Name [| List.map (fun arg -> field.Parser arg  :?> 'T) list |] ; true }
 
             | paramInfo -> arguExn "internal error. MainCommand has param representation %A" paramInfo
 
@@ -336,7 +336,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         let parseSingleParameter fields =
             let fields = fields |> Array.map parseNextField
             aggregator.AppendResult caseInfo name fields
-        
+
         match caseInfo.ParameterInfo.Value with
         | Primitives [|field|] when caseInfo.IsCustomAssignment ->
             match assignment with
@@ -370,14 +370,14 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
 
                 | NoAssignment ->
                     error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
-                        caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
+                        caseInfo.Name kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
 
             | CliParam(token,name,_,Assignment _) ->
                 error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key name '%s' in '%s'."
                     state.Reader.CurrentSegment name token
             | _ ->
                 error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
-                    caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
+                    caseInfo.Name kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
 
         | Primitives fields ->
             parseSingleParameter fields
