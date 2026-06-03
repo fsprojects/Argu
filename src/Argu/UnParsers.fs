@@ -11,6 +11,7 @@ let [<Literal>] descriptionOffset = 26
 /// Minimum width reserved for the description column when wrapping.
 /// Guards against extreme wrap (1 char per line) when terminal width <= descriptionOffset.
 let [<Literal>] minDescriptionWrapWidth = 20
+let wordwrapSafe width = wordwrap (max (width - descriptionOffset) minDescriptionWrapWidth)
 
 /// <summary>
 ///     print the command line syntax
@@ -180,7 +181,7 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     else
         yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-    let lines = wordwrap (max (width - descriptionOffset) minDescriptionWrapWidth) aI.Description.Value
+    let lines = wordwrapSafe width aI.Description.Value
 
     match lines with
     | [] -> ()
@@ -211,7 +212,7 @@ let mkHelpParamUsage width (hp : HelpParam) = stringExpr {
         else
             yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-        let lines = wordwrap (max (width - descriptionOffset) minDescriptionWrapWidth) hp.Description
+        let lines = wordwrapSafe width hp.Description
         match lines with
         | [] -> ()
         | h :: tail ->
@@ -265,7 +266,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
             yield Environment.NewLine
             let wrappedList =
                 sprintf "Use '%s <subcommand> %s' for additional information." programName helpflag
-                |> wordwrap (max (width - switchOffset) 1)
+                |> wordwrapSafe width
 
             for line in wrappedList do
                 yield String.mkWhiteSpace switchOffset

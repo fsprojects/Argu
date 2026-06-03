@@ -105,7 +105,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
     /// <param name="checkStructure">Indicate if the structure of the arguments discriminated union should be checked for errors.</param>
     new (?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter, ?checkStructure: bool) =
-        let usageStringCharacterWidth = match usageStringCharacterWidth with None -> getDefaultCharacterWidth() | Some w -> w
+        let usageStringCharacterWidth = usageStringCharacterWidth |> Option.defaultWith getDefaultCharacterWidthSafeMin80
         let programName = programName |> Option.defaultWith currentProgramName
         let errorHandler = match errorHandler with Some e -> e  | None -> ExceptionExiter() :> _
 
