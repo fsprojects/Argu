@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="PrimitiveTests.fs" />
     <Compile Include="Tests.fs"/>
     <Compile Include="CoverageTests.fs"/>
   </ItemGroup>

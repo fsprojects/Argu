@@ -40,7 +40,7 @@ type CliPosition =
     | Last          = 3
 
 /// Exception raised by Argu
-type ArguException internal (message : string, exn : Exception) =
+type ArguException internal (message : string, exn : Exception | null) =
     inherit Exception(message, exn)
     internal new(message) = ArguException(message, null)
 
@@ -99,7 +99,7 @@ type ArgumentType =
     | List       = 3
     /// Argument specifies a subcommand
     | SubCommand = 4
-    
+
 /// Describes the permitted separators between arguments and their values
 type CustomAssignmentSeparator =
     {
@@ -116,7 +116,7 @@ type ArgumentCaseInfo =
         /// Human readable name identifier
         Name : Lazy<string>
         /// Union case reflection identifier
-        UnionCaseInfo : UnionCaseInfo
+        UnionCaseInfo : Lazy<UnionCaseInfo>
         /// Type of argument parser
         ArgumentType : ArgumentType
 

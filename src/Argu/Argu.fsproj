@@ -4,6 +4,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <PackageIcon>logo.png</PackageIcon>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Types.fs"/>
@@ -24,7 +25,10 @@
     <!-- SourceLink etc -->
     <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="All"/>
 
-    <PackageReference Include="FSharp.Core"/>
+    <!-- Workaround for malformed FSharp.Core packages https://github.com/dotnet/fsharp/issues/12706 via https://github.com/fsprojects/Paket/issues/4149-->
+    <!-- Removal triggers issues in dotnet publish, e.g. for Lambda projects -->
+    <!-- Also avoids Rider search finding stuff in FSharp.Core.xml -->
+    <PackageReference Include="FSharp.Core" ExcludeAssets="contentfiles" />
 
     <PackageReference Include="System.Configuration.ConfigurationManager"/>
   </ItemGroup>
