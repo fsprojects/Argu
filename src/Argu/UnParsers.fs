@@ -9,7 +9,7 @@ let [<Literal>] switchOffset = 4
 /// Number of spaces to be inserted before a cli switch description text
 let [<Literal>] descriptionOffset = 26
 /// Minimum width reserved for the description column when wrapping.
-/// Guards against extreme wrap (1 char per line) when terminal width <= descriptionOffset.
+/// Guards against extreme wrap (e.g. 1 char per line) when terminal width <= descriptionOffset.
 let [<Literal>] minDescriptionWrapWidth = 20
 let wordwrapSafe width = wordwrap (max (width - descriptionOffset) minDescriptionWrapWidth)
 
