@@ -48,14 +48,14 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
         try f (r.FieldContents :?> 'F)
         with e -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
 
-    let getAllResults source =
-        let filter = restrictF source
-        let arr = [| for cs in results.Cases do
-                        for r in cs do
-                            if filter r then r |]
+    let getAllResults filter =
+        let buffer = ResizeArray()
+        for cs in results.Cases do
+            for r in cs do
+                if filter r then buffer.Add r
         let inline order x = ((int x.Source) <<< 16) + x.Index
-        System.Array.Sort(arr, System.Comparison(fun a b -> compare (order a) (order b)))
-        [ for x in arr -> x.Value :?> 'Template ]
+        buffer.Sort(System.Comparison(fun a b -> compare (order a) (order b)))
+        [ for x in buffer -> x.Value :?> 'Template ]
 
     interface IParseResult with
         /// Returns all parse results as <c>obj</c>, for callers that do not know the template type.
@@ -94,8 +94,9 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
 
     /// <summary>Gets all parse results.</summary>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member _.GetAllResults (?source : ParseSource) : 'Template list =
-        getAllResults source
+    member r.GetAllResults (?source : ParseSource) : 'Template list =
+        if Option.isSome source then getAllResults (restrictF source)
+        else r.CachedAllResults.Value
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
@@ -321,7 +322,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
 
     // used by EqualityConditionalOn attribute
     // used by ComparisonConditionalOn attribute
-    member val private CachedAllResults = lazy (getAllResults None) with get
+    member val private CachedAllResults: Lazy<'Template list> = lazy getAllResults (fun _ -> true) with get
 
     // used by EqualityConditionalOn attribute
     override r.Equals (other : obj) =
