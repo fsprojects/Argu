@@ -26,33 +26,34 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
 
     let errorf hideusage code fmt = Printf.ksprintf (error hideusage code) fmt
 
-    // restriction predicate based on optional parse source
-    let restrictF flags : UnionCaseParseResult -> bool =
-        let flags = defaultArg flags ParseSource.All
-        fun x -> flags.HasFlag(x.Source)
+    let filter (sourceRestriction: ParseSource) = fun (x: UnionCaseParseResult) -> sourceRestriction.HasFlag(x.Source)
 
-    let getResults rs (e : Expr) = results.Cases[expr2Uci(e).Tag] |> Seq.filter (restrictF rs)
-    let containsResult rs (e : Expr) = e |> getResults rs |> Seq.isEmpty |> not
-    let tryGetResult rs (e : Expr) = e |> getResults rs |> Seq.tryLast
-    let getResult rs (e : Expr) =
+    let getResults source (e : Expr) : seq<UnionCaseParseResult> =
+        let r = results.Cases[expr2Uci(e).Tag]
+        match source with
+        | None -> r
+        | Some flags -> r |> Seq.filter (filter flags)
+    let containsResult source (e : Expr) = e |> getResults source |> Seq.isEmpty |> not
+    let tryGetResult source (e : Expr) = e |> getResults source |> Seq.tryLast
+    let getResult flags (e : Expr) =
         let id = expr2Uci e
-        let results = results.Cases[id.Tag]
-        match Array.tryLast results with
-        | None ->
+        match results.Cases[id.Tag] |> Array.tryLast, flags with
+        | None, _ ->
             let aI = argInfo.Cases.Value[id.Tag]
             errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name.Value
-        | Some r when restrictF rs r -> r
-        | Some r -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name.Value
+        | Some r, Some flags when r |> filter flags |> not -> // A value is present, but the filter excludes it
+            errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name.Value
+        | Some r, _ -> r
 
     let parseResult (f : 'F -> 'S) (r : UnionCaseParseResult) =
         try f (r.FieldContents :?> 'F)
         with e -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
 
-    let getAllResults filter =
+    let getAllResults predicate =
         let buffer = ResizeArray()
         for cs in results.Cases do
             for r in cs do
-                if filter r then buffer.Add r
+                if predicate r then buffer.Add r
         let inline order x = ((int x.Source) <<< 16) + x.Index
         buffer.Sort(System.Comparison(fun a b -> compare (order a) (order b)))
         [ for x in buffer -> x.Value :?> 'Template ]
@@ -95,8 +96,9 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <summary>Gets all parse results.</summary>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
     member r.GetAllResults (?source : ParseSource) : 'Template list =
-        if Option.isSome source then getAllResults (restrictF source)
-        else r.CachedAllResults.Value
+        match source with
+        | None -> r.CachedAllResults.Value
+        | Some sourceRestriction -> getAllResults (filter sourceRestriction)
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
