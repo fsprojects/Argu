@@ -55,8 +55,9 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
             for r in cs do
                 if predicate r then buffer.Add r
         let inline order x = ((int x.Source) <<< 16) + x.Index
-        buffer.Sort(System.Comparison(fun a b -> compare (order a) (order b)))
-        [ for x in buffer -> x.Value :?> 'Template ]
+        // TOCONSIDER if benchmark says its cheaper then can replace Seq.sortBy with [also stable] `System.Linq.Enumerable.OrderBy(buffer, order)`
+        // TOCONSIDER if unstable sort is proven sufficient then can do: buffer.Sort(System.Comparison(fun a b -> compare (order a) (order b)))
+        [ for x in buffer |> Seq.sortBy order -> x.Value :?> 'Template ]
 
     interface IParseResult with
         /// Returns all parse results as <c>obj</c>, for callers that do not know the template type.
