@@ -34,7 +34,7 @@ type SimpleArgs =
 
 [<Fact>]
 let ``ErrorCode.CommandLine: unrecognized argument message`` () =
-    let parser = ArgumentParser.Create<SimpleArgs>(programName = "app")
+    let parser = ArgumentParser.Create<SimpleArgs>()
     match Helpers.parserError parser [| "--bogus" |] with
     | None -> failwith "expected parse error"
     | Some (code, msg) ->
@@ -43,7 +43,7 @@ let ``ErrorCode.CommandLine: unrecognized argument message`` () =
 
 [<Fact>]
 let ``ErrorCode.PostProcess: missing mandatory message`` () =
-    let parser = ArgumentParser.Create<SimpleArgs>(programName = "app")
+    let parser = ArgumentParser.Create<SimpleArgs>()
     match Helpers.parserError parser [||] with
     | None -> failwith "expected parse error"
     | Some (code, msg) ->
@@ -52,7 +52,7 @@ let ``ErrorCode.PostProcess: missing mandatory message`` () =
 
 [<Fact>]
 let ``ErrorCode.CommandLine: missing argument value message`` () =
-    let parser = ArgumentParser.Create<SimpleArgs>(programName = "app")
+    let parser = ArgumentParser.Create<SimpleArgs>()
     match Helpers.parserError parser [| "--port" |] with
     | None -> failwith "expected parse error"
     | Some (code, msg) ->
@@ -85,7 +85,7 @@ type Level1Args =
 
 [<Fact>]
 let ``Deep subcommand: mandatory at level 3 missing surfaces in error`` () =
-    let parser = ArgumentParser.Create<Level1Args>(programName = "app")
+    let parser = ArgumentParser.Create<Level1Args>()
     match Helpers.parserError parser [| "level2"; "level3" |] with
     | None -> failwith "expected parse error"
     | Some (code, msg) ->
@@ -95,7 +95,7 @@ let ``Deep subcommand: mandatory at level 3 missing surfaces in error`` () =
 
 [<Fact>]
 let ``Deep subcommand: providing the leaf mandatory parses cleanly`` () =
-    let parser = ArgumentParser.Create<Level1Args>(programName = "app")
+    let parser = ArgumentParser.Create<Level1Args>()
     let results = parser.ParseCommandLine([| "level2"; "level3"; "--inner"; "ok" |], raiseOnUsage = false)
     // Probe through the public surface: walk subcommand → subcommand → leaf.
     let l2 = results.GetResult(Level2)
@@ -118,7 +118,7 @@ type AppSettingsArgs =
 
 [<Fact>]
 let ``AppSettings: dictionary reader returns parsed value`` () =
-    let parser = ArgumentParser.Create<AppSettingsArgs>(programName = "app")
+    let parser = ArgumentParser.Create<AppSettingsArgs>()
     let dict = Dictionary<string, string>()
     dict["required-key"] <- "hello"
     dict["int-key"] <- "42"
@@ -129,7 +129,7 @@ let ``AppSettings: dictionary reader returns parsed value`` () =
 
 [<Fact>]
 let ``AppSettings: missing mandatory key raises`` () =
-    let parser = ArgumentParser.Create<AppSettingsArgs>(programName = "app")
+    let parser = ArgumentParser.Create<AppSettingsArgs>()
     let dict = Dictionary<string, string>()
     // required-key intentionally absent
     let reader = ConfigurationReader.FromDictionary dict
@@ -146,7 +146,7 @@ let ``AppSettings: missing mandatory key raises`` () =
 
 [<Fact>]
 let ``AppSettings: null or empty value is treated as absent`` () =
-    let parser = ArgumentParser.Create<AppSettingsArgs>(programName = "app")
+    let parser = ArgumentParser.Create<AppSettingsArgs>()
     let dict = Dictionary<string, string>()
     dict["required-key"] <- "x" // satisfy mandatory
     dict["optional-key"] <- ""   // empty string should be treated as absent
@@ -156,7 +156,7 @@ let ``AppSettings: null or empty value is treated as absent`` () =
 
 [<Fact>]
 let ``AppSettings: invalid type-parse raises with key in message`` () =
-    let parser = ArgumentParser.Create<AppSettingsArgs>(programName = "app")
+    let parser = ArgumentParser.Create<AppSettingsArgs>()
     let dict = Dictionary<string, string>()
     dict["required-key"] <- "x"
     dict["int-key"] <- "not-a-number"
@@ -172,7 +172,7 @@ let ``AppSettings: invalid type-parse raises with key in message`` () =
 
 [<Fact>]
 let ``AppSettings: ignoreMissing=true skips mandatory check`` () =
-    let parser = ArgumentParser.Create<AppSettingsArgs>(programName = "app")
+    let parser = ArgumentParser.Create<AppSettingsArgs>()
     let reader = ConfigurationReader.FromDictionary(Dictionary<string, string>())
     // Should not raise.
     let results = parser.ParseConfiguration(reader, ignoreMissing = true)
@@ -192,7 +192,7 @@ let ``EnvironmentVariableConfigurationReader: reads process env`` () =
     let prior = Environment.GetEnvironmentVariable key
     try
         Environment.SetEnvironmentVariable(key, "from-env")
-        let parser = ArgumentParser.Create<EnvArgs>(programName = "app")
+        let parser = ArgumentParser.Create<EnvArgs>()
         let reader = ConfigurationReader.FromEnvironmentVariables()
         let results = parser.ParseConfiguration(reader, ignoreMissing = true)
         test <@ results.GetResult(Val) = "from-env" @>

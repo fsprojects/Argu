@@ -283,7 +283,7 @@ let ``CLIArguments Locale`` () =
     let originalCulture = System.Threading.Thread.CurrentThread.CurrentCulture
     try
         System.Threading.Thread.CurrentThread.CurrentCulture <- CultureInfo("tr-TR")
-        let parser2 = ArgumentParser.Create<LocaleTurkish> (programName = "gadget")
+        let parser2 = ArgumentParser.Create<LocaleTurkish>(programName = "gadget")
         let result = parser2.ParseCommandLine([| "--install"; "true" |], ignoreMissing = true)
         test <@ result.GetResult <@ Install @> @>
     finally

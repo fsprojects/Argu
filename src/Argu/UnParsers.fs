@@ -265,7 +265,7 @@ let mkUsageStringWithLabels (argInfo : UnionArgInfo) (programName : string) hide
         | helpflag :: _ ->
             yield Environment.NewLine
             let wrappedList =
-                String.Format(labels.SubcommandHelpHint, programName, helpflag)
+                String.Format(labels.SubcommandHelpHintFormat, programName, helpflag)
                 |> wordwrapSafe width
 
             for line in wrappedList do
