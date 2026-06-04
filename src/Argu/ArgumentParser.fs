@@ -25,13 +25,12 @@ type ParseConfig =
     /// Default parse configuration, matching the historical <c>Parse(...)</c> defaults:
     /// inputs and configurationReader inherited from the environment, do not ignore
     /// missing or unrecognized arguments, and raise on '--help'.
-    static member Default : ParseConfig = {
-        Inputs = None
-        ConfigurationReader = None
-        IgnoreMissing = false
-        IgnoreUnrecognized = false
-        RaiseOnUsage = true
-    }
+    static member Default : ParseConfig =
+        {   Inputs = None
+            ConfigurationReader = None
+            IgnoreMissing = false
+            IgnoreUnrecognized = false
+            RaiseOnUsage = true }
 
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
@@ -191,8 +190,8 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     ///          the parameter set programmatically (e.g. layering host defaults over user
     ///          overrides) without juggling many optional method arguments.</summary>
     /// <param name="config">The parse configuration. See <c>ParseConfig.Default</c>.</param>
-    member ap.Parse (config : ParseConfig) : ParseResults<'Template> =
-        ap.Parse(
+    member self.Parse (config : ParseConfig) : ParseResults<'Template> =
+        self.Parse(
             ?inputs = config.Inputs,
             ?configurationReader = config.ConfigurationReader,
             ignoreMissing = config.IgnoreMissing,
@@ -272,8 +271,8 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         mkCommandLineArgs argInfo (Seq.cast args) |> Seq.toArray
 
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
-    member ap.PrintCommandLineArgumentsFlat (args : 'Template list) : string =
-        ap.PrintCommandLineArguments args |> flattenCliTokens
+    member self.PrintCommandLineArgumentsFlat (args : 'Template list) : string =
+        self.PrintCommandLineArguments args |> flattenCliTokens
 
     /// <summary>Prints parameters in App.Config format.</summary>
     /// <param name="args">The parameters that fill out the XML document.</param>
