@@ -2,8 +2,9 @@
 * Fix NRE in derivation of programName introduced in 6.2.2 [#292](https://github.com/SwensenSoftware/unquote/pull/292) [@dimension-zero](https://github.com/dimension-zero)
 * Fix Clarify exception in expr2Uci [#293](https://github.com/SwensenSoftware/unquote/pull/293) [@dimension-zero](https://github.com/dimension-zero)
 * Fix Report all missing args in error message, not just first level [#297](https://github.com/SwensenSoftware/unquote/pull/297) [@dimension-zero](https://github.com/dimension-zero)
-* Add `Argu.Samples.Introspect` sample [#298](https://github.com/SwensenSoftware/unquote/pull/298) [@dimension-zero](https://github.com/dimension-zero)
 * Fix Limit min wordwrap column to 20 [#302](https://github.com/SwensenSoftware/unquote/pull/302) [@dimension-zero](https://github.com/dimension-zero)
+* Add `Argu.Samples.Introspect` sample [#298](https://github.com/SwensenSoftware/unquote/pull/298) [@dimension-zero](https://github.com/dimension-zero)
+* Add `ArgumentParser.Parse(ParseConfig)` [#307](https://github.com/SwensenSoftware/unquote/pull/307) [@dimension-zero](https://github.com/dimension-zero)
 
 ### 6.2.5
 * Drop Package `FSharp.Core` dependency to `6.0.0` [#264](https://github.com/fsprojects/Argu/pull/264)
