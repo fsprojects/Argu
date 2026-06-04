@@ -89,6 +89,29 @@ type ProcessExiter(colorizerOption : (ErrorCode -> ConsoleColor option) option) 
 
             exit (int errorCode)
 
+/// Localizable labels printed by <c>PrintUsage</c>. Defaults to English via <c>UsageStrings.Default</c>.
+/// Callers may supply a translated record to render usage in another language.
+[<NoEquality; NoComparison>]
+type UsageStrings =
+    {
+        /// Prefix printed before the synopsis line. Default: <c>"USAGE: "</c>.
+        Usage : string
+        /// Header above the options block. Default: <c>"OPTIONS:"</c>.
+        Options : string
+        /// Header above the subcommands block. Default: <c>"SUBCOMMANDS:"</c>.
+        Subcommands : string
+        /// Hint shown below the subcommands list, suggesting how to get per-subcommand help.<br/>
+        /// Placeholders: <c>{0}</c>: program name, <c>{1}</c>: help flag.<br/>
+        /// Default: /// <c>"Use '{0} &lt;subcommand&gt; {1}' for additional information."</c>
+        SubcommandHelpHintFormat: string
+    }
+    /// English default labels — preserves the historical wording.
+    static member Default : UsageStrings =
+        {   Usage = "USAGE: "
+            Options = "OPTIONS:"
+            Subcommands = "SUBCOMMANDS:"
+            SubcommandHelpHintFormat = "Use '{0} <subcommand> {1}' for additional information." }
+
 /// Argument parameter type identifier
 type ArgumentType =
     /// Argument specifies primitive parameters like strings or integers
