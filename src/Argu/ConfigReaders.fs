@@ -11,7 +11,7 @@ type IConfigurationReader =
     /// Configuration reader identifier
     abstract Name : string
     /// Gets value corresponding to supplied key
-    abstract GetValue : key:string -> string
+    abstract GetValue : key:string -> string | null
 
 /// Configuration reader that never returns a value
 type NullConfigurationReader() =
@@ -22,7 +22,7 @@ type NullConfigurationReader() =
 /// Environment variable-based configuration reader
 type EnvironmentVariableConfigurationReader() =
     // order of environment variable target lookup
-    let targets = 
+    let targets =
         [| EnvironmentVariableTarget.Process
            EnvironmentVariableTarget.User
            EnvironmentVariableTarget.Machine |]

@@ -53,15 +53,15 @@ with
 type UnionCaseArgInfo =
     {
         /// Human readable name identifier
-        Name : Lazy<string>
+        Name : string
         /// Contextual depth of current argument w.r.t subcommands
         Depth : int
         /// Numbers of parameters in the given union case
         Arity : int
         /// Same as UnionCaseInfo.Tag
-        Tag: int
+        Tag : int
         /// UCI identifier
-        UnionCaseInfo : Lazy<UnionCaseInfo>
+        UnionCaseInfo : UnionCaseInfo
         /// Field parser definitions or nested union argument
         ParameterInfo : Lazy<ParameterInfo>
 
@@ -79,9 +79,9 @@ type UnionCaseArgInfo =
         FieldReader : Lazy<obj -> obj[]>
 
         /// head element denotes primary command line arg
-        CommandLineNames : Lazy<string list>
+        CommandLineNames : string list
         /// name used in AppSettings
-        AppSettingsName : Lazy<string option>
+        AppSettingsName : string option
 
         /// Description of the parameter
         Description : Lazy<string>
@@ -101,25 +101,25 @@ type UnionCaseArgInfo =
         /// Specifies that this argument is the main CLI command
         MainCommandName : Lazy<string option>
         /// If specified, should consume remaining tokens from the CLI
-        IsRest : Lazy<bool>
+        IsRest : bool
         /// If specified, multiple parameters can be added in Configuration in CSV form.
-        AppSettingsCSV : Lazy<bool>
+        AppSettingsCSV : bool
         /// Fails if no argument of this type is specified
-        IsMandatory : Lazy<bool>
+        IsMandatory : bool
         /// Indicates that argument should be inherited in the scope of any sibling subcommands.
-        IsInherited : Lazy<bool>
+        IsInherited : bool
         /// Specifies that argument should be specified at most once in CLI
-        IsUnique : Lazy<bool>
+        IsUnique : bool
         /// Hide from Usage
-        IsHidden : Lazy<bool>
+        IsHidden : bool
         /// Declares that the parameter should gather any unrecognized CLI params
         IsGatherUnrecognized : Lazy<bool>
         /// Combine AppSettings with CLI inputs
-        GatherAllSources : Lazy<bool>
+        GatherAllSources : bool
     }
 with
     member inline x.IsMainCommand = Option.isSome x.MainCommandName.Value
-    member inline x.IsCommandLineArg = match x.CommandLineNames.Value with [] -> x.IsMainCommand | _ -> true
+    member inline x.IsCommandLineArg = match x.CommandLineNames with [] -> x.IsMainCommand | _ -> true
     member inline x.IsCustomAssignment = Option.isSome x.CustomAssignmentSeparator.Value
 
 and [<NoComparison; NoEquality>] ParameterInfo =
@@ -141,7 +141,7 @@ and [<NoEquality; NoComparison>]
   UnionArgInfo =
     {
         /// Union Case Argument Info
-        Type : Lazy<Type>
+        Type : Type
         /// Contextual depth of current argument w.r.t subcommands
         Depth : int
         /// If subcommand, attempt to retrieve the parent record
@@ -211,24 +211,29 @@ type UnionCaseArgInfo with
     member inline ucai.IsFirst = ucai.CliPosition.Value = CliPosition.First
     member inline ucai.IsLast = ucai.CliPosition.Value = CliPosition.Last
 
+    /// Maps from `internal` type to `public` API Types
     member ucai.ToArgumentCaseInfo() : ArgumentCaseInfo =
+        // Internal types are minimal and/or can be changed at will
+        // Here we map those to the stable external API contract, which won't be changed until next major ver
         {
-            Name = ucai.Name
+            // Wrap flattened bool/string fields back in Lazy so the public
+            // ArgumentCaseInfo shape is preserved for downstream consumers.
+            Name = lazy ucai.Name
             ArgumentType = ucai.ArgumentType
-            UnionCaseInfo = ucai.UnionCaseInfo.Value
-            CommandLineNames = ucai.CommandLineNames
-            AppSettingsName = ucai.AppSettingsName
+            UnionCaseInfo = lazy ucai.UnionCaseInfo
+            CommandLineNames = lazy ucai.CommandLineNames
+            AppSettingsName = lazy ucai.AppSettingsName
             Description = ucai.Description
             AppSettingsSeparators = Array.toList ucai.AppSettingsSeparators
             AppSettingsSplitOptions = ucai.AppSettingsSplitOptions
             IsMainCommand = ucai.IsMainCommand
-            IsRest = ucai.IsRest
+            IsRest = lazy ucai.IsRest
             CliPosition = ucai.CliPosition
             CustomAssignmentSeparator = ucai.CustomAssignmentSeparator
-            AppSettingsCSV = ucai.AppSettingsCSV
-            IsMandatory = ucai.IsMandatory
-            IsUnique = ucai.IsUnique
-            IsHidden = ucai.IsHidden
+            AppSettingsCSV = lazy ucai.AppSettingsCSV
+            IsMandatory = lazy ucai.IsMandatory
+            IsUnique = lazy ucai.IsUnique
+            IsHidden = lazy ucai.IsHidden
             IsGatherUnrecognized = ucai.IsGatherUnrecognized
-            GatherAllSources = ucai.GatherAllSources
+            GatherAllSources = lazy ucai.GatherAllSources
         }

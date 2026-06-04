@@ -4,8 +4,11 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="PrimitiveTests.fs" />
     <Compile Include="Tests.fs"/>
     <Compile Include="CoverageTests.fs"/>
+    <Compile Include="ParseConfigTests.fs"/>
+    <Compile Include="UsageStringsTests.fs"/>
     <Compile Include="EnvVarPrefixTests.fs"/>
   </ItemGroup>
   <ItemGroup>

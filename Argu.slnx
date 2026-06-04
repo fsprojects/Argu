@@ -39,6 +39,7 @@
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Argu.Samples.LS/Argu.Samples.LS.fsproj" />
+    <Project Path="samples/Argu.Samples.Introspect/Argu.Samples.Introspect.fsproj" />
   </Folder>
   <Project Path="src/Argu/Argu.fsproj" />
   <Project Path="src/Argu.MSConfig/Argu.MSConfig.fsproj" />
