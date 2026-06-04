@@ -332,51 +332,35 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         let validateCustomAssignmentAttributes attributeName tolerateSpacedArguments =
             if isMainCommand.Value && types.Length = 1 then
                 arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
-            if types.Length <> 1 && tolerateSpacedArguments then
+            elif types.Length <> 1 && tolerateSpacedArguments then
                 arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 only." uci attributeName types.Length
-            if types.Length <> 1 && types.Length <> 2 then
+            elif types.Length <> 1 && types.Length <> 2 then
                 arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 or 2." uci attributeName types.Length
             elif isRest then
                 arguExn "parameter '%O' contains incompatible attributes '%s' and 'Rest'." uci attributeName
+        let handle attributeName sep tolerateSpacedArguments =
+            validateCustomAssignmentAttributes attributeName tolerateSpacedArguments
+            validateSeparator uci sep
+            Some { Separator = sep; TolerateSpacedArguments = tolerateSpacedArguments }
         match unified, customAssignment, spaceOrCustomAssignment with
-        // The new unified attribute wins; mixing it with the legacy ones is rejected so
-        // we don't have to define a merge policy.
         | Some unified, None, None ->
-            let tolerateSpacedArguments = unified.AllowSpaced
-            validateCustomAssignmentAttributes "Assignment" tolerateSpacedArguments
-            validateSeparator uci unified.Separator
-            { Separator = unified.Separator; TolerateSpacedArguments = tolerateSpacedArguments }
-            |> Some
+            handle "Assignment" unified.Separator unified.AllowSpaced
+        // Unified attribute is preferred; mixing it with the legacy ones is rejected so we don't have to define a merge policy.
         | Some _, _, _ ->
-            arguExn "parameter '%O' mixes the new 'Assignment' attribute with one of the legacy 'CustomAssignment*' attributes. Use one or the other, not both." uci
+            arguExn "parameter '%O' mixes the 'Assignment' attribute with a legacy assignment attribute (CustomAssignment / EqualsAssignment / ColonAssignment / *OrSpaced). Use one or the other, not both." uci
         | None, Some customAssignment, None ->
-            let tolerateSpacedArguments = false
-            validateCustomAssignmentAttributes "CustomAssignment" tolerateSpacedArguments
 #nowarn 44
             let sep = customAssignment.Separator
 #warnon 44
-            validateSeparator uci sep
-            {
-                Separator = sep
-                TolerateSpacedArguments = tolerateSpacedArguments
-            }
-            |> Some
+            handle "CustomAssignment" sep (*tolerateSpacedArguments*)false
         | None, Some _, Some _ ->
             arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
         | None, None, Some spaceOrCustomAssignment ->
-            let tolerateSpacedArguments = true
-            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" tolerateSpacedArguments
 #nowarn 44
             let sep = spaceOrCustomAssignment.Separator
 #warnon 44
-            validateSeparator uci sep
-            {
-                Separator = sep
-                TolerateSpacedArguments = tolerateSpacedArguments
-            }
-            |> Some
-        | None, None, None -> None
-        )
+            handle "EitherSpaceOrCustomAssignment" sep (*tolerateSpacedArguments*)true
+        | None, None, None -> None)
 
     let isGatherUnrecognized = lazy(
         if hasAttribute<GatherUnrecognizedAttribute> attrs then

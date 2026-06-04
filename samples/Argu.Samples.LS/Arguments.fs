@@ -34,13 +34,13 @@ type LsArguments =
     | [<AltCommandLine("-A")>] Almost_All
     | Author
     | [<AltCommandLine("-b")>] Escape
-    | [<EqualsAssignment>] Block_Size of SIZE:Size
+    | [<Assignment "=">] Block_Size of SIZE:Size
     | [<AltCommandLine("-B")>] Ignore_Backups
-    | [<AltCommandLine("-C"); EqualsAssignment>] Color of WHEN:ColorWhen option
+    | [<AltCommandLine("-C"); Assignment "=">] Color of WHEN:ColorWhen option
     | [<AltCommandLine("-d")>] Directory
     | [<AltCommandLine("-D")>] Dired
     | [<CliPrefix(CliPrefix.Dash)>] F
-    | [<AltCommandLine("-F", "--classify", "--file-type"); EqualsAssignment>] Format of WORD:string option
+    | [<AltCommandLine("-F", "--classify", "--file-type"); Assignment "=">] Format of WORD:string option
     | [<AltCommandLine("-g")>] Group_Directories_First
     | [<AltCommandLine("-G")>] No_Group
     | [<AltCommandLine("-h")>] Human_Readable
@@ -53,11 +53,11 @@ type LsArguments =
     | [<AltCommandLine("-n")>] Numeric_Uid_Guid
     | [<AltCommandLine("-N")>] Literal
     | [<CliPrefix(CliPrefix.Dash)>] O
-    | [<AltCommandLine("-p"); EqualsAssignment>] Indicator_Style of slash:char
+    | [<AltCommandLine("-p"); Assignment "=">] Indicator_Style of slash:char
     | [<AltCommandLine("-q")>] Hide_Control_Chars
     | Show_Control_Chars
     | [<AltCommandLine("-Q")>] Quote_Name
-    | [<EqualsAssignment>] Quoting_Style of WORD:QuotingStyle
+    | [<Assignment "=">] Quoting_Style of WORD:QuotingStyle
     | [<AltCommandLine("-r")>] Reverse
     | [<AltCommandLine("-R")>] Recursive
     | [<AltCommandLine("-s")>] Size

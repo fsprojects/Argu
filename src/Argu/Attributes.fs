@@ -128,7 +128,7 @@ type PrintLabelsAttribute () = inherit Attribute ()
 /// Unified attribute that subsumes the six legacy predecessors: <c>CustomAssignment</c>,
 /// <c>EqualsAssignment</c>, <c>ColonAssignment</c> and the <c>*OrSpaced</c> attributes.<br/>
 /// </remarks>
-[<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
+[<AttributeUsage(AttributeTargets.Method, AllowMultiple = false)>]
 type AssignmentAttribute (separator : string, allowSpaced : bool) =
     inherit Attribute ()
     new (separator : string) = AssignmentAttribute(separator, false)

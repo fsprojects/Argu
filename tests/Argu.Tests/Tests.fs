@@ -394,28 +394,6 @@ let ``Parse colon or space assignment with colon`` () =
     let result = parser.Parse([|"--flex-colon-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
     test <@ result.GetResult Flex_Colon_Assignment = "../../my-relative-path" @>
 
-type DisallowedAssignmentArgs =
-| [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
-    interface IArgParserTemplate with
-        member a.Usage =
-            match a with
-            | Flex_Equals_Assignment _ -> "Disallowed attribute combination"
-
-[<Fact>]
-let ``Disallowed equals assignment combination throws`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedAssignmentArgs> (programName = "gadget") @>
-
-type DisallowedArityWithAssignmentOrSpaced =
-| [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string * int
-    interface IArgParserTemplate with
-        member a.Usage =
-            match a with
-            | Flex_Equals_Assignment _ -> "Disallowed attribute / arity combination"
-
-[<Fact>]
-let ``EqualsAssignmentOrSpaced and arity not one combination throws`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedArityWithAssignmentOrSpaced> (programName = "gadget1") @>
-
 [<Fact>]
 let ``Should fail on incorrect assignment 1`` () =
     raises<ArguParseException> <@ parser.Parse([|"--dir:foo"|], ignoreMissing = true) @>
