@@ -325,8 +325,10 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let customAssignmentSeparator : Lazy<CustomAssignmentSeparator option> = lazy(
         let unified = tryGetAttribute2<AssignmentAttribute> attrs declaringTypeAttrs
+#nowarn 44
         let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attrs declaringTypeAttrs
         let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attrs declaringTypeAttrs
+#warnon 44
         let validateCustomAssignmentAttributes attributeName tolerateSpacedArguments =
             if isMainCommand.Value && types.Length = 1 then
                 arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
@@ -350,9 +352,12 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None, Some customAssignment, None ->
             let tolerateSpacedArguments = false
             validateCustomAssignmentAttributes "CustomAssignment" tolerateSpacedArguments
-            validateSeparator uci customAssignment.Separator
+#nowarn 44
+            let sep = customAssignment.Separator
+#warnon 44
+            validateSeparator uci sep
             {
-                Separator = customAssignment.Separator
+                Separator = sep
                 TolerateSpacedArguments = tolerateSpacedArguments
             }
             |> Some
@@ -361,9 +366,12 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None, None, Some spaceOrCustomAssignment ->
             let tolerateSpacedArguments = true
             validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" tolerateSpacedArguments
-            validateSeparator uci spaceOrCustomAssignment.Separator
+#nowarn 44
+            let sep = spaceOrCustomAssignment.Separator
+#warnon 44
+            validateSeparator uci sep
             {
-                Separator = spaceOrCustomAssignment.Separator
+                Separator = sep
                 TolerateSpacedArguments = tolerateSpacedArguments
             }
             |> Some

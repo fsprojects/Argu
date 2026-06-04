@@ -100,18 +100,22 @@ type Argument =
     | Decimal_Arg of decimal
     | [<AltCommandLine("/D", "-D", "-z")>] Detach
     | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
+#nowarn 44 // Obsolete attributes
     | [<ColonAssignment>] Assignment of string
     | [<EqualsAssignment>] Env of key:string * value:string
     | [<EqualsAssignment>] Dir of path:string
     | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string
     | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment_With_Option of string option
     | [<ColonAssignmentOrSpaced>] Flex_Colon_Assignment of string
+#warnon 44
     | [<First>] First_Parameter of string
     | [<Last>] Last_Parameter of string
     | Optional of int option
     | List of int list
     | Enum of Enum
+#nowarn 44 // Obsolete attributes
     | [<EqualsAssignment>] Enumeration of Enumeration option
+#warnon 44
     | [<CliPrefix(CliPrefix.Dash)>] A
     | [<CliPrefix(CliPrefix.Dash)>] B
     | [<CliPrefix(CliPrefix.Dash)>] C

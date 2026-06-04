@@ -13,15 +13,15 @@ type ArgumentPrimitive =
   | [<Unique>] Unique_Arg of bool
 #nowarn 44 // Obsolete attributes
   | [<Rest; ParseCSV>] Rest_Arg of int
+  | [<ColonAssignment>] Assignment of string
+  | [<EqualsAssignment>] Env of key:string * value:string
+  | [<EqualsAssignment>] Dir of path:string
 #warnon 44
   | [<MainCommand; Last; Unique>] Main of str:string
   | [<Inherit>] Data of int * byte []
   | Log_Level of int
   | [<AltCommandLine("/D", "-D", "-z")>] Detach
   | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
-  | [<ColonAssignment>] Assignment of string
-  | [<EqualsAssignment>] Env of key:string * value:string
-  | [<EqualsAssignment>] Dir of path:string
   | [<First>] First_Parameter of string
   | [<Last>] Last_Parameter of string
   | Optional of int option

@@ -120,22 +120,21 @@ type MainCommandAttribute (argumentName : string) =
 type PrintLabelsAttribute () = inherit Attribute ()
 
 /// <summary>
-///     Single assignment-attribute that subsumes the six legacy
-///     <c>CustomAssignment</c> / <c>EqualsAssignment</c> /
-///     <c>ColonAssignment</c> / <c>*OrSpaced</c> attributes.
-///     Provide the literal separator string (e.g. <c>"="</c>) and a flag
-///     indicating whether spaced form (<c>--param value</c>) should also
-///     be accepted. When <paramref name="allowSpaced"/> is <c>true</c>,
-///     the parameter must have arity 1. Otherwise arity 1 or 2 are both
-///     supported.
+/// Use a custom separator for parameter assignment.<br/>
+/// When <paramref name="allowSpaced"/> is <c>true</c>, the format <c>--param value</c> will also be accepted.<br/>
+/// Otherwise <c>'--param&lt;separator&gt;arg'</c> or <c>'--param key&lt;separator&gt;value'</c> are accepted.<br/>
 /// </summary>
+/// <remarks>
+/// Unified attribute that subsumes the six legacy predecessors: <c>CustomAssignment</c>,
+/// <c>EqualsAssignment</c>, <c>ColonAssignment</c> and the <c>*OrSpaced</c> attributes.<br/>
+/// </remarks>
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
 type AssignmentAttribute (separator : string, allowSpaced : bool) =
     inherit Attribute ()
     new (separator : string) = AssignmentAttribute(separator, false)
     /// The assignment separator string (e.g. "=" or ":").
     member _.Separator = separator
-    /// When <c>true</c>, the spaced form is also accepted alongside the separator form.
+    /// When <c>true</c>, the spaced form (<c>--param value</c>) is also accepted alongside the separator form (only supported for non-keyed parameters).
     member _.AllowSpaced = allowSpaced
 
 /// Use a custom separator for parameter assignment.
