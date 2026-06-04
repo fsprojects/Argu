@@ -1,4 +1,4 @@
-﻿namespace Argu
+namespace Argu
 
 open System
 open System.IO
@@ -12,7 +12,7 @@ type IConfigurationReader =
     /// Configuration reader identifier
     abstract Name : string
     /// Gets value corresponding to supplied key
-    abstract GetValue : key:string -> string
+    abstract GetValue : key:string -> string | null
 
 /// Asynchronous flavour of <see cref="IConfigurationReader"/>. Use when
 /// the underlying source is genuinely async (remote config server,
@@ -36,7 +36,7 @@ type NullConfigurationReader() =
 /// Environment variable-based configuration reader
 type EnvironmentVariableConfigurationReader() =
     // order of environment variable target lookup
-    let targets = 
+    let targets =
         [| EnvironmentVariableTarget.Process
            EnvironmentVariableTarget.User
            EnvironmentVariableTarget.Machine |]

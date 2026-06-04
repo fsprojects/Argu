@@ -1,4 +1,4 @@
-﻿namespace Argu
+namespace Argu
 
 open System.Collections.Generic
 open System.Threading.Tasks
@@ -109,7 +109,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="checkStructure">Indicate if the structure of the arguments discriminated union should be checked for errors.</param>
     new (?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter, ?checkStructure: bool) =
         let usageStringCharacterWidth = match usageStringCharacterWidth with None -> getDefaultCharacterWidth() | Some w -> w
-        let programName = match programName with Some pn -> pn | None -> currentProgramName.Value
+        let programName = programName |> Option.defaultWith currentProgramName
         let errorHandler = match errorHandler with Some e -> e  | None -> ExceptionExiter() :> _
 
         let argInfo =
@@ -209,7 +209,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
             for case in argInfo.Cases.Value do
                 match case.AppSettingsName.Value with
                 | Some key when not (prefetched.ContainsKey key) ->
-                    let! v = reader.GetValueAsync key
+                    let! v = task { try return! reader.GetValueAsync key with _ -> return null }
                     prefetched[key] <- v
                 | _ -> ()
             let syncReader =

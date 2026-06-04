@@ -36,6 +36,7 @@ module Seq =
 [<RequireQualifiedAccess>]
 module String =
     let inline mkWhiteSpace (length : int) = String(' ', length)
+    let trimWithEllipsis len (s: string) = if s.Length > len then s.Substring(0, len) + "…" else s
 
 [<AbstractClass>]
 type Existential internal () =
@@ -100,14 +101,21 @@ type IDictionary<'K,'V> with
         if ok then Some found
         else None
 
-// NOTE: Prior to 6.2.2, this was System.Diagnostics.Process.GetCurrentProcess()
-//       That previous approach derives `dotnet` when you `dotnet run` a program
-//       (or you invoke via `dotnet tool run` and/or if your IDE wraps the invocation etc)
-let currentProgramName = lazy Assembly.GetEntryAssembly().GetName().Name
+// NOTE: System.Diagnostics.Process.GetCurrentProcess() (used pre 6.2.2)
+//       yields `dotnet` when you `dotnet run` a program, or you invoke via `dotnet tool run
+//       and/or if your IDE wraps the invocation etc
+let currentProgramName () =
+    match Assembly.GetEntryAssembly() with
+    // GetEntryAssembly() returns null in unmanaged hosts, some test runners, and
+    // hosting models without a CLR-defined entry point; fall back to the
+    // AppDomain friendly name (always populated) rather than NRE.
+    | null -> AppDomain.CurrentDomain.FriendlyName
+    | a -> a.GetName().Name
 
 /// recognize exprs that strictly contain DU constructors
 /// e.g. <@ Case @> is valid but <@ fun x y -> Case y x @> is invalid
 let expr2Uci (e : Expr) =
+    let originalExprExcerpt () = sprintf "%A" e |> String.trimWithEllipsis 200
     let (|Vars|_|) (exprs : Expr list) =
         let vars = exprs |> List.choose (|Var|_|)
         if vars.Length = exprs.Length then Some vars
@@ -120,7 +128,7 @@ let expr2Uci (e : Expr) =
         | None, NewUnionCase(u, []) -> u
         | Some a, NewUnionCase(u, [Var x]) when a = x -> u
         | Some _, NewUnionCase(u, Vars args) when vars.Length > 0 && List.rev vars = args -> u
-        | _ -> invalidArg "expr" "Only union constructors are permitted in expression based queries."
+        | _ -> invalidArg (nameof e) (sprintf "Only union constructors are permitted in expression based queries. Got: %s" <| originalExprExcerpt ())
 
     aux None [] e
 
