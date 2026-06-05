@@ -3,6 +3,7 @@
 * Fix Clarify exception in expr2Uci [#293](https://github.com/fsprojects/Argu/pull/293) [@dimension-zero](https://github.com/dimension-zero)
 * Fix Report all missing args in error message, not just first level [#297](https://github.com/fsprojects/Argu/pull/297) [@dimension-zero](https://github.com/dimension-zero)
 * Fix Limit min wordwrap column to 20 [#302](https://github.com/fsprojects/Argu/pull/302) [@dimension-zero](https://github.com/dimension-zero)
+* Add `Separator("=", orSpace = true)` attribute to replace `EqualsAssignmentAttribute`, `ColonAssignmentAttribute`, `CustomAssignmentAttribute`, `EqualsAssignmentOrSpacedAttribute`, `ColonAssignmentOrSpacedAttribute` and `CustomAssignmentOrSpacedAttribute` [#315](https://github.com/fsprojects/Argu/pull/315) [@dimension-zero](https://github.com/dimension-zero)
 * Add `Argu.Samples.Introspect` sample [#298](https://github.com/fsprojects/Argu/pull/298) [@dimension-zero](https://github.com/dimension-zero)
 * Add `ArgumentParser.Parse(ParseConfig)` [#307](https://github.com/fsprojects/Argu/pull/307) [@dimension-zero](https://github.com/dimension-zero)
 * Add `ArgumentParser.PrintUsage(..., ?UsageStrings)` for localization support [#303](https://github.com/fsprojects/Argu/pull/303) [@dimension-zero](https://github.com/dimension-zero)

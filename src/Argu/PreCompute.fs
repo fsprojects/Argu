@@ -223,57 +223,53 @@ let getHierarchy (uai : UnionArgInfo) =
 module Helpers =
     /// recognizes and extracts grouped switches
     /// e.g. -efx --> -e -f -x
-    let groupedSwitchRegex (caseInfo: Lazy<UnionCaseArgInfo[]>) (inheritedParams: Lazy<UnionCaseArgInfo[]>) (helpParam: HelpParam) =
-        lazy(
-            let chars =
-                caseInfo.Value
-                |> Seq.append inheritedParams.Value
-                |> Seq.collect (fun c -> c.CommandLineNames)
-                |> Seq.append helpParam.Flags
-                |> Seq.filter (fun name -> name.Length = 2 && name[0] = '-' && Char.IsLetterOrDigit name[1])
-                |> Seq.map (fun name -> name[1])
-                |> Seq.distinct
-                |> Seq.toArray
-                |> String
+    let groupedSwitchRegex (caseInfo: UnionCaseArgInfo[]) (inheritedParams: UnionCaseArgInfo[]) (helpParam: HelpParam) =
+        let chars =
+            caseInfo
+            |> Seq.append inheritedParams
+            |> Seq.collect (fun c -> c.CommandLineNames)
+            |> Seq.append helpParam.Flags
+            |> Seq.filter (fun name -> name.Length = 2 && name[0] = '-' && Char.IsLetterOrDigit name[1])
+            |> Seq.map (fun name -> name[1])
+            |> Seq.distinct
+            |> Seq.toArray
+            |> String
 
-            if chars.Length = 0 then None else
+        if chars.Length = 0 then None else
 
-            let regex = "^-[" + chars + "]+$"
-            Some regex)
+        let regex = "^-[" + chars + "]+$"
+        Some regex
 
-    let groupedSwitchExtractor (regexString: Lazy<string option>) =
-        lazy(
-            match regexString.Value with
-            | None -> (fun _ -> [||])
-            | Some regexString ->
-                let regex = Regex(regexString, RegexOptions.Compiled)
-                (fun (arg : string) ->
-                    if not <| regex.IsMatch arg then [||]
-                    else Array.init (arg.Length - 1) (fun i -> String([|'-'; arg[i + 1]|]))))
+    let groupedSwitchExtractor (regexString: string option) =
+        match regexString with
+        | None -> (fun _ -> [||])
+        | Some regexString ->
+            let regex = Regex(regexString, RegexOptions.Compiled)
+            (fun (arg : string) ->
+                if not <| regex.IsMatch arg then [||]
+                else Array.init (arg.Length - 1) (fun i -> String([|'-'; arg[i + 1]|])))
 
     let caseCtor uci = FSharpValue.PreComputeUnionConstructor(uci, allBindings)
-    let fieldReader uci = lazy FSharpValue.PreComputeUnionReader(uci, allBindings)
+    let fieldReader uci = FSharpValue.PreComputeUnionReader(uci, allBindings)
 
     let tupleConstructor (types: Type[]) =
-        lazy(
-            match types.Length with
-            | 0 -> fun _ -> arguExn "internal error: attempting to call tuple constructor on nullary case."
-            | 1 -> fun (o:obj[]) -> o[0]
-            | _ ->
-                let tupleType = FSharpType.MakeTupleType types
-                FSharpValue.PreComputeTupleConstructor tupleType)
+        match types.Length with
+        | 0 -> fun _ -> arguExn "internal error: attempting to call tuple constructor on nullary case."
+        | 1 -> fun (o:obj[]) -> o[0]
+        | _ ->
+            let tupleType = FSharpType.MakeTupleType types
+            FSharpValue.PreComputeTupleConstructor tupleType
 
-    let assignParser (customAssignmentSeparator: Lazy<CustomAssignmentSeparator option>) =
-        lazy(
-            match customAssignmentSeparator.Value with
-            | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
-            | Some {Separator = sep} ->
-                let pattern = @"^(.+)" + (Regex.Escape sep) + "(.+)$"
-                let regex = Regex(pattern, RegexOptions.RightToLeft ||| RegexOptions.Compiled)
-                fun token ->
-                    let m = regex.Match token
-                    if m.Success then Assignment(m.Groups[1].Value, sep, m.Groups[2].Value)
-                    else NoAssignment)
+    let assignParser (customAssignmentSeparator: CustomAssignmentSeparator option) =
+        match customAssignmentSeparator with
+        | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
+        | Some {Separator = sep} ->
+            let pattern = @"^(.+)" + (Regex.Escape sep) + "(.+)$"
+            let regex = Regex(pattern, RegexOptions.RightToLeft ||| RegexOptions.Compiled)
+            fun token ->
+                let m = regex.Match token
+                if m.Success then Assignment(m.Groups[1].Value, sep, m.Groups[2].Value)
+                else NoAssignment
 
 /// generate argument parsing schema from given UnionCaseInfo
 let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : HelpParam option)
@@ -324,45 +320,48 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None -> CliPosition.Unspecified)
 
     let customAssignmentSeparator : Lazy<CustomAssignmentSeparator option> = lazy(
+        let unified = tryGetAttribute2<SeparatorAttribute> attrs declaringTypeAttrs
+#nowarn 44
         let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attrs declaringTypeAttrs
         let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attrs declaringTypeAttrs
+#warnon 44
         let validateCustomAssignmentAttributes attributeName tolerateSpacedArguments =
             if isMainCommand.Value && types.Length = 1 then
-                arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
-            if types.Length <> 1 && tolerateSpacedArguments then
-                arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 only." uci attributeName types.Length
-            if types.Length <> 1 && types.Length <> 2 then
-                arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 or 2." uci attributeName types.Length
+                arguExn "parameter '%O' has incompatible attributes '%s' and 'MainCommand'." uci attributeName
+            elif types.Length <> 1 && tolerateSpacedArguments then
+                arguExn "parameter '%O' has '%s' attribute but specifies %d parameters; only 1 permitted." uci attributeName types.Length
+            elif types.Length <> 1 && types.Length <> 2 then
+                arguExn "parameter '%O' has '%s' attribute but specifies %d parameters; only 1 or 2 permitted." uci attributeName types.Length
             elif isRest then
-                arguExn "parameter '%O' contains incompatible attributes '%s' and 'Rest'." uci attributeName
-        match customAssignment, spaceOrCustomAssignment with
-        | Some customAssignment, None ->
-            let tolerateSpacedArguments = false
-            validateCustomAssignmentAttributes "CustomAssignment" tolerateSpacedArguments
-            validateSeparator uci customAssignment.Separator
-            {
-                Separator = customAssignment.Separator
-                TolerateSpacedArguments = tolerateSpacedArguments
-            }
-            |> Some
-        | Some _, Some _ ->
-            arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
-        | None, Some spaceOrCustomAssignment ->
-            let tolerateSpacedArguments = true
-            validateCustomAssignmentAttributes "EitherSpaceOrCustomAssignment" tolerateSpacedArguments
-            validateSeparator uci spaceOrCustomAssignment.Separator
-            {
-                Separator = spaceOrCustomAssignment.Separator
-                TolerateSpacedArguments = tolerateSpacedArguments
-            }
-            |> Some
-        | None, None -> None
-        )
+                arguExn "parameter '%O' has incompatible attributes '%s' and 'Rest'." uci attributeName
+        let handle attributeName sep tolerateSpacedArguments =
+            validateCustomAssignmentAttributes attributeName tolerateSpacedArguments
+            validateSeparator uci sep
+            Some { Separator = sep; TolerateSpacedArguments = tolerateSpacedArguments }
+        match unified, customAssignment, spaceOrCustomAssignment with
+        | Some unified, None, None ->
+            handle "Separator" unified.Separator unified.OrSpace
+        // Unified attribute is preferred; mixing it with the legacy ones is rejected so we don't have to define a merge policy.
+        | Some _, _, _ ->
+            arguExn "parameter '%O' has 'Separator' attribute, but also a conflicting legacy assignment attribute (CustomAssignment / EqualsAssignment / ColonAssignment / *OrSpaced)." uci
+        | None, Some customAssignment, None ->
+#nowarn 44
+            let sep = customAssignment.Separator
+#warnon 44
+            handle "CustomAssignment" sep (*tolerateSpacedArguments*)false
+        | None, Some _, Some _ ->
+            arguExn "parameter '%O' has conflicting attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
+        | None, None, Some spaceOrCustomAssignment ->
+#nowarn 44
+            let sep = spaceOrCustomAssignment.Separator
+#warnon 44
+            handle "EitherSpaceOrCustomAssignment" sep (*tolerateSpacedArguments*)true
+        | None, None, None -> None)
 
     let isGatherUnrecognized = lazy(
         if hasAttribute<GatherUnrecognizedAttribute> attrs then
             match types with
-            | _ when isMainCommand.Value -> arguExn "parameter '%O' contains incompatible combination of attributes 'MainCommand' and 'GatherUnrecognized'." uci
+            | _ when isMainCommand.Value -> arguExn "parameter '%O' has conflicting 'MainCommand' and 'GatherUnrecognized' attributes." uci
             | [|t|] when t = typeof<string> -> true
             | _ -> arguExn "parameter '%O' has GatherUnrecognized attribute but specifies invalid parameters. Must contain single parameter of type string." uci
         else
@@ -391,15 +390,15 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let checkSubCommand() =
         if Option.isSome customAssignmentSeparator.Value then
-            arguExn "CustomAssignment in '%O' not supported in subcommands." uci
+            arguExn "Separator attribute in '%O' not supported for subcommands." uci
         if isRest then
-            arguExn "Rest attribute in '%O' not supported in subcommands." uci
+            arguExn "Rest attribute in '%O' not supported for subcommands." uci
         if isMandatory then
-            arguExn "Mandatory attribute in '%O' not supported in subcommands." uci
+            arguExn "Mandatory attribute in '%O' not supported for subcommands." uci
         if isMainCommand.Value then
-            arguExn "MainCommand attribute in '%O' not supported in subcommands." uci
+            arguExn "MainCommand attribute in '%O' not supported for subcommands." uci
         if isInherited then
-            arguExn "Inherit attribute in '%O' not supported in subcommands." uci
+            arguExn "Inherit attribute in '%O' not supported for subcommands." uci
 
     // Children need access to parent levels, but parent levels can't be created until child layers visited ...
     let mutable current : UnionCaseArgInfo option = None
@@ -419,10 +418,10 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         | [|Optional t|] ->
             if isRest then
-                arguExn "Rest attribute in '%O' not supported in optional parameters." uci
+                arguExn "Rest attribute in '%O' not supported for optional parameters." uci
 
             if isMainCommand.Value then
-                arguExn "MainCommand attribute in '%O' not supported in optional parameters." uci
+                arguExn "MainCommand attribute in '%O' not supported for optional parameters." uci
 
             let label = tryExtractUnionParameterLabel fields[0]
 
@@ -430,7 +429,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         | [|List t|] ->
             if Option.isSome customAssignmentSeparator.Value then
-                arguExn "CustomAssignment in '%O' not supported for list parameters." uci
+                arguExn "Separator attribute in '%O' not supported for list parameters." uci
 
             if isRest then
                 arguExn "Rest attribute in '%O' not supported for list parameters." uci
@@ -492,9 +491,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | _ when Option.isSome appSettingsName -> appSettingsName.Value
         | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci
 
-    let fieldReader = Helpers.fieldReader uci
-    let fieldCtor = Helpers.tupleConstructor types
-    let assignParser = Helpers.assignParser customAssignmentSeparator
+    let fieldReader = lazy Helpers.fieldReader uci
+    let fieldCtor = lazy Helpers.tupleConstructor types
+    let assignParser = lazy Helpers.assignParser customAssignmentSeparator.Value
 
     if isAppSettingsCSV && fields.Length <> 1 then
         arguExn "CSV attribute is only compatible with branches of unary fields."
@@ -623,7 +622,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         | [|mcp|] -> Some mcp
         | _ -> arguExn "template type '%O' has specified the MainCommand attribute in more than one union cases." t)
 
-    let groupedSwitchRegex = Helpers.groupedSwitchRegex caseInfo inheritedParams helpParam
+    let groupedSwitchRegex = lazy Helpers.groupedSwitchRegex caseInfo.Value inheritedParams.Value helpParam
 
     let result = {
         Type = t
@@ -635,7 +634,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         ContainsSubcommands = containsSubcommands
         IsRequiredSubcommand = isRequiredSubcommand
         GroupedSwitchRegex = groupedSwitchRegex
-        GroupedSwitchExtractor = Helpers.groupedSwitchExtractor groupedSwitchRegex
+        GroupedSwitchExtractor = lazy Helpers.groupedSwitchExtractor groupedSwitchRegex.Value
         AppSettingsParamIndex = appSettingsIndex
         InheritedParams = inheritedParams
         CliParamIndex = cliIndex

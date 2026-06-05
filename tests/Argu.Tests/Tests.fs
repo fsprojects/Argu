@@ -100,18 +100,18 @@ type Argument =
     | Decimal_Arg of decimal
     | [<AltCommandLine("/D", "-D", "-z")>] Detach
     | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
-    | [<ColonAssignment>] Assignment of string
-    | [<EqualsAssignment>] Env of key:string * value:string
-    | [<EqualsAssignment>] Dir of path:string
-    | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string
-    | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment_With_Option of string option
-    | [<ColonAssignmentOrSpaced>] Flex_Colon_Assignment of string
+    | [<Separator ":">] Assignment of string
+    | [<Separator "=">] Env of key:string * value:string
+    | [<Separator "=">] Dir of path:string
+    | [<Separator("=", true)>] Flex_Equals_Assignment of string
+    | [<Separator("=", true)>] Flex_Equals_Assignment_With_Option of string option
+    | [<Separator(":", true)>] Flex_Colon_Assignment of string
     | [<First>] First_Parameter of string
     | [<Last>] Last_Parameter of string
     | Optional of int option
     | List of int list
     | Enum of Enum
-    | [<EqualsAssignment>] Enumeration of Enumeration option
+    | [<Separator "=">] Enumeration of Enumeration option
     | [<CliPrefix(CliPrefix.Dash)>] A
     | [<CliPrefix(CliPrefix.Dash)>] B
     | [<CliPrefix(CliPrefix.Dash)>] C
@@ -262,13 +262,15 @@ let ``AppSettings List param single`` () =
 
 [<Fact>]
 let ``Help String`` () =
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--help" |] @>
-                                    (fun e -> <@ e.Message.Contains "USAGE:" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine [| "--help" |] @>
+        <| fun e -> <@ e.Message.Contains "USAGE:" @>
 
 [<Fact>]
 let ``Missing Mandatory parameter`` () =
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "-D" |] @>
-                                    (fun e -> <@ e.FirstLine.Contains "missing parameter" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine [| "-D" |] @>
+        <| fun e -> <@ e.FirstLine.Contains "missing parameter" @>
 
 
 // Test the Turkish dot-less 'i', when converting the capital 'I' in the Union below this
@@ -296,13 +298,15 @@ let ``Unique parameter specified once`` () =
 
 [<Fact>]
 let ``Unique parameter specified twice`` () =
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine([| "--unique-arg" ; "true" ; "--unique-arg" ; "false" |], ignoreMissing = true) @>
-                                    (fun e -> <@ e.Message.Contains "more than once" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine([| "--unique-arg" ; "true" ; "--unique-arg" ; "false" |], ignoreMissing = true) @>
+        <| fun e -> <@ e.Message.Contains "more than once" @>
 
 [<Fact>]
 let ``First Parameter not placed at beginning`` () =
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
-                                    (fun e -> <@ e.Message.Contains "should precede all other" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
+        <| fun e -> <@ e.Message.Contains "should precede all other" @>
 
 
 [<Fact>]
@@ -330,94 +334,6 @@ let ``Parse byte[] parameters`` () =
     test <@ let _,bytes' = results.GetResult Data in bytes' = bytes @>
 
 [<Fact>]
-let ``Parse colon assignment 1`` () =
-    let args = [| "--assignment:foobar" |]
-    let result = parser.Parse(args, ignoreMissing = true)
-    test <@ result.GetResult <@ Assignment @> = "foobar" @>
-
-[<Fact>]
-let ``Parse colon assignment 2`` () =
-    let arg = [ Assignment "foo bar" ]
-    let clp = parser.PrintCommandLineArguments arg
-    let result = parser.Parse(clp, ignoreMissing = true)
-    test <@ result.GetResult <@ Assignment @> = "foo bar" @>
-
-[<Fact>]
-let ``Parse key-value equals assignment`` () =
-    let arg = [ Env("foo", "bar") ]
-    let clp = parser.PrintCommandLineArguments arg
-    let result = parser.Parse(clp, ignoreMissing = true)
-    test <@ result.GetResult Env = ("foo", "bar") @>
-
-[<Fact>]
-let ``Parse key-value equals assignment 2`` () =
-    let result = parser.Parse([|"--env"; "foo==bar"|], ignoreMissing = true)
-    test <@ result.GetResult <@ Env @> = ("foo", "=bar") @>
-
-[<Fact>]
-let ``Parse equals assignment`` () =
-    let result = parser.Parse([|"--dir=../../my-relative-path"|], ignoreMissing = true)
-    test <@ result.GetResult Dir = "../../my-relative-path" @>
-
-[<Fact>]
-let ``Parse equals assignment 2`` () =
-    let result = parser.Parse([|"--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Dir = "=foo" @>
-
-[<Fact>]
-let ``Parse equals or space assignment with equals`` () =
-    let result = parser.Parse([|"--flex-equals-assignment=../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
-
-[<Fact>]
-let ``Parse equals or space assignment with colon fails`` () =
-    raises<ArguParseException> <@ parser.Parse([|"--flex-equals-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true) @>
-
-[<Fact>]
-let ``Parse equals or space assignment with space`` () =
-    let result = parser.Parse([|"--flex-equals-assignment"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
-
-[<Fact>]
-let ``Parse equals or space assignment with space and optional type`` () =
-    let result = parser.Parse([|"--flex-equals-assignment-with-option"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Flex_Equals_Assignment_With_Option = Some "../../my-relative-path" @>
-
-[<Fact>]
-let ``Parse colon or space assignment with colon`` () =
-    // No need to test space assignment or assignment failure, as EitherSpaceOrEqualsAssignmentAttribute and
-    // EitherSpaceOrColonAssignmentAttribute share the same underlying implementation.
-    let result = parser.Parse([|"--flex-colon-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Flex_Colon_Assignment = "../../my-relative-path" @>
-
-type DisallowedAssignmentArgs =
-| [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
-    interface IArgParserTemplate with
-        member a.Usage =
-            match a with
-            | Flex_Equals_Assignment _ -> "Disallowed attribute combination"
-
-[<Fact>]
-let ``Disallowed equals assignment combination throws`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedAssignmentArgs> (programName = "gadget") @>
-
-type DisallowedArityWithAssignmentOrSpaced =
-| [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string * int
-    interface IArgParserTemplate with
-        member a.Usage =
-            match a with
-            | Flex_Equals_Assignment _ -> "Disallowed attribute / arity combination"
-
-[<Fact>]
-let ``EqualsAssignmentOrSpaced and arity not one combination throws`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedArityWithAssignmentOrSpaced> (programName = "gadget1") @>
-
-[<Fact>]
-let ``Should fail on incorrect assignment 1`` () =
-    raises<ArguParseException> <@ parser.Parse([|"--dir:foo"|], ignoreMissing = true) @>
-
-
-[<Fact>]
 let ``Ignore Unrecognized parameters`` () =
     let args =
         [| "--first-parameter" ; "bar" ; "--junk-param" ; "42" ; "--mandatory-arg" ; "true" ; "-D" ;
@@ -435,14 +351,16 @@ let ``Ignore Unrecognized parameters`` () =
 [<Fact>]
 let ``Fail on misplaced First parameter`` () =
     let args = [|"--mandatory-arg" ; "true" ; "--first-parameter" ; "arg" |]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                    (fun e -> <@ e.FirstLine.Contains "should precede" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine args @>
+        <| fun e -> <@ e.FirstLine.Contains "should precede" @>
 
 [<Fact>]
 let ``Fail on misplaced Last parameter`` () =
     let args = [|"--last-parameter" ; "arg" ; "--mandatory-arg"; "true"|]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                    (fun e -> <@ e.FirstLine.Contains "should appear after" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine args @>
+        <| fun e -> <@ e.FirstLine.Contains "should appear after" @>
 
 [<Fact>]
 let ``Should recognize grouped switches`` () =
@@ -472,30 +390,32 @@ let ``Simple subcommand parsing 2`` () =
 [<Fact>]
 let ``Main command parsing should fail on missing parameters`` () =
     let args = [|"push" ; "origin" |]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                (fun e -> <@ e.FirstLine.Contains "must be followed by <branch name>" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine args @>
+        <| fun e -> <@ e.FirstLine.Contains "must be followed by <branch name>" @>
 
 [<Fact>]
 let ``Main command parsing should fail on missing mandatory sub command parameter`` () =
     let args = [|"--mandatory-arg" ; "true" ; "checkout"  |]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                (fun e -> <@ e.FirstLine.Contains "--branch" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine args @>
+        <| fun e -> <@ e.FirstLine.Contains "--branch" @>
 
 [<Fact>]
 let ``Main command parsing should fail and display all missing mandatories sub command parameters`` () =
     let args = [|"--mandatory-arg" ; "true" ;  "multiple-mandatories" ; "--valuea"; "5"|]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                    (fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'." @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine args @>
+        <| fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'." @>
 
 [<Fact>]
 let ``Missing mandatories at parent and subcommand levels are reported together`` () =
     // Subcommand mandatories are missing; the parent's --mandatory-arg is also missing.
     // The error must surface all four names in a single message, not just one group.
     let args = [|"multiple-mandatories" ; "--valuea"; "5"|]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                    (fun e -> <@ e.FirstLine.Contains "--valueb"
-                                                && e.FirstLine.Contains "--valuec"
-                                                && e.FirstLine.Contains "--mandatory-arg" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine args @>
+        <| fun e -> <@ e.FirstLine.Contains "--valueb" && e.FirstLine.Contains "--valuec" && e.FirstLine.Contains "--mandatory-arg" @>
 
 [<Fact>]
 let ``Main command parsing should not fail on missing mandatory sub command parameter if ignoreMissing`` () =
@@ -514,8 +434,9 @@ let ``Main command parsing should allow sub command if not missing mandatory par
 [<Fact>]
 let ``Main command parsing should fail on missing mandatory sub command's sub command parameter`` () =
     let args = [|"--mandatory-arg"; "true"; "tag"; "--new"; |]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                (fun e -> <@ e.FirstLine.Contains "--name" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine args @>
+        <| fun e -> <@ e.FirstLine.Contains "--name" @>
 
 [<Fact>]
 let ``Main command parsing should allow trailing arguments`` () =
@@ -528,8 +449,9 @@ let ``Main command parsing should allow trailing arguments`` () =
 [<Fact>]
 let ``Main command parsing should not permit interstitial arguments`` () =
     let args = [|"push" ; "origin" ; "-f" ; "master"|]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
-                                (fun e -> <@ e.FirstLine.Contains "but was '-f'" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
+        <| fun e -> <@ e.FirstLine.Contains "but was '-f'" @>
 
     let results = parser.ParseCommandLine(args, ignoreMissing = true, ignoreUnrecognized = true)
     let nested = results.GetResult <@ Push @>
@@ -560,8 +482,9 @@ let ``Doubly nested subcommand parsing`` () =
 [<Fact>]
 let ``Required subcommand attribute should fail on missing subcommand`` () =
     let args = [|"required" ; "--foo" |]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
-                                    (fun e -> <@ e.FirstLine.Contains "subcommand" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
+        <| fun e -> <@ e.FirstLine.Contains "subcommand" @>
 
 [<Fact>]
 let ``Nullary subcommand`` () =
@@ -579,8 +502,9 @@ let ``Required subcommand nullary subcommand can be parsed`` () =
 [<Fact>]
 let ``Calling multiple sibling subcommands is not permitted`` () =
     let args = [|"required"; "null-sub"; "sub"; "-fdx"|]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
-                                    (fun e -> <@ e.FirstLine.Contains "cannot run multiple subcommands" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine(args, ignoreMissing = true) @>
+        <| fun e -> <@ e.FirstLine.Contains "cannot run multiple subcommands" @>
 
 [<Fact>]
 let ``GatherUnrecognized attribute`` () =
@@ -648,8 +572,9 @@ let ``Enumeration parameter parsing (case-insensitive, allowing original case)``
 
 [<Fact>]
 let ``Enumeration parameter should fail on unsupported values`` () =
-    raisesWith<ArguParseException> <@ parser.Parse([|"--enum" ; "first,second" ; "--mandatory-arg" ; "true"|]) @>
-                                    (fun e -> <@ e.FirstLine.Contains "first|second|third" @>)
+    raisesWith<ArguParseException>
+        <@ parser.Parse([|"--enum" ; "first,second" ; "--mandatory-arg" ; "true"|]) @>
+        <| fun e -> <@ e.FirstLine.Contains "first|second|third" @>
 
 [<Fact>]
 let ``F# Enumeration parameter parsing`` () =
@@ -663,8 +588,9 @@ let ``F# Enumeration parameter parsing (case-insensitive, allowing original case
 
 [<Fact>]
 let ``F# Enumeration parameter should fail on unsupported values`` () =
-    raisesWith<ArguParseException> <@ parser.Parse([|"--enumeration=foobar" ; "--mandatory-arg" ; "true"|]) @>
-                                    (fun e -> <@ e.FirstLine.Contains "first|second|third" @>)
+    raisesWith<ArguParseException>
+        <@ parser.Parse([|"--enumeration=foobar" ; "--mandatory-arg" ; "true"|]) @>
+        <| fun e -> <@ e.FirstLine.Contains "first|second|third" @>
 
 [<Fact>]
 let ``List parameter - empty`` () =
@@ -685,7 +611,7 @@ let ``List parameter - multiple args`` () =
 let ``Get all subcommand parsers`` () =
     let subcommands = parser.GetSubCommandParsers()
     test <@ subcommands.Length = 7 @>
-    test <@ subcommands |> List.forall (fun sc -> sc.IsSubCommandParser) @>
+    test <@ subcommands |> List.forall _.IsSubCommandParser @>
 
 [<Fact>]
 let ``Get specific subcommand parser`` () =
@@ -761,28 +687,33 @@ type GenericArgument<'T> =
 
 [<Fact>]
 let ``Identify conflicting CLI identifiers`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingCliNames>() @>
-                                (fun e -> <@ e.FirstLine.Contains "conflicting CLI" @>)
+    raisesWith<ArguException>
+        <@ ArgumentParser.Create<ConflictingCliNames>() @>
+        <| fun e -> <@ e.FirstLine.Contains "conflicting CLI" @>
 
 [<Fact>]
 let ``Identify conflicting inherited CLI identifiers`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingInheritedCliName>() @>
-                                (fun e -> <@ e.FirstLine.Contains "conflicting CLI" @>)
+    raisesWith<ArguException>
+        <@ ArgumentParser.Create<ConflictingInheritedCliName>() @>
+        <| fun e -> <@ e.FirstLine.Contains "conflicting CLI" @>
 
 [<Fact>]
 let ``Identify conflicting AppSettings identifiers`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<ConflictingAppSettingsNames>() @>
-                                (fun e -> <@ e.FirstLine.Contains "conflicting AppSettings" @>)
+    raisesWith<ArguException>
+        <@ ArgumentParser.Create<ConflictingAppSettingsNames>() @>
+        <| fun e -> <@ e.FirstLine.Contains "conflicting AppSettings" @>
 
 [<Fact>]
 let ``Identify recursive subcommands`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<RecursiveArgument1>() @>
-                                (fun e -> <@ e.FirstLine.Contains "recursive" @>)
+    raisesWith<ArguException>
+        <@ ArgumentParser.Create<RecursiveArgument1>() @>
+        <| fun e -> <@ e.FirstLine.Contains "recursive" @>
 
 [<Fact>]
 let ``Identify generic arguments`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<GenericArgument<string>>() @>
-                                (fun e -> <@ e.FirstLine.Contains "generic" @>)
+    raisesWith<ArguException>
+        <@ ArgumentParser.Create<GenericArgument<string>>() @>
+        <| fun e -> <@ e.FirstLine.Contains "generic" @>
 
 type NestedDuplicatesAreOk =
     | [<AltCommandLine("-f")>] Force
@@ -854,11 +785,6 @@ let ``Use no prefix as default`` () =
     test <@ results.GetResult <@ Levels_Deep @> = 3 @>
 
 [<Fact>]
-let ``Should fail if EqualsAssignment missing assignment.`` () =
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine([|"--assignment"; "value"|], ignoreMissing = true) @>
-                                    (fun e -> <@ e.FirstLine.Contains "missing an assignment" @>)
-
-[<Fact>]
 let ``Slash in Commandline`` () =
     let args = [| "--mandatory-arg" ; "true" ; "/D" |]
     let results = parser.ParseCommandLine args
@@ -866,8 +792,9 @@ let ``Slash in Commandline`` () =
 
 [<Fact>]
 let ``Should fail when Usage, Mandatory and raiseOnUsage = true`` () =
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true) @>
-                                    (fun e -> <@ e.FirstLine.Contains "USAGE:" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine ([|"--help"|], raiseOnUsage = true) @>
+        <| fun e -> <@ e.FirstLine.Contains "USAGE:" @>
 
 [<Fact>]
 let ``Usage, Mandatory and raiseOnusage = false`` () =
@@ -878,9 +805,10 @@ let ``Usage, Mandatory and raiseOnusage = false`` () =
 [<Fact>]
 let ``Should fail if mandatory case is missing on a subcommand and display usage of subcommand and not main command`` () =
     let args = [|"--mandatory-arg" ; "true" ;  "multiple-mandatories" ; "--valuea"; "5"|]
-    raisesWith<ArguParseException> <@ parser.ParseCommandLine args @>
-                                    (fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'"
-                                                  && e.Message.Contains $"USAGE: {parser.ProgramName} multiple-mandatories [--help] --valuea <int>" @>)
+    raisesWith<ArguParseException>
+        <@ parser.ParseCommandLine args @>
+        <| fun e -> <@ e.FirstLine.Contains "ERROR: missing parameter '--valueb', '--valuec'"
+                       && e.Message.Contains $"USAGE: {parser.ProgramName} multiple-mandatories [--help] --valuea <int>" @>
 
 [<HelpFlags("--my-help")>]
 [<HelpDescription("waka jawaka")>]
@@ -928,8 +856,9 @@ type NestedInherited =
 
 [<Fact>]
 let ``Fail on inherited nested union cases`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<NestedInherited>() @>
-                              (fun e -> <@ e.FirstLine.Contains "Inherit" @>)
+    raisesWith<ArguException>
+        <@ ArgumentParser.Create<NestedInherited>() @>
+        <| fun e -> <@ e.FirstLine.Contains "Inherit" @>
 
 [<Fact>]
 let ``Fail on malformed case constructors`` () =
