@@ -8,6 +8,10 @@ open System.Xml.Linq
 let [<Literal>] switchOffset = 4
 /// Number of spaces to be inserted before a cli switch description text
 let [<Literal>] descriptionOffset = 26
+/// Minimum width reserved for the description column when wrapping.
+/// Guards against extreme wrap (e.g. 1 char per line) when terminal width <= descriptionOffset.
+let [<Literal>] minDescriptionWrapWidth = 20
+let wordwrapSafe width = wordwrap (max (width - descriptionOffset) minDescriptionWrapWidth)
 
 /// <summary>
 ///     print the command line syntax
@@ -20,7 +24,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
 
     for command in getHierarchy argInfo do
         yield ' '
-        yield command.Name.Value
+        yield command.Name
 
     let! length1 = StringExpr.currentLength
     let offset = length1 - length0
@@ -50,7 +54,7 @@ let mkCommandLineSyntax (argInfo : UnionArgInfo) (prefix : string) (maxWidth : i
     | _ -> ()
 
     for aI in printedCases do
-        match aI.CommandLineNames.Value with
+        match aI.CommandLineNames with
         | [] -> ()
         | name :: _ ->
 
@@ -131,7 +135,7 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     if not aI.IsCommandLineArg then () else
     let! start = StringExpr.currentLength
     yield! StringExpr.whiteSpace switchOffset
-    yield String.concat ", " aI.CommandLineNames.Value
+    yield String.concat ", " aI.CommandLineNames
 
     match aI.ParameterInfo.Value with
     | Primitives parsers when aI.IsMainCommand ->
@@ -177,10 +181,10 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     else
         yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-    let lines = wordwrap (max (width - descriptionOffset) 1) aI.Description.Value
+    let lines = wordwrapSafe width aI.Description.Value
 
     match lines with
-    | [] -> ()
+    | [] -> yield Environment.NewLine
     | h :: tail ->
         yield h
         yield Environment.NewLine
@@ -208,7 +212,7 @@ let mkHelpParamUsage width (hp : HelpParam) = stringExpr {
         else
             yield! StringExpr.whiteSpace (descriptionOffset - finish + start)
 
-        let lines = wordwrap (max (width - descriptionOffset) 1) hp.Description
+        let lines = wordwrapSafe width hp.Description
         match lines with
         | [] -> ()
         | h :: tail ->
@@ -223,13 +227,13 @@ let mkHelpParamUsage width (hp : HelpParam) = stringExpr {
 /// <summary>
 ///     print usage string for a collection of arg infos
 /// </summary>
-let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax width (message : string option) = stringExpr {
+let mkUsageStringWithLabels (argInfo : UnionArgInfo) (programName : string) hideSyntax width (labels : UsageStrings) (message : string option) = stringExpr {
     match message with
     | Some msg -> yield msg; yield Environment.NewLine
     | None -> ()
 
     if not hideSyntax then
-        yield! mkCommandLineSyntax argInfo "USAGE: " width programName
+        yield! mkCommandLineSyntax argInfo labels.Usage width programName
         yield Environment.NewLine
 
     let options, subcommands =
@@ -251,7 +255,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
     if subcommands.Length > 0 then
         let! length = StringExpr.currentLength
         if length > 0 then yield Environment.NewLine
-        yield "SUBCOMMANDS:"
+        yield labels.Subcommands
         yield Environment.NewLine; yield Environment.NewLine
 
         for aI in subcommands do yield! mkArgUsage width aI
@@ -261,8 +265,8 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
         | helpflag :: _ ->
             yield Environment.NewLine
             let wrappedList =
-                sprintf "Use '%s <subcommand> %s' for additional information." programName helpflag
-                |> wordwrap (max (width - switchOffset) 1)
+                String.Format(labels.SubcommandHelpHintFormat, programName, helpflag)
+                |> wordwrapSafe width
 
             for line in wrappedList do
                 yield String.mkWhiteSpace switchOffset
@@ -272,7 +276,7 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
     if options.Length > 0 || argInfo.UsesHelpParam then
         let! length = StringExpr.currentLength
         if length > 0 then yield Environment.NewLine
-        yield "OPTIONS:"
+        yield labels.Options
         yield Environment.NewLine; yield Environment.NewLine
 
         for aI in options do yield! mkArgUsage width aI
@@ -280,6 +284,10 @@ let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax wid
 
         yield! mkHelpParamUsage width argInfo.HelpParam
 }
+
+/// Back-compat wrapper: renders with <c>UsageStrings.Default</c> (English).
+let mkUsageString (argInfo : UnionArgInfo) (programName : string) hideSyntax width (message : string option) =
+    mkUsageStringWithLabels argInfo programName hideSyntax width UsageStrings.Default message
 
 /// <summary>
 ///     print a command line argument for a set of parameters
@@ -290,7 +298,7 @@ let rec mkCommandLineArgs (argInfo : UnionArgInfo) (args : seq<obj>) =
 
         let fields = aI.FieldReader.Value t
 
-        let clName() = List.head aI.CommandLineNames.Value
+        let clName() = List.head aI.CommandLineNames
 
         match aI.ParameterInfo.Value with
         | Primitives parsers ->
@@ -358,7 +366,7 @@ let mkAppSettingsDocument (argInfo : UnionArgInfo) printComments (args : 'Templa
             else
                 [|xelem|]
 
-        match aI.AppSettingsName.Value with
+        match aI.AppSettingsName with
         | None -> [||]
         | Some key ->
             match aI.ParameterInfo.Value with

@@ -6,6 +6,35 @@ open System.Threading.Tasks
 open FSharp.Quotations
 open Argu.UnionArgInfo
 
+/// Configuration record for <see cref="ArgumentParser`1.Parse(ParseConfig)"/>.
+/// Each field carries the same meaning as the matching optional parameter on
+/// the existing <c>Parse</c> overload. Use <see cref="ParseConfig.Default"/>
+/// as a starting point and override only the fields you care about.
+[<NoEquality; NoComparison>]
+type ParseConfig =
+    {
+        /// The command line input. <c>None</c> takes the inputs from <c>System.Environment</c>.
+        Inputs : string [] option
+        /// Configuration reader used to source AppSettings-style arguments.
+        /// <c>None</c> uses the AppSettings configuration of the current process.
+        ConfigurationReader : IConfigurationReader option
+        /// Ignore errors caused by the Mandatory attribute.
+        IgnoreMissing : bool
+        /// Ignore CLI arguments that do not match the schema.
+        IgnoreUnrecognized : bool
+        /// Treat '--help' parameters as parse errors.
+        RaiseOnUsage : bool
+    }
+    /// Default parse configuration, matching the historical <c>Parse(...)</c> defaults:
+    /// inputs and configurationReader inherited from the environment, do not ignore
+    /// missing or unrecognized arguments, and raise on '--help'.
+    static member Default : ParseConfig =
+        {   Inputs = None
+            ConfigurationReader = None
+            IgnoreMissing = false
+            IgnoreUnrecognized = false
+            RaiseOnUsage = true }
+
 /// The Argu type generates an argument parser given a type argument
 /// that is an F# discriminated union. It can then be used to parse command line arguments
 /// or XML configuration.
@@ -52,11 +81,13 @@ type ArgumentParser internal (argInfo : UnionArgInfo, _programName : string, hel
     /// <param name="programName">Override the default program name settings.</param>
     /// <param name="hideSyntax">Do not display 'USAGE: [syntax]' at top of usage string. Defaults to false.</param>
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string.</param>
-    member _.PrintUsage (?message : string, ?programName : string, ?hideSyntax : bool, ?usageStringCharacterWidth : int) : string =
+    /// <param name="usageStrings">Localisable labels printed by the renderer. Defaults to <c>UsageStrings.Default</c> (English).</param>
+    member _.PrintUsage (?message : string, ?programName : string, ?hideSyntax : bool, ?usageStringCharacterWidth : int, ?usageStrings : UsageStrings) : string =
         let programName = defaultArg programName _programName
         let hideSyntax = defaultArg hideSyntax false
         let usageStringCharacterWidth = defaultArg usageStringCharacterWidth _usageStringCharacterWidth
-        mkUsageString argInfo programName hideSyntax usageStringCharacterWidth message |> StringExpr.build
+        let usageStrings = defaultArg usageStrings UsageStrings.Default
+        mkUsageStringWithLabels argInfo programName hideSyntax usageStringCharacterWidth usageStrings message |> StringExpr.build
 
     /// <summary>
     ///     Prints command line syntax. Useful for generating documentation.
@@ -108,7 +139,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
     /// <param name="checkStructure">Indicate if the structure of the arguments discriminated union should be checked for errors.</param>
     new (?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter, ?checkStructure: bool) =
-        let usageStringCharacterWidth = match usageStringCharacterWidth with None -> getDefaultCharacterWidth() | Some w -> w
+        let usageStringCharacterWidth = usageStringCharacterWidth |> Option.defaultWith getDefaultCharacterWidthSafeMin80
         let programName = programName |> Option.defaultWith currentProgramName
         let errorHandler = match errorHandler with Some e -> e  | None -> ExceptionExiter() :> _
 
@@ -159,6 +190,19 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
+    /// <summary>Parse both command line args and supplied configuration reader, using
+    ///          a <see cref="ParseConfig"/> record. Useful when callers want to construct
+    ///          the parameter set programmatically (e.g. layering host defaults over user
+    ///          overrides) without juggling many optional method arguments.</summary>
+    /// <param name="config">The parse configuration. See <c>ParseConfig.Default</c>.</param>
+    member self.Parse (config : ParseConfig) : ParseResults<'Template> =
+        self.Parse(
+            ?inputs = config.Inputs,
+            ?configurationReader = config.ConfigurationReader,
+            ignoreMissing = config.IgnoreMissing,
+            ignoreUnrecognized = config.IgnoreUnrecognized,
+            raiseOnUsage = config.RaiseOnUsage)
+
     /// <summary>Parse both command line args and supplied configuration reader.
     ///          Results are merged with command line args overriding configuration parameters.</summary>
     /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
@@ -207,7 +251,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
             // top-level keys are reached on this pass.
             let prefetched = Dictionary<string, string>()
             for case in argInfo.Cases.Value do
-                match case.AppSettingsName.Value with
+                match case.AppSettingsName with
                 | Some key when not (prefetched.ContainsKey key) ->
                     let! v = task { try return! reader.GetValueAsync key with _ -> return null }
                     prefetched[key] <- v
@@ -273,8 +317,8 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         mkCommandLineArgs argInfo (Seq.cast args) |> Seq.toArray
 
     /// <summary>Prints parameters in command line format. Useful for argument string generation.</summary>
-    member ap.PrintCommandLineArgumentsFlat (args : 'Template list) : string =
-        ap.PrintCommandLineArguments args |> flattenCliTokens
+    member self.PrintCommandLineArgumentsFlat (args : 'Template list) : string =
+        self.PrintCommandLineArguments args |> flattenCliTokens
 
     /// <summary>Prints parameters in App.Config format.</summary>
     /// <param name="args">The parameters that fill out the XML document.</param>

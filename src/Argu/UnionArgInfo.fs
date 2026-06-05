@@ -53,10 +53,10 @@ with
 type UnionCaseArgInfo =
     {
         /// Human readable name identifier
-        Name : Lazy<string>
+        Name : string
         /// Contextual depth of current argument w.r.t subcommands
         Depth : int
-        /// Numbers of parameters in the given union case
+        /// Numbers of values in the given union case, i.e. a tuple is 2
         Arity : int
         /// Same as UnionCaseInfo.Tag
         Tag : int
@@ -79,9 +79,9 @@ type UnionCaseArgInfo =
         FieldReader : Lazy<obj -> obj[]>
 
         /// head element denotes primary command line arg
-        CommandLineNames : Lazy<string list>
+        CommandLineNames : string list
         /// name used in AppSettings
-        AppSettingsName : Lazy<string option>
+        AppSettingsName : string option
 
         /// Description of the parameter
         Description : Lazy<string>
@@ -91,7 +91,7 @@ type UnionCaseArgInfo =
         /// Configuration parsing split options
         AppSettingsSplitOptions : StringSplitOptions
 
-        /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
+        /// Separator token used for Value Assignment syntax; e.g. '=' forces '--param=arg' syntax
         CustomAssignmentSeparator : Lazy<CustomAssignmentSeparator option>
         /// Reads assignment for that specific value
         AssignmentParser : Lazy<string -> Assignment>
@@ -119,7 +119,7 @@ type UnionCaseArgInfo =
     }
 with
     member inline x.IsMainCommand = Option.isSome x.MainCommandName.Value
-    member inline x.IsCommandLineArg = match x.CommandLineNames.Value with [] -> x.IsMainCommand | _ -> true
+    member inline x.IsCommandLineArg = match x.CommandLineNames with [] -> x.IsMainCommand | _ -> true
     member inline x.IsCustomAssignment = Option.isSome x.CustomAssignmentSeparator.Value
 
 and [<NoComparison; NoEquality>] ParameterInfo =
@@ -216,11 +216,13 @@ type UnionCaseArgInfo with
         // Internal types are minimal and/or can be changed at will
         // Here we map those to the stable external API contract, which won't be changed until next major ver
         {
-            Name = ucai.Name
+            // Wrap flattened bool/string fields back in Lazy so the public
+            // ArgumentCaseInfo shape is preserved for downstream consumers.
+            Name = lazy ucai.Name
             ArgumentType = ucai.ArgumentType
             UnionCaseInfo = lazy ucai.UnionCaseInfo
-            CommandLineNames = ucai.CommandLineNames
-            AppSettingsName = ucai.AppSettingsName
+            CommandLineNames = lazy ucai.CommandLineNames
+            AppSettingsName = lazy ucai.AppSettingsName
             Description = ucai.Description
             AppSettingsSeparators = Array.toList ucai.AppSettingsSeparators
             AppSettingsSplitOptions = ucai.AppSettingsSplitOptions

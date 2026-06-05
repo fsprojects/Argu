@@ -6,8 +6,10 @@
   <ItemGroup>
     <Compile Include="PrimitiveTests.fs" />
     <Compile Include="Tests.fs"/>
-    <Compile Include="ParseAsyncTests.fs"/>
     <Compile Include="CoverageTests.fs"/>
+    <Compile Include="ParseConfigTests.fs"/>
+    <Compile Include="UsageStringsTests.fs"/>
+    <Compile Include="SeparatorAttributeTests.fs" />
     <Compile Include="ParseAsyncTests.fs"/>
   </ItemGroup>
   <ItemGroup>

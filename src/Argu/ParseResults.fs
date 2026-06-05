@@ -26,35 +26,38 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
 
     let errorf hideusage code fmt = Printf.ksprintf (error hideusage code) fmt
 
-    // restriction predicate based on optional parse source
-    let restrictF flags : UnionCaseParseResult -> bool =
-        let flags = defaultArg flags ParseSource.All
-        fun x -> flags.HasFlag(x.Source)
+    let filter (sourceRestriction: ParseSource) = fun (x: UnionCaseParseResult) -> sourceRestriction.HasFlag(x.Source)
 
-    let getResults rs (e : Expr) = results.Cases[expr2Uci(e).Tag] |> Seq.filter (restrictF rs)
-    let containsResult rs (e : Expr) = e |> getResults rs |> Seq.isEmpty |> not
-    let tryGetResult rs (e : Expr) = e |> getResults rs |> Seq.tryLast
-    let getResult rs (e : Expr) =
+    let getResults source (e : Expr) : seq<UnionCaseParseResult> =
+        let r = results.Cases[expr2Uci(e).Tag]
+        match source with
+        | None -> r
+        | Some flags -> r |> Seq.filter (filter flags)
+    let containsResult source (e : Expr) = e |> getResults source |> Seq.isEmpty |> not
+    let tryGetResult source (e : Expr) = e |> getResults source |> Seq.tryLast
+    let getResult flags (e : Expr) =
         let id = expr2Uci e
-        let results = results.Cases[id.Tag]
-        match Array.tryLast results with
-        | None ->
+        match results.Cases[id.Tag] |> Array.tryLast, flags with
+        | None, _ ->
             let aI = argInfo.Cases.Value[id.Tag]
-            errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name.Value
-        | Some r when restrictF rs r -> r
-        | Some r -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name.Value
+            errorf (not aI.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." aI.Name
+        | Some r, Some flags when r |> filter flags |> not -> // A value is present, but the filter excludes it
+            errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR: missing argument '%s'." r.CaseInfo.Name
+        | Some r, _ -> r
 
     let parseResult (f : 'F -> 'S) (r : UnionCaseParseResult) =
         try f (r.FieldContents :?> 'F)
         with e -> errorf (not r.CaseInfo.IsCommandLineArg) ErrorCode.PostProcess "ERROR parsing '%s': %s" r.ParseContext e.Message
 
-    let getAllResults source =
-        results.Cases
-        |> Seq.concat
-        |> Seq.filter (restrictF source)
-        |> Seq.sortBy (fun r -> ((int r.Source) <<< 16) + r.Index)
-        |> Seq.map (fun r -> r.Value :?> 'Template)
-        |> Seq.toList
+    let getAllResults predicate =
+        let buffer = ResizeArray()
+        for cs in results.Cases do
+            for r in cs do
+                if predicate r then buffer.Add r
+        let inline order x = ((int x.Source) <<< 16) + x.Index
+        // TOCONSIDER if benchmark says its cheaper then can replace Seq.sortBy with [also stable] `System.Linq.Enumerable.OrderBy(buffer, order)`
+        // TOCONSIDER if unstable sort is proven sufficient then can do: buffer.Sort(System.Comparison(fun a b -> compare (order a) (order b)))
+        [ for x in buffer |> Seq.sortBy order -> x.Value :?> 'Template ]
 
     interface IParseResult with
         /// Returns all parse results as <c>obj</c>, for callers that do not know the template type.
@@ -93,8 +96,10 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
 
     /// <summary>Gets all parse results.</summary>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    member _.GetAllResults (?source : ParseSource) : 'Template list =
-        getAllResults source
+    member r.GetAllResults (?source : ParseSource) : 'Template list =
+        match source with
+        | None -> r.CachedAllResults.Value
+        | Some sourceRestriction -> getAllResults (filter sourceRestriction)
 
     /// <summary>Returns the *last* specified parameter of given type, if it exists.
     ///          Command line parameters have precedence over AppSettings parameters.</summary>
@@ -213,7 +218,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: GetResult")>]
+    [<System.Obsolete("Please use the revised API name instead: GetResult")>]
     member r.PostProcessResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R =
         expr |> getResult source |> parseResult parser
 
@@ -224,7 +229,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: GetResults")>]
+    [<System.Obsolete("Please use the revised API name instead: GetResults")>]
     member r.PostProcessResults ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R list =
         expr |> getResults source |> Seq.map (parseResult parser) |> Seq.toList
 
@@ -235,7 +240,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: TryGetResult")>]
+    [<System.Obsolete("Please use the revised API name instead: TryGetResult")>]
     member r.TryPostProcessResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R option =
         expr |> tryGetResult source |> Option.map (parseResult parser)
 
@@ -320,7 +325,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
 
     // used by EqualityConditionalOn attribute
     // used by ComparisonConditionalOn attribute
-    member val private CachedAllResults = lazy (getAllResults None) with get
+    member val private CachedAllResults: Lazy<'Template list> = lazy getAllResults (fun _ -> true) with get
 
     // used by EqualityConditionalOn attribute
     override r.Equals (other : obj) =

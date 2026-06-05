@@ -102,7 +102,7 @@ type CliParseResultAggregator internal (argInfo : UnionArgInfo, stack : CliParse
         resultCount <- resultCount + 1
         let agg = results.Value[result.Tag]
         if result.CaseInfo.IsUnique && agg.Count > 0 then
-            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name.Value
+            error argInfo ErrorCode.CommandLine "argument '%s' has been specified more than once." result.CaseInfo.Name
 
         if result.CaseInfo.ArgumentType = ArgumentType.SubCommand then
             if isSubCommandDefined then
@@ -193,254 +193,262 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
     | HelpArgument _ when state.RaiseOnUsage -> raise <| HelpText argInfo
     | HelpArgument _ -> aggregator.IsUsageRequested <- true
     | UnrecognizedOrArgument token ->
-        match argInfo.MainCommandParam.Value with
-        | Some mcp when not (mcp.IsUnique && aggregator.IsMainCommandDefined) ->
-            match mcp.ParameterInfo.Value with
-            | Primitives parsers ->
-                // since main command syntax deals with a degree of implicitness
-                // we need a way to backtrack in case of a parse error.
-                // In that case, we pass any accumulated tokens to the regular
-                // unrecognized argument resolution logic
-                let tokens = ResizeArray<string>(5)
-                let fields = ResizeArray<obj>(5)
-                let handleUnrecognized =
-                    state.IgnoreUnrecognizedArgs ||
-                    Option.isSome argInfo.UnrecognizedGatherParam.Value
+        handleMainCommandOrUnrecognized state argInfo aggregator token
+    | GroupedParams(_, switches) ->
+        handleGroupedParams argInfo aggregator switches
+    | CliParam(_, _, caseInfo, Assignment(name, sep, _)) when caseInfo.Arity <> 1 ->
+        error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s%s<param>'." name sep
+    | CliParam(token, name, caseInfo, assignment) ->
+        handleCliParam state argInfo aggregator token name caseInfo assignment
 
-                let parseSingleParameter isFirst =
-                    tokens.Clear(); fields.Clear()
-                    let rec aux i =
-                        if i = parsers.Length then () else
-                        let p = parsers[i]
-                        let isFirst = isFirst && i = 0
+and private handleMainCommandOrUnrecognized (state : CliParseState) (argInfo : UnionArgInfo) (aggregator : CliParseResultAggregator) (token : string) =
+    match argInfo.MainCommandParam.Value with
+    | Some mcp when not (mcp.IsUnique && aggregator.IsMainCommandDefined) ->
+        match mcp.ParameterInfo.Value with
+        | Primitives parsers ->
+            // since main command syntax deals with a degree of implicitness
+            // we need a way to backtrack in case of a parse error.
+            // In that case, we pass any accumulated tokens to the regular
+            // unrecognized argument resolution logic
+            let tokens = ResizeArray<string>(5)
+            let fields = ResizeArray<obj>(5)
+            let handleUnrecognized =
+                state.IgnoreUnrecognizedArgs ||
+                Option.isSome argInfo.UnrecognizedGatherParam.Value
+
+            let parseSingleParameter isFirst =
+                tokens.Clear(); fields.Clear()
+                let rec aux i =
+                    if i = parsers.Length then () else
+                    let p = parsers[i]
+                    let isFirst = isFirst && i = 0
+                    let nextToken =
+                        if isFirst then UnrecognizedOrArgument token
+                        else state.Reader.GetNextToken true argInfo
+
+                    match nextToken with
+                    | UnrecognizedOrArgument tok ->
+                        let mutable result = null
+                        let success =
+                            try result <- p.Parser tok ; true
+                            with
+                            | _ when handleUnrecognized -> false
+                            | _ when isFirst -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
+                            | _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'."
+                                                state.Reader.CurrentSegment p.Description token
+
+                        if success then
+                            // Might be a MainCommand, but if the main type is string, then might not
+                            // If we're ignoring unrecognized, then it's better to parse as unrecognized than an out-of-position MainCommand
+                            if mcp.IsLast && state.IgnoreUnrecognizedArgs && not state.Reader.IsCompleted then
+                                aggregator.AppendUnrecognized tok
+                            else
+                                tokens.Add tok ; fields.Add result
+                            if not isFirst then state.Reader.MoveNext()
+                            aux (i + 1)
+
+                    | CliParam(_, token, _, _)
+                    | HelpArgument token
+                    | GroupedParams(token,_) ->
+                        if not handleUnrecognized then
+                            error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description token
+                    | _ ->
+                        if not handleUnrecognized then
+                            error argInfo ErrorCode.CommandLine "argument '%s' must be followed by <%s>." state.Reader.CurrentSegment p.Description
+
+                do aux 0
+                if fields.Count = parsers.Length then
+                    aggregator.AppendResult mcp mcp.Name (fields.ToArray())
+                    true
+                else
+                    match argInfo.UnrecognizedGatherParam.Value with
+                    | Some ugp -> for tok in tokens do aggregator.AppendResult ugp token [|tok|]
+                    | None when state.IgnoreUnrecognizedArgs -> for tok in tokens do aggregator.AppendUnrecognized tok
+                    | None -> arguExn "internal error in main command parser."
+
+                    false
+
+            if parseSingleParameter true && mcp.IsRest then
+                while not state.Reader.IsCompleted && parseSingleParameter false do ()
+
+        | ListParam(existential, field) ->
+            ignore <| existential.Accept { new IFunc<bool> with
+                member _.Invoke<'T>() =
+                    let rec gather isFirst args =
                         let nextToken =
                             if isFirst then UnrecognizedOrArgument token
                             else state.Reader.GetNextToken true argInfo
 
                         match nextToken with
-                        | UnrecognizedOrArgument tok ->
-                            let mutable result = null
-                            let success =
-                                try result <- p.Parser tok ; true
-                                with
-                                | _ when handleUnrecognized -> false
-                                | _ when isFirst -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
-                                | _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'."
-                                                    state.Reader.CurrentSegment p.Description token
-
-                            if success then   
-                                // Might be a MainCommand, but if the main type is string, then might not
-                                // If we're ignoring unrecognized, then it's better to parse as unrecognized than an out-of-position MainCommand
-                                if mcp.IsLast && state.IgnoreUnrecognizedArgs && not state.Reader.IsCompleted then 
-                                    aggregator.AppendUnrecognized tok
-                                else
-                                    tokens.Add tok ; fields.Add result
+                        | UnrecognizedOrArgument token ->
+                            let mutable result = Unchecked.defaultof<'T>
+                            let success = try result <- field.Parser token :?> 'T ; true with _ -> false
+                            if success then
                                 if not isFirst then state.Reader.MoveNext()
-                                aux (i + 1)
+                                gather false (token :: args)
+                            elif isFirst then
+                                match argInfo.UnrecognizedGatherParam.Value with
+                                | Some ugp -> aggregator.AppendResult ugp token [|token|]
+                                | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
+                                | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
+                                args
+                            else args
+                        | CliParam _ ->
+                            // If the main type is string, then the gathered arguments here might not be main commands.
+                            // Can detect this by observing a subsequent argument that IS recognized
+                            if mcp.IsLast && state.IgnoreUnrecognizedArgs
+                            then List.iter aggregator.AppendUnrecognized args; []
+                            else args
+                        | _ -> args
 
-                        | CliParam(_, token, _, _)
-                        | HelpArgument token
-                        | GroupedParams(token,_) ->
-                            if not handleUnrecognized then
-                                error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description token
-                        | _ ->
-                            if not handleUnrecognized then
-                                error argInfo ErrorCode.CommandLine "argument '%s' must be followed by <%s>." state.Reader.CurrentSegment p.Description
+                    let gathered = gather true [] |> List.rev
+                    match gathered with
+                    | [] -> () ; false
+                    | list -> aggregator.AppendResult mcp mcp.Name [| List.map (fun arg -> field.Parser arg  :?> 'T) list |] ; true }
 
-                    do aux 0
-                    if fields.Count = parsers.Length then
-                        aggregator.AppendResult mcp mcp.Name.Value (fields.ToArray())
-                        true
-                    else
-                        match argInfo.UnrecognizedGatherParam.Value with
-                        | Some ugp -> for tok in tokens do aggregator.AppendResult ugp token [|tok|]
-                        | None when state.IgnoreUnrecognizedArgs -> for tok in tokens do aggregator.AppendUnrecognized tok
-                        | None -> arguExn "internal error in main command parser."
+        | paramInfo -> arguExn "internal error. MainCommand has param representation %A" paramInfo
 
-                        false
-
-                if parseSingleParameter true && mcp.IsRest then
-                    while not state.Reader.IsCompleted && parseSingleParameter false do ()
-
-            | ListParam(existential, field) ->
-                ignore <| existential.Accept { new IFunc<bool> with
-                    member _.Invoke<'T>() =
-                        let rec gather isFirst args =
-                            let nextToken =
-                                if isFirst then UnrecognizedOrArgument token
-                                else state.Reader.GetNextToken true argInfo
-
-                            match nextToken with
-                            | UnrecognizedOrArgument token ->
-                                let mutable result = Unchecked.defaultof<'T>
-                                let success = try result <- field.Parser token :?> 'T ; true with _ -> false
-                                if success then
-                                    if not isFirst then state.Reader.MoveNext()
-                                    gather false (token :: args)
-                                elif isFirst then
-                                    match argInfo.UnrecognizedGatherParam.Value with
-                                    | Some ugp -> aggregator.AppendResult ugp token [|token|]
-                                    | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
-                                    | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
-                                    args
-                                else args
-                            | CliParam _ -> 
-                                // If the main type is string, then the gathered arguments here might not be main commands. 
-                                // Can detect this by observing a subsequent argument that IS recognized
-                                if mcp.IsLast && state.IgnoreUnrecognizedArgs 
-                                then List.iter aggregator.AppendUnrecognized args; [] 
-                                else args
-                            | _ -> args
-
-                        let gathered = gather true [] |> List.rev                        
-                        match gathered with
-                        | [] -> () ; false
-                        | list -> aggregator.AppendResult mcp mcp.Name.Value [| List.map (fun arg -> field.Parser arg  :?> 'T) list |] ; true }
-
-            | paramInfo -> arguExn "internal error. MainCommand has param representation %A" paramInfo
-
-        | _ ->
-
+    | _ ->
+        // No applicable main-command param: fall through to the regular
+        // unrecognized-token resolution.
         match argInfo.UnrecognizedGatherParam.Value with
         | Some ugp -> aggregator.AppendResult ugp token [|token|]
         | None when state.IgnoreUnrecognizedArgs -> aggregator.AppendUnrecognized token
         | None -> error argInfo ErrorCode.CommandLine "unrecognized argument: '%s'." token
 
-    | GroupedParams(_, switches) ->
-        for sw in switches do
-            let caseInfo = argInfo.CliParamIndex.Value[sw]
-            match caseInfo.ParameterInfo.Value with
-            | Primitives [||] -> aggregator.AppendResult caseInfo sw [||]
-            | OptionalParam _ -> aggregator.AppendResult caseInfo sw [|None|]
-            | _ -> error argInfo ErrorCode.CommandLine "argument '%s' cannot be grouped with other switches." sw
-
-    | CliParam(_, _, caseInfo, Assignment(name,sep,_)) when caseInfo.Arity <> 1 ->
-        error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s%s<param>'." name sep
-
-    | CliParam(token, name, caseInfo, assignment) ->
-        let parseNextField (p : FieldParserInfo) =
-            match state.Reader.GetNextToken true argInfo with
-            | UnrecognizedOrArgument token ->
-                let result =
-                    try p.Parser token
-                    with _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description token
-
-                state.Reader.MoveNext()
-                result
-
-            | CliParam(_, name, _, _)
-            | HelpArgument name
-            | GroupedParams(name,_) -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description name
-            | _ -> error argInfo ErrorCode.CommandLine "argument '%s' must be followed by <%s>." state.Reader.CurrentSegment p.Description
-
-        let parseSingleParameter fields =
-            let fields = fields |> Array.map parseNextField
-            aggregator.AppendResult caseInfo name fields
-        
+and private handleGroupedParams (argInfo : UnionArgInfo) (aggregator : CliParseResultAggregator) (switches : string []) =
+    for sw in switches do
+        let caseInfo = argInfo.CliParamIndex.Value[sw]
         match caseInfo.ParameterInfo.Value with
-        | Primitives [|field|] when caseInfo.IsCustomAssignment ->
-            match assignment with
-            | NoAssignment ->
-                if caseInfo.CustomAssignmentSeparator.Value.Value.TolerateSpacedArguments then
-                    parseSingleParameter [| field |]
-                else
-                    error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
-            | Assignment(_,_,eqp) ->
-                let argument =
-                    try field.Parser eqp
-                    with _ -> error argInfo ErrorCode.CommandLine "argument '%s' is assigned invalid value, should be <%s>." token field.Description
+        | Primitives [||] -> aggregator.AppendResult caseInfo sw [||]
+        | OptionalParam _ -> aggregator.AppendResult caseInfo sw [|None|]
+        | _ -> error argInfo ErrorCode.CommandLine "argument '%s' cannot be grouped with other switches." sw
 
-                aggregator.AppendResult caseInfo name [| argument |]
-
-        | Primitives [|kf;vf|] when caseInfo.IsCustomAssignment ->
-            match state.Reader.GetNextToken true argInfo with
-            | UnrecognizedOrArgument token ->
-                match caseInfo.AssignmentParser.Value token with
-                | Assignment(key,_,value) ->
-                    let k =
-                        try kf.Parser key
-                        with _ -> error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key '%s', should be <%s>." state.Reader.CurrentSegment token kf.Description
-
-                    let v =
-                        try vf.Parser value
-                        with _ -> error argInfo ErrorCode.CommandLine "argument '%s' was given invalid value assignment '%s', should be <%s>." state.Reader.CurrentSegment token vf.Description
-
-                    aggregator.AppendResult caseInfo name [|k;v|]
-                    state.Reader.MoveNext()
-
-                | NoAssignment ->
-                    error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
-                        caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
-
-            | CliParam(token,name,_,Assignment _) ->
-                error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key name '%s' in '%s'."
-                    state.Reader.CurrentSegment name token
-            | _ ->
-                error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
-                    caseInfo.Name.Value kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
-
-        | Primitives fields ->
-            parseSingleParameter fields
-            if caseInfo.IsRest then
-                while not state.Reader.IsCompleted do
-                    parseSingleParameter fields
-
-        | OptionalParam(existential, field) when caseInfo.IsCustomAssignment ->
-            let optArgument = existential.Accept { new IFunc<obj> with
-                member _.Invoke<'T> () =
-                    match assignment with
-                    | NoAssignment ->
-                        parseOptionalWithoutAssignment<'T> field state argInfo
-                    | Assignment(_,_,eqp) ->
-                        let argument =
-                            try field.Parser eqp
-                            with _ ->
-                                error argInfo ErrorCode.CommandLine "argument '%s' is assigned invalid value, should be <%s>."
-                                    token field.Description
-
-                        argument :?> 'T |> Some :> obj }
-
-            aggregator.AppendResult caseInfo name [| optArgument |]
-
-        | OptionalParam(existential, field) ->
-            let optArgument = existential.Accept { new IFunc<obj> with
-                member _.Invoke<'T> () =
-                    parseOptionalWithoutAssignment<'T> field state argInfo }
-
-            aggregator.AppendResult caseInfo name [| optArgument |]
-
-        | ListParam(existential, field) ->
-            let listArg = existential.Accept { new IFunc<obj> with
-                member _.Invoke<'T>() =
-                    let args = new ResizeArray<'T> ()
-                    let rec gather () =
-                        match state.Reader.GetNextToken true argInfo with
-                        | UnrecognizedOrArgument token ->
-                            let mutable result = Unchecked.defaultof<'T>
-                            let isSuccess = try result <- field.Parser token :?> 'T ; true with _ -> false
-                            if isSuccess then
-                                args.Add result
-                                state.Reader.MoveNext()
-                                gather()
-                        | _ -> ()
-
-                    do gather ()
-                    Seq.toList args :> obj
-            }
-
-            aggregator.AppendResult caseInfo name [| listArg |]
-
-        | SubCommand (existential, nestedUnion, _) ->
-            let nestedResults = parseCommandLineInner state nestedUnion
+and private handleCliParam (state : CliParseState) (argInfo : UnionArgInfo) (aggregator : CliParseResultAggregator)
+                            (token : string) (name : string) (caseInfo : UnionCaseArgInfo) (assignment : Assignment) =
+    let parseNextField (p : FieldParserInfo) =
+        match state.Reader.GetNextToken true argInfo with
+        | UnrecognizedOrArgument token ->
             let result =
-                existential.Accept { new ITemplateFunc<obj> with
-                    member _.Invoke<'Template when 'Template :> IArgParserTemplate> () =
-                        new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
+                try p.Parser token
+                with _ -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description token
 
-            aggregator.AppendResultWithNestedResults(caseInfo, name, [|result|], nestedResults)
+            state.Reader.MoveNext()
+            result
 
-        | NullarySubCommand ->
-            aggregator.AppendResult caseInfo name [||]
+        | CliParam(_, name, _, _)
+        | HelpArgument name
+        | GroupedParams(name,_) -> error argInfo ErrorCode.CommandLine "parameter '%s' must be followed by <%s>, but was '%s'." state.Reader.CurrentSegment p.Description name
+        | _ -> error argInfo ErrorCode.CommandLine "argument '%s' must be followed by <%s>." state.Reader.CurrentSegment p.Description
+
+    let parseSingleParameter fields =
+        let fields = fields |> Array.map parseNextField
+        aggregator.AppendResult caseInfo name fields
+
+    match caseInfo.ParameterInfo.Value with
+    | Primitives [|field|] when caseInfo.IsCustomAssignment ->
+        match assignment with
+        | NoAssignment ->
+            if caseInfo.CustomAssignmentSeparator.Value.Value.TolerateSpacedArguments then
+                parseSingleParameter [| field |]
+            else
+                error argInfo ErrorCode.CommandLine "argument '%s' missing an assignment." name
+        | Assignment(_,_,eqp) ->
+            let argument =
+                try field.Parser eqp
+                with _ -> error argInfo ErrorCode.CommandLine "argument '%s' is assigned invalid value, should be <%s>." token field.Description
+
+            aggregator.AppendResult caseInfo name [| argument |]
+
+    | Primitives [|kf;vf|] when caseInfo.IsCustomAssignment ->
+        match state.Reader.GetNextToken true argInfo with
+        | UnrecognizedOrArgument token ->
+            match caseInfo.AssignmentParser.Value token with
+            | Assignment(key,_,value) ->
+                let k =
+                    try kf.Parser key
+                    with _ -> error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key '%s', should be <%s>." state.Reader.CurrentSegment token kf.Description
+
+                let v =
+                    try vf.Parser value
+                    with _ -> error argInfo ErrorCode.CommandLine "argument '%s' was given invalid value assignment '%s', should be <%s>." state.Reader.CurrentSegment token vf.Description
+
+                aggregator.AppendResult caseInfo name [|k;v|]
+                state.Reader.MoveNext()
+
+            | NoAssignment ->
+                error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
+                    caseInfo.Name kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
+
+        | CliParam(token,name,_,Assignment _) ->
+            error argInfo ErrorCode.CommandLine "argument '%s' was given invalid key name '%s' in '%s'."
+                state.Reader.CurrentSegment name token
+        | _ ->
+            error argInfo ErrorCode.CommandLine "argument '%s' must be followed by assignment '%s%s%s'."
+                caseInfo.Name kf.Description caseInfo.CustomAssignmentSeparator.Value.Value.Separator vf.Description
+
+    | Primitives fields ->
+        parseSingleParameter fields
+        if caseInfo.IsRest then
+            while not state.Reader.IsCompleted do
+                parseSingleParameter fields
+
+    | OptionalParam(existential, field) when caseInfo.IsCustomAssignment ->
+        let optArgument = existential.Accept { new IFunc<obj> with
+            member _.Invoke<'T> () =
+                match assignment with
+                | NoAssignment ->
+                    parseOptionalWithoutAssignment<'T> field state argInfo
+                | Assignment(_,_,eqp) ->
+                    let argument =
+                        try field.Parser eqp
+                        with _ ->
+                            error argInfo ErrorCode.CommandLine "argument '%s' is assigned invalid value, should be <%s>."
+                                token field.Description
+
+                    argument :?> 'T |> Some :> obj }
+
+        aggregator.AppendResult caseInfo name [| optArgument |]
+
+    | OptionalParam(existential, field) ->
+        let optArgument = existential.Accept { new IFunc<obj> with
+            member _.Invoke<'T> () =
+                parseOptionalWithoutAssignment<'T> field state argInfo }
+
+        aggregator.AppendResult caseInfo name [| optArgument |]
+
+    | ListParam(existential, field) ->
+        let listArg = existential.Accept { new IFunc<obj> with
+            member _.Invoke<'T>() =
+                let args = new ResizeArray<'T> ()
+                let rec gather () =
+                    match state.Reader.GetNextToken true argInfo with
+                    | UnrecognizedOrArgument token ->
+                        let mutable result = Unchecked.defaultof<'T>
+                        let isSuccess = try result <- field.Parser token :?> 'T ; true with _ -> false
+                        if isSuccess then
+                            args.Add result
+                            state.Reader.MoveNext()
+                            gather()
+                    | _ -> ()
+
+                do gather ()
+                Seq.toList args :> obj
+        }
+
+        aggregator.AppendResult caseInfo name [| listArg |]
+
+    | SubCommand (existential, nestedUnion, _) ->
+        let nestedResults = parseCommandLineInner state nestedUnion
+        let result =
+            existential.Accept { new ITemplateFunc<obj> with
+                member _.Invoke<'Template when 'Template :> IArgParserTemplate> () =
+                    new ParseResults<'Template>(nestedUnion, nestedResults, state.ProgramName, state.Description, state.UsageStringCharWidth, state.Exiter) :> obj }
+
+        aggregator.AppendResultWithNestedResults(caseInfo, name, [|result|], nestedResults)
+
+    | NullarySubCommand ->
+        aggregator.AppendResult caseInfo name [||]
 
 and private parseCommandLineInner (state : CliParseState) (argInfo : UnionArgInfo) =
     let results = state.ResultStack.CreateNextAggregator argInfo
