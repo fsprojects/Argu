@@ -223,57 +223,53 @@ let getHierarchy (uai : UnionArgInfo) =
 module Helpers =
     /// recognizes and extracts grouped switches
     /// e.g. -efx --> -e -f -x
-    let groupedSwitchRegex (caseInfo: Lazy<UnionCaseArgInfo[]>) (inheritedParams: Lazy<UnionCaseArgInfo[]>) (helpParam: HelpParam) =
-        lazy(
-            let chars =
-                caseInfo.Value
-                |> Seq.append inheritedParams.Value
-                |> Seq.collect (fun c -> c.CommandLineNames)
-                |> Seq.append helpParam.Flags
-                |> Seq.filter (fun name -> name.Length = 2 && name[0] = '-' && Char.IsLetterOrDigit name[1])
-                |> Seq.map (fun name -> name[1])
-                |> Seq.distinct
-                |> Seq.toArray
-                |> String
+    let groupedSwitchRegex (caseInfo: UnionCaseArgInfo[]) (inheritedParams: UnionCaseArgInfo[]) (helpParam: HelpParam) =
+        let chars =
+            caseInfo
+            |> Seq.append inheritedParams
+            |> Seq.collect (fun c -> c.CommandLineNames)
+            |> Seq.append helpParam.Flags
+            |> Seq.filter (fun name -> name.Length = 2 && name[0] = '-' && Char.IsLetterOrDigit name[1])
+            |> Seq.map (fun name -> name[1])
+            |> Seq.distinct
+            |> Seq.toArray
+            |> String
 
-            if chars.Length = 0 then None else
+        if chars.Length = 0 then None else
 
-            let regex = "^-[" + chars + "]+$"
-            Some regex)
+        let regex = "^-[" + chars + "]+$"
+        Some regex
 
-    let groupedSwitchExtractor (regexString: Lazy<string option>) =
-        lazy(
-            match regexString.Value with
-            | None -> (fun _ -> [||])
-            | Some regexString ->
-                let regex = Regex(regexString, RegexOptions.Compiled)
-                (fun (arg : string) ->
-                    if not <| regex.IsMatch arg then [||]
-                    else Array.init (arg.Length - 1) (fun i -> String([|'-'; arg[i + 1]|]))))
+    let groupedSwitchExtractor (regexString: string option) =
+        match regexString with
+        | None -> (fun _ -> [||])
+        | Some regexString ->
+            let regex = Regex(regexString, RegexOptions.Compiled)
+            (fun (arg : string) ->
+                if not <| regex.IsMatch arg then [||]
+                else Array.init (arg.Length - 1) (fun i -> String([|'-'; arg[i + 1]|])))
 
     let caseCtor uci = FSharpValue.PreComputeUnionConstructor(uci, allBindings)
-    let fieldReader uci = lazy FSharpValue.PreComputeUnionReader(uci, allBindings)
+    let fieldReader uci = FSharpValue.PreComputeUnionReader(uci, allBindings)
 
     let tupleConstructor (types: Type[]) =
-        lazy(
-            match types.Length with
-            | 0 -> fun _ -> arguExn "internal error: attempting to call tuple constructor on nullary case."
-            | 1 -> fun (o:obj[]) -> o[0]
-            | _ ->
-                let tupleType = FSharpType.MakeTupleType types
-                FSharpValue.PreComputeTupleConstructor tupleType)
+        match types.Length with
+        | 0 -> fun _ -> arguExn "internal error: attempting to call tuple constructor on nullary case."
+        | 1 -> fun (o:obj[]) -> o[0]
+        | _ ->
+            let tupleType = FSharpType.MakeTupleType types
+            FSharpValue.PreComputeTupleConstructor tupleType
 
-    let assignParser (customAssignmentSeparator: Lazy<CustomAssignmentSeparator option>) =
-        lazy(
-            match customAssignmentSeparator.Value with
-            | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
-            | Some {Separator = sep} ->
-                let pattern = @"^(.+)" + (Regex.Escape sep) + "(.+)$"
-                let regex = Regex(pattern, RegexOptions.RightToLeft ||| RegexOptions.Compiled)
-                fun token ->
-                    let m = regex.Match token
-                    if m.Success then Assignment(m.Groups[1].Value, sep, m.Groups[2].Value)
-                    else NoAssignment)
+    let assignParser (customAssignmentSeparator: CustomAssignmentSeparator option) =
+        match customAssignmentSeparator with
+        | None -> arguExn "internal error: attempting to call assign parser on invalid parameter."
+        | Some {Separator = sep} ->
+            let pattern = @"^(.+)" + (Regex.Escape sep) + "(.+)$"
+            let regex = Regex(pattern, RegexOptions.RightToLeft ||| RegexOptions.Compiled)
+            fun token ->
+                let m = regex.Match token
+                if m.Success then Assignment(m.Groups[1].Value, sep, m.Groups[2].Value)
+                else NoAssignment
 
 /// generate argument parsing schema from given UnionCaseInfo
 let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : HelpParam option)
@@ -495,9 +491,9 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | _ when Option.isSome appSettingsName -> appSettingsName.Value
         | _ -> arguExn "parameter '%O' needs to have at least one parse source." uci
 
-    let fieldReader = Helpers.fieldReader uci
-    let fieldCtor = Helpers.tupleConstructor types
-    let assignParser = Helpers.assignParser customAssignmentSeparator
+    let fieldReader = lazy Helpers.fieldReader uci
+    let fieldCtor = lazy Helpers.tupleConstructor types
+    let assignParser = lazy Helpers.assignParser customAssignmentSeparator.Value
 
     if isAppSettingsCSV && fields.Length <> 1 then
         arguExn "CSV attribute is only compatible with branches of unary fields."
@@ -626,7 +622,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         | [|mcp|] -> Some mcp
         | _ -> arguExn "template type '%O' has specified the MainCommand attribute in more than one union cases." t)
 
-    let groupedSwitchRegex = Helpers.groupedSwitchRegex caseInfo inheritedParams helpParam
+    let groupedSwitchRegex = lazy Helpers.groupedSwitchRegex caseInfo.Value inheritedParams.Value helpParam
 
     let result = {
         Type = t
@@ -638,7 +634,7 @@ and private preComputeUnionArgInfoInner (stack : Type list) (helpParam : HelpPar
         ContainsSubcommands = containsSubcommands
         IsRequiredSubcommand = isRequiredSubcommand
         GroupedSwitchRegex = groupedSwitchRegex
-        GroupedSwitchExtractor = Helpers.groupedSwitchExtractor groupedSwitchRegex
+        GroupedSwitchExtractor = lazy Helpers.groupedSwitchExtractor groupedSwitchRegex.Value
         AppSettingsParamIndex = appSettingsIndex
         InheritedParams = inheritedParams
         CliParamIndex = cliIndex
