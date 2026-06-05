@@ -540,3 +540,7 @@ FodyWeavers.xsd
 *.swp
 *.swo
 
+
+# fsharp
+*.sln.docstates
+

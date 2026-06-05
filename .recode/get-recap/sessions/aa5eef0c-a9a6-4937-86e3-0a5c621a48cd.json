@@ -1,0 +1,26 @@
+{
+  "SchemaVersion": 1,
+  "SessionId": "aa5eef0c-a9a6-4937-86e3-0a5c621a48cd",
+  "Machine": "CJC-2021-TECH-1",
+  "Account": "mathew.burkitt",
+  "Cwd": null,
+  "GitBranch": null,
+  "ParentSessionId": null,
+  "MessageCount": 3,
+  "UserMessages": 1,
+  "AssistantMessages": 2,
+  "FirstTimestamp": "2026-06-05T22:06:12.246+01:00",
+  "LastTimestamp": "2026-06-05T22:06:15.997+01:00",
+  "FirstUserPrompt": "generate a git commit message.\r\n\r\nbased on git-status and git-diff (in TOON format for token efficiency), you are a technical analyst helping to write good informative git commit messages.\r\nBe extremely concise. Output ONLY the commit message, nothing else.\r\n\r\nStatus (TOON format - code,meaning,count):\r\nstatus[2]{code,meaning,count}:\r\n!,Unknown,16\r\nM,Modified,1\r\n\r\n\r\nDiff (TOON format - file,\u002B,-):\r\nfiles[1]{file,\u002B,-}:\r\n.gitignore,4,0\r\n\n--- Diff Content ---\r\ndiff --git a/.gitignore b/.gitignore\r\ni",
+  "LastPrompt": "generate a git commit message.\r \r based on git-status and git-diff (in TOON format for token efficiency), you are a technical analyst helping to write good informative git commit messages.\r Be extreme\u2026",
+  "AiTitle": "Generate git commit message",
+  "CustomTitle": null,
+  "Summary": null,
+  "AiSummary": null,
+  "AiSummaryGeneratedAt": null,
+  "Tokens": {
+    "Input": 18,
+    "Output": 590,
+    "CacheRead": 44862
+  }
+}

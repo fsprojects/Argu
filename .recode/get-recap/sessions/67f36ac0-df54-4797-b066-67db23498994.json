@@ -1,0 +1,26 @@
+{
+  "SchemaVersion": 1,
+  "SessionId": "67f36ac0-df54-4797-b066-67db23498994",
+  "Machine": "CJC-2021-TECH-1",
+  "Account": "mathew.burkitt",
+  "Cwd": null,
+  "GitBranch": null,
+  "ParentSessionId": null,
+  "MessageCount": 2,
+  "UserMessages": 1,
+  "AssistantMessages": 1,
+  "FirstTimestamp": "2026-06-04T15:52:30.004+01:00",
+  "LastTimestamp": "2026-06-04T15:52:47.136+01:00",
+  "FirstUserPrompt": "-\nYou are resolving a git merge conflict. Analyze the three versions and produce a clean merged result.\r\n\r\nCRITICAL RULES:\r\n1. Output ONLY the resolved file content - no explanations, no markdown code fences, no comments\r\n2. Do NOT include any conflict markers (\u003C\u003C\u003C\u003C\u003C\u003C, ======, \u003E\u003E\u003E\u003E\u003E\u003E)\r\n3. Preserve the intent of both changes where possible\r\n4. If changes are truly incompatible, prefer the more complete or recent change\r\n5. Maintain correct syntax, formatting, and indentation\r\n6. Your response sho",
+  "LastPrompt": "- You are resolving a git merge conflict. Analyze the three versions and produce a clean merged result.\r \r CRITICAL RULES:\r 1. Output ONLY the resolved file content - no explanations, no markdown code\u2026",
+  "AiTitle": "Resolve git merge conflict in ParseAsync tests",
+  "CustomTitle": null,
+  "Summary": null,
+  "AiSummary": null,
+  "AiSummaryGeneratedAt": null,
+  "Tokens": {
+    "Input": 2503,
+    "Output": 1629,
+    "CacheRead": 20133
+  }
+}
