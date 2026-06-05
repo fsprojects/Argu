@@ -184,7 +184,7 @@ let mkArgUsage width (aI : UnionCaseArgInfo) = stringExpr {
     let lines = wordwrapSafe width aI.Description.Value
 
     match lines with
-    | [] -> ()
+    | [] -> yield Environment.NewLine
     | h :: tail ->
         yield h
         yield Environment.NewLine

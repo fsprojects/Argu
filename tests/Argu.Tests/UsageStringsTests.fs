@@ -70,3 +70,50 @@ let ``Custom SubcommandHelpHint replaces the default hint line`` () =
             SubcommandHelpHintFormat = "Tapez '{0} <sous-commande> {1}' pour plus d'informations." }
     let rendered = parser.PrintUsage(usageStrings = labels)
     test <@ rendered.Contains "Tapez 'myapp <sous-commande> --help' pour plus d'informations." @>
+
+type KanjiArgs =
+    | Strokes of int
+    | Min_Strokes of int
+    | Max_Strokes of int
+    | Include_Stroke_Miscounts
+    | Radicals of string
+    | Skip_Code of string
+    | Sh_Code of string
+    | Four_Corner_Code of string
+    | Deroo_Code of string
+    | Reading of string
+    | Nanori of string
+    | Common_Only
+    | Pattern of string
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | Strokes _ -> ""
+            | Min_Strokes _ -> ""
+            | Max_Strokes _ -> "20"
+            | Include_Stroke_Miscounts -> "false"
+            | Radicals _ -> ""
+            | Skip_Code _ -> ""
+            | Sh_Code _ -> ""
+            | Four_Corner_Code _ -> "92029"
+            | Deroo_Code _ -> "92381"
+            | Reading _ -> "xsuztlak"
+            | Nanori _ -> ""
+            | Common_Only -> "false"
+            | Pattern _ -> "jjsoowi"
+
+[<Fact>]
+let ``Usage also prints new line for options that have an empty string as usage`` () =
+    let parser = ArgumentParser<KanjiArgs>()
+    let usage = parser.PrintUsage()
+    let lines = usage.Split "\n"
+    let optionsLines: string array = Array.skipWhile(fun s -> not (s.StartsWith "OPTIONS:")) lines
+    let arguments = [|"strokes"; "min-strokes"; "max-strokes"; "include-stroke-miscounts"; "radicals"; "skip-code";
+          "sh-code"; "four-corner-code"; "deroo-code"; "reading"; "nanori"; "common-only"; "pattern"|]
+    let argumentLines: string array = 
+        arguments
+        |> Array.map (fun argument -> Array.find(fun line -> line.Contains $"--{argument}") optionsLines)
+    printfn "%A" argumentLines
+    // If argumentLines is distinct, then all arguments are in their own line.
+    test <@ Array.distinct argumentLines = argumentLines @>
+    test <@ (Array.distinct argumentLines).Length = arguments.Length @>
