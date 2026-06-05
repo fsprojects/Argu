@@ -1,4 +1,4 @@
-﻿#I "bin/Debug/net6.0/"
+﻿#I "bin/Debug/net10.0/"
 #r "Argu.dll"
 #r "Argu.Tests.dll"
 
@@ -49,13 +49,13 @@ type GitArgs =
     | Log_Level of LogLevel
     | [<CliPrefix(CliPrefix.None)>] Push of options:ParseResults<PushArgs>
     | [<CliPrefix(CliPrefix.None)>] Clean of suboptions:ParseResults<CleanArgs>
-    | [<AltCommandLine("-E")>][<EqualsAssignment>] Environment_Variable of key:string * value:string
+    | [<AltCommandLine("-E"); Separator "=">] Environment_Variable of key:string * value:string
     | Ports of tcp_port:int list
     | Optional of num:int option
     | Options of MyEnum option
     | [<Inherit>] Silent
-with 
-    interface IArgParserTemplate with 
+with
+    interface IArgParserTemplate with
         member this.Usage =
             match this with
             | Listener _ -> "Specify a listener host/port combination."

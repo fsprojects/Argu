@@ -1,4 +1,4 @@
-module Argu.Tests.AssignmentAttributeTests
+module Argu.Tests.SeparatorAttributeTests
 
 open Swensen.Unquote
 open Xunit
@@ -7,10 +7,10 @@ open Argu
 
 let run<'T when 'T :> IArgParserTemplate> argv = ArgumentParser.Create<'T>().ParseCommandLine argv
 
-module Equals =
+module SeparatorAttributeWithEquals =
 
     type EqualsViaNewAttr =
-        | [<Assignment("=")>] Port of int
+        | [<Separator("=")>] Port of int
         interface IArgParserTemplate with member this.Usage = ""
 
     #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
@@ -20,25 +20,25 @@ module Equals =
     #warnon 44
 
     [<Fact>]
-    let ``[<Assignment("=")>] parses --port=8080`` () =
+    let ``[<Separator("=")>] parses --port=8080`` () =
         let r = run<EqualsViaNewAttr> [| "--port=8080" |]
         test <@ r.GetResult EqualsViaNewAttr.Port = 8080 @>
 
     [<Fact>]
-    let ``[<Assignment("=")>] rejects --port 8080 (no spaced form)`` () =
+    let ``[<Separator("=")>] rejects --port 8080 (no spaced form)`` () =
         raises<ArguParseException>
             <@ run<EqualsViaNewAttr>([| "--port"; "8080" |]) @>
 
     [<Fact>]
-    let ``[<Assignment("=")>] matches [<EqualsAssignment>] parity`` () =
-        let novel = run<EqualsViaNewAttr> [| "--port=42" |] |> _.GetResult(EqualsViaNewAttr.Port)
-        let legacy = run<EqualsViaLegacy> [| "--port=42" |] |> _.GetResult(EqualsViaLegacy.Port)
+    let ``[<Separator("=")>] matches [<EqualsAssignment>] parity`` () =
+        let novel = let r = run<EqualsViaNewAttr> [| "--port=42" |] in r.GetResult EqualsViaNewAttr.Port
+        let legacy = let r = run<EqualsViaLegacy> [| "--port=42" |] in r.GetResult EqualsViaLegacy.Port
         test <@ novel = legacy @>
 
 module ColonOrSpaced =
 
     type ColonSpacedViaNewAttr =
-        | [<Assignment(":", allowSpaced = true)>] Tag of string
+        | [<Separator(":", orSpace = true)>] Tag of string
         interface IArgParserTemplate with member this.Usage = ""
 
     #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
@@ -48,26 +48,26 @@ module ColonOrSpaced =
     #warnon 44
 
     [<Fact>]
-    let ``[<Assignment(":", allowSpaced = true)>] accepts --tag:value`` () =
+    let ``[<Separator(":", orSpace = true)>] accepts --tag:value`` () =
         let r = run<ColonSpacedViaNewAttr> [| "--tag:hello" |]
         test <@ r.GetResult ColonSpacedViaNewAttr.Tag = "hello" @>
 
     [<Fact>]
-    let ``[<Assignment(":", allowSpaced = true)>] accepts --tag spaced`` () =
+    let ``[<Separator(":", orSpace = true)>] accepts --tag spaced`` () =
         let r = run<ColonSpacedViaNewAttr> [| "--tag"; "hello" |]
         test <@ r.GetResult ColonSpacedViaNewAttr.Tag = "hello" @>
 
     [<Fact>]
-    let ``[<Assignment(":", allowSpaced = true)>] matches [<ColonAssignmentOrSpaced>] parity`` () =
-        let novel = run<ColonSpacedViaNewAttr> [| "--tag"; "v" |] |> _.GetResult(ColonSpacedViaNewAttr.Tag)
-        let legacy = run<ColonSpacedViaLegacy> [| "--tag"; "v" |] |> _.GetResult(ColonSpacedViaLegacy.Tag)
+    let ``[<Separator(":", orSpace = true)>] matches [<ColonAssignmentOrSpaced>] parity`` () =
+        let novel = let r = run<ColonSpacedViaNewAttr> [| "--tag"; "v" |] in r.GetResult ColonSpacedViaNewAttr.Tag
+        let legacy = let r = run<ColonSpacedViaLegacy> [| "--tag"; "v" |] in r.GetResult ColonSpacedViaLegacy.Tag
         test <@ novel = legacy @>
 
 module LegacyValidations =
 
     #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
     type ConflictingAttrs =
-        | [<Assignment "=">] [<CustomAssignment "=">] Port of int
+        | [<Separator "=">] [<CustomAssignment "=">] Port of int
         interface IArgParserTemplate with member this.Usage = "x"
     type DisallowedAssignmentArgs =
         | [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
@@ -84,10 +84,10 @@ module LegacyValidations =
     #warnon 44
 
     [<Fact>]
-    let ``Mixing [<Assignment>] with legacy CustomAssignment raises a clear error`` () =
+    let ``Mixing [<Separator>] with legacy CustomAssignment raises a clear error`` () =
         raisesWith<ArguException>
             <@ ArgumentParser.Create<ConflictingAttrs>() @>
-            (fun e -> <@ e.Message.Contains "mixes the 'Assignment' attribute" @>)
+            <| fun e -> <@ e.Message.Contains "has 'Separator' attribute, but also" @>
 
     [<Fact>]
     let ``Disallowed equals assignment combination throws`` () =
@@ -102,7 +102,13 @@ module Assignment =
 
     open Argu.Tests.Main
 
-    let run argv = parser.Parse(argv, ignoreMissing = true)
+    let run argv = parser.ParseCommandLine(argv, ignoreMissing = true)
+
+    [<Fact>]
+    let ``Should fail if assigment with Separator only has no separator.`` () =
+        raisesWith<ArguParseException>
+            <@ run [|"--assignment"; "value"|] @>
+            <| fun e -> <@ e.FirstLine.Contains "missing an assignment" @>
 
     [<Fact>]
     let ``Parse colon assignment 1`` () =

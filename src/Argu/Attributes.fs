@@ -120,29 +120,30 @@ type MainCommandAttribute (argumentName : string) =
 type PrintLabelsAttribute () = inherit Attribute ()
 
 /// <summary>
-/// Use a custom separator for parameter assignment.<br/>
-/// When <paramref name="allowSpaced"/> is <c>true</c>, the format <c>--param value</c> will also be accepted.<br/>
-/// Otherwise <c>'--param&lt;separator&gt;arg'</c> or <c>'--param key&lt;separator&gt;value'</c> are accepted.<br/>
+/// Overrides the standard <c>--param value</c> and <c>--param value1 value2</c> (for tuple values) CLI format rules to accept an alternate separator.<br/>
+/// <i>(for single values)</i> Switches accepted format to: <c>--param&lt;separator&gt;arg</c><br/>
+/// <i>(for tuple values)</i> Opts into accepting<c>--param key&lt;separator&gt;value</c>.<br/>
+/// Optionally, if <paramref name="orSpace"/> is <c>true</c>, the format <c>--param value</c> will also be accepted (but only for single parameters).
 /// </summary>
 /// <remarks>
 /// Unified attribute that subsumes the six legacy predecessors: <c>CustomAssignment</c>,
-/// <c>EqualsAssignment</c>, <c>ColonAssignment</c> and the <c>*OrSpaced</c> attributes.<br/>
+/// <c>EqualsAssignment</c>, <c>ColonAssignment</c>, <c>CustomAssignmentOrSpacedAttribute</c>,  and the associated <c>*OrSpaced</c> variants.<br/>
 /// </remarks>
 [<AttributeUsage(AttributeTargets.Method, AllowMultiple = false)>]
-type AssignmentAttribute (separator : string, allowSpaced : bool) =
+type SeparatorAttribute(separator : string, orSpace : bool) =
     inherit Attribute ()
-    new (separator : string) = AssignmentAttribute(separator, false)
-    /// The assignment separator string (e.g. "=" or ":").
+    new (separator : string) = SeparatorAttribute(separator, false)
+    /// The value separator string (e.g. "=" or ":").
     member _.Separator = separator
-    /// When <c>true</c>, the spaced form (<c>--param value</c>) is also accepted alongside the separator form (only supported for non-keyed parameters).
-    member _.AllowSpaced = allowSpaced
+    /// When <c>true</c>, the spaced form (<c>--param value</c>) is also accepted alongside the separator form (but only for single parameters).
+    member _.OrSpace = orSpace
 
 /// Use a custom separator for parameter assignment.
 /// e.g. '--param<separator>arg' or '--param key<separator>value'.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
 /// Can be used to specify any assignment separator.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
-[<Obsolete("Use [<Assignment(separator)>] instead.")>]
+[<Obsolete("Use [<Separator(separator)>] instead.")>]
 type CustomAssignmentAttribute (separator : string) =
     inherit Attribute ()
     /// The assignment separator string (e.g. "=" or ":").
@@ -151,14 +152,14 @@ type CustomAssignmentAttribute (separator : string) =
 /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
-[<Obsolete("Use [<Assignment(\"=\")>] instead.")>]
+[<Obsolete("Use [<Separator(\"=\")>] instead.")>]
 type EqualsAssignmentAttribute () =
     inherit CustomAssignmentAttribute("=")
 
 /// Use '--param:arg' or '--param key:value' assignment syntax in CLI.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
-[<Obsolete("Use [<Assignment(\":\")>] instead.")>]
+[<Obsolete("Use [<Separator(\":\")>] instead.")>]
 type ColonAssignmentAttribute () =
     inherit CustomAssignmentAttribute(":")
 
@@ -168,7 +169,7 @@ type ColonAssignmentAttribute () =
 /// Requires that the argument should have parameters of arity 1 only.
 /// Can be used to specify any assignment separator.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
-[<Obsolete("Use [<Assignment(separator, allowSpaced = true)>] instead.")>]
+[<Obsolete("Use [<Separator(separator, orSpace = true)>] instead.")>]
 type CustomAssignmentOrSpacedAttribute (separator : string) =
     inherit Attribute ()
     /// The assignment separator string (e.g. "=" or ":"). Spaced form is also accepted.
@@ -178,7 +179,7 @@ type CustomAssignmentOrSpacedAttribute (separator : string) =
 /// Parameters can also be assigned using space as separator e.g. '--param arg'
 /// Requires that the argument should have parameters of arity 1 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
-[<Obsolete("Use [<Assignment(\"=\", allowSpaced = true)>] instead.")>]
+[<Obsolete("Use [<Separator(\"=\", orSpace = true)>] instead.")>]
 type EqualsAssignmentOrSpacedAttribute () =
     inherit CustomAssignmentOrSpacedAttribute("=")
 
@@ -186,7 +187,7 @@ type EqualsAssignmentOrSpacedAttribute () =
 /// Parameters can also be assigned using space as separator e.g. '--param arg'
 /// Requires that the argument should have parameters of arity 1 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
-[<Obsolete("Use [<Assignment(\":\", allowSpaced = true)>] instead.")>]
+[<Obsolete("Use [<Separator(\":\", orSpace = true)>] instead.")>]
 type ColonAssignmentOrSpacedAttribute () =
     inherit CustomAssignmentOrSpacedAttribute(":")
 
@@ -225,13 +226,13 @@ type AppSettingsSeparatorAttribute ([<ParamArray>] separators : string [], split
     new (separator : char) = AppSettingsSeparatorAttribute([|string separator|], StringSplitOptions.None)
     /// The separator strings used to split AppSettings list/CSV values.
     member _.Separators = separators
-    /// Split options applied during AppSettings list/CSV value separation.
+    /// <summary>Split options applied during AppSettings list/CSV value separation. Default: <c>None</c></summary>
     member _.SplitOptions = splitOptions
 
 /// Specifies a custom prefix for auto-generated CLI names.
 /// This defaults to double dash ('--').
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property ||| AttributeTargets.Class, AllowMultiple = false)>]
-type CliPrefixAttribute(prefix : string) =
+type CliPrefixAttribute (prefix : string) =
     inherit Attribute()
     /// The auto-generation prefix (e.g. "--", "-", or empty).
     member _.Prefix = prefix

@@ -196,7 +196,7 @@ let rec private parseCommandLinePartial (state : CliParseState) (argInfo : Union
         handleMainCommandOrUnrecognized state argInfo aggregator token
     | GroupedParams(_, switches) ->
         handleGroupedParams argInfo aggregator switches
-    | CliParam(_, _, caseInfo, Assignment(name,sep,_)) when caseInfo.Arity <> 1 ->
+    | CliParam(_, _, caseInfo, Assignment(name, sep, _)) when caseInfo.Arity <> 1 ->
         error argInfo ErrorCode.CommandLine "invalid CLI syntax '%s%s<param>'." name sep
     | CliParam(token, name, caseInfo, assignment) ->
         handleCliParam state argInfo aggregator token name caseInfo assignment

@@ -29,22 +29,22 @@ let run<'T when 'T :> IArgParserTemplate> argv = ArgumentParser.Create<'T>().Par
 let ``ErrorCode.CommandLine: unrecognized argument message`` () =
     raisesWith<ArguParseException>
         <@ run<SimpleArgs> [| "--bogus" |] @>
-        (fun e -> <@ e.ErrorCode = ErrorCode.CommandLine
-                     && e.FirstLine = "ERROR: unrecognized argument: '--bogus'." @>)
+        <| fun e -> <@ e.ErrorCode = ErrorCode.CommandLine
+                        && e.FirstLine = "ERROR: unrecognized argument: '--bogus'." @>
 
 [<Fact>]
 let ``ErrorCode.PostProcess: missing mandatory message`` () =
     raisesWith<ArguParseException>
         <@ run<SimpleArgs> [||] @>
-        (fun e -> <@ e.ErrorCode = ErrorCode.PostProcess
-                     && e.FirstLine = "ERROR: missing parameter '--port'." @>)
+        <| fun e -> <@ e.ErrorCode = ErrorCode.PostProcess
+                     && e.FirstLine = "ERROR: missing parameter '--port'." @>
 
 [<Fact>]
 let ``ErrorCode.CommandLine: missing argument value message`` () =
     raisesWith<ArguParseException>
         <@ run<SimpleArgs> [| "--port" |] @>
-        (fun e -> <@ e.ErrorCode = ErrorCode.CommandLine
-                     && e.FirstLine.StartsWith "ERROR: argument '--port' must be followed by" @>)
+        <| fun e -> <@ e.ErrorCode = ErrorCode.CommandLine
+                     && e.FirstLine.StartsWith "ERROR: argument '--port' must be followed by" @>
 
 // === Deep (3-level) subcommand mandatory-missing ===
 
@@ -73,9 +73,9 @@ type Level1Args =
 let ``Deep subcommand: mandatory at level 3 missing surfaces in error`` () =
     raisesWith<ArguParseException>
         <@ run<Level1Args> [| "level2"; "level3" |] @>
-        (fun e -> <@ e.ErrorCode = ErrorCode.PostProcess
-                     // 'inner' is the deepest mandatory; its name should appear in the message.
-                     && e.Message.Contains "--inner" @>)
+        <| fun e -> <@ e.ErrorCode = ErrorCode.PostProcess
+                        // 'inner' is the deepest mandatory; its name should appear in the message.
+                        && e.Message.Contains "--inner" @>
 
 [<Fact>]
 let ``Deep subcommand: providing the leaf mandatory parses cleanly`` () =
@@ -118,10 +118,10 @@ let ``AppSettings: missing mandatory key raises`` () =
     let parser = ArgumentParser.Create<AppSettingsArgs>()
     raisesWith<ArguParseException>
         <@ parser.ParseConfiguration(reader, ignoreMissing = false) @>
-        (fun e -> <@ e.ErrorCode = ErrorCode.PostProcess
-                     // Argu reports the CLI name in the missing-mandatory error, not the
-                     // AppSettings key. The CLI name is auto-derived ("requiredkey").
-                     && e.Message.Contains "--requiredkey" @>)
+        <| fun e -> <@ e.ErrorCode = ErrorCode.PostProcess
+                        // Argu reports the CLI name in the missing-mandatory error, not the
+                        // AppSettings key. The CLI name is auto-derived ("requiredkey").
+                        && e.Message.Contains "--requiredkey" @>
 
 [<Fact>]
 let ``AppSettings: null or empty value is treated as absent`` () =
@@ -141,8 +141,8 @@ let ``AppSettings: invalid type-parse raises with key in message`` () =
 
     raisesWith<ArguParseException>
         <@ parser.ParseConfiguration(reader, ignoreMissing = false) @>
-        (fun e -> <@ e.ErrorCode = ErrorCode.AppSettings
-                     && e.Message.Contains "int-key" @>)
+        <| fun e -> <@ e.ErrorCode = ErrorCode.AppSettings
+                        && e.Message.Contains "int-key" @>
 
 [<Fact>]
 let ``AppSettings: ignoreMissing=true skips mandatory check`` () =

@@ -19,11 +19,9 @@ type ArgumentPrimitive =
     | Log_Level of int
     | [<AltCommandLine("/D", "-D", "-z")>] Detach
     | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
-#nowarn 44 // Obsolete attributes
-    | [<ColonAssignment>] Assignment of string
-    | [<EqualsAssignment>] Env of key:string * value:string
-    | [<EqualsAssignment>] Dir of path:string
-#warnon 44
+    | [<Separator ":">] Assignment of string
+    | [<Separator "=">] Env of key:string * value:string
+    | [<Separator "=">] Dir of path:string
     | [<First>] First_Parameter of string
     | [<Last>] Last_Parameter of string
     | Optional of int option
@@ -50,7 +48,7 @@ type ArgumentPrimitive =
             | List _ -> "variadic params"
             | Optional _ -> "optional params"
 
-let parser = ArgumentParser.Create<ArgumentPrimitive> (programName = "gadget")
+let parser = ArgumentParser.Create<ArgumentPrimitive>(programName = "gadget")
 
 [<Fact>]
 let ``Simple command line parsing`` () =
@@ -71,13 +69,13 @@ let ``Simple command line parsing`` () =
 let ``Help String`` () =
     raisesWith<ArguParseException>
         <@ parser.ParseCommandLine [| "--help" |] @>
-        (fun e -> <@ e.Message.Contains "USAGE:" @>)
+        <| fun e -> <@ e.Message.Contains "USAGE:" @>
 
 [<Fact>]
 let ``First Parameter not placed at beginning`` () =
     raisesWith<ArguParseException>
         <@ parser.ParseCommandLine [| "--mandatory-arg" ; "true" ; "--first-parameter" ; "foo" |] @>
-        (fun e -> <@ e.Message.Contains "should precede all other" @>)
+        <| fun e -> <@ e.Message.Contains "should precede all other" @>
 
 [<Fact>]
 let ``Ignore Unrecognized parameters`` () =
@@ -120,7 +118,7 @@ module ``Traps for defaulting and or post-processing functions`` =
             <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
         raisesWith<ArguParseException>
             <@ results.GetResult(Working_Directory, failingDefThunk) @>
-            (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
+            <| fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>
 
     [<Fact>]
     let ``Trap defaulting function exceptions (for overloads with parse functions)`` () =
@@ -131,7 +129,7 @@ module ``Traps for defaulting and or post-processing functions`` =
             <| fun e -> <@ e.Message = "Defaulting Failed" && e.ErrorCode = ErrorCode.PostProcess @>
         raisesWith<ArguParseException>
             <@ results.GetResult(Working_Directory, failingDefThunk, parser)  @>
-            (fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>)
+            <| fun e -> <@ e.Message.StartsWith "Defaulting Failed" && e.Message.Contains "--working-directory" @>
 
     [<Fact>]
     let ``Trap post processing exceptions for GetResult overloads with defaulting functions`` () =
@@ -142,7 +140,7 @@ module ``Traps for defaulting and or post-processing functions`` =
             <| fun e -> <@ e.Message = "Parse Failed" && e.ErrorCode = ErrorCode.PostProcess @>
         raisesWith<ArguParseException>
             <@ results.GetResult(Working_Directory, okDefThunk, parser)  @>
-            (fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>)
+            <| fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>
 
     [<Fact>]
     let ``Trap post processing exceptions for GetResult overloads with default values`` () =
@@ -153,4 +151,4 @@ module ``Traps for defaulting and or post-processing functions`` =
             <| fun e -> <@ e.Message = "Parse Failed" && e.ErrorCode = ErrorCode.PostProcess @>
         raisesWith<ArguParseException>
             <@ results.GetResult(Working_Directory, def, parser)  @>
-            (fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>)
+            <| fun e -> <@ e.Message.StartsWith "Parse Failed" && e.Message.Contains "--working-directory" @>

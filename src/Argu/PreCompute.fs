@@ -320,37 +320,37 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
         | None -> CliPosition.Unspecified)
 
     let customAssignmentSeparator : Lazy<CustomAssignmentSeparator option> = lazy(
-        let unified = tryGetAttribute2<AssignmentAttribute> attrs declaringTypeAttrs
+        let unified = tryGetAttribute2<SeparatorAttribute> attrs declaringTypeAttrs
 #nowarn 44
         let customAssignment = tryGetAttribute2<CustomAssignmentAttribute> attrs declaringTypeAttrs
         let spaceOrCustomAssignment = tryGetAttribute2<CustomAssignmentOrSpacedAttribute> attrs declaringTypeAttrs
 #warnon 44
         let validateCustomAssignmentAttributes attributeName tolerateSpacedArguments =
             if isMainCommand.Value && types.Length = 1 then
-                arguExn "parameter '%O' of arity 1 contains incompatible attributes '%s' and 'MainCommand'." uci attributeName
+                arguExn "parameter '%O' has incompatible attributes '%s' and 'MainCommand'." uci attributeName
             elif types.Length <> 1 && tolerateSpacedArguments then
-                arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 only." uci attributeName types.Length
+                arguExn "parameter '%O' has '%s' attribute but specifies %d parameters; only 1 permitted." uci attributeName types.Length
             elif types.Length <> 1 && types.Length <> 2 then
-                arguExn "parameter '%O' has %s attribute but specifies %d parameters. Should be 1 or 2." uci attributeName types.Length
+                arguExn "parameter '%O' has '%s' attribute but specifies %d parameters; only 1 or 2 permitted." uci attributeName types.Length
             elif isRest then
-                arguExn "parameter '%O' contains incompatible attributes '%s' and 'Rest'." uci attributeName
+                arguExn "parameter '%O' has incompatible attributes '%s' and 'Rest'." uci attributeName
         let handle attributeName sep tolerateSpacedArguments =
             validateCustomAssignmentAttributes attributeName tolerateSpacedArguments
             validateSeparator uci sep
             Some { Separator = sep; TolerateSpacedArguments = tolerateSpacedArguments }
         match unified, customAssignment, spaceOrCustomAssignment with
         | Some unified, None, None ->
-            handle "Assignment" unified.Separator unified.AllowSpaced
+            handle "Separator" unified.Separator unified.OrSpace
         // Unified attribute is preferred; mixing it with the legacy ones is rejected so we don't have to define a merge policy.
         | Some _, _, _ ->
-            arguExn "parameter '%O' mixes the 'Assignment' attribute with a legacy assignment attribute (CustomAssignment / EqualsAssignment / ColonAssignment / *OrSpaced). Use one or the other, not both." uci
+            arguExn "parameter '%O' has 'Separator' attribute, but also a conflicting legacy assignment attribute (CustomAssignment / EqualsAssignment / ColonAssignment / *OrSpaced)." uci
         | None, Some customAssignment, None ->
 #nowarn 44
             let sep = customAssignment.Separator
 #warnon 44
             handle "CustomAssignment" sep (*tolerateSpacedArguments*)false
         | None, Some _, Some _ ->
-            arguExn "parameter '%O' contains incompatible attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
+            arguExn "parameter '%O' has conflicting attributes 'CustomAssignment' and 'EitherSpaceOrCustomAssignment'." uci
         | None, None, Some spaceOrCustomAssignment ->
 #nowarn 44
             let sep = spaceOrCustomAssignment.Separator
@@ -361,7 +361,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
     let isGatherUnrecognized = lazy(
         if hasAttribute<GatherUnrecognizedAttribute> attrs then
             match types with
-            | _ when isMainCommand.Value -> arguExn "parameter '%O' contains incompatible combination of attributes 'MainCommand' and 'GatherUnrecognized'." uci
+            | _ when isMainCommand.Value -> arguExn "parameter '%O' has conflicting 'MainCommand' and 'GatherUnrecognized' attributes." uci
             | [|t|] when t = typeof<string> -> true
             | _ -> arguExn "parameter '%O' has GatherUnrecognized attribute but specifies invalid parameters. Must contain single parameter of type string." uci
         else
@@ -390,15 +390,15 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let checkSubCommand() =
         if Option.isSome customAssignmentSeparator.Value then
-            arguExn "CustomAssignment in '%O' not supported in subcommands." uci
+            arguExn "CustomAssignment in '%O' not supported for subcommands." uci
         if isRest then
-            arguExn "Rest attribute in '%O' not supported in subcommands." uci
+            arguExn "Rest attribute in '%O' not supported for subcommands." uci
         if isMandatory then
-            arguExn "Mandatory attribute in '%O' not supported in subcommands." uci
+            arguExn "Mandatory attribute in '%O' not supported for subcommands." uci
         if isMainCommand.Value then
-            arguExn "MainCommand attribute in '%O' not supported in subcommands." uci
+            arguExn "MainCommand attribute in '%O' not supported for subcommands." uci
         if isInherited then
-            arguExn "Inherit attribute in '%O' not supported in subcommands." uci
+            arguExn "Inherit attribute in '%O' not supported for subcommands." uci
 
     // Children need access to parent levels, but parent levels can't be created until child layers visited ...
     let mutable current : UnionCaseArgInfo option = None
@@ -418,10 +418,10 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         | [|Optional t|] ->
             if isRest then
-                arguExn "Rest attribute in '%O' not supported in optional parameters." uci
+                arguExn "Rest attribute in '%O' not supported for optional parameters." uci
 
             if isMainCommand.Value then
-                arguExn "MainCommand attribute in '%O' not supported in optional parameters." uci
+                arguExn "MainCommand attribute in '%O' not supported for optional parameters." uci
 
             let label = tryExtractUnionParameterLabel fields[0]
 

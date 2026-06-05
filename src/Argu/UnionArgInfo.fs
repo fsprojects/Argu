@@ -56,7 +56,7 @@ type UnionCaseArgInfo =
         Name : string
         /// Contextual depth of current argument w.r.t subcommands
         Depth : int
-        /// Numbers of parameters in the given union case
+        /// Numbers of values in the given union case, i.e. a tuple is 2
         Arity : int
         /// Same as UnionCaseInfo.Tag
         Tag : int
@@ -91,7 +91,7 @@ type UnionCaseArgInfo =
         /// Configuration parsing split options
         AppSettingsSplitOptions : StringSplitOptions
 
-        /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
+        /// Separator token used for Value Assignment syntax; e.g. '=' forces '--param=arg' syntax
         CustomAssignmentSeparator : Lazy<CustomAssignmentSeparator option>
         /// Reads assignment for that specific value
         AssignmentParser : Lazy<string -> Assignment>

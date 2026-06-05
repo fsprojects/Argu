@@ -150,8 +150,8 @@ type Argument =
     | [<Mandatory>] Cache_Path of path: string
     | [<NoCommandLine>] Connection_String of conn: string
     | [<Unique>] Listener of host: string * port: int
-    | [<EqualsAssignment>] Assignment of value: string
-    | [<EqualsAssignmentOrSpaced>] AssignmentOrSpace of value: string
+    | [<Separator "=">] Assignment of value: string
+    | [<Separator("=", orSpace = true)>] AssignmentOrSpace of value: string
     | [<AltCommandLine("-p")>] Primary_Port of tcp_port: int
 
 (**
@@ -164,9 +164,9 @@ In this case,
 
   * [`AltCommandLine`](reference/argu-arguattributes-altcommandlineattribute.html): specifies an alternative command line switch.
 
-  * [`EqualsAssignment`](reference/argu-arguattributes-equalsassignmentattribute.html) : enforces `--assignment=value` and `--assignment key=value` CLI syntax.
+  * [`Separator "="`](reference/argu-arguattributes-separatorattribute.html) : enforces `--assignment=value` and `--assignment key=value` CLI syntax.
 
-  * [`EqualsAssignmentOrSpaced`](reference/argu-arguattributes-equalsassignmentorspacedattribute.html) : enforces `--assignment=value` and `--assignment value` CLI syntax.
+  * [`Separator("=", orSpace = true)`](reference/argu-arguattributes-separatorattribute.html) : enforces `--assignment=value` and `--assignment value` CLI syntax.
 
   * [`Unique`](reference/argu-arguattributes-uniqueattribute.html) : parser will fail if CLI provides this argument more than once.
 
@@ -177,8 +177,6 @@ Many more attributes are also available, such as
   * [`Hidden`](reference/argu-arguattributes-hiddenattribute.html): do not display in the help usage string.
 
   * [`CustomAppSettings`](reference/argu-arguattributes-customappsettingsattribute.html): sets a custom key name for AppSettings.
-
-  * [`CustomAssignment`](reference/argu-arguattributes-customassignmentattribute.html): works like EqualsAssignment but with a custom separator string.
 
 Please see the [API Reference](http://fsprojects.github.io/Argu/reference/argu-arguattributes.html)
 for a complete list of all attributes provided by Argu.
@@ -202,7 +200,7 @@ Additionally, it is possible to specify argument parameters that are either opti
 *)
 
 type VariadicParameters =
-    | [<EqualsAssignment>] Enable_Logging of path: string option
+    | [<Separator "=">] Enable_Logging of path: string option
     | Tcp_Ports of port: int list
 
 (**
@@ -340,7 +338,7 @@ let main argv =
     try
         parser.ParseCommandLine(inputs = argv, raiseOnUsage = true) |> ignore
         0
-    with :? ArguParseException as e -> eprintfn "%s" e.Message; 1
+    with :? ArguParseException as e -> eprintfn $"%s{e.Message}"; 1
 
 (**
 
