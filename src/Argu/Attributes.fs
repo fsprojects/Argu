@@ -2,12 +2,6 @@
 [<AutoOpen>]
 module Argu.ArguAttributes
 
-// Several attributes in this file are deprecated but kept as functional
-// wrappers for source-compat (e.g. EqualsAssignmentAttribute inherits from
-// the now-obsolete CustomAssignmentAttribute). #nowarn 44 silences the
-// resulting FS0044 inside this file; callers still see the warning.
-#nowarn "44"
-
 open System
 
 /// Parse multiple parameters in AppSettings as comma separated values. OBSOLETE
@@ -122,14 +116,14 @@ type PrintLabelsAttribute () = inherit Attribute ()
 /// <summary>
 /// Overrides the standard <c>--param value</c> and <c>--param value1 value2</c> (for tuple values) CLI format rules to accept an alternate separator.<br/>
 /// <i>(for single values)</i> Switches accepted format to: <c>--param&lt;separator&gt;arg</c><br/>
-/// <i>(for tuple values)</i> Opts into accepting<c>--param key&lt;separator&gt;value</c>.<br/>
+/// <i>(for tuple values)</i> Opts into accepting <c>--param key&lt;separator&gt;value</c>.<br/>
 /// Optionally, if <paramref name="orSpace"/> is <c>true</c>, the format <c>--param value</c> will also be accepted (but only for single parameters).
 /// </summary>
 /// <remarks>
 /// Unified attribute that subsumes the six legacy predecessors: <c>CustomAssignment</c>,
 /// <c>EqualsAssignment</c>, <c>ColonAssignment</c>, <c>CustomAssignmentOrSpacedAttribute</c>,  and the associated <c>*OrSpaced</c> variants.<br/>
 /// </remarks>
-[<AttributeUsage(AttributeTargets.Method, AllowMultiple = false)>]
+[<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
 type SeparatorAttribute(separator : string, orSpace : bool) =
     inherit Attribute ()
     new (separator : string) = SeparatorAttribute(separator, false)
@@ -149,6 +143,7 @@ type CustomAssignmentAttribute (separator : string) =
     /// The assignment separator string (e.g. "=" or ":").
     member _.Separator = separator
 
+#nowarn 44 // These derive from an Obsolete root attribute, but we can't remove them
 /// Use '--param=arg' or '--param key=value' assignment syntax in CLI.
 /// Requires that the argument should have parameters of arity 1 or 2 only.
 [<AttributeUsage(AttributeTargets.Method ||| AttributeTargets.Property, AllowMultiple = false)>]
@@ -190,6 +185,7 @@ type EqualsAssignmentOrSpacedAttribute () =
 [<Obsolete("Use [<Separator(\":\", orSpace = true)>] instead.")>]
 type ColonAssignmentOrSpacedAttribute () =
     inherit CustomAssignmentOrSpacedAttribute(":")
+#warnon 44
 
 /// Declares a custom default CLI identifier for the current parameter.
 /// Replaces the auto-generated identifier name.

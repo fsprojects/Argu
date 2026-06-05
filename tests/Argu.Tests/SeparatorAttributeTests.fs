@@ -13,7 +13,7 @@ module SeparatorAttributeWithEquals =
         | [<Separator("=")>] Port of int
         interface IArgParserTemplate with member this.Usage = ""
 
-    #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
+    #nowarn 44 // Legacy *Assignment attributes are obsolete; tests deliberately use them.
     type EqualsViaLegacy =
         | [<EqualsAssignment>] Port of int
         interface IArgParserTemplate with member this.Usage = "x"
@@ -41,7 +41,7 @@ module ColonOrSpaced =
         | [<Separator(":", orSpace = true)>] Tag of string
         interface IArgParserTemplate with member this.Usage = ""
 
-    #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
+    #nowarn 44 // Legacy *Assignment attributes are obsolete; tests deliberately use them.
     type ColonSpacedViaLegacy =
         | [<ColonAssignmentOrSpaced>] Tag of string
         interface IArgParserTemplate with member this.Usage = "x"
@@ -65,7 +65,7 @@ module ColonOrSpaced =
 
 module LegacyValidations =
 
-    #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
+    #nowarn 44 // Legacy *Assignment attributes are obsolete; tests deliberately use them.
     type ConflictingAttrs =
         | [<Separator "=">] [<CustomAssignment "=">] Port of int
         interface IArgParserTemplate with member this.Usage = "x"
@@ -105,7 +105,7 @@ module Assignment =
     let run argv = parser.ParseCommandLine(argv, ignoreMissing = true)
 
     [<Fact>]
-    let ``Should fail if assigment with Separator only has no separator.`` () =
+    let ``Should fail if assignment with custom Separator (without `orSpace`) does not contain such a separator.`` () =
         raisesWith<ArguParseException>
             <@ run [|"--assignment"; "value"|] @>
             <| fun e -> <@ e.FirstLine.Contains "missing an assignment" @>

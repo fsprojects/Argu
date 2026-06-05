@@ -390,7 +390,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
     let checkSubCommand() =
         if Option.isSome customAssignmentSeparator.Value then
-            arguExn "CustomAssignment in '%O' not supported for subcommands." uci
+            arguExn "Separator attribute in '%O' not supported for subcommands." uci
         if isRest then
             arguExn "Rest attribute in '%O' not supported for subcommands." uci
         if isMandatory then
@@ -429,7 +429,7 @@ let rec private preComputeUnionCaseArgInfo (stack : Type list) (helpParam : Help
 
         | [|List t|] ->
             if Option.isSome customAssignmentSeparator.Value then
-                arguExn "CustomAssignment in '%O' not supported for list parameters." uci
+                arguExn "Separator attribute in '%O' not supported for list parameters." uci
 
             if isRest then
                 arguExn "Rest attribute in '%O' not supported for list parameters." uci

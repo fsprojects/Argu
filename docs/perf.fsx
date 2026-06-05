@@ -21,7 +21,7 @@ type FactAttribute () = inherit System.Attribute()
 
 ## Introduction
 
-Argu simplicity is achieved via Reflection and as such it's performance heavily depends on the size and depth of the
+Argu simplicity is achieved via Reflection and as such its performance heavily depends on the size and depth of the
 discriminated union used.
 
 For applications that wants to get a little more performance out of Argu it's also possible to get a little more

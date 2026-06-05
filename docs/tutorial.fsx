@@ -164,9 +164,9 @@ In this case,
 
   * [`AltCommandLine`](reference/argu-arguattributes-altcommandlineattribute.html): specifies an alternative command line switch.
 
-  * [`Separator "="`](reference/argu-arguattributes-separatorattribute.html) : enforces `--assignment=value` and `--assignment key=value` CLI syntax.
+  * [`Separator "="`](reference/argu-arguattributes-separatorattribute.html) : enforces `--assignment=value` or `--assignment key=value` CLI syntax.
 
-  * [`Separator("=", orSpace = true)`](reference/argu-arguattributes-separatorattribute.html) : enforces `--assignment=value` and `--assignment value` CLI syntax.
+  * [`Separator("=", orSpace = true)`](reference/argu-arguattributes-separatorattribute.html) : allows `--assignment=value` or `--assignment value` CLI syntax.
 
   * [`Unique`](reference/argu-arguattributes-uniqueattribute.html) : parser will fail if CLI provides this argument more than once.
 
