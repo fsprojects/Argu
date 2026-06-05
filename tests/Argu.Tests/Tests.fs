@@ -100,22 +100,18 @@ type Argument =
     | Decimal_Arg of decimal
     | [<AltCommandLine("/D", "-D", "-z")>] Detach
     | [<CustomAppSettings "Foo">] CustomAppConfig of string * int
-#nowarn 44 // Obsolete attributes
-    | [<ColonAssignment>] Assignment of string
-    | [<EqualsAssignment>] Env of key:string * value:string
-    | [<EqualsAssignment>] Dir of path:string
-    | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string
-    | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment_With_Option of string option
-    | [<ColonAssignmentOrSpaced>] Flex_Colon_Assignment of string
-#warnon 44
+    | [<Assignment ":">] Assignment of string
+    | [<Assignment "=">] Env of key:string * value:string
+    | [<Assignment "=">] Dir of path:string
+    | [<Assignment("=", true)>] Flex_Equals_Assignment of string
+    | [<Assignment("=", true)>] Flex_Equals_Assignment_With_Option of string option
+    | [<Assignment(":", true)>] Flex_Colon_Assignment of string
     | [<First>] First_Parameter of string
     | [<Last>] Last_Parameter of string
     | Optional of int option
     | List of int list
     | Enum of Enum
-#nowarn 44 // Obsolete attributes
-    | [<EqualsAssignment>] Enumeration of Enumeration option
-#warnon 44
+    | [<Assignment "=">] Enumeration of Enumeration option
     | [<CliPrefix(CliPrefix.Dash)>] A
     | [<CliPrefix(CliPrefix.Dash)>] B
     | [<CliPrefix(CliPrefix.Dash)>] C
@@ -332,72 +328,6 @@ let ``Parse byte[] parameters`` () =
     let args = parser.PrintCommandLineArguments [ Mandatory_Arg false ; Data(42, bytes) ]
     let results = parser.ParseCommandLine args
     test <@ let _,bytes' = results.GetResult Data in bytes' = bytes @>
-
-[<Fact>]
-let ``Parse colon assignment 1`` () =
-    let args = [| "--assignment:foobar" |]
-    let result = parser.Parse(args, ignoreMissing = true)
-    test <@ result.GetResult <@ Assignment @> = "foobar" @>
-
-[<Fact>]
-let ``Parse colon assignment 2`` () =
-    let arg = [ Assignment "foo bar" ]
-    let clp = parser.PrintCommandLineArguments arg
-    let result = parser.Parse(clp, ignoreMissing = true)
-    test <@ result.GetResult <@ Assignment @> = "foo bar" @>
-
-[<Fact>]
-let ``Parse key-value equals assignment`` () =
-    let arg = [ Env("foo", "bar") ]
-    let clp = parser.PrintCommandLineArguments arg
-    let result = parser.Parse(clp, ignoreMissing = true)
-    test <@ result.GetResult Env = ("foo", "bar") @>
-
-[<Fact>]
-let ``Parse key-value equals assignment 2`` () =
-    let result = parser.Parse([|"--env"; "foo==bar"|], ignoreMissing = true)
-    test <@ result.GetResult <@ Env @> = ("foo", "=bar") @>
-
-[<Fact>]
-let ``Parse equals assignment`` () =
-    let result = parser.Parse([|"--dir=../../my-relative-path"|], ignoreMissing = true)
-    test <@ result.GetResult Dir = "../../my-relative-path" @>
-
-[<Fact>]
-let ``Parse equals assignment 2`` () =
-    let result = parser.Parse([|"--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Dir = "=foo" @>
-
-[<Fact>]
-let ``Parse equals or space assignment with equals`` () =
-    let result = parser.Parse([|"--flex-equals-assignment=../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
-
-[<Fact>]
-let ``Parse equals or space assignment with colon fails`` () =
-    raises<ArguParseException> <@ parser.Parse([|"--flex-equals-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true) @>
-
-[<Fact>]
-let ``Parse equals or space assignment with space`` () =
-    let result = parser.Parse([|"--flex-equals-assignment"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
-
-[<Fact>]
-let ``Parse equals or space assignment with space and optional type`` () =
-    let result = parser.Parse([|"--flex-equals-assignment-with-option"; "../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Flex_Equals_Assignment_With_Option = Some "../../my-relative-path" @>
-
-[<Fact>]
-let ``Parse colon or space assignment with colon`` () =
-    // No need to test space assignment or assignment failure, as EitherSpaceOrEqualsAssignmentAttribute and
-    // EitherSpaceOrColonAssignmentAttribute share the same underlying implementation.
-    let result = parser.Parse([|"--flex-colon-assignment:../../my-relative-path"; "--dir==foo"|], ignoreMissing = true)
-    test <@ result.GetResult Flex_Colon_Assignment = "../../my-relative-path" @>
-
-[<Fact>]
-let ``Should fail on incorrect assignment 1`` () =
-    raises<ArguParseException> <@ parser.Parse([|"--dir:foo"|], ignoreMissing = true) @>
-
 
 [<Fact>]
 let ``Ignore Unrecognized parameters`` () =

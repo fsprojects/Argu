@@ -5,104 +5,163 @@ open Xunit
 
 open Argu
 
-// --- Unified [<Assignment>] forms ---
+let run<'T when 'T :> IArgParserTemplate> argv = ArgumentParser.Create<'T>().ParseCommandLine argv
 
-type EqualsViaNewAttr =
-    | [<Assignment("=")>] Port of int
-    interface IArgParserTemplate with member this.Usage = "x"
+module Equals =
 
-type ColonSpacedViaNewAttr =
-    | [<Assignment(":", allowSpaced = true)>] Tag of string
-    interface IArgParserTemplate with member this.Usage = "x"
+    type EqualsViaNewAttr =
+        | [<Assignment("=")>] Port of int
+        interface IArgParserTemplate with member this.Usage = ""
 
-// --- Legacy attributes for parity comparison ---
+    #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
+    type EqualsViaLegacy =
+        | [<EqualsAssignment>] Port of int
+        interface IArgParserTemplate with member this.Usage = "x"
+    #warnon 44
 
-#nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
-type EqualsViaLegacy =
-    | [<EqualsAssignment>] Port of int
-    interface IArgParserTemplate with member this.Usage = "x"
+    [<Fact>]
+    let ``[<Assignment("=")>] parses --port=8080`` () =
+        let r = run<EqualsViaNewAttr> [| "--port=8080" |]
+        test <@ r.GetResult EqualsViaNewAttr.Port = 8080 @>
 
-type ColonSpacedViaLegacy =
-    | [<ColonAssignmentOrSpaced>] Tag of string
-    interface IArgParserTemplate with member this.Usage = "x"
-#warnon 44
+    [<Fact>]
+    let ``[<Assignment("=")>] rejects --port 8080 (no spaced form)`` () =
+        raises<ArguParseException>
+            <@ run<EqualsViaNewAttr>([| "--port"; "8080" |]) @>
 
-// --- Equals tests ---
+    [<Fact>]
+    let ``[<Assignment("=")>] matches [<EqualsAssignment>] parity`` () =
+        let novel = run<EqualsViaNewAttr> [| "--port=42" |] |> _.GetResult(EqualsViaNewAttr.Port)
+        let legacy = run<EqualsViaLegacy> [| "--port=42" |] |> _.GetResult(EqualsViaLegacy.Port)
+        test <@ novel = legacy @>
 
-let run<'T when 'T :> IArgParserTemplate> args = ArgumentParser.Create<'T>().ParseCommandLine args
+module ColonOrSpaced =
 
-[<Fact>]
-let ``[<Assignment("=")>] parses --port=8080`` () =
-    let r = run<EqualsViaNewAttr> [| "--port=8080" |]
-    test <@ r.GetResult EqualsViaNewAttr.Port = 8080 @>
+    type ColonSpacedViaNewAttr =
+        | [<Assignment(":", allowSpaced = true)>] Tag of string
+        interface IArgParserTemplate with member this.Usage = ""
 
-[<Fact>]
-let ``[<Assignment("=")>] rejects --port 8080 (no spaced form)`` () =
-    raises<ArguParseException>
-        <@ run<EqualsViaNewAttr>([| "--port"; "8080" |]) @>
+    #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
+    type ColonSpacedViaLegacy =
+        | [<ColonAssignmentOrSpaced>] Tag of string
+        interface IArgParserTemplate with member this.Usage = "x"
+    #warnon 44
 
-[<Fact>]
-let ``[<Assignment("=")>] matches [<EqualsAssignment>] parity`` () =
-    let novel = run<EqualsViaNewAttr> [| "--port=42" |] |> _.GetResult(EqualsViaNewAttr.Port)
-    let legacy = run<EqualsViaLegacy> [| "--port=42" |] |> _.GetResult(EqualsViaLegacy.Port)
-    test <@ novel = legacy @>
+    [<Fact>]
+    let ``[<Assignment(":", allowSpaced = true)>] accepts --tag:value`` () =
+        let r = run<ColonSpacedViaNewAttr> [| "--tag:hello" |]
+        test <@ r.GetResult ColonSpacedViaNewAttr.Tag = "hello" @>
 
-// --- Colon-or-spaced tests ---
+    [<Fact>]
+    let ``[<Assignment(":", allowSpaced = true)>] accepts --tag spaced`` () =
+        let r = run<ColonSpacedViaNewAttr> [| "--tag"; "hello" |]
+        test <@ r.GetResult ColonSpacedViaNewAttr.Tag = "hello" @>
 
-[<Fact>]
-let ``[<Assignment(":", allowSpaced = true)>] accepts --tag:value`` () =
-    let r = run<ColonSpacedViaNewAttr> [| "--tag:hello" |]
-    test <@ r.GetResult ColonSpacedViaNewAttr.Tag = "hello" @>
+    [<Fact>]
+    let ``[<Assignment(":", allowSpaced = true)>] matches [<ColonAssignmentOrSpaced>] parity`` () =
+        let novel = run<ColonSpacedViaNewAttr> [| "--tag"; "v" |] |> _.GetResult(ColonSpacedViaNewAttr.Tag)
+        let legacy = run<ColonSpacedViaLegacy> [| "--tag"; "v" |] |> _.GetResult(ColonSpacedViaLegacy.Tag)
+        test <@ novel = legacy @>
 
-[<Fact>]
-let ``[<Assignment(":", allowSpaced = true)>] accepts --tag spaced`` () =
-    let r = run<ColonSpacedViaNewAttr> [| "--tag"; "hello" |]
-    test <@ r.GetResult ColonSpacedViaNewAttr.Tag = "hello" @>
+module LegacyValidations =
 
-[<Fact>]
-let ``[<Assignment(":", allowSpaced = true)>] matches [<ColonAssignmentOrSpaced>] parity`` () =
-    let novel = run<ColonSpacedViaNewAttr> [| "--tag"; "v" |] |> _.GetResult(ColonSpacedViaNewAttr.Tag)
-    let legacy = run<ColonSpacedViaLegacy> [| "--tag"; "v" |] |> _.GetResult(ColonSpacedViaLegacy.Tag)
-    test <@ novel = legacy @>
+    #nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
+    type ConflictingAttrs =
+        | [<Assignment "=">] [<CustomAssignment "=">] Port of int
+        interface IArgParserTemplate with member this.Usage = "x"
+    type DisallowedAssignmentArgs =
+        | [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
+        interface IArgParserTemplate with
+            member a.Usage =
+                match a with
+                | Flex_Equals_Assignment _ -> "Disallowed attribute combination"
+    type DisallowedArityWithAssignmentOrSpaced =
+        | [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string * int
+        interface IArgParserTemplate with
+            member a.Usage =
+                match a with
+                | Flex_Equals_Assignment _ -> "Disallowed attribute / arity combination"
+    #warnon 44
 
-// --- Conflict detection ---
+    [<Fact>]
+    let ``Mixing [<Assignment>] with legacy CustomAssignment raises a clear error`` () =
+        raisesWith<ArguException>
+            <@ ArgumentParser.Create<ConflictingAttrs>() @>
+            (fun e -> <@ e.Message.Contains "mixes the 'Assignment' attribute" @>)
 
-#nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
-type ConflictingAttrs =
-    | [<Assignment("=")>] [<CustomAssignment("=")>] Port of int
-    interface IArgParserTemplate with member this.Usage = "x"
-#warnon 44
+    [<Fact>]
+    let ``Disallowed equals assignment combination throws`` () =
+        raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedAssignmentArgs>() @>
 
-[<Fact>]
-let ``Mixing [<Assignment>] with legacy CustomAssignment raises a clear error`` () =
-    raisesWith<ArguException>
-        <@ ArgumentParser.Create<ConflictingAttrs>() @>
-        (fun e -> <@ e.Message.Contains "mixes the 'Assignment' attribute" @>)
+    [<Fact>]
+    let ``EqualsAssignmentOrSpaced and arity not one combination throws`` () =
+        raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedArityWithAssignmentOrSpaced>() @>
 
-// --- Legacy tests prior to introduction of AssignmentAttribute ---
+// Moved from Tests.fs; TODO some duplication needs removing
+module Assignment =
 
-#nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
-type DisallowedAssignmentArgs =
-| [<EqualsAssignmentOrSpaced>] [<EqualsAssignment>] Flex_Equals_Assignment of string
-    interface IArgParserTemplate with
-        member a.Usage =
-            match a with
-            | Flex_Equals_Assignment _ -> "Disallowed attribute combination"
-#warnon 44
+    open Argu.Tests.Main
 
-[<Fact>]
-let ``Disallowed equals assignment combination throws`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedAssignmentArgs>() @>
+    let run argv = parser.Parse(argv, ignoreMissing = true)
 
-#nowarn "44" // Legacy *Assignment attributes are obsolete; tests deliberately use them.
-type DisallowedArityWithAssignmentOrSpaced =
-| [<EqualsAssignmentOrSpaced>] Flex_Equals_Assignment of string * int
-    interface IArgParserTemplate with
-        member a.Usage =
-            match a with
-            | Flex_Equals_Assignment _ -> "Disallowed attribute / arity combination"
-#warnon 44
+    [<Fact>]
+    let ``Parse colon assignment 1`` () =
+        let res = run [| "--assignment:foobar" |]
+        test <@ res.GetResult Assignment = "foobar" @>
 
-[<Fact>]
-let ``EqualsAssignmentOrSpaced and arity not one combination throws`` () =
-    raisesWith<ArguException> <@ ArgumentParser.Create<DisallowedArityWithAssignmentOrSpaced>() @>
+    [<Fact>]
+    let ``Parse colon assignment 2`` () =
+        let arg = [ Assignment "foo bar" ]
+        let res = parser.PrintCommandLineArguments arg |> run
+        test <@ res.GetResult Assignment = "foo bar" @>
+
+    [<Fact>]
+    let ``Parse key-value equals assignment`` () =
+        let arg = [ Env("foo", "bar") ]
+        let res = parser.PrintCommandLineArguments arg |> run
+        test <@ res.GetResult Env = ("foo", "bar") @>
+
+    [<Fact>]
+    let ``Parse key-value equals assignment 2`` () =
+        let res = run [|"--env"; "foo==bar"|]
+        test <@ res.GetResult Env = ("foo", "=bar") @>
+
+    [<Fact>]
+    let ``Parse equals assignment`` () =
+        let res = run [|"--dir=../../my-relative-path"|]
+        test <@ res.GetResult Dir = "../../my-relative-path" @>
+
+    [<Fact>]
+    let ``Parse equals assignment 2`` () =
+        let res = run [|"--dir==foo"|]
+        test <@ res.GetResult Dir = "=foo" @>
+
+    [<Fact>]
+    let ``Parse equals or space assignment with equals`` () =
+        let res = run [|"--flex-equals-assignment=../../my-relative-path"; "--dir==foo"|]
+        test <@ res.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
+
+    [<Fact>]
+    let ``Parse equals or space assignment with colon fails`` () =
+        raises<ArguParseException> <@ run [|"--flex-equals-assignment:../../my-relative-path"; "--dir==foo"|] @>
+
+    [<Fact>]
+    let ``Parse equals or space assignment with space`` () =
+        let res = run [|"--flex-equals-assignment"; "../../my-relative-path"; "--dir==foo"|]
+        test <@ res.GetResult Flex_Equals_Assignment = "../../my-relative-path" @>
+
+    [<Fact>]
+    let ``Parse equals or space assignment with space and optional type`` () =
+        let res = run [|"--flex-equals-assignment-with-option"; "../../my-relative-path"; "--dir==foo"|]
+        test <@ res.GetResult Flex_Equals_Assignment_With_Option = Some "../../my-relative-path" @>
+
+    [<Fact>]
+    let ``Parse colon or space assignment with colon`` () =
+        // No need to test space assignment or assignment failure, as EitherSpaceOrEqualsAssignmentAttribute and
+        // EitherSpaceOrColonAssignmentAttribute share the same underlying implementation.
+        let res = run [|"--flex-colon-assignment:../../my-relative-path"; "--dir==foo"|]
+        test <@ res.GetResult Flex_Colon_Assignment = "../../my-relative-path" @>
+
+    [<Fact>]
+    let ``Should fail on incorrect assignment 1`` () =
+        raises<ArguParseException> <@ run [|"--dir:foo"|] @>
