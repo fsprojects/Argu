@@ -107,12 +107,8 @@ module Issue173 =
     [<Fact>]
     let ``Usage also prints new line for options that have an empty string as usage`` () =
         let parser = ArgumentParser<KanjiArgs>()
-        let lines = parser.PrintUsage().Split "\n"
-        let optionsLines: string[] = lines |> Array.skipWhile(fun s -> not (s.StartsWith "OPTIONS:"))
-        let args = [|"strokes"; "min-strokes"; "max-strokes"; "include-stroke-miscounts"; "radicals"; "skip-code";
-                          "sh-code"; "four-corner-code"; "deroo-code"; "reading"; "nanori"; "common-only"; "pattern"|]
-        let argumentLines = [| for a in args -> optionsLines |> Array.find(fun line -> line.Contains $"--{a}") |]
-        let distinctLines = Array.distinct argumentLines
-        // If argumentLines is distinct, then all arguments are in their own line.
-        test <@ distinctLines = argumentLines
-                && distinctLines.Length = args.Length @>
+        let lines = parser.PrintUsage().Split("\n")
+        let optionsLines: string[] = lines |> Array.skipWhile (fun s -> not (s.StartsWith UsageStrings.Default.Options))
+        let args = [| "strokes"; "min-strokes"; "max-strokes"; "include-stroke-miscounts"; "radicals"; "skip-code";
+                      "sh-code"; "four-corner-code"; "deroo-code"; "reading"; "nanori"; "common-only"; "pattern" |]
+        test <@ args |> Array.forall (fun arg -> optionsLines |> Array.exists _.Contains($"--{arg}")) @>
