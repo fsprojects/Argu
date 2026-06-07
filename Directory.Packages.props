@@ -13,5 +13,9 @@
     <!-- Test deps -->
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2"/>
     <PackageVersion Include="Unquote" Version="7.0.1"/>
+
+    <!-- Sample-only deps (Azure Key Vault async config reader) -->
+    <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.7.0"/>
+    <PackageVersion Include="Azure.Identity" Version="1.13.1"/>
   </ItemGroup>
 </Project>

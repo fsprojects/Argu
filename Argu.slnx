@@ -40,6 +40,7 @@
   <Folder Name="/samples/">
     <Project Path="samples/Argu.Samples.LS/Argu.Samples.LS.fsproj" />
     <Project Path="samples/Argu.Samples.Introspect/Argu.Samples.Introspect.fsproj" />
+    <Project Path="samples/Argu.Samples.AsyncConfig/Argu.Samples.AsyncConfig.fsproj" />
   </Folder>
   <Project Path="src/Argu/Argu.fsproj" />
   <Project Path="tests/Argu.Tests/Argu.Tests.fsproj" />
