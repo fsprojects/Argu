@@ -162,7 +162,7 @@ type ArgumentCaseInfo =
         IsMainCommand : bool
         /// If specified, should consume remaining tokens from the CLI
         IsRest : Lazy<bool>
-        /// Separator token used for EqualsAssignment syntax; e.g. '=' forces '--param=arg' syntax
+        /// Separator token used for assignment syntax; e.g. '=' forces '--param=arg' syntax
         CustomAssignmentSeparator : Lazy<CustomAssignmentSeparator option>
         /// If specified, multiple parameters can be added in AppSettings in CSV form.
         AppSettingsCSV : Lazy<bool>

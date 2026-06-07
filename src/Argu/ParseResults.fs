@@ -218,7 +218,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: GetResult")>]
+    [<System.Obsolete("Please use the revised API name instead: GetResult")>]
     member r.PostProcessResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R =
         expr |> getResult source |> parseResult parser
 
@@ -229,7 +229,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: GetResults")>]
+    [<System.Obsolete("Please use the revised API name instead: GetResults")>]
     member r.PostProcessResults ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R list =
         expr |> getResults source |> Seq.map (parseResult parser) |> Seq.toList
 
@@ -240,7 +240,7 @@ type ParseResults<[<EqualityConditionalOn; ComparisonConditionalOn>]'Template wh
     /// <param name="expr">The name of the parameter, expressed as quotation of DU constructor.</param>
     /// <param name="parser">The post-processing parser.</param>
     /// <param name="source">Optional source restriction: AppSettings or CommandLine.</param>
-    // TODO for V7 [<System.Obsolete("Please use the revised API name instead: TryGetResult")>]
+    [<System.Obsolete("Please use the revised API name instead: TryGetResult")>]
     member r.TryPostProcessResult ([<ReflectedDefinition>] expr : Expr<'Field -> 'Template>, parser : 'Field -> 'R, ?source) : 'R option =
         expr |> tryGetResult source |> Option.map (parseResult parser)
 
