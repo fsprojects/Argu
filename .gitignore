@@ -540,6 +540,9 @@ FodyWeavers.xsd
 *.swp
 *.swo
 
+# Local Recode tooling artifacts (per-machine session data)
+.recode/
+
 
 # fsharp
 *.sln.docstates
