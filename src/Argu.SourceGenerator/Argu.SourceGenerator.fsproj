@@ -5,14 +5,17 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <Description>Marker attributes and (planned) source generator for compile-time Argu schema emission.</Description>
     <PackageTags>F#, argument, commandline, parser, source-generator, aot</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AttributeMarkers.fs"/>
   </ItemGroup>
   <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
   <ItemGroup>
+    <!-- SourceLink etc -->
+    <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="All"/>
     <PackageReference Include="FSharp.Core"/>
   </ItemGroup>
 </Project>
