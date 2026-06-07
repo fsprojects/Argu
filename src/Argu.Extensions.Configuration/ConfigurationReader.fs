@@ -1,4 +1,4 @@
-namespace Argu.MSConfig
+namespace Argu.Extensions.Configuration
 
 open Microsoft.Extensions.Configuration
 

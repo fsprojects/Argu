@@ -42,6 +42,6 @@
     <Project Path="samples/Argu.Samples.Introspect/Argu.Samples.Introspect.fsproj" />
   </Folder>
   <Project Path="src/Argu/Argu.fsproj" />
-  <Project Path="src/Argu.MSConfig/Argu.MSConfig.fsproj" />
+  <Project Path="src/Argu.Extensions.Configuration/Argu.Extensions.Configuration.fsproj" />
   <Project Path="tests/Argu.Tests/Argu.Tests.fsproj" />
 </Solution>
