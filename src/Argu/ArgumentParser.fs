@@ -229,12 +229,26 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
 
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
-    /// <summary>Parse both command line args and an async configuration reader.
-    ///          The async reader is fully drained before the synchronous parse runs:
-    ///          the parser pre-fetches a value for every AppSettings-mapped union
-    ///          case in the schema, awaits each, then runs the regular sync parse
-    ///          against a snapshot. This keeps the parser purely synchronous below
-    ///          this method, at the cost of one round-trip per AppSettings key.</summary>
+    /// <summary>
+    ///     Parse both command line args and an async configuration reader.
+    ///     The reader is issued a single batched <c>GetValuesAsync</c> call
+    ///     covering every AppSettings-mapped union case in the top-level
+    ///     schema; once it resolves, the regular synchronous parse runs
+    ///     against the resulting snapshot. This keeps the parser purely
+    ///     synchronous below this method and collapses N round-trips into
+    ///     one when the source supports batched retrieval.
+    /// </summary>
+    /// <remarks>
+    ///     Failure modes:
+    ///     - A faulted <see cref="Task"/> from <c>GetValuesAsync</c>
+    ///       propagates as a fatal startup error. Wrap the reader with
+    ///       <see cref="ConfigurationReader.WithFallbackToNull"/> for a
+    ///       best-effort policy that treats source unavailability as
+    ///       "all keys missing".
+    ///     - Keys absent from the returned dictionary are treated as
+    ///       missing values, matching the per-key null contract of
+    ///       <see cref="IConfigurationReader.GetValue"/>.
+    /// </remarks>
     /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
     /// <param name="configurationReader">Async configuration reader. If not supplied, the synchronous default AppSettings reader is used.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
@@ -246,16 +260,16 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
                 match configurationReader with
                 | Some r -> r
                 | None -> ConfigurationReader.AsAsync(ConfigurationReader.FromAppSettings())
-            // Pre-fetch every AppSettings key the top-level schema references.
-            // The sync parser walks subcommand-local schemas separately, so only
-            // top-level keys are reached on this pass.
-            let prefetched = Dictionary<string, string>()
+            // Collect every AppSettings key the top-level schema references.
+            // The sync parser walks subcommand-local schemas separately, so
+            // only top-level keys go in this batch.
+            let keys = ResizeArray<string>()
+            let seen = HashSet<string>()
             for case in argInfo.Cases.Value do
                 match case.AppSettingsName with
-                | Some key when not (prefetched.ContainsKey key) ->
-                    let! v = task { try return! reader.GetValueAsync key with _ -> return null }
-                    prefetched[key] <- v
+                | Some key when seen.Add key -> keys.Add key
                 | _ -> ()
+            let! prefetched = reader.GetValuesAsync(keys :> IReadOnlyCollection<string>)
             let syncReader =
                 { new IConfigurationReader with
                     member _.Name = reader.Name
