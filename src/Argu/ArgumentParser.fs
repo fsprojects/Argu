@@ -145,6 +145,8 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     /// <param name="usageStringCharacterWidth">Text width used when formatting the usage string. Defaults to 80 chars.</param>
     /// <param name="errorHandler">The implementation of IExiter used for error handling. Exception is default.</param>
     /// <param name="checkStructure">Indicate if the structure of the arguments discriminated union should be checked for errors.</param>
+    [<RequiresDynamicCode(TrimMessages.aot)>]
+    [<RequiresUnreferencedCode(TrimMessages.trim)>]
     new (?programName : string, ?helpTextMessage : string, ?usageStringCharacterWidth : int, ?errorHandler : IExiter, ?checkStructure: bool) =
         let usageStringCharacterWidth = usageStringCharacterWidth |> Option.defaultWith getDefaultCharacterWidthSafeMin80
         let programName = programName |> Option.defaultWith currentProgramName
@@ -160,6 +162,8 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
     member val ProgramName = _programName
 
     /// <summary>Force a check of the discriminated union structure.</summary>
+    [<RequiresDynamicCode(TrimMessages.aot)>]
+    [<RequiresUnreferencedCode(TrimMessages.trim)>]
     static member CheckStructure() =
         argInfoWithCheck.Value |> ignore
 
@@ -339,9 +343,13 @@ module ArgumentParserUtils =
                                                 r.CharacterWidth, r.ErrorHandler)
 
     /// converts a sequence of inputs to a ParseResults instance
+    [<RequiresDynamicCode(TrimMessages.aot)>]
+    [<RequiresUnreferencedCode(TrimMessages.trim)>]
     let toParseResults (inputs : seq<'Template>) : ParseResults<'Template> =
         ArgumentParser.Create<'Template>().ToParseResults(inputs)
 
     /// gets the F# union tag representation of given argument instance
+    [<RequiresDynamicCode(TrimMessages.aot)>]
+    [<RequiresUnreferencedCode(TrimMessages.trim)>]
     let tagOf (input : 'Template) : int =
         ArgumentParser.Create<'Template>().GetTag input
