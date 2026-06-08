@@ -14,19 +14,19 @@ module ``Argu Tests EnvVarPrefix`` =
         | [<CustomAppSettings("PORT")>] Port of int
         interface IArgParserTemplate with member this.Usage = "x"
 
-    let private withEnv (key : string) (value : string) (body : unit -> 'T) : 'T =
+    /// Sets an environment variable and restores its prior value on Dispose,
+    /// so a test can scope the override with `use _ = envOverride key value`.
+    let private envOverride (key : string) (value : string) : IDisposable =
         let prior = Environment.GetEnvironmentVariable key
-        try
-            Environment.SetEnvironmentVariable(key, value)
-            body ()
-        finally
-            Environment.SetEnvironmentVariable(key, prior)
+        Environment.SetEnvironmentVariable(key, value)
+        { new IDisposable with
+            member _.Dispose() = Environment.SetEnvironmentVariable(key, prior) }
 
     [<Fact>]
     let ``FromEnvironmentVariables(prefix) prepends prefix to key`` () =
         let reader = ConfigurationReader.FromEnvironmentVariables(prefix = "MYAPP_")
-        withEnv "MYAPP_HOST" "example.com" (fun () ->
-            test <@ reader.GetValue("HOST") = "example.com" @>)
+        use _ = envOverride "MYAPP_HOST" "example.com"
+        test <@ reader.GetValue("HOST") = "example.com" @>
 
     [<Fact>]
     let ``FromEnvironmentVariables(prefix) returns null for missing keys`` () =
@@ -37,17 +37,17 @@ module ``Argu Tests EnvVarPrefix`` =
 
     [<Fact>]
     let ``FromEnvironmentVariables(prefix) parses round-trip through ArgumentParser`` () =
-        withEnv "DEMO_HOST" "host.local" (fun () ->
-            withEnv "DEMO_PORT" "443" (fun () ->
-                let parser = ArgumentParser.Create<Args>(programName = "demo")
-                let reader = ConfigurationReader.FromEnvironmentVariables(prefix = "DEMO_")
-                let results = parser.ParseConfiguration(reader, ignoreMissing = true)
-                test <@ results.GetResult(HostName) = "host.local" @>
-                test <@ results.GetResult(Port) = 443 @>))
+        use _ = envOverride "DEMO_HOST" "host.local"
+        use _ = envOverride "DEMO_PORT" "443"
+        let parser = ArgumentParser.Create<Args>(programName = "demo")
+        let reader = ConfigurationReader.FromEnvironmentVariables(prefix = "DEMO_")
+        let results = parser.ParseConfiguration(reader, ignoreMissing = true)
+        test <@ results.GetResult(HostName) = "host.local" @>
+        test <@ results.GetResult(Port) = 443 @>
 
     [<Fact>]
     let ``No-arg FromEnvironmentVariables still works without prefix`` () =
         // Sanity check: the legacy zero-arg overload is preserved.
-        withEnv "ARGU_TEST_PLAIN" "value" (fun () ->
-            let reader = ConfigurationReader.FromEnvironmentVariables()
-            test <@ reader.GetValue("ARGU_TEST_PLAIN") = "value" @>)
+        use _ = envOverride "ARGU_TEST_PLAIN" "value"
+        let reader = ConfigurationReader.FromEnvironmentVariables()
+        test <@ reader.GetValue("ARGU_TEST_PLAIN") = "value" @>
