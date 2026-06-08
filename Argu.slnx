@@ -44,4 +44,5 @@
   </Folder>
   <Project Path="src/Argu/Argu.fsproj" />
   <Project Path="tests/Argu.Tests/Argu.Tests.fsproj" />
+  <Project Path="benchmarks/Argu.Benchmarks/Argu.Benchmarks.fsproj" />
 </Solution>
