@@ -3,18 +3,21 @@ namespace Argu.SourceGenerator
 open System
 
 /// <summary>
-///     Marker attribute used by the (planned) Argu source generator.
-///     Apply to a CLI template discriminated union to opt that type into
-///     compile-time schema generation. The planned companion generator
-///     will read this attribute and emit an <c>ArgumentParser&lt;'T&gt;</c>
-///     factory that does not require reflection at runtime — required
-///     for publish-AOT scenarios.
+///     Opts an Argu CLI template into compile-time schema generation: its
+///     <c>ArgumentParser&lt;'T&gt;</c> is then built without runtime reflection,
+///     which is what makes publish-AOT viable and removes the reflection cost
+///     from startup.
+///
+///     Apply to a discriminated union that implements <c>IArgParserTemplate</c>.
+///     The union's cases and their Argu attributes must be resolvable at compile
+///     time — the generator reads the type statically, so a template whose shape
+///     is built or varied at runtime cannot be generated for.
 /// </summary>
 /// <remarks>
-///     This release ships the marker only. The generator that consumes
-///     it is intentionally out of scope for the initial scaffold; the
-///     marker is published so that downstream code can be annotated
-///     ahead of the generator landing.
+///     The generator that consumes this attribute does not exist yet. This
+///     package currently ships the marker alone, so applying it has no build-time
+///     effect beyond recording intent. Code annotated now gains reflection-free
+///     parsing once the generator lands, with no further source changes.
 /// </remarks>
 [<AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)>]
 type ArguGenerateAttribute() =

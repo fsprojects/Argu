@@ -1,6 +1,6 @@
 # Argu.SourceGenerator
 
-Companion package that establishes the *seam* for compile-time Argu schema generation. The marker attribute ships now; the generator that consumes it is planned in a follow-up release.
+Companion package for compile-time Argu schema generation. Right now it ships only the `[<ArguGenerate>]` marker attribute; the generator that consumes it will follow in a later release.
 
 ## Why
 
