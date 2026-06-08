@@ -11,7 +11,7 @@
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="4.4.0"/>
 
     <!-- Companion adapter deps -->
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.8"/>
 
     <!-- Test deps -->
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2"/>
