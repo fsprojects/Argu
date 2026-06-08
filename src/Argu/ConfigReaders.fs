@@ -27,7 +27,7 @@ type IConfigurationReader =
 ///     keys must be absent from the returned dictionary (matching the
 ///     <c>null</c> contract of <see cref="IConfigurationReader.GetValue"/>).
 ///     A faulted <see cref="Task"/> propagates to the caller as a fatal
-///     startup error; wrap with <see cref="ConfigurationReader.WithFallbackToNull"/>
+///     startup error; wrap with <see cref="ConfigurationReader.WithFallback"/>
 ///     for a best-effort policy that treats source unavailability as
 ///     "all keys missing".
 /// </remarks>
@@ -41,7 +41,7 @@ type IAsyncConfigurationReader =
     ///     (equivalent to <c>null</c> from
     ///     <see cref="IConfigurationReader.GetValue"/>).
     /// </summary>
-    abstract GetValuesAsync : keys:IReadOnlyCollection<string> -> Task<IReadOnlyDictionary<string, string>>
+    abstract GetValuesAsync : keys : IReadOnlyCollection<string> -> Task<IReadOnlyDictionary<string, string>>
 
 /// Configuration reader that never returns a value
 type NullConfigurationReader () =
@@ -69,12 +69,12 @@ type EnvironmentVariableConfigurationReader () =
             (null, targets) ||> Array.fold folder
 
 /// Configuration reader dictionary proxy
-type DictionaryConfigurationReader (keyValueDictionary : IReadOnlyDictionary<string, string>, ?name : string) =
+type DictionaryConfigurationReader (values: IReadOnlyDictionary<string, string>, ?name : string) =
     let name = defaultArg name "Dictionary configuration reader."
     interface IConfigurationReader with
         member _.Name = name
         member _.GetValue(key : string) =
-            let ok,value = keyValueDictionary.TryGetValue key
+            let ok,value = values.TryGetValue key
             if ok then value else null
 
 /// Function configuration reader proxy
@@ -115,11 +115,11 @@ type ConfigurationReader =
     static member NullReader : IConfigurationReader = NullConfigurationReader()
 
     /// Create a configuration reader instance using an IDictionary instance
-    static member FromDictionary(keyValueDictionary : IReadOnlyDictionary<string,string>, ?name : string) =
-        DictionaryConfigurationReader(keyValueDictionary, ?name = name) :> IConfigurationReader
+    static member FromDictionary(values: IReadOnlyDictionary<string,string>, ?name : string) : IConfigurationReader =
+        DictionaryConfigurationReader(values, ?name = name)
 
     /// Create a configuration reader instance using an F# function
-    static member FromFunction(reader : string -> string option, ?name : string) : IConfigurationReader =
+    static member FromFunction(reader : string -> string option, ?name : string)  =
         FunctionConfigurationReader(reader, ?name = name)
 
     /// Create a configuration reader instance using environment variables.
@@ -149,7 +149,7 @@ type ConfigurationReader =
         let path = assembly.Location
         if String.IsNullOrEmpty path then
             invalidArg assembly.FullName $"Assembly location for '{assembly.Location}' is null or empty."
-        AppSettingsConfigurationFileReader.Create(path + ".config") :> IConfigurationReader
+        AppSettingsConfigurationFileReader.Create(path + ".config")
 
     /// <summary>
     /// Wraps a synchronous <see cref="IConfigurationReader"/> as an <see cref="IAsyncConfigurationReader"/>.<br/>
@@ -173,7 +173,7 @@ type ConfigurationReader =
     /// If the underlying source supports batched retrieval natively,
     /// implement <see cref="IAsyncConfigurationReader"/> directly to collapse the N round-trips into one.
     /// </summary>
-    static member FromAsyncFunction(reader : string -> Async<string option>, ?name : string) : IAsyncConfigurationReader =
+    static member FromFunctionAsync(reader : string -> Task<string option>, ?name : string) : IAsyncConfigurationReader =
         let name = defaultArg name "Async function configuration reader."
         { new IAsyncConfigurationReader with
             member _.Name = name
@@ -183,26 +183,17 @@ type ConfigurationReader =
                     match! reader k with
                     | None -> ()
                     | Some v -> dict[k] <- v
-                return dict
-            } }
+                return dict } }
 
     /// <summary>
-    ///     Wraps an <see cref="IAsyncConfigurationReader"/> so transport
-    ///     errors (faulted <see cref="Task"/>) are downgraded to "all keys
-    ///     missing" rather than failing the parse. The optional
-    ///     <paramref name="onFault"/> hook lets callers log to stderr or
-    ///     telemetry; the default writes a single line to stderr.
-    ///     Use when configuration is genuinely optional and the program
-    ///     should still start with CLI defaults if the source is
-    ///     unreachable.
+    /// Wraps an <see cref="IAsyncConfigurationReader"/> so errors (faulted <see cref="Task"/>) are substituted
+    /// by a substitute configuration rather than failing the parse.
     /// </summary>
-    static member WithFallbackToNull(reader : IAsyncConfigurationReader, ?onFault : exn -> unit) : IAsyncConfigurationReader =
-        let onFault = defaultArg onFault (fun ex -> eprintfn "[%s] unavailable: %s" reader.Name ex.Message)
-        let empty = Dictionary<string, string>() :> IReadOnlyDictionary<string, string>
+    /// <param name="reader">The Async reader to be wrapped.</param>
+    /// <param name="fallback">Callback that sees the triggering exception, facilitating logging to stderr or telemetry.</param>
+    static member WithFallback(reader : IAsyncConfigurationReader, fallback: exn -> Task<IReadOnlyDictionary<string, string>>) : IAsyncConfigurationReader =
         { new IAsyncConfigurationReader with
             member _.Name = reader.Name + " (with null fallback)"
             member _.GetValuesAsync(keys : IReadOnlyCollection<string>) = task {
                 try return! reader.GetValuesAsync keys
-                with ex ->
-                    onFault ex
-                    return empty } }
+                with ex -> return! fallback ex } }

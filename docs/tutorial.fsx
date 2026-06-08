@@ -454,8 +454,10 @@ which would yield the following:
 
 When the configuration source is genuinely remote (a secrets vault, a
 distributed key/value store, a hosted config service) the synchronous
-`Parse` shape forces the caller to block on I/O at startup. `ParseAsync`
-takes an `IAsyncConfigurationReader` instead:
+`Parse` shape forces the caller to block on I/O at startup, and involves
+ a roundtrip per setting looked up.
+
+ `ParseAsync` takes an `IAsyncConfigurationReader` instead:
 
     [lang=fsharp]
     type Args =
@@ -466,7 +468,7 @@ takes an `IAsyncConfigurationReader` instead:
 
     let parser = ArgumentParser.Create<Args>()
     // myVaultReader implements IAsyncConfigurationReader
-    let! results = parser.ParseAsync(configurationReader = myVaultReader)
+    let! results = parser.ParseAsync(argv, configurationReader = myVaultReader)
 
 The interface is **batched by design**: `ParseAsync` collects every
 `AppSettings`-mapped key in the top-level schema and issues a single
@@ -492,10 +494,10 @@ Alternatives that may fit better:
     Microsoft.Extensions.* ecosystem.
   * **Host-level resolution**: fetch async config in the host's startup
     code, hand the resolved values to Argu's synchronous `Parse` via a
-    `DictionaryConfigurationReader`. Right when the host already has an
+    `DictionaryConfigurationReader`. Appropriate when the host already has an
     async startup phase the CLI parse can hook into.
 
-`ParseAsync` is least redundant when the config source is genuinely
+`ParseAsync` is most relevant when the config source is genuinely
 per-app and the host has no other async startup phase to leverage.
 
 ### Failure modes
@@ -505,20 +507,20 @@ per-app and the host has no other async startup phase to leverage.
   1. **Schema is malformed** &mdash; `ArgumentParser.Create` throws an
      `ArguException` synchronously at construction time. `ParseAsync`
      never reaches the reader in this case. This is programmer error;
-     the test suite, not the runtime, should catch it.
+     the test suite, not the user at runtime, should be seeing such cases.
   2. **Remote source fails the batch** &mdash; the `Task` returned by
      `GetValuesAsync` faults (network error, auth failure, vault
      unreachable). By default the fault propagates out of `ParseAsync`
      as a fatal startup error. Wrap the reader with
-     `ConfigurationReader.WithFallbackToNull` for a best-effort policy
-     that downgrades the fault to "all keys missing" and logs to stderr
-     (or a custom hook):
+     `ConfigurationReader.WithFallback` for a fallback policy
+     that substitutes fallback values and/or logs to stderr etc:
 
          [lang=fsharp]
          let reader =
-             ConfigurationReader.WithFallbackToNull(
-                 inner = myVaultReader,
-                 onFault = fun ex -> log.Warn("vault unavailable: {0}", ex))
+             let handle (ex: exn) =
+                 log.Warn("vault unavailable: {0}", ex)
+                 readOnlyDict Seq.null
+             ConfigurationReader.WithFallback(myVaultReader, handle)
          let! results = parser.ParseAsync(configurationReader = reader)
 
   3. **User input is bad** &mdash; missing mandatory parameters, type
@@ -527,7 +529,7 @@ per-app and the host has no other async startup phase to leverage.
      after the batch resolves. `ArguParseException` carries a friendly
      error message; the default error handler prints usage and exits.
 
-Treat the three flavours separately when wiring host-level error
+Treat the three flavors separately when wiring host-level error
 handling: `ArguException` is a build-the-app failure, `Task` faults
 without a fallback wrapper are a deploy-the-app failure, and
 `ArguParseException` is a user-call-the-app failure.

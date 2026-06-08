@@ -12,6 +12,8 @@
 * Add `SourceGenerator.ArguGenerate` marker [#318](https://github.com/fsprojects/Argu/pull/318) [@dimension-zero](https://github.com/dimension-zero)
 * Add `ConfigurationReader.FromEnvironmentVariables(prefix : String)` [#308](https://github.com/fsprojects/Argu/pull/308) [@dimension-zero](https://github.com/dimension-zero)
 * Add `ConfigurationReader.FromMicrosoftConfiguration(Microsoft.Extensions.Configuration.IConfiguration)` [#308](https://github.com/fsprojects/Argu/pull/308) [@dimension-zero](https://github.com/dimension-zero)
+* Add `ConfigurationReader.FromFunctionAsync`, `ConfigurationReader.WithFallback`: Provides support and error handling for batched retrieval from remote configuration stores [#317](https://github.com/fsprojects/Argu/pull/317) [@dimension-zero](https://github.com/dimension-zero)
+* Add `ArgumentParser.ParseAsync`: Handles parsing with fallback to an asynchronously loaded configuration (i.e. `ConfigurationReader.FromFunctionAsync`) [#317](https://github.com/fsprojects/Argu/pull/317) [@dimension-zero](https://github.com/dimension-zero)
 * Obsolete `EqualsAssignmentAttribute`, `ColonAssignmentAttribute`, `CustomAssignmentAttribute`, `EqualsAssignmentOrSpacedAttribute`, `ColonAssignmentOrSpacedAttribute` and `CustomAssignmentOrSpacedAttribute` [#315](https://github.com/fsprojects/Argu/pull/315) [@dimension-zero](https://github.com/dimension-zero)
 * Obsolete `PostProcessResult`, `PostProcessResults`, `TryPostProcessResult` [#296](https://github.com/fsprojects/Argu/pull/296) [@dimension-zero](https://github.com/dimension-zero)
 

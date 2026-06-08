@@ -244,59 +244,42 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         with ParserExn (errorCode, msg) -> errorHandler.Exit (msg, errorCode)
 
     /// <summary>
-    ///     Parse both command line args and an async configuration reader.
-    ///     The reader is issued a single batched <c>GetValuesAsync</c> call
-    ///     covering every AppSettings-mapped union case in the top-level
-    ///     schema; once it resolves, the regular synchronous parse runs
-    ///     against the resulting snapshot. This keeps the parser purely
-    ///     synchronous below this method and collapses N round-trips into
-    ///     one when the source supports batched retrieval.
+    /// Parse command line args, defaulting based on settings retrieved via an async configuration reader.<br/>
+    /// The reader is issued a single batched <c>GetValuesAsync</c> call covering every AppSettings-mapped union case in the top-level schema;
+    /// once it resolves, the regular synchronous parse runs against the resulting snapshot.
+    /// This keeps the parser purely synchronous below this method and collapses N round-trips into one when the source supports batched retrieval.
     /// </summary>
     /// <remarks>
-    ///     Failure modes:
-    ///     - A faulted <see cref="Task"/> from <c>GetValuesAsync</c>
-    ///       propagates as a fatal startup error. Wrap the reader with
-    ///       <see cref="ConfigurationReader.WithFallbackToNull"/> for a
-    ///       best-effort policy that treats source unavailability as
-    ///       "all keys missing".
-    ///     - Keys absent from the returned dictionary are treated as
-    ///       missing values, matching the per-key null contract of
-    ///       <see cref="IConfigurationReader.GetValue"/>.
+    /// Failure modes:<br/>
+    /// - A faulted <see cref="Task"/> from <c>GetValuesAsync</c> propagates as a fatal startup error.
+    /// Wrap the reader with <see cref="ConfigurationReader.WithFallback"/> that defaults to a safe configuration when source unavailable. <br/>
+    /// - Keys absent from the returned dictionary are treated as missing values,
+    ///   matching the per-key null contract of <see cref="IConfigurationReader.GetValue"/>.
     /// </remarks>
-    /// <param name="inputs">The command line input. Taken from System.Environment if not specified.</param>
-    /// <param name="configurationReader">Async configuration reader. If not supplied, the synchronous default AppSettings reader is used.</param>
+    /// <param name="inputs">The command line input. NOTE Process <c>System.Environment,Commandline</c> is not used.</param>
+    /// <param name="configurationReader">Async configuration reader. NOTE local <c>AppSettings</c> are not used.</param>
     /// <param name="ignoreMissing">Ignore errors caused by the Mandatory attribute. Defaults to false.</param>
-    /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to false.</param>
-    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to true.</param>
-    member ap.ParseAsync (?inputs : string [], ?configurationReader : IAsyncConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : Task<ParseResults<'Template>> =
-        task {
-            let reader =
-                match configurationReader with
-                | Some r -> r
-                | None -> ConfigurationReader.AsAsync(ConfigurationReader.FromAppSettings())
-            // Collect every AppSettings key the top-level schema references.
-            // The sync parser walks subcommand-local schemas separately, so
-            // only top-level keys go in this batch.
-            let keys = ResizeArray<string>()
-            let seen = HashSet<string>()
-            for case in argInfo.Cases.Value do
-                match case.AppSettingsName with
-                | Some key when seen.Add key -> keys.Add key
-                | _ -> ()
-            let! prefetched = reader.GetValuesAsync(keys :> IReadOnlyCollection<string>)
-            let syncReader =
-                { new IConfigurationReader with
-                    member _.Name = reader.Name
-                    member _.GetValue key =
-                        let ok, v = prefetched.TryGetValue key
-                        if ok then v else null }
-            return ap.Parse(
-                ?inputs = inputs,
-                configurationReader = syncReader,
-                ?ignoreMissing = ignoreMissing,
-                ?ignoreUnrecognized = ignoreUnrecognized,
-                ?raiseOnUsage = raiseOnUsage)
-        }
+    /// <param name="ignoreUnrecognized">Ignore CLI arguments that do not match the schema. Defaults to <c>false</c>.</param>
+    /// <param name="raiseOnUsage">Treat '--help' parameters as parse errors. Defaults to <c>true</c>.</param>
+    member x.ParseAsync (inputs : string[], configurationReader : IAsyncConfigurationReader, ?ignoreMissing, ?ignoreUnrecognized, ?raiseOnUsage) : Task<ParseResults<'Template>> = task {
+        // Collect every AppSettings key the top-level schema references.
+        // The sync parser walks subcommand-local schemas separately, so only top-level keys go in this batch.
+        let keys = HashSet<string>()
+        for case in argInfo.Cases.Value do
+            match case.AppSettingsName with
+            | None -> ()
+            | Some key -> keys.Add key |> ignore
+        let! prefetched = configurationReader.GetValuesAsync(keys)
+        let syncReader =
+            { new IConfigurationReader with
+                member _.Name = configurationReader.Name
+                member _.GetValue key = prefetched[key] } // null if missing
+        return x.Parse(
+            inputs = inputs,
+            configurationReader = syncReader,
+            ?ignoreMissing = ignoreMissing,
+            ?ignoreUnrecognized = ignoreUnrecognized,
+            ?raiseOnUsage = raiseOnUsage) }
 
     /// <summary>
     ///     Converts a sequence of template argument inputs into a ParseResults instance
@@ -315,7 +298,7 @@ and [<Sealed; NoEquality; NoComparison; AutoSerializable(false)>]
         match case.ParameterInfo.Value with
         | SubCommand (_,nestedUnion,_) ->
             new ArgumentParser<'SubTemplate>(nestedUnion, _programName, helpTextMessage, _usageStringCharacterWidth, errorHandler)
-        | _ -> arguExn "internal error when fetching subparser %O." uci
+        | _ -> arguExn $"internal error when fetching subparser {uci}."
 
     /// <summary>
     ///     Gets the F# union tag representation for given argument

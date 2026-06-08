@@ -48,6 +48,7 @@ type Args =
 // -----------------------------------------------------------------------------
 
 module KeyVault =
+
     open Azure
     open Azure.Identity
     open Azure.Security.KeyVault.Secrets
@@ -62,7 +63,7 @@ module KeyVault =
     /// Failure semantics:
     ///   - Vault unreachable / auth failure  -> the underlying Task faults
     ///     with RequestFailedException; the fault propagates out of
-    ///     GetValuesAsync. Callers wrap with WithFallbackToNull if best-effort
+    ///     GetValuesAsync. Callers wrap with WithFallback if best-effort
     ///     is desired.
     ///   - Individual secret missing (404)   -> caught locally and treated as
     ///     "key not present" (absent from the returned dictionary), matching
@@ -70,27 +71,18 @@ module KeyVault =
     let asReader (client : SecretClient) : IAsyncConfigurationReader =
         { new IAsyncConfigurationReader with
             member _.Name = sprintf "Azure Key Vault @ %O" client.VaultUri
-            member _.GetValuesAsync(keys : IReadOnlyCollection<string>) =
-                task {
-                    let tasks =
-                        keys
-                        |> Seq.map (fun k ->
-                            task {
-                                try
-                                    let! resp = client.GetSecretAsync(k)
-                                    return Some (k, resp.Value.Value)
-                                with :? RequestFailedException as ex when ex.Status = 404 ->
-                                    return None
-                            })
-                        |> Seq.toArray
-                    let! all = Task.WhenAll tasks
-                    let dict = Dictionary<string, string>(all.Length)
-                    for kv in all do
-                        match kv with
-                        | Some (k, v) -> dict[k] <- v
-                        | None -> ()
-                    return dict :> IReadOnlyDictionary<string, string>
-                } }
+            member _.GetValuesAsync keys = task {
+                let tasks = seq {
+                    for k in keys -> task {
+                        try let! resp = client.GetSecretAsync(k)
+                            return Some (k, resp.Value.Value)
+                        // Simulate handling of individual read failures - note we are not trapping generic connectivity errors
+                        // For such cases, ConfigurationReader.WithFallback
+                        with :? RequestFailedException as ex when ex.Status = 404 ->
+                            return None
+                    } }
+                let! all = Task.WhenAll tasks
+                return all |> Seq.choose id |> readOnlyDict } }
 
 
 // -----------------------------------------------------------------------------
@@ -103,33 +95,31 @@ module Simulated =
     /// and proves the call is genuinely async.
     let reader : IAsyncConfigurationReader =
         let seed =
-            dict [
+            readOnlyDict [
                 "db-host",      "db.prod.internal"
                 "port",         "5432"
                 "feature-flag", "v2-routing"
             ]
         { new IAsyncConfigurationReader with
             member _.Name = "simulated-in-process-vault"
-            member _.GetValuesAsync(keys : IReadOnlyCollection<string>) =
-                task {
-                    do! Task.Delay 50
-                    let result = Dictionary<string, string>(keys.Count)
-                    for k in keys do
-                        match seed.TryGetValue k with
-                        | true, v -> result[k] <- v
-                        | _ -> ()
-                    return result :> IReadOnlyDictionary<string, string>
-                } }
+            member _.GetValuesAsync(keys : IReadOnlyCollection<string>) = task {
+                do! Task.Delay 50
+                let result = Dictionary<string, string>(keys.Count)
+                for k in keys do
+                    match seed.TryGetValue k with
+                    | true, v -> result[k] <- v
+                    | _ -> ()
+                return result :> IReadOnlyDictionary<string, string> } }
 
 
 // -----------------------------------------------------------------------------
 // Entry point
 //
 // Demonstrates the three-flavour failure model:
-//   1. ArguException at Create     -> schema is broken; fatal.
+//   1. ArguException at Create     -> schema is broken; fatal. exit code 2
 //   2. Faulted Task from reader    -> source unavailable; fatal unless wrapped
-//                                      with WithFallbackToNull.
-//   3. ArguParseException at Parse -> user input invalid; print usage + exit.
+//                                      with WithFallback.
+//   3. ArguParseException at Parse -> user input invalid; print usage + exit 1.
 // -----------------------------------------------------------------------------
 
 [<EntryPoint>]
@@ -144,43 +134,40 @@ let main argv =
     let cli =
         try parser.Parse(argv, raiseOnUsage = true)
         with :? ArguParseException as ex ->
-            // (3) ArguParseException: user gave us bad CLI input. Standard
-            // friendly error path.
-            eprintfn "%s" ex.Message
-            exit 1
+            // (3) ArguParseException: user gave us bad CLI input. Standard friendly error path.
+            eprintfn $"%s{ex.Message}"
+            exit 2
 
     let useSimulated = cli.GetResult(Simulate, defaultValue = true)
 
-    let baseReader =
+    let asyncReader =
         if useSimulated then
             Simulated.reader
         else
             let url = cli.GetResult(Vault_Url)
             KeyVault.asReader (KeyVault.createClient url)
 
-    // (2) Faulted Task from the reader: wrap with WithFallbackToNull so vault
-    // unavailability degrades to "all keys missing" plus a stderr line.
+    // (2) Faulted Task from the reader: wrap with WithFallback so vault
+    // unavailability degrades to a stderr output.
     // Without this wrapper, the fault would propagate and abort startup,
     // which is also a legitimate choice for hard-required secrets.
     let reader =
-        ConfigurationReader.WithFallbackToNull(
-            baseReader,
-            onFault = fun ex ->
-                eprintfn "warning: %s unavailable; CLI defaults only (%s)"
-                    baseReader.Name
-                    ex.Message)
+        let handle (ex: exn) =
+            eprintfn $"WARNING: %s{asyncReader.Name} unavailable; CLI defaults only (%s{ex.Message})"
+            readOnlyDict Seq.empty // TOCONSIDER could provide a set of fallback values
+            |> Task.FromResult
+        ConfigurationReader.WithFallback(asyncReader, fallback = handle)
 
     let results =
-        try
-            parser.ParseAsync(argv, configurationReader = reader).Result
-        with :? AggregateException as agg when (agg.InnerException :? ArguParseException) ->
-            eprintfn "%s" agg.InnerException.Message
+        try parser.ParseAsync(argv, configurationReader = reader).GetAwaiter().GetResult() // TODO in F# 11, Task.await
+        with :? ArguParseException as ex ->
+            eprintfn $"%s{ex.Message}"
             exit 1
 
-    printfn "Resolved configuration:"
-    printfn "  source       = %s" reader.Name
-    printfn "  db-host      = %s" (results.GetResult(Db_Host, defaultValue = "<missing>"))
-    printfn "  port         = %s" (results.TryGetResult(Port) |> Option.map string |> Option.defaultValue "<missing>")
-    printfn "  feature-flag = %s" (results.GetResult(Feature_Flag, defaultValue = "<missing>"))
+    printfn $"""Resolved configuration:
+      source       = %s{reader.Name}
+      db-host      = %s{results.GetResult(Db_Host, defaultValue = "<missing>")}
+      port         = %s{results.TryGetResult(Port, string) |> Option.defaultValue "<missing>"}
+      feature-flag = %s{results.GetResult(Feature_Flag, defaultValue = "<missing>")}"""
 
     0
