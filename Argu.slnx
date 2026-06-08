@@ -40,6 +40,7 @@
   <Project Path="samples/Argu.Samples.SourceGenerated/Argu.Samples.SourceGenerated.fsproj" />
   <Project Path="src/Argu/Argu.fsproj" />
   <Project Path="src/Argu.SourceGenerator/Argu.SourceGenerator.fsproj" />
+  <Project Path="src/Argu.Extensions.Configuration/Argu.Extensions.Configuration.fsproj" />
   <Project Path="benchmarks/Argu.Benchmarks/Argu.Benchmarks.fsproj" />
   <Project Path="tests/Argu.Tests/Argu.Tests.fsproj" />
 </Solution>

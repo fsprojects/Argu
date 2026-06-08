@@ -2,9 +2,9 @@
 /// These are behavior-locking tests, not exhaustive functional tests.
 module Argu.Tests.CoverageTests
 
+open Swensen.Unquote
 open System
 open System.Collections.Generic
-open Swensen.Unquote
 open Xunit
 
 open Argu
@@ -153,20 +153,15 @@ let ``AppSettings: ignoreMissing=true skips mandatory check`` () =
     test <@ results.TryGetResult RequiredKey = None @>
 
 
-// === Env-var (covers Argu's existing EnvironmentVariableConfigurationReader) ===
-
 type EnvArgs =
     | [<CustomAppSettings("ARGU_TEST_VAL")>] Val of string
     interface IArgParserTemplate with
         member this.Usage = "value"
 
 [<Fact>]
-let ``EnvironmentVariableConfigurationReader: reads process env`` () =
-    let key = "ARGU_TEST_VAL"
-    let prior = Environment.GetEnvironmentVariable key
-    try Environment.SetEnvironmentVariable(key, "from-env")
-        let parser = ArgumentParser.Create<EnvArgs>()
-        let reader = ConfigurationReader.FromEnvironmentVariables()
-        let results = parser.ParseConfiguration(reader, ignoreMissing = true)
-        test <@ results.GetResult Val = "from-env" @>
-    finally Environment.SetEnvironmentVariable(key, prior)
+let ``ParseConfiguration fallback to EnvironmentVariableConfigurationReader picks up process env`` () =
+    use _ = EnvVarTests.envOverride "ARGU_TEST_VAL" "from-env"
+    let parser = ArgumentParser.Create<EnvArgs>()
+    let reader = ConfigurationReader.FromEnvironmentVariables()
+    let results = parser.ParseConfiguration reader
+    test <@ results.GetResult Val = "from-env" @>
