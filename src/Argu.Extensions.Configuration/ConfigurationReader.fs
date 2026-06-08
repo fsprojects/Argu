@@ -15,8 +15,7 @@ type MicrosoftExtensionsConfigurationReader(configuration : IConfiguration, ?nam
     interface IConfigurationReader with
         member _.Name = name
         member _.GetValue(key : string) =
-            // IConfiguration.[key] returns null for missing keys, which matches Argu's
-            // expectation.
+            // IConfiguration[key] returns null for missing keys, which matches Argu's expectation.
             configuration[key]
 
 /// Factory helpers mirroring the shape of <see cref="ConfigurationReader"/>.
