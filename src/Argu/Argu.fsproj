@@ -5,8 +5,15 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <PackageIcon>logo.png</PackageIcon>
     <Nullable>enable</Nullable>
+    <!-- IsTrimmable / IsAotCompatible are conditioned on net8.0+ since the
+         SDK rejects them on netstandard2.0 targets. The IL3050 / IL2026
+         opt-outs are still emitted via [<RequiresDynamicCode>] /
+         [<RequiresUnreferencedCode>] attributes carried by the assembly. -->
+    <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsTrimmable>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">false</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="TrimAnnotations.fs"/>
     <Compile Include="Types.fs"/>
     <Compile Include="Attributes.fs"/>
     <Compile Include="Utils.fs"/>
