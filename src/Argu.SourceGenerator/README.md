@@ -34,11 +34,11 @@ type Args =
 
 ## Why a separate package
 
-Keeping the marker, the generator, and the runtime-bypass factory in a separate NuGet package preserves the core `Argu` package's zero-dependency footprint. Users who don't need AOT see no churn.
+Keeping the marker, the generator, and the runtime-bypass factory in a separate NuGet package preserves the core `Argu` package's zero-dependency footprint. Users that don't need AOT see no churn.
 
 ## Roadmap
 
 1. Marker + scaffold (this PR)
-2. F# source generator (Roslyn FSharp.Compiler.Service or external tool like Myriad) emitting a `precomputeSchemaFor<'T>()` function for the simplest schemas (no subcommands, no custom attributes)
+2. F# source generator (Roslyn `FSharp.Compiler.Service` or external tool like Myriad) emitting a `precomputeSchemaFor<'T>()` function for the simplest schemas (no subcommands, no custom attributes)
 3. Companion `ArgumentParser.CreateFromPrecomputed<'T>` overload that bypasses the reflection path
 4. Expand generator coverage to subcommands, custom assignment attributes, inheritance and aliasing
