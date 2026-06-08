@@ -1,7 +1,4 @@
 <Solution>
-  <Folder Name="/.config/">
-    <File Path=".config/dotnet-tools.json" />
-  </Folder>
   <Folder Name="/.github/">
     <File Path=".github/ISSUE_TEMPLATE.md" />
   </Folder>
@@ -10,6 +7,7 @@
     <File Path=".github/workflows/release.yml" />
   </Folder>
   <Folder Name="/.project/">
+    <File Path=".config\dotnet-tools.json" />
     <File Path=".dockerignore" />
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
@@ -37,11 +35,11 @@
   <Folder Name="/resource/">
     <File Path="resource/logo.png" />
   </Folder>
-  <Folder Name="/samples/">
-    <Project Path="samples/Argu.Samples.LS/Argu.Samples.LS.fsproj" />
-    <Project Path="samples/Argu.Samples.Introspect/Argu.Samples.Introspect.fsproj" />
-  </Folder>
+  <Project Path="samples/Argu.Samples.Introspect/Argu.Samples.Introspect.fsproj" />
+  <Project Path="samples/Argu.Samples.LS/Argu.Samples.LS.fsproj" />
+  <Project Path="samples/Argu.Samples.SourceGenerated/Argu.Samples.SourceGenerated.fsproj" />
   <Project Path="src/Argu/Argu.fsproj" />
-  <Project Path="tests/Argu.Tests/Argu.Tests.fsproj" />
+  <Project Path="src/Argu.SourceGenerator/Argu.SourceGenerator.fsproj" />
   <Project Path="benchmarks/Argu.Benchmarks/Argu.Benchmarks.fsproj" />
+  <Project Path="tests/Argu.Tests/Argu.Tests.fsproj" />
 </Solution>
