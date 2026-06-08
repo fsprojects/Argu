@@ -68,7 +68,7 @@ type EnvironmentVariableConfigurationReader() =
             targets |> Array.fold folder null
 
 /// Configuration reader dictionary proxy
-type DictionaryConfigurationReader (keyValueDictionary : IDictionary<string, string>, ?name : string) =
+type DictionaryConfigurationReader (keyValueDictionary : IReadOnlyDictionary<string, string>, ?name : string) =
     let name = defaultArg name "Dictionary configuration reader."
     interface IConfigurationReader with
         member _.Name = name
@@ -116,7 +116,7 @@ type ConfigurationReader =
     static member NullReader = NullConfigurationReader() :> IConfigurationReader
 
     /// Create a configuration reader instance using an IDictionary instance
-    static member FromDictionary(keyValueDictionary : IDictionary<string,string>, ?name : string) =
+    static member FromDictionary(keyValueDictionary : IReadOnlyDictionary<string,string>, ?name : string) =
         DictionaryConfigurationReader(keyValueDictionary, ?name = name) :> IConfigurationReader
 
     /// Create a configuration reader instance using an F# function
@@ -141,11 +141,9 @@ type ConfigurationReader =
         AppSettingsConfigurationFileReader.Create(path + ".config") :> IConfigurationReader
 
     /// <summary>
-    ///     Wraps a synchronous <see cref="IConfigurationReader"/> as an
-    ///     <see cref="IAsyncConfigurationReader"/>. Each batch issues one
-    ///     synchronous lookup per key against the wrapped reader; no real
-    ///     batching is possible from a per-key source, but the async
-    ///     contract is satisfied via <see cref="Task.FromResult"/>.
+    /// Wraps a synchronous <see cref="IConfigurationReader"/> as an <see cref="IAsyncConfigurationReader"/>.<br/>
+    /// Each batch issues one synchronous lookup per key against the wrapped reader;
+    /// no real batching is possible from a per-key source, but the async contract is satisfied via <see cref="Task.FromResult"/>.
     /// </summary>
     static member AsAsync(reader : IConfigurationReader) : IAsyncConfigurationReader =
         { new IAsyncConfigurationReader with
@@ -156,30 +154,26 @@ type ConfigurationReader =
                     match reader.GetValue k with
                     | null -> ()
                     | v -> dict[k] <- v
-                Task.FromResult(dict :> IReadOnlyDictionary<string, string>) }
+                Task.FromResult(dict) }
 
     /// <summary>
-    ///     Bridges a per-key async source into an
-    ///     <see cref="IAsyncConfigurationReader"/>. The function is invoked
-    ///     once per requested key, sequentially. If the underlying source
-    ///     supports batched retrieval natively, implement
-    ///     <see cref="IAsyncConfigurationReader"/> directly to collapse the
-    ///     N round-trips into one.
+    /// Bridges a per-key async source into an <see cref="IAsyncConfigurationReader"/>.<br/>
+    /// The function is invoked once per requested key, sequentially.<br/>
+    /// If the underlying source supports batched retrieval natively,
+    /// implement <see cref="IAsyncConfigurationReader"/> directly to collapse the N round-trips into one.
     /// </summary>
     static member FromAsyncFunction(reader : string -> Async<string option>, ?name : string) : IAsyncConfigurationReader =
         let name = defaultArg name "Async function configuration reader."
         { new IAsyncConfigurationReader with
             member _.Name = name
-            member _.GetValuesAsync(keys : IReadOnlyCollection<string>) =
-                task {
-                    let dict = Dictionary<string, string>(keys.Count)
-                    for k in keys do
-                        let! v = reader k
-                        match v with
-                        | None -> ()
-                        | Some v -> dict[k] <- v
-                    return dict :> IReadOnlyDictionary<string, string>
-                } }
+            member _.GetValuesAsync(keys : IReadOnlyCollection<string>) = task {
+                let dict = Dictionary<string, string>(keys.Count)
+                for k in keys do
+                    match! reader k with
+                    | None -> ()
+                    | Some v -> dict[k] <- v
+                return dict
+            } }
 
     /// <summary>
     ///     Wraps an <see cref="IAsyncConfigurationReader"/> so transport
@@ -196,11 +190,8 @@ type ConfigurationReader =
         let empty = Dictionary<string, string>() :> IReadOnlyDictionary<string, string>
         { new IAsyncConfigurationReader with
             member _.Name = reader.Name + " (with null fallback)"
-            member _.GetValuesAsync(keys : IReadOnlyCollection<string>) =
-                task {
-                    try
-                        return! reader.GetValuesAsync keys
-                    with ex ->
-                        onFault ex
-                        return empty
-                } }
+            member _.GetValuesAsync(keys : IReadOnlyCollection<string>) = task {
+                try return! reader.GetValuesAsync keys
+                with ex ->
+                    onFault ex
+                    return empty } }
