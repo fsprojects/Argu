@@ -119,7 +119,7 @@ type ConfigurationReader =
         DictionaryConfigurationReader(values, ?name = name)
 
     /// Create a configuration reader instance using an F# function
-    static member FromFunction(reader : string -> string option, ?name : string)  =
+    static member FromFunction(reader : string -> string option, ?name : string) : IConfigurationReader =
         FunctionConfigurationReader(reader, ?name = name)
 
     /// Create a configuration reader instance using environment variables.
