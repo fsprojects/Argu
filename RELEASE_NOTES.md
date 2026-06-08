@@ -8,6 +8,7 @@
 * Add `Argu.Samples.Introspect` sample [#298](https://github.com/fsprojects/Argu/pull/298) [@dimension-zero](https://github.com/dimension-zero)
 * Add `ArgumentParser.Parse(ParseConfig)` [#307](https://github.com/fsprojects/Argu/pull/307) [@dimension-zero](https://github.com/dimension-zero)
 * Add `ArgumentParser.PrintUsage(..., ?UsageStrings)` for localization support [#303](https://github.com/fsprojects/Argu/pull/303) [@dimension-zero](https://github.com/dimension-zero)
+* Add AOT annotations on [#314](https://github.com/fsprojects/Argu/pull/314) [@dimension-zero](https://github.com/dimension-zero)
 * Obsolete `EqualsAssignmentAttribute`, `ColonAssignmentAttribute`, `CustomAssignmentAttribute`, `EqualsAssignmentOrSpacedAttribute`, `ColonAssignmentOrSpacedAttribute` and `CustomAssignmentOrSpacedAttribute` [#315](https://github.com/fsprojects/Argu/pull/315) [@dimension-zero](https://github.com/dimension-zero)
 * Obsolete `PostProcessResult`, `PostProcessResults`, `TryPostProcessResult` [#296](https://github.com/fsprojects/Argu/pull/296) [@dimension-zero](https://github.com/dimension-zero)
 
