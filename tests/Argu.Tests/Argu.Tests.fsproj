@@ -11,6 +11,7 @@
     <Compile Include="CoverageTests.fs"/>
     <Compile Include="UsageStringsTests.fs"/>
     <Compile Include="SeparatorAttributeTests.fs" />
+    <Compile Include="ParseAsyncTests.fs"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Argu\Argu.fsproj"/>
