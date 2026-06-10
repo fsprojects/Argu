@@ -6,7 +6,6 @@
 * Fix [misrendering of usage when parameter description blank](https://github.com/fsprojects/Argu/issues/173) [#323](https://github.com/fsprojects/Argu/pull/323) [@DominikL1999](https://github.com/DominikL1999)
 * Add `Separator("=", orSpace = true)` and `Separator "="` attribute syntax to replace `Obsolete`d `EqualsAssignment`, `ColonAssignment`, `CustomAssignment`, `EqualsAssignmentOrSpaced`, `ColonAssignmentOrSpaced` and `CustomAssignmentOrSpaced` [#315](https://github.com/fsprojects/Argu/pull/315) [@dimension-zero](https://github.com/dimension-zero)
 * Add `Argu.Samples.Introspect` sample [#298](https://github.com/fsprojects/Argu/pull/298) [@dimension-zero](https://github.com/dimension-zero)
-* Add `ArgumentParser.Parse(ParseConfig)` [#307](https://github.com/fsprojects/Argu/pull/307) [@dimension-zero](https://github.com/dimension-zero)
 * Add `ArgumentParser.PrintUsage(..., ?UsageStrings)` for localization support [#303](https://github.com/fsprojects/Argu/pull/303) [@dimension-zero](https://github.com/dimension-zero)
 * Add AOT annotations [#314](https://github.com/fsprojects/Argu/pull/314) [@dimension-zero](https://github.com/dimension-zero)
 * Add `SourceGenerator.ArguGenerate` marker [#318](https://github.com/fsprojects/Argu/pull/318) [@dimension-zero](https://github.com/dimension-zero)
