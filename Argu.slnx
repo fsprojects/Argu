@@ -21,7 +21,6 @@
     <File Path="global.json" />
     <File Path="LICENSE.md" />
     <File Path="README.md" />
-    <File Path="RELEASE_NOTES.md" />
   </Folder>
   <Folder Name="/docs/">
     <File Path="docs/index.fsx" />
