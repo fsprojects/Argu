@@ -4,6 +4,7 @@
 
 #r "nuget: System.Reactive        ,5.0.0"
 #r "nuget: Fake.Core.UserInput    ,5.23.1"
+#r "nuget: Fake.Core.ReleaseNotes ,5.23.1"
 #r "nuget: Fake.Core.Target       ,5.23.1"
 #r "nuget: Fake.IO.FileSystem     ,5.23.1"
 #r "nuget: Fake.DotNet.Cli        ,5.23.1"
@@ -38,7 +39,6 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let gitOwner = "fsprojects"
 let gitName = "Argu"
 let gitHome = "https://github.com/" + gitOwner
-let version = "6.2.6"
 
 let configuration = Environment.environVarOrDefault "Configuration" "Release"
 
@@ -47,6 +47,9 @@ let artifacts = __SOURCE_DIRECTORY__ @@ "artifacts"
 // --------------------------------------------------------------------------------------
 // The rest of the code is standard F# build script
 // --------------------------------------------------------------------------------------
+
+// Read additional information from the release notes document
+let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
 // --------------------------------------------------------------------------------------
 // Clean build results & restore NuGet packages
@@ -66,7 +69,7 @@ Target.create "Build" (fun _ ->
 
             MSBuildParams =
             { c.MSBuildParams with
-                Properties = [("Version", version)]
+                Properties = [("Version", release.NugetVersion)]
                 DisableInternalBinLog = true }
 
         }) __SOURCE_DIRECTORY__
@@ -94,6 +97,7 @@ Target.create "RunTests" (fun _ ->
 // Build a NuGet package
 
 Target.create "NuGet.Pack" (fun _ ->
+    let releaseNotes = String.toLines release.Notes |> System.Net.WebUtility.HtmlEncode
     DotNet.pack (fun pack ->
         { pack with
             OutputPath = Some artifacts
@@ -101,7 +105,8 @@ Target.create "NuGet.Pack" (fun _ ->
             MSBuildParams =
                 { pack.MSBuildParams with
                     Properties =
-                        [("Version", version)]
+                        [("Version", release.NugetVersion)
+                         ("PackageReleaseNotes", releaseNotes)]
                     DisableInternalBinLog = true }
         }) __SOURCE_DIRECTORY__
 )
@@ -137,11 +142,11 @@ Target.create "ReleaseGitHub" (fun _ ->
         |> function None -> gitHome + "/" + gitName | Some (s: string) -> s.Split().[0]
 
     //StageAll ""
-    Git.Commit.exec "" (sprintf "Bump version to %s" version)
+    Git.Commit.exec "" (sprintf "Bump version to %s" release.NugetVersion)
     Git.Branches.pushBranch "" remote (Git.Information.getBranchName "")
 
-    Git.Branches.tag "" version
-    Git.Branches.pushTag "" remote version
+    Git.Branches.tag "" release.NugetVersion
+    Git.Branches.pushTag "" remote release.NugetVersion
 
     let client =
         match Environment.GetEnvironmentVariable "GITHUB_TOKEN" with
@@ -160,7 +165,7 @@ Target.create "ReleaseGitHub" (fun _ ->
 
     // release on github
     client
-    |> GitHub.draftNewRelease gitOwner gitName version false Seq.empty
+    |> GitHub.draftNewRelease gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
     |> GitHub.publishDraft
     |> Async.RunSynchronously
 )
