@@ -43,4 +43,5 @@
   <Project Path="src/Argu.Extensions.Configuration/Argu.Extensions.Configuration.fsproj" />
   <Project Path="benchmarks/Argu.Benchmarks/Argu.Benchmarks.fsproj" />
   <Project Path="tests/Argu.Tests/Argu.Tests.fsproj" />
+  <Project Path="src/Argu.ConfigurationManager/Argu.ConfigurationManager.fsproj" />
 </Solution>

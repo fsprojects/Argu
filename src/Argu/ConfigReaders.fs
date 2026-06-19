@@ -1,10 +1,7 @@
 ﻿namespace Argu
 
 open System
-open System.Configuration
 open System.Collections.Generic
-open System.IO
-open System.Reflection
 
 /// Abstract key/value configuration reader
 type IConfigurationReader =
@@ -54,29 +51,6 @@ type FunctionConfigurationReader (configFunc : string -> string option, ?name : 
         member _.Name = name
         member _.GetValue(key : string) = configFunc key |> Option.toObj
 
-/// AppSettings XML configuration reader
-type AppSettingsConfigurationReader () =
-    interface IConfigurationReader with
-        member _.Name = "AppSettings configuration reader"
-        member _.GetValue(key : string) = ConfigurationManager.AppSettings[key]
-
-/// AppSettings XML configuration reader
-type AppSettingsConfigurationFileReader private (xmlPath : string, kv : KeyValueConfigurationCollection) =
-    member _.Path = xmlPath
-    interface IConfigurationReader with
-        member _.Name = $"App.config configuration reader: %s{xmlPath}"
-        member _.GetValue(key : string) =
-            match kv[key] with
-            | null -> null
-            | entry -> entry.Value
-
-    /// Create used supplied XML file path
-    static member Create(path : string) =
-        if not <| File.Exists path then raise <| FileNotFoundException(path)
-        let fileMap = ExeConfigurationFileMap(ExeConfigFilename = path)
-        let config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None)
-        AppSettingsConfigurationFileReader(path, config.AppSettings.Settings)
-
 /// Configuration reader implementations
 [<AbstractClass; Sealed>]
 type ConfigurationReader =
@@ -108,15 +82,3 @@ type ConfigurationReader =
         let read (key : string) = inner.GetValue(prefix + key) |> Option.ofObj
         FunctionConfigurationReader(read, name = $"Environment Variables (prefix=%s{prefix})")
 
-    /// Create a configuration reader instance using the application's resident AppSettings configuration
-    static member FromAppSettings() : IConfigurationReader = AppSettingsConfigurationReader()
-
-    /// Create a configuration reader instance using a local xml App.Config file
-    static member FromAppSettingsFile(path : string) : IConfigurationReader = AppSettingsConfigurationFileReader.Create path
-
-    /// Create a configuration reader instance using the location of an assembly file
-    static member FromAppSettings(assembly : Assembly) : IConfigurationReader =
-        let path = assembly.Location
-        if String.IsNullOrEmpty path then
-            invalidArg assembly.FullName $"Assembly location for '{assembly.Location}' is null or empty."
-        AppSettingsConfigurationFileReader.Create(path + ".config") :> IConfigurationReader
