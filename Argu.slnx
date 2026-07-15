@@ -35,6 +35,7 @@
   <Folder Name="/resource/">
     <File Path="resource/logo.png" />
   </Folder>
+  <Project Path="samples/Argu.Samples.AsyncConfig/Argu.Samples.AsyncConfig.fsproj" />
   <Project Path="samples/Argu.Samples.Introspect/Argu.Samples.Introspect.fsproj" />
   <Project Path="samples/Argu.Samples.LS/Argu.Samples.LS.fsproj" />
   <Project Path="samples/Argu.Samples.SourceGenerated/Argu.Samples.SourceGenerated.fsproj" />

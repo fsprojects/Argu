@@ -126,8 +126,8 @@ let ``AppSettings: missing mandatory key raises`` () =
 [<Fact>]
 let ``AppSettings: null or empty value is treated as absent`` () =
     let parser = ArgumentParser.Create<AppSettingsArgs>()
-    let dict = dict [ "required-key", "x"  // satisfy mandatory
-                      "optional-key", "" ] // empty string should be treated as absent
+    let dict = readOnlyDict [ "required-key", "x"  // satisfy mandatory
+                              "optional-key", "" ] // empty string should be treated as absent
     let reader = ConfigurationReader.FromDictionary dict
     let results = parser.ParseConfiguration(reader, ignoreMissing = false)
     test <@ results.TryGetResult(OptionalKey) = None @>
@@ -135,8 +135,8 @@ let ``AppSettings: null or empty value is treated as absent`` () =
 [<Fact>]
 let ``AppSettings: invalid type-parse raises with key in message`` () =
     let parser = ArgumentParser.Create<AppSettingsArgs>()
-    let dict = dict [ "required-key", "x"
-                      "int-key", "not-a-number" ]
+    let dict = readOnlyDict [ "required-key", "x"
+                              "int-key", "not-a-number" ]
     let reader = ConfigurationReader.FromDictionary dict
 
     raisesWith<ArguParseException>
@@ -147,7 +147,7 @@ let ``AppSettings: invalid type-parse raises with key in message`` () =
 [<Fact>]
 let ``AppSettings: ignoreMissing=true skips mandatory check`` () =
     let parser = ArgumentParser.Create<AppSettingsArgs>()
-    let reader = ConfigurationReader.FromDictionary(dict [])
+    let reader = ConfigurationReader.FromDictionary(readOnlyDict [])
     // Should not raise.
     let results = parser.ParseConfiguration(reader, ignoreMissing = true)
     test <@ results.TryGetResult RequiredKey = None @>

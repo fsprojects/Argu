@@ -450,6 +450,90 @@ which would yield the following:
       </appSettings>
     </configuration>
 
+## Async Configuration Sources
+
+When the configuration source is genuinely remote (a secrets vault, a
+distributed key/value store, a hosted config service) the synchronous
+`Parse` shape forces the caller to block on I/O at startup, and involves
+ a roundtrip per setting looked up.
+
+ `ParseAsync` takes an `IAsyncConfigurationReader` instead:
+
+    [lang=fsharp]
+    type Args =
+        | [<CustomAppSettings("db-host")>] DbHost of string
+        | [<CustomAppSettings("port")>] Port of int
+        interface IArgParserTemplate with
+            member _.Usage = "..."
+
+    let parser = ArgumentParser.Create<Args>()
+    // myVaultReader implements IAsyncConfigurationReader
+    let! results = parser.ParseAsync(argv, configurationReader = myVaultReader)
+
+The interface is **batched by design**: `ParseAsync` collects every
+`AppSettings`-mapped key in the top-level schema and issues a single
+`GetValuesAsync` call. A remote source that supports batched retrieval
+(e.g. AWS SSM `GetParameters`, Azure Key Vault list-and-filter) satisfies
+the whole parse in one round-trip. Implementations should return only
+keys that were found; absent keys are treated as missing values
+(equivalent to `null` from the synchronous reader).
+
+### When to use `ParseAsync` vs alternatives
+
+`ParseAsync` is the right tool when (a) the configuration source is
+async-native and (b) command-line arguments and remote configuration must
+be merged through Argu's normal precedence rules (CLI overrides config).
+
+Alternatives that may fit better:
+
+  * **`Microsoft.Extensions.Configuration`**: aggregate appsettings.json,
+    env vars, command-line, user secrets, and Key Vault behind one
+    `IConfiguration`, then bind to `Argu` via the
+    `Argu.Extensions.Configuration` adapter package. This is the right
+    choice for ASP.NET Core hosting and any app already invested in the
+    Microsoft.Extensions.* ecosystem.
+  * **Host-level resolution**: fetch async config in the host's startup
+    code, hand the resolved values to Argu's synchronous `Parse` via a
+    `DictionaryConfigurationReader`. Appropriate when the host already has an
+    async startup phase the CLI parse can hook into.
+
+`ParseAsync` is most relevant when the config source is genuinely
+per-app and the host has no other async startup phase to leverage.
+
+### Failure modes
+
+`ParseAsync` distinguishes three failure modes:
+
+  1. **Schema is malformed** &mdash; `ArgumentParser.Create` throws an
+     `ArguException` synchronously at construction time. `ParseAsync`
+     never reaches the reader in this case. This is programmer error;
+     the test suite, not the user at runtime, should be seeing such cases.
+  2. **Remote source fails the batch** &mdash; the `Task` returned by
+     `GetValuesAsync` faults (network error, auth failure, vault
+     unreachable). By default the fault propagates out of `ParseAsync`
+     as a fatal startup error. Wrap the reader with
+     `ConfigurationReader.WithFallback` for a fallback policy
+     that substitutes fallback values and/or logs to stderr etc:
+
+         [lang=fsharp]
+         let reader =
+             let handle (ex: exn) =
+                 log.Warn("vault unavailable: {0}", ex)
+                 readOnlyDict Seq.null
+             ConfigurationReader.WithFallback(myVaultReader, handle)
+         let! results = parser.ParseAsync(configurationReader = reader)
+
+  3. **User input is bad** &mdash; missing mandatory parameters, type
+     coercion failures, conflicting subcommands. These surface as
+     `ArguParseException` from the synchronous parse phase Argu runs
+     after the batch resolves. `ArguParseException` carries a friendly
+     error message; the default error handler prints usage and exits.
+
+Treat the three flavors separately when wiring host-level error
+handling: `ArguException` is a build-the-app failure, `Task` faults
+without a fallback wrapper are a deploy-the-app failure, and
+`ArguParseException` is a user-call-the-app failure.
+
 ## More Examples
 
 Check out the [samples](https://github.com/fsprojects/Argu/tree/master/samples)

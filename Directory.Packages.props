@@ -19,5 +19,9 @@
 
     <!-- Benchmark harness -->
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0"/>
+
+    <!-- Sample-only deps (Azure Key Vault async config reader) -->
+    <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.7.0"/>
+    <PackageVersion Include="Azure.Identity" Version="1.13.1"/>
   </ItemGroup>
 </Project>
