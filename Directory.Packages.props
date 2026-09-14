@@ -14,7 +14,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0"/>
 
     <!-- Test deps -->
-    <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2"/>
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.1"/>
     <PackageVersion Include="Unquote" Version="7.0.1"/>
 
     <!-- Benchmark harness -->
